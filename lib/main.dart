@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         textTheme: AppTextTheme.textTheme,
         fontFamily: 'Arimo',
       ),
-      home: const LoginScreen(),
+      home: const OverzichtScreen(),
     );
   }
 }
