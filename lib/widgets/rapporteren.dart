@@ -27,15 +27,15 @@ class Rapporteren extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _buildReportButton(
-                                image: 'assets/icons/report.png',
-                                text: 'Rapport 1',
+                                image: 'assets/icons/rapporteren/crop_icon.png',
+                                text: 'Gewasschade',
                               ),
                             ),
                             const SizedBox(height: 8),
                             Expanded(
                               child: _buildReportButton(
-                                image: 'assets/icons/report.png',
-                                text: 'Rapport 3',
+                                image: 'assets/icons/rapporteren/health_icon.png',
+                                text: 'Diergezondheid',
                               ),
                             ),
                           ],
@@ -49,15 +49,15 @@ class Rapporteren extends StatelessWidget {
                         children: [
                           Expanded(
                             child: _buildReportButton(
-                              image: 'assets/icons/report.png',
-                              text: 'Rapport 2',
+                              image: 'assets/icons/rapporteren/accident_icon.png',
+                              text: 'Verkeersongeval',
                             ),
                           ),
                           const SizedBox(height: 8),
                           Expanded(
                             child: _buildReportButton(
-                              image: 'assets/icons/report.png',
-                              text: 'Rapport 4',
+                              image: 'assets/icons/rapporteren/sighting_icon.png',
+                              text: 'Waarnemingen',
                             ),
                           ),
                         ],
@@ -78,6 +78,13 @@ class Rapporteren extends StatelessWidget {
     required String text,
     VoidCallback? onPressed,
   }) {
+    bool needsSmallerFont = [
+      'Verkeersongeval', 
+      'Diergezondheid', 
+      'Waarnemingen',
+      'Gewasschade'
+    ].contains(text);
+    
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -107,9 +114,12 @@ class Rapporteren extends StatelessWidget {
                   children: [
                     Flexible(
                       flex: 3,
-                      child: Image.asset(
-                        image,
-                        fit: BoxFit.contain,
+                      child: Transform.translate(
+                        offset: const Offset(0, -5), // Move icon up by 5 pixels
+                        child: Image.asset(
+                          image,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -117,7 +127,9 @@ class Rapporteren extends StatelessWidget {
                       flex: 2,
                       child: Text(
                         text,
-                        style: AppTextTheme.textTheme.titleMedium,
+                        style: needsSmallerFont 
+                            ? AppTextTheme.textTheme.titleMedium?.copyWith(fontSize: 16)
+                            : AppTextTheme.textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -140,5 +152,8 @@ class Rapporteren extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
