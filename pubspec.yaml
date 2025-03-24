@@ -63,6 +63,14 @@ flutter:
     - assets/LogoHeadWildlifeNL.png
     - assets/gifs/login.gif
     - assets/gifs/thankyou.gif
+    - assets/icons/marked_earth.png
+    - assets/icons/report.png
+    - assets/icons/my_report.png
+    - assets/icons/rapporteren/crop_icon.png
+    - assets/icons/rapporteren/health_icon.png
+    - assets/icons/rapporteren/sighting_icon.png
+    - assets/icons/rapporteren/accident_icon.png
+    
 
   fonts:
     - family: Arimo

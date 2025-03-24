@@ -12,18 +12,44 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   final TextEditingController emailController = TextEditingController();
   bool showVerification = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    print('LoginScreen initialized');
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     emailController.dispose();
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('App lifecycle state changed to: $state');
+    if (state == AppLifecycleState.resumed) {
+      // Force a rebuild when app is resumed
+      setState(() {});
+    }
+  }
+
+  void _handleLogin() {
+    print('Login button pressed');
+    setState(() {
+      showVerification = true;
+    });
+    print('showVerification set to: $showVerification');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print('Building LoginScreen, showVerification: $showVerification');
     final screenWidth = MediaQuery.of(context).size.width;
     
     return Scaffold(
@@ -118,9 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: emailController,
                             decoration: InputDecoration(
                               hintText: 'voorbeeld@gmail.com',
-                              border: InputBorder.none, // Removes the border
-                              enabledBorder: InputBorder.none, // Removes the border
-                              focusedBorder: InputBorder.none, // Removes the border
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                             ),
                           ),
@@ -128,11 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
                         BrownButton(
                           text: 'Login',
-                          onPressed: () {
-                            setState(() {
-                              showVerification = true;
-                            });
-                          },
+                          onPressed: _handleLogin,
                         ),
                         const SizedBox(height: 20),
                         Center(
@@ -148,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(
                                 color: AppColors.brown,
                                 decoration: TextDecoration.underline,
-                                decorationColor: AppColors.brown, // Makes the underline brown
+                                decorationColor: AppColors.brown,
                                 shadows: [
                                   Shadow(
                                     color: Colors.black.withOpacity(0.25),
@@ -169,6 +191,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
 
 
 

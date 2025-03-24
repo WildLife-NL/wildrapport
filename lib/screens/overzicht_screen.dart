@@ -96,6 +96,11 @@ class OverzichtScreen extends StatelessWidget {
                 children: [
                   WhiteBulkButton(
                     text: 'RapportenKaart',
+                    leftWidget: Image.asset(
+                      'assets/icons/marked_earth.png',
+                      width: 50,
+                      height: 50,
+                    ),
                     rightWidget: const Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.black54,
@@ -103,6 +108,11 @@ class OverzichtScreen extends StatelessWidget {
                   ),
                   WhiteBulkButton(
                     text: 'Rapporteren',
+                    leftWidget: Image.asset(
+                      'assets/icons/report.png',
+                      width: 50,
+                      height: 50,
+                    ),
                     rightWidget: const Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.black54,
@@ -110,6 +120,11 @@ class OverzichtScreen extends StatelessWidget {
                   ),
                   WhiteBulkButton(
                     text: 'Mijn Rapporten',
+                    leftWidget: Image.asset(
+                      'assets/icons/my_report.png',
+                      width: 50,
+                      height: 50,
+                    ),
                     rightWidget: const Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.black54,
@@ -124,4 +139,6 @@ class OverzichtScreen extends StatelessWidget {
     );
   }
 }
+
+
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 
 class VerificationCodeInput extends StatefulWidget {
@@ -121,7 +122,11 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
               BrownButton(
                 text: 'Verifiëren',
                 onPressed: () {
-                  // Verification logic would go here
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const OverzichtScreen(),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 15),
@@ -154,6 +159,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     );
   }
 }
+
 
 
 
