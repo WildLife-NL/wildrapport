@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/widgets/app_bar.dart';
 
 class Rapporteren extends StatelessWidget {
   const Rapporteren({super.key});
@@ -12,7 +13,18 @@ class Rapporteren extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 60), // App bar space
+            CustomAppBar(
+              leftIcon: Icons.arrow_forward_ios,
+              centerText: 'Rapporteren',
+              rightIcon: Icons.menu,
+              onLeftIconPressed: () {
+                // Handle back button press
+              },
+              onRightIconPressed: () {
+                // Handle menu button press
+              },
+            ),
+            const SizedBox(height: 30), // App bar space
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0), // Added horizontal padding
@@ -152,6 +164,7 @@ class Rapporteren extends StatelessWidget {
     );
   }
 }
+
 
 
 
