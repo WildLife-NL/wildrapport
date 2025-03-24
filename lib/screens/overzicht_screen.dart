@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
+import 'package:wildrapport/widgets/rapporteren.dart';
 
 class OverzichtScreen extends StatelessWidget {
   const OverzichtScreen({super.key});
@@ -117,6 +118,14 @@ class OverzichtScreen extends StatelessWidget {
                       Icons.arrow_forward_ios,
                       color: Colors.black54,
                     ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Rapporteren(),
+                        ),
+                      );
+                    },
                   ),
                   WhiteBulkButton(
                     text: 'Mijn Rapporten',
@@ -139,6 +148,9 @@ class OverzichtScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

@@ -6,12 +6,14 @@ class WhiteBulkButton extends StatelessWidget {
   final String text;
   final Widget? leftWidget;
   final Widget? rightWidget;
+  final VoidCallback? onPressed;
 
   const WhiteBulkButton({
     super.key,
     required this.text,
     this.leftWidget,
     this.rightWidget,
+    this.onPressed,
   });
 
   @override
@@ -35,7 +37,7 @@ class WhiteBulkButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
-          onTap: () {},
+          onTap: onPressed,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -56,4 +58,6 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
+
 
