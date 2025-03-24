@@ -58,6 +58,32 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/LogoHeadWildlifeNL.png
+    - assets/LogoWildlifeNL.png
+
+  fonts:
+    - family: Arimo
+      fonts:
+        - asset: assets/fonts/Arimo-Regular.ttf
+        - asset: assets/fonts/Arimo-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Arimo-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Arimo-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Arimo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Arimo-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Arimo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Arimo-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

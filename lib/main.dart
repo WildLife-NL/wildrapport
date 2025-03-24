@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
           surface: AppColors.lightMintGreen,
         ),
         textTheme: AppTextTheme.textTheme,
+        fontFamily: 'Arimo',
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -96,10 +97,33 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+            const Text(
+              'This is Arimo Regular',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            const Text(
+              'This is Arimo Bold',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'This is Arimo Italic',
+              style: const TextStyle(
+                fontSize: 20,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            Text(
+              'This is Arimo Bold Italic',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
