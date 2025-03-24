@@ -59,8 +59,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/LogoHeadWildlifeNL.png
     - assets/LogoWildlifeNL.png
+    - assets/LogoHeadWildlifeNL.png
+    - assets/gifs/login.gif
+    - assets/gifs/thankyou.gif
 
   fonts:
     - family: Arimo
