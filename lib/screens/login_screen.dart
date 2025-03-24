@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/login_overlay.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -63,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Voer uw e-mailadres in',
@@ -153,9 +155,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   Center(
-                    child: GestureDetector(
+                    child: InkWell(
                       onTap: () {
-                        // TODO: Implement registration info action
+                        showDialog(
+                          context: context,
+                          builder: (context) => const LoginOverlay(),
+                        );
                       },
                       child: Text(
                         'Leer hoe de registratie werkt?',
@@ -182,5 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
 
 
