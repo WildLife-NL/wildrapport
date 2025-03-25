@@ -15,110 +15,94 @@ class Rapporteren extends StatefulWidget {
 
 class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren> {
   String? selectedCategory;
-  bool isNavigating = false;  // Add this flag
+  bool isNavigating = false;
 
   @override
-  void initState() {
-    super.initState();
-    cacheUIState('selectedCategory', selectedCategory);
-  }
+  Map<String, dynamic> saveState() => {
+    'selectedCategory': selectedCategory,
+  };
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && !isNavigating) {
-      final cachedCategory = getCachedUIState('selectedCategory');
-      if (cachedCategory != null) {
-        setState(() {
-          selectedCategory = cachedCategory;
-        });
-      }
-    } else if (state == AppLifecycleState.paused) {
-      cacheUIState('selectedCategory', selectedCategory);
-    }
+  void loadState(Map<String, dynamic> state) {
+    selectedCategory = state['selectedCategory'];
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return true;  // Simplified since we don't need to clear any state
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              CustomAppBar(
-                leftIcon: Icons.arrow_forward_ios,
-                centerText: 'Rapporteren',
-                rightIcon: Icons.menu,
-                onLeftIconPressed: () {
-                  // Handle back button press
-                },
-                onRightIconPressed: () {
-                  // Handle menu button press
-                },
-              ),
-              const SizedBox(height: 30), // App bar space
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0), // Added horizontal padding
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left Column
-                      Expanded(
-                        child: Transform.translate(
-                          offset: const Offset(0, -15), // Move entire left column up by 15 pixels
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: _buildReportButton(
-                                  context: context,
-                                  image: 'assets/icons/rapporteren/crop_icon.png',
-                                  text: 'Gewasschade',
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Expanded(
-                                child: _buildReportButton(
-                                  context: context,
-                                  image: 'assets/icons/rapporteren/health_icon.png',
-                                  text: 'Diergezondheid',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Right Column
-                      Expanded(
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomAppBar(
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Rapporteren',
+              rightIcon: Icons.menu,
+              onLeftIconPressed: () => Navigator.of(context).pop(),
+              onRightIconPressed: () {
+                // Handle menu button press
+              },
+            ),
+            const SizedBox(height: 30), // App bar space
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0), // Added horizontal padding
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column
+                    Expanded(
+                      child: Transform.translate(
+                        offset: const Offset(0, -15), // Move entire left column up by 15 pixels
                         child: Column(
                           children: [
                             Expanded(
                               child: _buildReportButton(
                                 context: context,
-                                image: 'assets/icons/rapporteren/accident_icon.png',
-                                text: 'Verkeersongeval',
+                                image: 'assets/icons/rapporteren/crop_icon.png',
+                                text: 'Gewasschade',
                               ),
                             ),
                             const SizedBox(height: 8),
                             Expanded(
                               child: _buildReportButton(
                                 context: context,
-                                image: 'assets/icons/rapporteren/sighting_icon.png',
-                                text: 'Waarnemingen',
+                                image: 'assets/icons/rapporteren/health_icon.png',
+                                text: 'Diergezondheid',
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Right Column
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: _buildReportButton(
+                              context: context,
+                              image: 'assets/icons/rapporteren/accident_icon.png',
+                              text: 'Verkeersongeval',
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: _buildReportButton(
+                              context: context,
+                              image: 'assets/icons/rapporteren/sighting_icon.png',
+                              text: 'Waarnemingen',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -214,6 +198,14 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
     );
   }
 }
+
+
+
+
+
+
+
+
 
 
 

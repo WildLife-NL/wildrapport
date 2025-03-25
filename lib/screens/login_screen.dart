@@ -14,47 +14,27 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> 
-    with WidgetsBindingObserver, UIStateAware<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with UIStateAware<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   bool showVerification = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    // Cache initial state if needed
-    cacheUIState('showVerification', showVerification);
-    cacheUIState('email', emailController.text);
+  Map<String, dynamic> saveState() => {
+    'showVerification': showVerification,
+    'email': emailController.text,
+  };
+
+  @override
+  void loadState(Map<String, dynamic> state) {
+    showVerification = state['showVerification'] ?? false;
+    emailController.text = state['email'] ?? '';
+    setState(() {});
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     emailController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // Restore state from cache if needed
-      final cachedShowVerification = getCachedUIState('showVerification');
-      final cachedEmail = getCachedUIState('email');
-      
-      if (cachedShowVerification != null) {
-        setState(() {
-          showVerification = cachedShowVerification;
-          if (cachedEmail != null) {
-            emailController.text = cachedEmail;
-          }
-        });
-      }
-    } else if (state == AppLifecycleState.paused) {
-      // Cache current state
-      cacheUIState('showVerification', showVerification);
-      cacheUIState('email', emailController.text);
-    }
   }
 
   void _handleLogin() {
@@ -213,6 +193,8 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 }
+
+
 
 
 
