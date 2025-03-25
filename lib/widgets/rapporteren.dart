@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class Rapporteren extends StatelessWidget {
@@ -39,6 +40,7 @@ class Rapporteren extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _buildReportButton(
+                                context: context,
                                 image: 'assets/icons/rapporteren/crop_icon.png',
                                 text: 'Gewasschade',
                               ),
@@ -46,6 +48,7 @@ class Rapporteren extends StatelessWidget {
                             const SizedBox(height: 8),
                             Expanded(
                               child: _buildReportButton(
+                                context: context,
                                 image: 'assets/icons/rapporteren/health_icon.png',
                                 text: 'Diergezondheid',
                               ),
@@ -61,6 +64,7 @@ class Rapporteren extends StatelessWidget {
                         children: [
                           Expanded(
                             child: _buildReportButton(
+                              context: context,
                               image: 'assets/icons/rapporteren/accident_icon.png',
                               text: 'Verkeersongeval',
                             ),
@@ -68,6 +72,7 @@ class Rapporteren extends StatelessWidget {
                           const SizedBox(height: 8),
                           Expanded(
                             child: _buildReportButton(
+                              context: context,
                               image: 'assets/icons/rapporteren/sighting_icon.png',
                               text: 'Waarnemingen',
                             ),
@@ -86,6 +91,7 @@ class Rapporteren extends StatelessWidget {
   }
 
   Widget _buildReportButton({
+    required BuildContext context,
     required String image,
     required String text,
     VoidCallback? onPressed,
@@ -96,10 +102,8 @@ class Rapporteren extends StatelessWidget {
       'Waarnemingen',
       'Gewasschade'
     ].contains(text);
-    
+
     return Container(
-      width: double.infinity,
-      height: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.offWhite,
         borderRadius: BorderRadius.circular(25),
@@ -116,7 +120,15 @@ class Rapporteren extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
-          onTap: onPressed,
+          onTap: onPressed ?? (() { 
+            if (text == 'Waarnemingen' || text == 'Diergezondheid') {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AnimalsScreen(),
+                ),
+              );
+            }
+          }),
           child: Stack(
             children: [
               Padding(
@@ -164,6 +176,12 @@ class Rapporteren extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
 
 
 

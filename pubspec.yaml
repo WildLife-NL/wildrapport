@@ -61,6 +61,12 @@ flutter:
   assets:
     - assets/LogoWildlifeNL.png
     - assets/LogoHeadWildlifeNL.png
+    - assets/wolf.png
+    - assets/fox.png
+    - assets/marten.png
+    - assets/deer.png
+    - assets/beer.png
+    - assets/tiger.png
     - assets/gifs/login.gif
     - assets/gifs/thankyou.gif
     - assets/icons/marked_earth.png

@@ -15,14 +15,15 @@ class BrownButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: model?.width ?? double.infinity,
+      height: model?.height,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brown,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
-            vertical: 8,
+            vertical: 0,
             horizontal: 8,
           ),
           shape: RoundedRectangleBorder(
@@ -31,12 +32,12 @@ class BrownButton extends StatelessWidget {
           elevation: 4,
         ),
         child: Stack(
-          alignment: Alignment.center, // Center all children vertically
+          alignment: Alignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (model?.leftIconPath != null)
+                if (model?.leftIconPath != null && model!.leftIconPath!.isNotEmpty)
                   Image.asset(
                     model!.leftIconPath!,
                     width: model!.leftIconSize,
@@ -45,7 +46,7 @@ class BrownButton extends StatelessWidget {
                   )
                 else
                   const SizedBox(width: 24),
-                if (model?.rightIconPath != null)
+                if (model?.rightIconPath != null && model!.rightIconPath!.isNotEmpty)
                   Image.asset(
                     model!.rightIconPath!,
                     width: model!.rightIconSize,
@@ -58,8 +59,8 @@ class BrownButton extends StatelessWidget {
             ),
             Text(
               model?.text ?? '',
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: model?.fontSize ?? 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -69,6 +70,7 @@ class BrownButton extends StatelessWidget {
     );
   }
 }
+
 
 
 

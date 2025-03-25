@@ -55,19 +55,39 @@ class DropdownService {
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
   }) {
+    // Find the matching model for the selected value
+    BrownButtonModel selectedModel = BrownButtonModel(
+      text: selectedValue,
+      leftIconPath: 'assets/icons/filter_dropdown/filter_icon.png',
+      leftIconSize: 38,
+      rightIconPath: isExpanded 
+          ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+          : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+      rightIconSize: 24,
+    );
+
+    // Update selected model if it matches one of the filter options
+    final filterOptions = _getFilterDropdown();
+    for (var option in filterOptions) {
+      if (option.text == selectedValue) {
+        selectedModel = BrownButtonModel(
+          text: selectedValue,
+          leftIconPath: option.leftIconPath,
+          leftIconSize: option.leftIconSize,
+          rightIconPath: isExpanded 
+              ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+              : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+          rightIconSize: 24,
+        );
+        break;
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         BrownButton(
-          model: BrownButtonModel(
-            text: selectedValue,
-            leftIconPath: 'assets/icons/filter_dropdown/filter_icon.png',
-            leftIconSize: 38,
-            rightIconPath: isExpanded 
-                ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-                : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-            rightIconSize: 24,
-          ),
+          model: selectedModel,
           onPressed: () => onExpandChanged(!isExpanded),
         ),
         if (isExpanded)
@@ -163,6 +183,7 @@ class DropdownService {
     )).toList();
   }
 }
+
 
 
 

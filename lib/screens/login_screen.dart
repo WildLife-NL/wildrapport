@@ -155,7 +155,10 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                         ),
                         const SizedBox(height: 20),
                         BrownButton(
-                          model: LoginService.createButtonModel(text: 'Login'),
+                          model: LoginService.createButtonModel(
+                            text: 'Login',
+                            isLoginButton: true,  // This will use the login-specific styling
+                          ),
                           onPressed: _handleLogin,
                         ),
                         const SizedBox(height: 20),
@@ -193,6 +196,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     );
   }
 }
+
 
 
 
