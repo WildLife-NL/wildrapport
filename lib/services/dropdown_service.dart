@@ -74,11 +74,9 @@ class DropdownService {
           Container(
             width: double.infinity,
             margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: AppColors.lightMintGreen,
               borderRadius: BorderRadius.circular(25),
-             
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -165,6 +163,8 @@ class DropdownService {
     )).toList();
   }
 }
+
+
 
 
 
