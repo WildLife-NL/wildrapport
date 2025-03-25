@@ -2,11 +2,40 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
-class Rapporteren extends StatelessWidget {
+class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});
+
+  @override
+  State<Rapporteren> createState() => _RapporterenState();
+}
+
+class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren> {
+  // Add any state variables that need to be preserved
+  String? selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    cacheUIState('selectedCategory', selectedCategory);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final cachedCategory = getCachedUIState('selectedCategory');
+      if (cachedCategory != null) {
+        setState(() {
+          selectedCategory = cachedCategory;
+        });
+      }
+    } else if (state == AppLifecycleState.paused) {
+      cacheUIState('selectedCategory', selectedCategory);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +205,7 @@ class Rapporteren extends StatelessWidget {
     );
   }
 }
+
 
 
 

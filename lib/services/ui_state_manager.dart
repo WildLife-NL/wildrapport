@@ -13,9 +13,10 @@ class UIStateManager extends ChangeNotifier {
 
   void setWindowFocus(bool hasFocus) {
     if (_hasWindowFocus != hasFocus) {
+      print('UIStateManager: Window focus changed to: $hasFocus');
       _hasWindowFocus = hasFocus;
       if (hasFocus) {
-        // Trigger UI rebuild when window regains focus
+        print('UIStateManager: Rebuilding ${_activeContexts.length} active screens');
         rebuildActiveScreens();
       }
       notifyListeners();
@@ -23,10 +24,12 @@ class UIStateManager extends ChangeNotifier {
   }
 
   void registerScreen(BuildContext context) {
+    print('UIStateManager: Registering screen: ${context.widget.runtimeType}');
     _activeContexts.add(context);
   }
 
   void unregisterScreen(BuildContext context) {
+    print('UIStateManager: Unregistering screen: ${context.widget.runtimeType}');
     _activeContexts.remove(context);
   }
 

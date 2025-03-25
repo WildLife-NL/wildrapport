@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
@@ -13,7 +14,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
+class _LoginScreenState extends State<LoginScreen> 
+    with WidgetsBindingObserver, UIStateAware<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   bool showVerification = false;
 
@@ -21,7 +23,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    print('LoginScreen initialized');
+    // Cache initial state if needed
+    cacheUIState('showVerification', showVerification);
+    cacheUIState('email', emailController.text);
   }
 
   @override
@@ -33,10 +37,23 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('App lifecycle state changed to: $state');
     if (state == AppLifecycleState.resumed) {
-      // Force a rebuild when app is resumed
-      setState(() {});
+      // Restore state from cache if needed
+      final cachedShowVerification = getCachedUIState('showVerification');
+      final cachedEmail = getCachedUIState('email');
+      
+      if (cachedShowVerification != null) {
+        setState(() {
+          showVerification = cachedShowVerification;
+          if (cachedEmail != null) {
+            emailController.text = cachedEmail;
+          }
+        });
+      }
+    } else if (state == AppLifecycleState.paused) {
+      // Cache current state
+      cacheUIState('showVerification', showVerification);
+      cacheUIState('email', emailController.text);
     }
   }
 
@@ -196,6 +213,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     );
   }
 }
+
 
 
 

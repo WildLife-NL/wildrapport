@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/dropdown_type.dart';
 import 'package:wildrapport/services/animal_service.dart';
@@ -13,7 +14,7 @@ class AnimalsScreen extends StatefulWidget {
   State<AnimalsScreen> createState() => _AnimalsScreenState();
 }
 
-class _AnimalsScreenState extends State<AnimalsScreen> {
+class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<AnimalsScreen> {
   bool isExpanded = false;
   String selectedFilter = 'Filter';
   late List<AnimalModel> animals;
@@ -23,12 +24,41 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   void initState() {
     super.initState();
     animals = AnimalService.getAnimals();
+    // Cache initial state
+    cacheUIState('isExpanded', isExpanded);
+    cacheUIState('selectedFilter', selectedFilter);
+    cacheUIState('scrollPosition', _scrollController.positions.isEmpty ? 0.0 : _scrollController.offset);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Restore state from cache
+      final cachedIsExpanded = getCachedUIState('isExpanded');
+      final cachedSelectedFilter = getCachedUIState('selectedFilter');
+      final cachedScrollPosition = getCachedUIState('scrollPosition');
+
+      setState(() {
+        if (cachedIsExpanded != null) isExpanded = cachedIsExpanded;
+        if (cachedSelectedFilter != null) selectedFilter = cachedSelectedFilter;
+        if (cachedScrollPosition != null && _scrollController.hasClients) {
+          _scrollController.jumpTo(cachedScrollPosition);
+        }
+      });
+    } else if (state == AppLifecycleState.paused) {
+      // Cache current state
+      cacheUIState('isExpanded', isExpanded);
+      cacheUIState('selectedFilter', selectedFilter);
+      if (_scrollController.hasClients) {
+        cacheUIState('scrollPosition', _scrollController.offset);
+      }
+    }
   }
 
   @override
@@ -167,5 +197,6 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
+
 
 

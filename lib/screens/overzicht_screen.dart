@@ -1,10 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/rapporteren.dart';
 
-class OverzichtScreen extends StatelessWidget {
+class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
+
+  @override
+  State<OverzichtScreen> createState() => _OverzichtScreenState();
+}
+
+class _OverzichtScreenState extends State<OverzichtScreen> 
+    with WidgetsBindingObserver, UIStateAware<OverzichtScreen> {
+  String userName = 'John Doe';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    cacheUIState('userName', userName);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('OverzichtScreen - AppLifecycleState changed to: $state');
+    if (state == AppLifecycleState.resumed) {
+      final cachedUserName = getCachedUIState('userName');
+      print('OverzichtScreen - Restored userName from cache: $cachedUserName');
+      if (cachedUserName != null) {
+        setState(() {
+          userName = cachedUserName;
+        });
+      }
+    } else if (state == AppLifecycleState.paused) {
+      print('OverzichtScreen - Caching userName: $userName');
+      cacheUIState('userName', userName);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +94,7 @@ class OverzichtScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'John Doe',
+                          userName, // Use the state variable instead of hardcoded value
                           style: TextStyle(
                             color: AppColors.offWhite,
                             fontSize: 24,
@@ -148,8 +187,6 @@ class OverzichtScreen extends StatelessWidget {
     );
   }
 }
-
-
 
 
 
