@@ -70,6 +70,14 @@ flutter:
     - assets/icons/rapporteren/health_icon.png
     - assets/icons/rapporteren/sighting_icon.png
     - assets/icons/rapporteren/accident_icon.png
+    - assets/icons/filter_dropdown/arrow_down_icon.png
+    - assets/icons/filter_dropdown/arrow_up_icon.png
+    - assets/icons/filter_dropdown/arrow_next_icon.png
+    - assets/icons/filter_dropdown/category_icon.png
+    - assets/icons/filter_dropdown/filter_icon.png
+    - assets/icons/filter_dropdown/letter_icon.png
+    - assets/icons/filter_dropdown/seen_icon.png
+    - assets/icons/filter_dropdown/reset_icon.png
     
 
   fonts:

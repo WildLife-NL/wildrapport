@@ -1,0 +1,196 @@
+import 'package:flutter/material.dart';
+import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/models/dropdown_type.dart';
+import 'package:wildrapport/widgets/brown_button.dart';
+import 'package:wildrapport/constants/app_colors.dart';
+
+class DropdownService {
+  static const String defaultFilterText = 'Filteren';
+  static const Duration animationDuration = Duration(milliseconds: 200);
+  static const Curve animationCurve = Curves.easeInOut;
+
+  static Widget buildDropdown({
+    required DropdownType type,
+    required String selectedValue,
+    required bool isExpanded,
+    required Function(bool) onExpandChanged,
+    required Function(String) onOptionSelected,
+  }) {
+    switch (type) {
+      case DropdownType.filter:
+        return _buildAnimatedDropdown(
+          content: _buildFilterDropdown(
+            selectedValue: selectedValue,
+            isExpanded: isExpanded,
+            onExpandChanged: onExpandChanged,
+            onOptionSelected: onOptionSelected,
+          ),
+          isExpanded: isExpanded,
+        );
+    
+      default:
+        throw UnimplementedError('Dropdown type not implemented');
+    }
+  }
+
+  static Widget _buildAnimatedDropdown({
+    required Widget content,
+    required bool isExpanded,
+  }) {
+    return AnimatedContainer(
+      duration: animationDuration,
+      curve: animationCurve,
+      child: AnimatedSize(
+        duration: animationDuration,
+        curve: animationCurve,
+        alignment: Alignment.topCenter,
+        child: content,
+      ),
+    );
+  }
+
+  static Widget _buildFilterDropdown({
+    required String selectedValue,
+    required bool isExpanded,
+    required Function(bool) onExpandChanged,
+    required Function(String) onOptionSelected,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BrownButton(
+          model: BrownButtonModel(
+            text: selectedValue,
+            leftIconPath: 'assets/icons/filter_dropdown/filter_icon.png',
+            leftIconSize: 38,
+            rightIconPath: isExpanded 
+                ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+                : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+            rightIconSize: 24,
+          ),
+          onPressed: () => onExpandChanged(!isExpanded),
+        ),
+        if (isExpanded)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.lightMintGreen,
+              borderRadius: BorderRadius.circular(25),
+             
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _getFilterOptions(
+                selectedValue: selectedValue,
+                onOptionSelected: (selected) {
+                  onOptionSelected(selected);
+                  onExpandChanged(false);
+                },
+              ).map((button) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _buildAnimatedOption(child: button),
+              )).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  static Widget _buildAnimatedOption({required Widget child}) {
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: animationDuration,
+      curve: animationCurve,
+      child: child,
+    );
+  }
+
+  static List<BrownButton> _getFilterOptions({
+    required String selectedValue,
+    required Function(String) onOptionSelected,
+  }) {
+    final List<BrownButtonModel> models = [];
+    
+    // Get regular filter options
+    final filterOptions = _getFilterDropdown();
+    
+    // Add reset button only if the selected value matches one of the filter options
+    if (filterOptions.any((model) => model.text == selectedValue)) {
+      models.add(BrownButtonModel(
+        text: 'Resetten',
+        leftIconPath: 'assets/icons/filter_dropdown/reset_icon.png',
+        leftIconSize: 38,
+      ));
+    }
+    
+    // Add regular filter options
+    models.addAll(filterOptions);
+    
+    return _createButtons(models, onOptionSelected);
+  }
+
+  static List<BrownButtonModel> _getFilterDropdown() {
+    return [
+      BrownButtonModel(
+        text: 'Sorteer alfabetisch',
+        leftIconPath: 'assets/icons/filter_dropdown/letter_icon.png',
+        leftIconSize: 38,
+      ),
+      BrownButtonModel(
+        text: 'Sorteer op Categorie',
+        leftIconPath: 'assets/icons/filter_dropdown/category_icon.png',
+        leftIconSize: 38,
+        rightIconPath: 'assets/icons/filter_dropdown/arrow_next_icon.png',
+        rightIconSize: 24,
+      ),
+      BrownButtonModel(
+        text: 'Meest gezien',
+        leftIconPath: 'assets/icons/filter_dropdown/seen_icon.png',
+        leftIconSize: 38,
+      ),
+    ];
+  }
+
+
+  static List<BrownButton> _createButtons(
+    List<BrownButtonModel> models,
+    Function(String) onOptionSelected,
+  ) {
+    return models.map((model) => BrownButton(
+      model: model,
+      onPressed: () => onOptionSelected(model.text ?? ''),
+    )).toList();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

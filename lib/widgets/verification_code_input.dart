@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/services/login_service.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 
 class VerificationCodeInput extends StatefulWidget {
@@ -120,7 +121,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
           child: Column(
             children: [
               BrownButton(
-                text: 'Verifiëren',
+                model: LoginService.createButtonModel(text: 'Verifiëren'),
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
@@ -159,6 +160,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     );
   }
 }
+
 
 
 

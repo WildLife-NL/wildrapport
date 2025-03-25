@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
+import 'package:wildrapport/services/login_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     });
     print('showVerification set to: $showVerification');
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                         ),
                         const SizedBox(height: 20),
                         BrownButton(
-                          text: 'Login',
+                          model: LoginService.createButtonModel(text: 'Login'),
                           onPressed: _handleLogin,
                         ),
                         const SizedBox(height: 20),
@@ -191,6 +193,10 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     );
   }
 }
+
+
+
+
 
 
 
