@@ -36,6 +36,8 @@ class WhiteBulkButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(25),
           onTap: onPressed,
           child: Padding(
@@ -58,6 +60,7 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
 
 
 

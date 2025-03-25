@@ -14,8 +14,8 @@ class Rapporteren extends StatefulWidget {
 }
 
 class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren> {
-  // Add any state variables that need to be preserved
   String? selectedCategory;
+  bool isNavigating = false;  // Add this flag
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed && !isNavigating) {
       final cachedCategory = getCachedUIState('selectedCategory');
       if (cachedCategory != null) {
         setState(() {
@@ -39,81 +39,86 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomAppBar(
-              leftIcon: Icons.arrow_forward_ios,
-              centerText: 'Rapporteren',
-              rightIcon: Icons.menu,
-              onLeftIconPressed: () {
-                // Handle back button press
-              },
-              onRightIconPressed: () {
-                // Handle menu button press
-              },
-            ),
-            const SizedBox(height: 30), // App bar space
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0), // Added horizontal padding
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column
-                    Expanded(
-                      child: Transform.translate(
-                        offset: const Offset(0, -15), // Move entire left column up by 15 pixels
+    return WillPopScope(
+      onWillPop: () async {
+        return true;  // Simplified since we don't need to clear any state
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              CustomAppBar(
+                leftIcon: Icons.arrow_forward_ios,
+                centerText: 'Rapporteren',
+                rightIcon: Icons.menu,
+                onLeftIconPressed: () {
+                  // Handle back button press
+                },
+                onRightIconPressed: () {
+                  // Handle menu button press
+                },
+              ),
+              const SizedBox(height: 30), // App bar space
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0), // Added horizontal padding
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column
+                      Expanded(
+                        child: Transform.translate(
+                          offset: const Offset(0, -15), // Move entire left column up by 15 pixels
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: _buildReportButton(
+                                  context: context,
+                                  image: 'assets/icons/rapporteren/crop_icon.png',
+                                  text: 'Gewasschade',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: _buildReportButton(
+                                  context: context,
+                                  image: 'assets/icons/rapporteren/health_icon.png',
+                                  text: 'Diergezondheid',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Right Column
+                      Expanded(
                         child: Column(
                           children: [
                             Expanded(
                               child: _buildReportButton(
                                 context: context,
-                                image: 'assets/icons/rapporteren/crop_icon.png',
-                                text: 'Gewasschade',
+                                image: 'assets/icons/rapporteren/accident_icon.png',
+                                text: 'Verkeersongeval',
                               ),
                             ),
                             const SizedBox(height: 8),
                             Expanded(
                               child: _buildReportButton(
                                 context: context,
-                                image: 'assets/icons/rapporteren/health_icon.png',
-                                text: 'Diergezondheid',
+                                image: 'assets/icons/rapporteren/sighting_icon.png',
+                                text: 'Waarnemingen',
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Right Column
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: _buildReportButton(
-                              context: context,
-                              image: 'assets/icons/rapporteren/accident_icon.png',
-                              text: 'Verkeersongeval',
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: _buildReportButton(
-                              context: context,
-                              image: 'assets/icons/rapporteren/sighting_icon.png',
-                              text: 'Waarnemingen',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -148,6 +153,8 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          splashFactory: NoSplash.splashFactory,  // Change this to prevent splash effect
+          highlightColor: Colors.transparent,      // Add this to prevent highlight
           borderRadius: BorderRadius.circular(25),
           onTap: onPressed ?? (() { 
             if (text == 'Waarnemingen' || text == 'Diergezondheid') {
@@ -207,6 +214,13 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
     );
   }
 }
+
+
+
+
+
+
+
 
 
 

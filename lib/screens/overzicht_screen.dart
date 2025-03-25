@@ -158,6 +158,13 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                       color: Colors.black54,
                     ),
                     onPressed: () {
+                      // Clear any visual feedback before navigation
+                      Future.microtask(() {
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      });
+                      
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -187,6 +194,7 @@ class _OverzichtScreenState extends State<OverzichtScreen>
     );
   }
 }
+
 
 
 
