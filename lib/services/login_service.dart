@@ -5,29 +5,24 @@ class LoginService {
     required String text,
     String leftIconPath = '',
     String rightIconPath = '',
-    bool isLoginButton = false,  // Add flag to differentiate login buttons
+    bool isLoginButton = false,
   }) {
     if (isLoginButton) {
       return BrownButtonModel(
         text: text,
         leftIconPath: leftIconPath,
         rightIconPath: rightIconPath,
-        height: 48,        // Match TextField height
-        fontSize: 16,      // Specific font size for login
-        leftIconSize: 24,
-        rightIconSize: 24,
+        fontSize: 16,      // Override font size for login
       );
     }
     
-    // Default button model for other cases
     return BrownButtonModel(
       text: text,
       leftIconPath: leftIconPath,
       rightIconPath: rightIconPath,
-      leftIconSize: 38,    // Original size
-      rightIconSize: 24,   // Original size
     );
   }
 }
+
 
 

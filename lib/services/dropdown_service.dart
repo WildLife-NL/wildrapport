@@ -59,11 +59,10 @@ class DropdownService {
     BrownButtonModel selectedModel = BrownButtonModel(
       text: selectedValue,
       leftIconPath: 'assets/icons/filter_dropdown/filter_icon.png',
-      leftIconSize: 38,
       rightIconPath: isExpanded 
           ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
           : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-      rightIconSize: 24,
+      leftIconPadding: 5, // Add this to match the positioning
     );
 
     // Update selected model if it matches one of the filter options
@@ -73,11 +72,10 @@ class DropdownService {
         selectedModel = BrownButtonModel(
           text: selectedValue,
           leftIconPath: option.leftIconPath,
-          leftIconSize: option.leftIconSize,
           rightIconPath: isExpanded 
               ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
               : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-          rightIconSize: 24,
+          leftIconPadding: 5, // Add this to match the positioning
         );
         break;
       }
@@ -135,12 +133,12 @@ class DropdownService {
     // Get regular filter options
     final filterOptions = _getFilterDropdown();
     
-    // Add reset button only if the selected value matches one of the filter options
+    // Add reset button with the same positioning
     if (filterOptions.any((model) => model.text == selectedValue)) {
       models.add(BrownButtonModel(
         text: 'Resetten',
         leftIconPath: 'assets/icons/filter_dropdown/reset_icon.png',
-        leftIconSize: 38,
+        leftIconPadding: 5, // Add this to match the positioning
       ));
     }
     
@@ -155,23 +153,32 @@ class DropdownService {
       BrownButtonModel(
         text: 'Sorteer alfabetisch',
         leftIconPath: 'assets/icons/filter_dropdown/letter_icon.png',
-        leftIconSize: 38,
+        leftIconPadding: 5, // Add this to match the positioning
       ),
       BrownButtonModel(
         text: 'Sorteer op Categorie',
         leftIconPath: 'assets/icons/filter_dropdown/category_icon.png',
-        leftIconSize: 38,
         rightIconPath: 'assets/icons/filter_dropdown/arrow_next_icon.png',
-        rightIconSize: 24,
+        leftIconPadding: 5, // Add this to match the positioning
       ),
       BrownButtonModel(
         text: 'Meest gezien',
         leftIconPath: 'assets/icons/filter_dropdown/seen_icon.png',
-        leftIconSize: 38,
+        leftIconPadding: 5, // Add this to match the positioning
       ),
     ];
   }
 
+  static BrownButtonModel _createSelectedModel(String selectedValue, bool isExpanded) {
+    return BrownButtonModel(
+      text: selectedValue,
+      leftIconPath: 'assets/icons/filter_dropdown/filter_icon.png',
+      rightIconPath: isExpanded 
+          ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+          : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+      leftIconPadding: 5, // Add this to match the positioning
+    );
+  }
 
   static List<BrownButton> _createButtons(
     List<BrownButtonModel> models,
@@ -183,34 +190,6 @@ class DropdownService {
     )).toList();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

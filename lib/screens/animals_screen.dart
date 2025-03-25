@@ -8,7 +8,12 @@ import 'package:wildrapport/services/dropdown_service.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class AnimalsScreen extends StatefulWidget {
-  const AnimalsScreen({super.key});
+  final String screenTitle;
+  
+  const AnimalsScreen({
+    super.key,
+    required this.screenTitle,
+  });
 
   @override
   State<AnimalsScreen> createState() => _AnimalsScreenState();
@@ -69,7 +74,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<Animals
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Dieren',
+              centerText: widget.screenTitle,
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
                 Navigator.pop(context);
@@ -144,15 +149,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<Animals
     return GestureDetector(
       onTap: () {
         final selectedAnimal = AnimalService.handleAnimalSelection(animal);
-        // Now you can use the selectedAnimal for navigation or other purposes
         print('Selected animal: ${selectedAnimal.animalName}');
-        // Example:
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => AnimalDetailScreen(animal: selectedAnimal),
-        //   ),
-        // );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
@@ -173,9 +170,19 @@ class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<Animals
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(25),
-                child: Image.asset(
-                  animal.animalImagePath,
+                child: Image(
+                  image: AssetImage(animal.animalImagePath),
                   fit: BoxFit.cover,
+                  // Add a fade-in animation
+                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                    if (wasSynchronouslyLoaded) return child;
+                    return AnimatedOpacity(
+                      opacity: frame == null ? 0 : 1,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                      child: child,
+                    );
+                  },
                 ),
               ),
             ),
@@ -197,6 +204,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<Animals
     );
   }
 }
+
+
+
 
 
 

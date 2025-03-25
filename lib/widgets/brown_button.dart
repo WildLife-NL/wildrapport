@@ -38,11 +38,14 @@ class BrownButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (model?.leftIconPath != null && model!.leftIconPath!.isNotEmpty)
-                  Image.asset(
-                    model!.leftIconPath!,
-                    width: model!.leftIconSize,
-                    height: model!.leftIconSize,
-                    fit: BoxFit.contain,
+                  Transform.translate(
+                    offset: Offset(-(model?.leftIconPadding ?? 0) * 0.5, 0),  // Multiplied by 0.5 to reduce the offset
+                    child: Image.asset(
+                      model!.leftIconPath!,
+                      width: model!.leftIconSize,
+                      height: model!.leftIconSize,
+                      fit: BoxFit.contain,
+                    ),
                   )
                 else
                   const SizedBox(width: 24),
@@ -70,6 +73,9 @@ class BrownButton extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

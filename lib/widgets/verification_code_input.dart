@@ -116,43 +116,36 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
           ),
         ),
         const Spacer(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            children: [
-              BrownButton(
-                model: LoginService.createButtonModel(text: 'Verifiëren'),
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const OverzichtScreen(),
-                    ),
-                  );
-                },
+        BrownButton(
+          model: LoginService.createButtonModel(text: 'Verifiëren'),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const OverzichtScreen(),
               ),
-              const SizedBox(height: 15),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    // Resend code logic would go here
-                  },
-                  child: Text(
-                    'Code niet ontvangen? Stuur opnieuw',
-                    style: TextStyle(
-                      color: AppColors.brown,
-                      decoration: TextDecoration.underline,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.25),
-                          offset: const Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
+            );
+          },
+        ),
+        const SizedBox(height: 15),
+        Center(
+          child: InkWell(
+            onTap: () {
+              // Resend code logic would go here
+            },
+            child: Text(
+              'Code niet ontvangen? Stuur opnieuw',
+              style: TextStyle(
+                color: AppColors.brown,
+                decoration: TextDecoration.underline,
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
         const Spacer(flex: 2),
@@ -160,6 +153,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     );
   }
 }
+
 
 
 

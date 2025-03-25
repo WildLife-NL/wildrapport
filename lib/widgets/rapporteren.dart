@@ -153,7 +153,9 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
             if (text == 'Waarnemingen' || text == 'Diergezondheid') {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const AnimalsScreen(),
+                  builder: (context) => AnimalsScreen(
+                    screenTitle: text,
+                  ),
                 ),
               );
             }
@@ -205,6 +207,7 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
     );
   }
 }
+
 
 
 

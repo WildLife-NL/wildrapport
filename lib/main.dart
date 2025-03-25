@@ -4,11 +4,12 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/services/ui_state_manager.dart';
+import 'package:wildrapport/widgets/loading_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
-
-  // Handle window focus changes
+  
   SystemChannels.lifecycle.setMessageHandler((msg) async {
     if (msg == AppLifecycleState.resumed.toString()) {
       UIStateManager().setWindowFocus(true);
@@ -26,29 +27,8 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  final UIStateManager _uiStateManager = UIStateManager();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _uiStateManager.setWindowFocus(true);
-    } else if (state == AppLifecycleState.paused) {
-      _uiStateManager.setWindowFocus(false);
-    }
-  }
+class _MyAppState extends State<MyApp> {
+  bool _isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +43,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         textTheme: AppTextTheme.textTheme,
         fontFamily: 'Arimo',
       ),
-      home: const LoginScreen(),
+      home: _isLoading 
+        ? LoadingScreen(
+            onLoadingComplete: () {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+          )
+        : const LoginScreen(),
     );
   }
 }
