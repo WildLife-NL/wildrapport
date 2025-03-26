@@ -4,7 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/services/ui_state_manager.dart';
-import 'package:wildrapport/widgets/loading_screen.dart';
+import 'package:wildrapport/screens/loading_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/models/dropdown_type.dart';
+import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/services/animal_service.dart';
 import 'package:wildrapport/services/dropdown_service.dart';
-import 'package:wildrapport/services/ui_state_manager.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class AnimalsScreen extends StatefulWidget {

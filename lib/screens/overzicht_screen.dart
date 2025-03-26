@@ -51,7 +51,7 @@ class _OverzichtScreenState extends State<OverzichtScreen>
       },
       child: Scaffold(
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // This ensures full width
+          crossAxisAlignment: CrossAxisAlignment.stretch, 
           children: [
             Expanded(
               flex: 1,
@@ -94,7 +94,7 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            userName, // Use the state variable instead of hardcoded value
+                            userName, 
                             style: TextStyle(
                               color: AppColors.offWhite,
                               fontSize: 24,
@@ -135,7 +135,7 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     WhiteBulkButton(
-                      text: 'RapportenKaart', // Change this to 'RapportenKaart'
+                      text: 'RapportenKaart', 
                       leftWidget: Image.asset(
                         'assets/icons/marked_earth.png',
                         width: 50,

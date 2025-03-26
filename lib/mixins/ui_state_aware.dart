@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/interfaces/ui_state_interface.dart';
 import 'package:wildrapport/services/ui_state_manager.dart';
 
 mixin UIStateAware<T extends StatefulWidget> on State<T> {
-  final UIStateManager _uiStateManager = UIStateManager();
+  late final UIStateInterface _uiStateManager;
   
-  // Override these in your state class to specify what to save/load
+  @protected
+  void initializeStateManager(UIStateInterface manager) {
+    _uiStateManager = manager;
+  }
+
+  // Override these in the state class to specify what to save/load.
   Map<String, dynamic> saveState() => {};
   void loadState(Map<String, dynamic> state) {}
 
@@ -33,6 +39,7 @@ mixin UIStateAware<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
+    initializeStateManager(UIStateManager()); // Default implementation
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _uiStateManager.registerScreen(context);
       loadAllState();
@@ -46,4 +53,5 @@ mixin UIStateAware<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 }
+
 

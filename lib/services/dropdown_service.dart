@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
-import 'package:wildrapport/models/dropdown_type.dart';
+import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
@@ -153,18 +153,18 @@ class DropdownService {
       BrownButtonModel(
         text: 'Sorteer alfabetisch',
         leftIconPath: 'assets/icons/filter_dropdown/letter_icon.png',
-        leftIconPadding: 5, // Add this to match the positioning
+        leftIconPadding: 5, 
       ),
       BrownButtonModel(
         text: 'Sorteer op Categorie',
         leftIconPath: 'assets/icons/filter_dropdown/category_icon.png',
         rightIconPath: 'assets/icons/filter_dropdown/arrow_next_icon.png',
-        leftIconPadding: 5, // Add this to match the positioning
+        leftIconPadding: 5, 
       ),
       BrownButtonModel(
         text: 'Meest gezien',
         leftIconPath: 'assets/icons/filter_dropdown/seen_icon.png',
-        leftIconPadding: 5, // Add this to match the positioning
+        leftIconPadding: 5, 
       ),
     ];
   }
