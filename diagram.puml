@@ -1,0 +1,328 @@
+
+@startuml
+set namespaceSeparator ::
+
+class "wildrapport::constants::app_colors.dart::AppColors" {
+  {static} +Color darkGreen
+  {static} +Color brown
+  {static} +Color lightMintGreen
+  {static} +Color offWhite
+}
+
+"wildrapport::constants::app_colors.dart::AppColors" o-- "dart::ui::Color"
+
+class "wildrapport::constants::app_text_theme.dart::AppTextTheme" {
+  {static} +TextTheme textTheme
+}
+
+"wildrapport::constants::app_text_theme.dart::AppTextTheme" o-- "flutter::src::material::text_theme.dart::TextTheme"
+
+class "wildrapport::constants::asset_preloader.dart::AssetPreloader" {
+  {static} +dynamic precacheAllAssets()
+}
+
+abstract class "wildrapport::interfaces::login_interface.dart::LoginInterface" {
+  +dynamic handleLogin()
+  +dynamic handleVerificationCode()
+  +dynamic resendCode()
+  +dynamic verifyCode()
+  +dynamic sendLoginCode()
+}
+
+abstract class "wildrapport::interfaces::ui_state_interface.dart::UIStateInterface" {
+  +bool hasWindowFocus
+  +void setScreenState()
+  +T? getScreenState()
+  +void registerScreen()
+  +void unregisterScreen()
+  +void setWindowFocus()
+}
+
+class "wildrapport::main.dart::MyApp" {
+  +State<MyApp> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::main.dart::MyApp"
+
+class "wildrapport::main.dart::_MyAppState" {
+  -bool _isLoading
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::main.dart::_MyAppState"
+
+abstract class "wildrapport::mixins::ui_state_aware.dart::UIStateAware" {
+  -UIStateInterface _uiStateManager
+  #void initializeStateManager()
+  +Map<String, dynamic> saveState()
+  +void loadState()
+  +void setScreenState()
+  +T? getScreenState()
+  +void saveAllState()
+  +void loadAllState()
+  +void initState()
+  +void dispose()
+}
+
+"wildrapport::mixins::ui_state_aware.dart::UIStateAware" o-- "wildrapport::interfaces::ui_state_interface.dart::UIStateInterface"
+
+class "wildrapport::models::animal_model.dart::AnimalModel" {
+  -String _animalImagePath
+  -String _animalName
+  +String animalImagePath
+  +String animalName
+}
+
+class "wildrapport::models::brown_button_model.dart::BrownButtonModel" {
+  {static} +double DEFAULT_BUTTON_HEIGHT
+  {static} +double DEFAULT_ARROW_ICON_SIZE
+  {static} +double DEFAULT_REGULAR_ICON_SIZE
+  {static} +double DEFAULT_LEFT_ICON_PADDING
+  -String? _text
+  -String? _rightIconPath
+  -String? _leftIconPath
+  -double? _rightIconSize
+  -double? _leftIconSize
+  -double? _height
+  -double? _width
+  -double? _fontSize
+  -double? _leftIconPadding
+  +String? text
+  +String? rightIconPath
+  +String? leftIconPath
+  +double? rightIconSize
+  +double? leftIconSize
+  +double? height
+  +double? width
+  +double? fontSize
+  +double? leftIconPadding
+  +Map<String, dynamic> toMap()
+  +String toString()
+}
+
+class "wildrapport::models::enums::dropdown_type.dart::DropdownType" {
+  +int index
+  {static} +List<DropdownType> values
+  {static} +DropdownType filter
+  {static} +DropdownType login
+}
+
+"wildrapport::models::enums::dropdown_type.dart::DropdownType" o-- "wildrapport::models::enums::dropdown_type.dart::DropdownType"
+"dart::core::Enum" <|-- "wildrapport::models::enums::dropdown_type.dart::DropdownType"
+
+class "wildrapport::screens::animals_screen.dart::AnimalsScreen" {
+  +String screenTitle
+  +State<AnimalsScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::screens::animals_screen.dart::AnimalsScreen"
+
+class "wildrapport::screens::animals_screen.dart::_AnimalsScreenState" {
+  +bool isExpanded
+  +String selectedFilter
+  +List<AnimalModel> animals
+  -ScrollController _scrollController
+  +void initState()
+  +void dispose()
+  +Widget build()
+  -Widget _buildAnimalTile()
+}
+
+"wildrapport::screens::animals_screen.dart::_AnimalsScreenState" o-- "flutter::src::widgets::scroll_controller.dart::ScrollController"
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::screens::animals_screen.dart::_AnimalsScreenState"
+"wildrapport::mixins::ui_state_aware.dart::UIStateAware" <|-- "wildrapport::screens::animals_screen.dart::_AnimalsScreenState"
+
+class "wildrapport::screens::loading_screen.dart::LoadingScreen" {
+  +void Function()? onLoadingComplete
+  +State<LoadingScreen> createState()
+}
+
+"wildrapport::screens::loading_screen.dart::LoadingScreen" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::screens::loading_screen.dart::LoadingScreen"
+
+class "wildrapport::screens::loading_screen.dart::_LoadingScreenState" {
+  -bool _initialized
+  +void didChangeDependencies()
+  -dynamic _initializeApp()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::screens::loading_screen.dart::_LoadingScreenState"
+
+class "wildrapport::screens::login_overlay.dart::LoginOverlay" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "wildrapport::screens::login_overlay.dart::LoginOverlay"
+
+class "wildrapport::screens::login_screen.dart::LoginScreen" {
+  +State<LoginScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::screens::login_screen.dart::LoginScreen"
+
+class "wildrapport::screens::login_screen.dart::_LoginScreenState" {
+  +TextEditingController emailController
+  +bool showVerification
+  +Map<String, dynamic> saveState()
+  +void loadState()
+  +void dispose()
+  -void _handleLogin()
+  +Widget build()
+}
+
+"wildrapport::screens::login_screen.dart::_LoginScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::screens::login_screen.dart::_LoginScreenState"
+"wildrapport::mixins::ui_state_aware.dart::UIStateAware" <|-- "wildrapport::screens::login_screen.dart::_LoginScreenState"
+
+class "wildrapport::screens::overzicht_screen.dart::OverzichtScreen" {
+  +State<OverzichtScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::screens::overzicht_screen.dart::OverzichtScreen"
+
+class "wildrapport::screens::overzicht_screen.dart::_OverzichtScreenState" {
+  +String userName
+  +void initState()
+  +void dispose()
+  +void didChangeAppLifecycleState()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::screens::overzicht_screen.dart::_OverzichtScreenState"
+"flutter::src::widgets::binding.dart::WidgetsBindingObserver" <|-- "wildrapport::screens::overzicht_screen.dart::_OverzichtScreenState"
+"wildrapport::mixins::ui_state_aware.dart::UIStateAware" <|-- "wildrapport::screens::overzicht_screen.dart::_OverzichtScreenState"
+
+class "wildrapport::services::animal_service.dart::AnimalService" {
+  {static} +List<AnimalModel> getAnimals()
+  {static} +AnimalModel handleAnimalSelection()
+}
+
+class "wildrapport::services::dropdown_service.dart::DropdownService" {
+  {static} +String defaultFilterText
+  {static} +Duration animationDuration
+  {static} +Curve animationCurve
+  {static} +Widget buildDropdown()
+  {static} -Widget _buildAnimatedDropdown()
+  {static} -Widget _buildFilterDropdown()
+  {static} -Widget _buildAnimatedOption()
+  {static} -List<BrownButton> _getFilterOptions()
+  {static} -List<BrownButtonModel> _getFilterDropdown()
+  {static} -BrownButtonModel _createSelectedModel()
+  {static} -List<BrownButton> _createButtons()
+}
+
+"wildrapport::services::dropdown_service.dart::DropdownService" o-- "flutter::src::animation::curves.dart::Curve"
+
+class "wildrapport::services::login_service.dart::LoginService" {
+  {static} +BrownButtonModel createButtonModel()
+  +dynamic handleLogin()
+  +dynamic handleVerificationCode()
+  +dynamic resendCode()
+  +dynamic sendLoginCode()
+  +dynamic verifyCode()
+}
+
+"wildrapport::interfaces::login_interface.dart::LoginInterface" <|-- "wildrapport::services::login_service.dart::LoginService"
+
+class "wildrapport::services::ui_state_manager.dart::UIStateManager" {
+  {static} -UIStateManager _instance
+  -List<void Function()> _listeners
+  -bool _hasWindowFocus
+  -Set<BuildContext> _activeContexts
+  -Map<String, Map<String, dynamic>> _screenStates
+  -Map<String, dynamic> _uiStateCache
+  +bool hasWindowFocus
+  +void setWindowFocus()
+  +void registerScreen()
+  +void unregisterScreen()
+  +void addListener()
+  +void removeListener()
+  +void notifyListeners()
+  +void setScreenState()
+  +T? getScreenState()
+  +void clearScreenState()
+  +void clearAllScreenStates()
+  +void rebuildActiveScreens()
+  +void cacheUIState()
+  +dynamic getCachedUIState()
+  +void clearCache()
+}
+
+"wildrapport::services::ui_state_manager.dart::UIStateManager" o-- "wildrapport::services::ui_state_manager.dart::UIStateManager"
+"wildrapport::interfaces::ui_state_interface.dart::UIStateInterface" <|-- "wildrapport::services::ui_state_manager.dart::UIStateManager"
+
+class "wildrapport::widgets::app_bar.dart::CustomAppBar" {
+  +IconData? leftIcon
+  +String? centerText
+  +IconData? rightIcon
+  +void Function()? onLeftIconPressed
+  +void Function()? onRightIconPressed
+  +bool preserveState
+  +Widget build()
+}
+
+"wildrapport::widgets::app_bar.dart::CustomAppBar" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"wildrapport::widgets::app_bar.dart::CustomAppBar" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "wildrapport::widgets::app_bar.dart::CustomAppBar"
+
+class "wildrapport::widgets::brown_button.dart::BrownButton" {
+  +BrownButtonModel? model
+  +void Function() onPressed
+  +Widget build()
+}
+
+"wildrapport::widgets::brown_button.dart::BrownButton" o-- "wildrapport::models::brown_button_model.dart::BrownButtonModel"
+"wildrapport::widgets::brown_button.dart::BrownButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "wildrapport::widgets::brown_button.dart::BrownButton"
+
+class "wildrapport::widgets::rapporteren.dart::Rapporteren" {
+  +State<Rapporteren> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::widgets::rapporteren.dart::Rapporteren"
+
+class "wildrapport::widgets::rapporteren.dart::_RapporterenState" {
+  +String? selectedCategory
+  +bool isNavigating
+  +Map<String, dynamic> saveState()
+  +void loadState()
+  +Widget build()
+  -Widget _buildReportButton()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::widgets::rapporteren.dart::_RapporterenState"
+"wildrapport::mixins::ui_state_aware.dart::UIStateAware" <|-- "wildrapport::widgets::rapporteren.dart::_RapporterenState"
+
+class "wildrapport::widgets::verification_code_input.dart::VerificationCodeInput" {
+  +void Function() onBack
+  +String email
+  +State<VerificationCodeInput> createState()
+}
+
+"wildrapport::widgets::verification_code_input.dart::VerificationCodeInput" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "wildrapport::widgets::verification_code_input.dart::VerificationCodeInput"
+
+class "wildrapport::widgets::verification_code_input.dart::_VerificationCodeInputState" {
+  +List<TextEditingController> controllers
+  +List<FocusNode> focusNodes
+  +void dispose()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "wildrapport::widgets::verification_code_input.dart::_VerificationCodeInputState"
+
+class "wildrapport::widgets::white_bulk_button.dart::WhiteBulkButton" {
+  +String text
+  +Widget? leftWidget
+  +Widget? rightWidget
+  +void Function()? onPressed
+  +Widget build()
+}
+
+"wildrapport::widgets::white_bulk_button.dart::WhiteBulkButton" o-- "flutter::src::widgets::framework.dart::Widget"
+"wildrapport::widgets::white_bulk_button.dart::WhiteBulkButton" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "wildrapport::widgets::white_bulk_button.dart::WhiteBulkButton"
+
+
+@enduml
