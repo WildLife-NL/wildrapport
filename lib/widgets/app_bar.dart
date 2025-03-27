@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/services/ui_state_manager.dart';
 
 class CustomAppBar extends StatelessWidget {
   final IconData? leftIcon;
@@ -38,7 +37,6 @@ class CustomAppBar extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 16.0),
                     child: GestureDetector(
                       onTap: onLeftIconPressed ?? () {
-                        // Use default back navigation with state preservation
                         Navigator.of(context).pop();
                       },
                       child: Icon(
@@ -96,6 +94,7 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 }
+
 
 
 

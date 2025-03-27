@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/managers/screen_state_manager.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/mixins/ui_state_aware.dart';
-import 'package:wildrapport/services/ui_state_manager.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/rapporteren.dart';
 
@@ -12,33 +13,30 @@ class OverzichtScreen extends StatefulWidget {
   State<OverzichtScreen> createState() => _OverzichtScreenState();
 }
 
-class _OverzichtScreenState extends State<OverzichtScreen> 
-    with WidgetsBindingObserver, UIStateAware<OverzichtScreen> {
+class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
   String userName = 'John Doe';
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    userName = getScreenState<String>('userName') ?? 'John Doe';
-  }
+  String get screenName => 'OverzichtScreen';
 
   @override
-  void dispose() {
-    setScreenState('userName', userName);
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
+  Map<String, dynamic> getInitialState() => {
+    'userName': 'John Doe',
+  };
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      userName = getScreenState<String>('userName') ?? userName;
-      setState(() {});
-    } else if (state == AppLifecycleState.paused) {
-      setScreenState('userName', userName);
+  void updateState(String key, dynamic value) {
+    switch (key) {
+      case 'userName':
+        userName = value as String;
+        break;
     }
   }
+
+  @override
+  Map<String, dynamic> getCurrentState() => {
+    'userName': userName,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,8 @@ class _OverzichtScreenState extends State<OverzichtScreen>
     
     return WillPopScope(
       onWillPop: () async {
-        setScreenState('userName', userName);
+        context.read<AppStateProvider>()
+            .setScreenState('OverzichtScreen', 'userName', userName);
         return true;
       },
       child: Scaffold(
@@ -158,7 +157,8 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                         color: Colors.black54,
                       ),
                       onPressed: () {
-                        setScreenState('userName', userName);
+                        context.read<AppStateProvider>()
+                            .setScreenState('OverzichtScreen', 'userName', userName);
                         
                         Navigator.push(
                           context,
@@ -190,11 +190,5 @@ class _OverzichtScreenState extends State<OverzichtScreen>
     );
   }
 }
-
-
-
-
-
-
 
 

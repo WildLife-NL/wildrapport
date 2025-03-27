@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
-import 'package:wildrapport/services/ui_state_manager.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:dcdg/dcdg.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-  
-  SystemChannels.lifecycle.setMessageHandler((msg) async {
-    if (msg == AppLifecycleState.resumed.toString()) {
-      UIStateManager().setWindowFocus(true);
-    } else if (msg == AppLifecycleState.paused.toString()) {
-      UIStateManager().setWindowFocus(false);
-    }
-    return null;
-  });
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

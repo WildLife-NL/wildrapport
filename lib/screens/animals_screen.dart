@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/mixins/ui_state_aware.dart';
+import 'package:wildrapport/managers/screen_state_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
+import 'package:wildrapport/models/reports/waarneming_report.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/services/animal_service.dart';
 import 'package:wildrapport/services/dropdown_service.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -19,30 +23,74 @@ class AnimalsScreen extends StatefulWidget {
   State<AnimalsScreen> createState() => _AnimalsScreenState();
 }
 
-class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<AnimalsScreen> {
+class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
   bool isExpanded = false;
   String selectedFilter = 'Filter';
   late List<AnimalModel> animals;
   final ScrollController _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    animals = AnimalService.getAnimals();
-    isExpanded = getScreenState<bool>('isExpanded') ?? false;
-    selectedFilter = getScreenState<String>('selectedFilter') ?? 'Filter';
+  void _onAnimalSelected(String animal) {
+    // Get and update current report
+    final report = getCurrentReport<WaarnemingReport>();
+    if (report != null) {
+      updateReport('selectedAnimal', animal);
+      
+      // Navigate to next screen based on report type
+      if (widget.screenTitle == 'Waarnemingen') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OverzichtScreen(),
+          ),
+        );
+      } else if (widget.screenTitle == 'Diergezondheid') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OverzichtScreen(),
+          ),
+        );
+      }
+    }
   }
 
   @override
+  String get screenName => 'AnimalsScreen';
+
+  @override
+  Map<String, dynamic> getInitialState() => {
+    'isExpanded': false,
+    'selectedFilter': 'Filter',
+  };
+
+  @override
+  void updateState(String key, dynamic value) {
+    switch (key) {
+      case 'isExpanded':
+        isExpanded = value as bool;
+        break;
+      case 'selectedFilter':
+        selectedFilter = value as String;
+        break;
+    }
+  }
+
+  @override
+  Map<String, dynamic> getCurrentState() => {
+    'isExpanded': isExpanded,
+    'selectedFilter': selectedFilter,
+  };
+
+  @override
   void dispose() {
-    setScreenState('isExpanded', isExpanded);
-    setScreenState('selectedFilter', selectedFilter);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final report = getCurrentReport<WaarnemingReport>();
+    // Use report.selectedAnimal in your UI
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -179,10 +227,6 @@ class _AnimalsScreenState extends State<AnimalsScreen> with UIStateAware<Animals
     );
   }
 }
-
-
-
-
 
 
 

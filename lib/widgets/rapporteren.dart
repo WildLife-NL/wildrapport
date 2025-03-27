@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/mixins/ui_state_aware.dart';
+import 'package:wildrapport/managers/screen_state_manager.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
@@ -13,21 +15,42 @@ class Rapporteren extends StatefulWidget {
   State<Rapporteren> createState() => _RapporterenState();
 }
 
-class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren> {
-  String? selectedCategory;
-  bool isNavigating = false;
+class _RapporterenState extends ScreenStateManager<Rapporteren> {
+  late String selectedCategory;
 
   @override
-  Map<String, dynamic> saveState() => {
+  String get screenName => 'Rapporteren';
+
+  @override
+  Map<String, dynamic> getInitialState() => {
+    'selectedCategory': '',
+  };
+
+  @override
+  Map<String, dynamic> getCurrentState() => {
     'selectedCategory': selectedCategory,
   };
 
   @override
-  void loadState(Map<String, dynamic> state) {
-    selectedCategory = state['selectedCategory'];
-    setState(() {});
+  void updateState(String key, dynamic value) {
+    if (key == 'selectedCategory') {
+      selectedCategory = value as String;
+    }
   }
 
+  void _handleReportTypeSelection(String reportType) {
+    // Initialize the report
+    initializeReportFlow(reportType);
+    
+    // Navigate to appropriate first screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AnimalsScreen(screenTitle: reportType),
+      ),
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,6 +221,10 @@ class _RapporterenState extends State<Rapporteren> with UIStateAware<Rapporteren
     );
   }
 }
+
+
+
+
 
 
 

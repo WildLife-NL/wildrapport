@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/mixins/ui_state_aware.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
@@ -14,25 +15,26 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with UIStateAware<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   bool showVerification = false;
 
   @override
-  Map<String, dynamic> saveState() => {
-    'showVerification': showVerification,
-    'email': emailController.text,
-  };
-
-  @override
-  void loadState(Map<String, dynamic> state) {
-    showVerification = state['showVerification'] ?? false;
-    emailController.text = state['email'] ?? '';
-    setState(() {});
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<AppStateProvider>();
+      showVerification = provider.getScreenState<bool>('LoginScreen', 'showVerification') ?? false;
+      emailController.text = provider.getScreenState<String>('LoginScreen', 'email') ?? '';
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    final provider = context.read<AppStateProvider>();
+    provider.setScreenState('LoginScreen', 'showVerification', showVerification);
+    provider.setScreenState('LoginScreen', 'email', emailController.text);
     emailController.dispose();
     super.dispose();
   }
@@ -193,6 +195,8 @@ class _LoginScreenState extends State<LoginScreen> with UIStateAware<LoginScreen
     );
   }
 }
+
+
 
 
 
