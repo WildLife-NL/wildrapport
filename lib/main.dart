@@ -54,35 +54,11 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const TestScreen(), // Changed from LoginScreen to TestScreen for demonstration
+        : const LoginScreen(), // Changed from TestScreen back to LoginScreen
     );
   }
 }
 
-// Added TestScreen to demonstrate CategoryFilterOptions
-class TestScreen extends StatelessWidget {
-  const TestScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            CategoryFilterOptions(
-              items: FilterManager.getAnimalCategories(),
-              onCategorySelected: (category) {
-                // Handle category selection here
-                print('Selected category: $category');
-              },
-            ),
-            // Other widgets can go here
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // Separate widget for MediaQuery modifications
 class _MediaQueryWrapper extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/services/dropdown_service.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class CategoryFilterOptions extends StatelessWidget {
@@ -7,82 +8,103 @@ class CategoryFilterOptions extends StatelessWidget {
   final Function(String) onCategorySelected;
 
   const CategoryFilterOptions({
-    super.key,
+    Key? key,
     required this.items,
     required this.onCategorySelected,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate responsive sizes
-    final containerHeight = screenHeight * 0.25; // 25% of screen height
-    final circleSize = screenWidth * 0.30; // 25% of screen width
-    final iconSize = circleSize * 0.75; // 65% of circle size
-    final fontSize = screenWidth * 0.04; // 4% of screen width
-
-    // Add minimum and maximum constraints
-    final constrainedCircleSize = circleSize.clamp(80.0, 120.0);
-    final constrainedIconSize = iconSize.clamp(52.0, 80.0);
-    final constrainedFontSize = fontSize.clamp(14.0, 16.0);
-    final constrainedContainerHeight = containerHeight.clamp(160.0, 200.0);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          height: constrainedContainerHeight,
-          width: double.infinity,
-          child: Row(
-            children: items.map((item) => Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.01, // 1% of screen width
-                ),
-                child: GestureDetector(
-                  onTap: () => onCategorySelected(item['text']!),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      PhysicalModel(
-                        color: Colors.transparent,
-                        shadowColor: Colors.black.withOpacity(0.25),
-                        elevation: 4,
-                        shape: BoxShape.circle,
-                        child: CircleIconContainer(
-                          size: constrainedCircleSize,
-                          backgroundColor: AppColors.brown,
-                          imagePath: item['icon'],
-                          iconSize: constrainedIconSize,
-                        ),
-                      ),
-                      SizedBox(height: constrainedContainerHeight * 0.05),
-                      Text(
+    return Column(
+      children: [
+        // Category grid
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 16),
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.75, // Make cells even taller
+          children: items.map((item) => LayoutBuilder(
+            builder: (context, constraints) {
+              final circleSize = constraints.maxWidth * 1.0;
+              return GestureDetector(
+                onTap: () => onCategorySelected(item['text']!),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleIconContainer(
+                      size: circleSize,
+                      backgroundColor: AppColors.brown,
+                      imagePath: item['icon'],
+                      iconColor: Colors.white,
+                      iconSize: circleSize * 0.8, // Increased from default 0.5 to 0.7
+                    ),
+                    const SizedBox(height: 8),
+                    Flexible(
+                      child: Text(
                         item['text']!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.brown,
-                          fontSize: constrainedFontSize,
-                          fontWeight: FontWeight.w500,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
+                          fontSize: 14, // Bigger text
+                          fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          )).toList(),
+        ),
+        
+        // Back button
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: GestureDetector(
+              onTap: () => onCategorySelected('Resetten'), // Changed to use 'Resetten' like the reset button
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: AppColors.brown,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      offset: const Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Terug',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            )).toList(),
+            ),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
