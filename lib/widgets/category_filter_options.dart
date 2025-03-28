@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/services/dropdown_service.dart';
+import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class CategoryFilterOptions extends StatelessWidget {

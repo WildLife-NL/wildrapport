@@ -6,7 +6,7 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
-import 'package:wildrapport/services/login_service.dart';
+import 'package:wildrapport/managers/login_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

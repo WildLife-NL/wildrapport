@@ -5,7 +5,7 @@ import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/viewmodels/animals_view_model.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/services/dropdown_service.dart';
+import 'package:wildrapport/managers/dropdown_manager.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String screenTitle;

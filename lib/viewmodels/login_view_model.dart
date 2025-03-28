@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/services/login_service.dart';
+import 'package:wildrapport/managers/login_manager.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/services/animal_service.dart';
+import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/models/reports/waarneming_report.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';

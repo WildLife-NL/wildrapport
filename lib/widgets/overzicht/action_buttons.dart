@@ -22,35 +22,34 @@ class ActionButtons extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildMapButton(),
-            _buildReportButton(onRapporterenPressed),
-            _buildMyReportsButton(),
+            _buildButton(
+              text: 'RapportenKaart',
+              icon: Icons.map,
+            ),
+            _buildButton(
+              text: 'Rapporteren',
+              icon: Icons.edit_note,
+              onPressed: onRapporterenPressed,
+            ),
+            _buildButton(
+              text: 'Mijn Rapporten',
+              icon: Icons.description,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMapButton() {
+  Widget _buildButton({
+    required String text,
+    required IconData icon,
+    VoidCallback? onPressed,
+  }) {
     return WhiteBulkButton(
-      text: 'RapportenKaart',
+      text: text,
       leftWidget: CircleIconContainer(
-        icon: Icons.map,
-        iconColor: AppColors.brown,
-        size: 48,
-      ),
-      rightWidget: const Icon(
-        Icons.arrow_forward_ios,
-        color: Colors.black54,
-      ),
-    );
-  }
-
-  Widget _buildReportButton(Function() onPressed) {
-    return WhiteBulkButton(
-      text: 'Rapporteren',
-      leftWidget: CircleIconContainer(
-        icon: Icons.edit_note,
+        icon: icon,
         iconColor: AppColors.brown,
         size: 48,
       ),
@@ -59,21 +58,6 @@ class ActionButtons extends StatelessWidget {
         color: Colors.black54,
       ),
       onPressed: onPressed,
-    );
-  }
-
-  Widget _buildMyReportsButton() {
-    return WhiteBulkButton(
-      text: 'Mijn Rapporten',
-      leftWidget: CircleIconContainer(
-        icon: Icons.description,
-        iconColor: AppColors.brown,
-        size: 48,
-      ),
-      rightWidget: const Icon(
-        Icons.arrow_forward_ios,
-        color: Colors.black54,
-      ),
     );
   }
 }
