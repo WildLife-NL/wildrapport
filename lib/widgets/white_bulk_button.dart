@@ -49,9 +49,45 @@ class WhiteBulkButton extends StatelessWidget {
                 Text(
                   text,
                   textAlign: TextAlign.center,
-                  style: AppTextTheme.textTheme.titleLarge,
+                  style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.25),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
                 ),
-                if (rightWidget != null) rightWidget! else const SizedBox(),
+                if (rightWidget != null)
+                  Container(
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black54,
+                            Colors.black54.withOpacity(0.8),
+                          ],
+                        ).createShader(bounds);
+                      },
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black54,
+                        size: 24,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.25),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else 
+                  const SizedBox(),
               ],
             ),
           ),
@@ -60,6 +96,9 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

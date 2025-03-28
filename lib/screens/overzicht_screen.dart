@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/managers/screen_state_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/rapporteren.dart';
 
@@ -157,10 +158,10 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
                               children: [
                                 WhiteBulkButton(
                                   text: 'RapportenKaart',
-                                  leftWidget: Image.asset(
-                                    'assets/icons/marked_earth.png',
-                                    width: availableWidth * 0.12,
-                                    height: availableWidth * 0.12,
+                                  leftWidget: CircleIconContainer(
+                                    icon: Icons.map,  // Removed '_outlined'
+                                    iconColor: AppColors.brown,
+                                    size: availableWidth * 0.12,
                                   ),
                                   rightWidget: Icon(
                                     Icons.arrow_forward_ios,
@@ -170,10 +171,10 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
                                 ),
                                 WhiteBulkButton(
                                   text: 'Rapporteren',
-                                  leftWidget: Image.asset(
-                                    'assets/icons/report.png',
-                                    width: availableWidth * 0.12,
-                                    height: availableWidth * 0.12,
+                                  leftWidget: CircleIconContainer(
+                                    icon: Icons.edit_note,  // Removed '_outlined'
+                                    iconColor: AppColors.brown,
+                                    size: availableWidth * 0.12,
                                   ),
                                   rightWidget: Icon(
                                     Icons.arrow_forward_ios,
@@ -194,10 +195,10 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
                                 ),
                                 WhiteBulkButton(
                                   text: 'Mijn Rapporten',
-                                  leftWidget: Image.asset(
-                                    'assets/icons/my_report.png',
-                                    width: availableWidth * 0.12,
-                                    height: availableWidth * 0.12,
+                                  leftWidget: CircleIconContainer(
+                                    icon: Icons.description,  // Removed '_outlined'
+                                    iconColor: AppColors.brown,
+                                    size: availableWidth * 0.12,
                                   ),
                                   rightWidget: Icon(
                                     Icons.arrow_forward_ios,
@@ -221,6 +222,8 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
     );
   }
 }
+
+
 
 
 

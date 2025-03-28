@@ -67,8 +67,19 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(
             6,
-            (index) => SizedBox(
+            (index) => Container(
               width: 45,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    spreadRadius: 0,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
               child: TextField(
                 controller: controllers[index],
                 focusNode: focusNodes[index],
@@ -79,6 +90,8 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
                   FilteringTextInputFormatter.digitsOnly,
                 ],
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey[300]!),
@@ -163,6 +176,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     super.dispose();
   }
 }
+
 
 
 
