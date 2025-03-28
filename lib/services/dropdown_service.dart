@@ -127,9 +127,8 @@ class DropdownService {
                       selectedValue: currentValue,
                       onOptionSelected: (selected) {
                         onOptionSelected(selected);
-                        if (selected == sorteerOpCategorieText) {
-                          onExpandChanged(true);
-                        } else if (selected != 'Resetten') { // Don't close dropdown on reset
+                        // Keep dropdown open for "Sorteer op Categorie" and "Resetten"
+                        if (selected != sorteerOpCategorieText && selected != 'Resetten') {
                           onExpandChanged(false);
                         }
                       },
@@ -179,13 +178,10 @@ class DropdownService {
     // Add filtered options
     models.addAll(allOptions);
     
-    return _createButtons(models, (selected) {
-      if (selected == 'Resetten') {
-        onOptionSelected(defaultFilterText);
-      } else {
-        onOptionSelected(selected);
-      }
-    });
+    return models.map((model) => BrownButton(
+      model: model,
+      onPressed: () => onOptionSelected(model.text ?? ''),
+    )).toList();
   }
 
   static List<BrownButtonModel> _getFilterDropdown() {
@@ -271,6 +267,7 @@ class DropdownService {
     )).toList();
   }
 }
+
 
 
 
