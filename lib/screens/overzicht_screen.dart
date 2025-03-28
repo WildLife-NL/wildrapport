@@ -16,7 +16,7 @@ class OverzichtScreen extends StatefulWidget {
 
 class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
   String userName = 'John Doe';
-  final double topContainerHeight = 260.0; // Reduced from 300 to 285 (15px less)
+  final double topContainerHeight = 285.0; // Reduced from 300 to 285 (15px less)
   final double welcomeFontSize = 20.0;
   final double usernameFontSize = 24.0;
   final double logoWidth = 180.0;
@@ -53,175 +53,158 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
         return true;
       },
       child: Scaffold(
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final availableHeight = constraints.maxHeight;
-              final availableWidth = constraints.maxWidth;
-              
-              return SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: availableHeight,
+        body: Column(  // Removed SafeArea
+          children: [
+            // Top green container
+            Container(
+              height: topContainerHeight,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.darkGreen,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(75),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  child: IntrinsicHeight(
+                ],
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width * 0.05,
+                      top: topContainerHeight * 0.15,
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Top green container
-                        Container(
-                          height: topContainerHeight,
-                          width: double.infinity,  // This ensures full width
-                          decoration: BoxDecoration(
-                            color: AppColors.darkGreen,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(75),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  left: availableWidth * 0.05,
-                                  top: topContainerHeight * 0.15,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Welkom Bij Wild Rapport',
-                                      style: TextStyle(
-                                        color: AppColors.offWhite,
-                                        fontSize: welcomeFontSize,
-                                        shadows: [
-                                          Shadow(
-                                            color: Colors.black.withOpacity(0.25),
-                                            offset: const Offset(0, 2),
-                                            blurRadius: 4,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: topContainerHeight * 0.03),
-                                    Text(
-                                      userName,
-                                      style: TextStyle(
-                                        color: AppColors.offWhite,
-                                        fontSize: usernameFontSize,
-                                        fontWeight: FontWeight.bold,
-                                        shadows: [
-                                          Shadow(
-                                            color: Colors.black.withOpacity(0.25),
-                                            offset: const Offset(0, 2),
-                                            blurRadius: 4,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 15,
-                                right: 0,
-                                left: 0,
-                                child: Center(
-                                  child: Image.asset(
-                                    'assets/LogoWildlifeNL.png',
-                                    width: availableWidth * 0.7,  // Increased from 0.5 to 0.7
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                        Text(
+                          'Welkom Bij Wild Rapport',
+                          style: TextStyle(
+                            color: AppColors.offWhite,
+                            fontSize: welcomeFontSize,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.25),
+                                offset: const Offset(0, 2),
+                                blurRadius: 4,
                               ),
                             ],
                           ),
                         ),
-                        
-                        // Buttons section
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: availableWidth * 0.05,
-                              vertical: availableHeight * 0.02,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                WhiteBulkButton(
-                                  text: 'RapportenKaart',
-                                  leftWidget: CircleIconContainer(
-                                    icon: Icons.map,  // Removed '_outlined'
-                                    iconColor: AppColors.brown,
-                                    size: availableWidth * 0.12,
-                                  ),
-                                  rightWidget: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black54,
-                                    size: availableWidth * 0.05,
-                                  ),
-                                ),
-                                WhiteBulkButton(
-                                  text: 'Rapporteren',
-                                  leftWidget: CircleIconContainer(
-                                    icon: Icons.edit_note,  // Removed '_outlined'
-                                    iconColor: AppColors.brown,
-                                    size: availableWidth * 0.12,
-                                  ),
-                                  rightWidget: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black54,
-                                    size: availableWidth * 0.05,
-                                  ),
-                                  onPressed: () {
-                                    context.read<AppStateProvider>()
-                                        .setScreenState('OverzichtScreen', 'userName', userName);
-                                    
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Rapporteren(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                WhiteBulkButton(
-                                  text: 'Mijn Rapporten',
-                                  leftWidget: CircleIconContainer(
-                                    icon: Icons.description,  // Removed '_outlined'
-                                    iconColor: AppColors.brown,
-                                    size: availableWidth * 0.12,
-                                  ),
-                                  rightWidget: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.black54,
-                                    size: availableWidth * 0.05,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        SizedBox(height: topContainerHeight * 0.03),
+                        Text(
+                          userName,
+                          style: TextStyle(
+                            color: AppColors.offWhite,
+                            fontSize: usernameFontSize,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.25),
+                                offset: const Offset(0, 2),
+                                blurRadius: 4,
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
+                  Positioned(
+                    bottom: 15,
+                    right: 0,
+                    left: 0,
+                    child: Center(
+                      child: Image.asset(
+                        'assets/LogoWildlifeNL.png',
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Buttons section
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.05,
+                  vertical: MediaQuery.of(context).size.height * 0.02,
                 ),
-              );
-            },
-          ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    WhiteBulkButton(
+                      text: 'RapportenKaart',
+                      leftWidget: CircleIconContainer(
+                        icon: Icons.map,
+                        iconColor: AppColors.brown,
+                        size: MediaQuery.of(context).size.width * 0.12,
+                      ),
+                      rightWidget: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black54,
+                        size: MediaQuery.of(context).size.width * 0.05,
+                      ),
+                    ),
+                    WhiteBulkButton(
+                      text: 'Rapporteren',
+                      leftWidget: CircleIconContainer(
+                        icon: Icons.edit_note,
+                        iconColor: AppColors.brown,
+                        size: MediaQuery.of(context).size.width * 0.12,
+                      ),
+                      rightWidget: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black54,
+                        size: MediaQuery.of(context).size.width * 0.05,
+                      ),
+                      onPressed: () {
+                        context.read<AppStateProvider>()
+                            .setScreenState('OverzichtScreen', 'userName', userName);
+                        
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Rapporteren(),
+                          ),
+                        );
+                      },
+                    ),
+                    WhiteBulkButton(
+                      text: 'Mijn Rapporten',
+                      leftWidget: CircleIconContainer(
+                        icon: Icons.description,
+                        iconColor: AppColors.brown,
+                        size: MediaQuery.of(context).size.width * 0.12,
+                      ),
+                      rightWidget: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.black54,
+                        size: MediaQuery.of(context).size.width * 0.05,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+
 
 
 

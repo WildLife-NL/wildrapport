@@ -42,6 +42,9 @@ class AssetPreloader {
       'assets/icons/filter_dropdown/letter_icon.png',
       'assets/icons/filter_dropdown/seen_icon.png',
       'assets/icons/filter_dropdown/reset_icon.png',
+      'assets/icons/filter_dropdown/Evenhoevigen.png',
+      'assets/icons/filter_dropdown/Knaagdieren.png',
+      'assets/icons/filter_dropdown/Roofdieren.png',
     ];
 
     // Pre-create image providers for better caching

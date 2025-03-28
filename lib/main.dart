@@ -5,6 +5,8 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
+import 'package:wildrapport/widgets/category_filter_options.dart';
+import 'package:wildrapport/managers/filter_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +35,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'WildRapport',
       builder: (context, child) {
-        // Move MediaQuery modifications to a separate widget to prevent unnecessary rebuilds
         return _MediaQueryWrapper(child: child!);
       },
       theme: ThemeData(
@@ -53,7 +54,32 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const LoginScreen(),
+        : const TestScreen(), // Changed from LoginScreen to TestScreen for demonstration
+    );
+  }
+}
+
+// Added TestScreen to demonstrate CategoryFilterOptions
+class TestScreen extends StatelessWidget {
+  const TestScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CategoryFilterOptions(
+              items: FilterManager.getAnimalCategories(),
+              onCategorySelected: (category) {
+                // Handle category selection here
+                print('Selected category: $category');
+              },
+            ),
+            // Other widgets can go here
+          ],
+        ),
+      ),
     );
   }
 }
