@@ -39,13 +39,8 @@ class BrownButton extends StatelessWidget {
               children: [
                 if (model?.leftIconPath != null && model!.leftIconPath!.isNotEmpty)
                   Transform.translate(
-                    offset: Offset(-(model?.leftIconPadding ?? 0) * 0.5, 0),  // Multiplied by 0.5 to reduce the offset
-                    child: Image.asset(
-                      model!.leftIconPath!,
-                      width: model!.leftIconSize,
-                      height: model!.leftIconSize,
-                      fit: BoxFit.contain,
-                    ),
+                    offset: Offset(-(model?.leftIconPadding ?? 0) * 0.5, 0),
+                    child: _buildLeftIcon(),
                   )
                 else
                   const SizedBox(width: 24),
@@ -72,7 +67,83 @@ class BrownButton extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildLeftIcon() {
+    if (model?.leftIconPath?.startsWith('circle_icon:') ?? false) {
+      final iconName = model!.leftIconPath!.split(':')[1];
+      return CircleIconContainer(
+        icon: _getIconData(iconName),
+        iconColor: AppColors.brown,
+      );
+    }
+    return Image.asset(
+      model!.leftIconPath!,
+      width: model!.leftIconSize,
+      height: model!.leftIconSize,
+      fit: BoxFit.contain,
+    );
+  }
+
+  IconData _getIconData(String name) {
+    switch (name) {
+      case 'sort_by_alpha':
+        return Icons.sort_by_alpha;
+      case 'category':
+        return Icons.category;
+      case 'visibility':
+        return Icons.visibility;
+      case 'filter_list':
+        return Icons.filter_list;
+      case 'restart_alt':
+        return Icons.restart_alt;
+      default:
+        return Icons.error;
+    }
+  }
 }
+
+class CircleIconContainer extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final double size;
+
+  const CircleIconContainer({
+    super.key,
+    required this.icon,
+    required this.iconColor,
+    this.size = 38.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: iconColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: iconColor,
+        size: size * 0.5,  // Icon size is half of container size
+      ),
+    );
+  }
+}
+
+
+
+
 
 
 

@@ -14,14 +14,22 @@ class Rapporteren extends StatefulWidget {
 }
 
 class _RapporterenState extends ScreenStateManager<Rapporteren> {
-  late String selectedCategory;
+  late String selectedCategory = ''; // Initialize with empty string
 
   @override
   String get screenName => 'Rapporteren';
 
   @override
+  void initState() {
+    super.initState();
+    // Load initial state
+    final initialState = getInitialState();
+    selectedCategory = initialState['selectedCategory'] as String;
+  }
+
+  @override
   Map<String, dynamic> getInitialState() => {
-    'selectedCategory': '',
+    'selectedCategory': '', // Provide default value
   };
 
   @override
@@ -32,7 +40,9 @@ class _RapporterenState extends ScreenStateManager<Rapporteren> {
   @override
   void updateState(String key, dynamic value) {
     if (key == 'selectedCategory') {
-      selectedCategory = value as String;
+      setState(() {
+        selectedCategory = value as String;
+      });
     }
   }
 
@@ -219,6 +229,8 @@ class _RapporterenState extends ScreenStateManager<Rapporteren> {
     );
   }
 }
+
+
 
 
 

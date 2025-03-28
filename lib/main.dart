@@ -32,6 +32,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WildRapport',
+      builder: (context, child) {
+        // Move MediaQuery modifications to a separate widget to prevent unnecessary rebuilds
+        return _MediaQueryWrapper(child: child!);
+      },
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.lightMintGreen,
         colorScheme: ColorScheme.fromSeed(
@@ -50,6 +54,26 @@ class _MyAppState extends State<MyApp> {
             },
           )
         : const LoginScreen(),
+    );
+  }
+}
+
+// Separate widget for MediaQuery modifications
+class _MediaQueryWrapper extends StatelessWidget {
+  final Widget child;
+
+  const _MediaQueryWrapper({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.linear(1.0),
+        viewInsets: MediaQuery.of(context).viewInsets.copyWith(
+          bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,
+        ),
+      ),
+      child: child,
     );
   }
 }

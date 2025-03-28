@@ -8,42 +8,34 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<AppStateProvider>().pushScreen(screenName);
       loadScreenState();
     });
   }
 
   @override
   void dispose() {
-    saveScreenState();  // Save state before disposal
-    context.read<AppStateProvider>().popScreen();  // Just remove from stack, keep state
+    saveScreenState();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Add any common dependencies handling
   }
 
   // Abstract methods that screens must implement
   Map<String, dynamic> getInitialState();
   String get screenName;
 
-  // Common state loading logic
   void loadScreenState() {
     final provider = context.read<AppStateProvider>();
     final initialState = getInitialState();
-    
+    final currentState = getCurrentState();
+
     initialState.forEach((key, defaultValue) {
-      final value = provider.getScreenState<dynamic>(screenName, key) ?? defaultValue;
-      setState(() {
+      final savedValue = provider.getScreenState<dynamic>(screenName, key);
+      final value = savedValue ?? defaultValue;
+      if (currentState[key] != value) {
         updateState(key, value);
-      });
+      }
     });
   }
 
-  // Common state saving logic
   void saveScreenState() {
     final provider = context.read<AppStateProvider>();
     final currentState = getCurrentState();
@@ -53,20 +45,16 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
     });
   }
 
-  // Abstract method to update state values
   void updateState(String key, dynamic value);
-
-  // Abstract method to get current state values
   Map<String, dynamic> getCurrentState();
 
-  // Helper method to safely update state
   void safeSetState(VoidCallback fn) {
     if (mounted) {
       setState(fn);
     }
   }
 
-  // Add report handling methods
+  // Report handling methods
   void initializeReportFlow(String reportType) {
     context.read<AppStateProvider>().initializeReport(reportType);
   }
@@ -79,13 +67,19 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
     context.read<AppStateProvider>().updateCurrentReport(property, value);
   }
 
-  // Modify clearAllConfirmation to also clear current report
   void clearAllConfirmation(BuildContext context) {
     context.read<AppStateProvider>().clearCurrentReport();
     Navigator.of(context).pop();
-    context.read<AppStateProvider>()
-        .clearAllStatesAndNavigateToRapporteren(context);
+    context.read<AppStateProvider>().resetApplicationState(context);
+  }
+
+  void resetApplication({Widget? destination}) {
+    context.read<AppStateProvider>().resetApplicationState(
+      context,
+      destination: destination,
+    );
   }
 }
+
 
 

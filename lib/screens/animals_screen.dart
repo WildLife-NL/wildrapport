@@ -23,7 +23,7 @@ class AnimalsScreen extends StatefulWidget {
 
 class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
   bool isExpanded = false;
-  String selectedFilter = 'Filter';
+  String selectedFilter = DropdownService.defaultFilterText; // Use the constant instead of hardcoding 'Filter'
   late List<AnimalModel> animals;
   final ScrollController _scrollController = ScrollController();
 
@@ -232,6 +232,7 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
     );
   }
 }
+
 
 
 
