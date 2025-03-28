@@ -15,6 +15,11 @@ class OverzichtScreen extends StatefulWidget {
 
 class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
   String userName = 'John Doe';
+  final double topContainerHeight = 260.0; // Reduced from 300 to 285 (15px less)
+  final double welcomeFontSize = 20.0;
+  final double usernameFontSize = 24.0;
+  final double logoWidth = 180.0;
+  final double logoHeight = 180.0;
 
   @override
   String get screenName => 'OverzichtScreen';
@@ -40,8 +45,6 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    
     return WillPopScope(
       onWillPop: () async {
         context.read<AppStateProvider>()
@@ -49,146 +52,191 @@ class _OverzichtScreenState extends ScreenStateManager<OverzichtScreen> {
         return true;
       },
       child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, 
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                width: double.infinity, // This ensures full width
-                decoration: BoxDecoration(
-                  color: AppColors.darkGreen,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(75),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableHeight = constraints.maxHeight;
+              final availableWidth = constraints.maxWidth;
+              
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: availableHeight,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0, top: 60.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welkom Bij Wild Rapport',
-                            style: TextStyle(
-                              color: AppColors.offWhite,
-                              fontSize: 16,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        // Top green container
+                        Container(
+                          height: topContainerHeight,
+                          width: double.infinity,  // This ensures full width
+                          decoration: BoxDecoration(
+                            color: AppColors.darkGreen,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(75),
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            userName, 
-                            style: TextStyle(
-                              color: AppColors.offWhite,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: availableWidth * 0.05,
+                                  top: topContainerHeight * 0.15,
                                 ),
-                              ],
-                            ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Welkom Bij Wild Rapport',
+                                      style: TextStyle(
+                                        color: AppColors.offWhite,
+                                        fontSize: welcomeFontSize,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black.withOpacity(0.25),
+                                            offset: const Offset(0, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: topContainerHeight * 0.03),
+                                    Text(
+                                      userName,
+                                      style: TextStyle(
+                                        color: AppColors.offWhite,
+                                        fontSize: usernameFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        shadows: [
+                                          Shadow(
+                                            color: Colors.black.withOpacity(0.25),
+                                            offset: const Offset(0, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 15,
+                                right: 0,
+                                left: 0,
+                                child: Center(
+                                  child: Image.asset(
+                                    'assets/LogoWildlifeNL.png',
+                                    width: availableWidth * 0.7,  // Increased from 0.5 to 0.7
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 20,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Image.asset(
-                          'assets/LogoWildlifeNL.png',
-                          width: screenWidth * 0.7,
-                          fit: BoxFit.contain,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    WhiteBulkButton(
-                      text: 'RapportenKaart', 
-                      leftWidget: Image.asset(
-                        'assets/icons/marked_earth.png',
-                        width: 50,
-                        height: 50,
-                      ),
-                      rightWidget: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    WhiteBulkButton(
-                      text: 'Rapporteren',
-                      leftWidget: Image.asset(
-                        'assets/icons/report.png',
-                        width: 50,
-                        height: 50,
-                      ),
-                      rightWidget: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.black54,
-                      ),
-                      onPressed: () {
-                        context.read<AppStateProvider>()
-                            .setScreenState('OverzichtScreen', 'userName', userName);
                         
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Rapporteren(),
+                        // Buttons section
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: availableWidth * 0.05,
+                              vertical: availableHeight * 0.02,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                WhiteBulkButton(
+                                  text: 'RapportenKaart',
+                                  leftWidget: Image.asset(
+                                    'assets/icons/marked_earth.png',
+                                    width: availableWidth * 0.12,
+                                    height: availableWidth * 0.12,
+                                  ),
+                                  rightWidget: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.black54,
+                                    size: availableWidth * 0.05,
+                                  ),
+                                ),
+                                WhiteBulkButton(
+                                  text: 'Rapporteren',
+                                  leftWidget: Image.asset(
+                                    'assets/icons/report.png',
+                                    width: availableWidth * 0.12,
+                                    height: availableWidth * 0.12,
+                                  ),
+                                  rightWidget: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.black54,
+                                    size: availableWidth * 0.05,
+                                  ),
+                                  onPressed: () {
+                                    context.read<AppStateProvider>()
+                                        .setScreenState('OverzichtScreen', 'userName', userName);
+                                    
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Rapporteren(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                WhiteBulkButton(
+                                  text: 'Mijn Rapporten',
+                                  leftWidget: Image.asset(
+                                    'assets/icons/my_report.png',
+                                    width: availableWidth * 0.12,
+                                    height: availableWidth * 0.12,
+                                  ),
+                                  rightWidget: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.black54,
+                                    size: availableWidth * 0.05,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                    WhiteBulkButton(
-                      text: 'Mijn Rapporten',
-                      leftWidget: Image.asset(
-                        'assets/icons/my_report.png',
-                        width: 50,
-                        height: 50,
-                      ),
-                      rightWidget: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

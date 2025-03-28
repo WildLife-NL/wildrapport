@@ -26,17 +26,6 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
 
   @override
-  void dispose() {
-    for (var controller in controllers) {
-      controller.dispose();
-    }
-    for (var node in focusNodes) {
-      node.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,11 +108,21 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         BrownButton(
           model: LoginService.createButtonModel(text: 'Verifiëren'),
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const OverzichtScreen(),
-              ),
-            );
+            // First unfocus any active text fields
+            FocusScope.of(context).unfocus();
+            
+            // Get the verification code
+            final code = controllers.map((c) => c.text).join();
+            
+            // Navigate without rebuilding
+            if (context.mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const OverzichtScreen(),
+                ),
+                (route) => false, // This removes all previous routes
+              );
+            }
           },
         ),
         const SizedBox(height: 15),
@@ -152,7 +151,19 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
       ],
     );
   }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
 }
+
 
 
 

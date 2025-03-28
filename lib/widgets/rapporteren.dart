@@ -84,7 +84,7 @@ class _RapporterenState extends ScreenStateManager<Rapporteren> {
                     // Left Column
                     Expanded(
                       child: Transform.translate(
-                        offset: const Offset(0, -15), // Move entire left column up by 15 pixels
+                        offset: const Offset(0, -15),
                         child: Column(
                           children: [
                             Expanded(
@@ -109,24 +109,27 @@ class _RapporterenState extends ScreenStateManager<Rapporteren> {
                     const SizedBox(width: 12),
                     // Right Column
                     Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: _buildReportButton(
-                              context: context,
-                              image: 'assets/icons/rapporteren/accident_icon.png',
-                              text: 'Verkeersongeval',
+                      child: Transform.translate(
+                        offset: const Offset(0, -15), // Added this transform
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: _buildReportButton(
+                                context: context,
+                                image: 'assets/icons/rapporteren/accident_icon.png',
+                                text: 'Verkeersongeval',
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: _buildReportButton(
-                              context: context,
-                              image: 'assets/icons/rapporteren/sighting_icon.png',
-                              text: 'Waarnemingen',
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: _buildReportButton(
+                                context: context,
+                                image: 'assets/icons/rapporteren/sighting_icon.png',
+                                text: 'Waarnemingen',
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -229,6 +232,7 @@ class _RapporterenState extends ScreenStateManager<Rapporteren> {
     );
   }
 }
+
 
 
 
