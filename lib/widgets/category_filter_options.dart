@@ -6,11 +6,13 @@ import 'package:wildrapport/widgets/circle_icon_container.dart';
 class CategoryFilterOptions extends StatelessWidget {
   final List<Map<String, String>> items;
   final Function(String) onCategorySelected;
+  final VoidCallback onBackPressed;  // Add new callback
 
   const CategoryFilterOptions({
     Key? key,
     required this.items,
     required this.onCategorySelected,
+    required this.onBackPressed,  // Add to constructor
   }) : super(key: key);
 
   @override
@@ -67,7 +69,7 @@ class CategoryFilterOptions extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: GestureDetector(
-              onTap: () => onCategorySelected('Resetten'), // Changed to use 'Resetten' like the reset button
+              onTap: onBackPressed,  // Use new callback
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 decoration: BoxDecoration(
@@ -108,5 +110,6 @@ class CategoryFilterOptions extends StatelessWidget {
     );
   }
 }
+
 
 

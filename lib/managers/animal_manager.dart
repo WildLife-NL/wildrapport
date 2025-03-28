@@ -1,7 +1,10 @@
+
+import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 
-class AnimalService {
-  static List<AnimalModel> getAnimals() {
+class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterface {
+  @override
+  List<AnimalModel> getAnimals() {
     return [
       AnimalModel(
         animalImagePath: 'assets/wolf.png',
@@ -30,9 +33,11 @@ class AnimalService {
     ];
   }
 
-  static AnimalModel handleAnimalSelection(AnimalModel selectedAnimal) {
-    // You can add any additional processing here if needed
+  @override
+  AnimalModel handleAnimalSelection(AnimalModel selectedAnimal) {
     return selectedAnimal;
   }
 }
+
+
 

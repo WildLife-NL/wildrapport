@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
@@ -10,10 +13,17 @@ import 'package:wildrapport/managers/filter_manager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Create instances of services
+  final animalService = AnimalManager();
+  final filterManager = FilterManager();
+  
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        Provider<AnimalRepositoryInterface>(create: (_) => animalService),
+        Provider<FilterInterface>.value(value: filterManager),
       ],
       child: const MyApp(),
     ),

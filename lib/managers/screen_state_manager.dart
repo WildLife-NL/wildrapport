@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
-abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
+abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> implements ScreenStateInterface {
   @override
   void initState() {
     super.initState();
@@ -22,6 +23,7 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
   Map<String, dynamic> getInitialState();
   String get screenName;
 
+  @override
   void loadScreenState() {
     final provider = context.read<AppStateProvider>();
     final initialState = getInitialState();
@@ -80,6 +82,7 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> {
     );
   }
 }
+
 
 
 

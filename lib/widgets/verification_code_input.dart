@@ -119,7 +119,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         ),
         const Spacer(),
         BrownButton(
-          model: LoginService.createButtonModel(text: 'Verifiëren'),
+          model: LoginManager.createButtonModel(text: 'Verifiëren'),
           onPressed: () {
             // First unfocus any active text fields
             FocusScope.of(context).unfocus();

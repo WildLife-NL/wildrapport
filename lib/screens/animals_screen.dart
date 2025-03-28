@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/screen_state_manager.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
+import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/viewmodels/animals_view_model.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -9,11 +12,13 @@ import 'package:wildrapport/managers/dropdown_manager.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String screenTitle;
+  final AnimalManager animalService;
   
-  const AnimalsScreen({
+  AnimalsScreen({
     super.key,
     required this.screenTitle,
-  });
+    AnimalManager? animalService,
+  }) : animalService = animalService ?? AnimalManager();
 
   @override
   State<AnimalsScreen> createState() => _AnimalsScreenState();
@@ -27,7 +32,10 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _viewModel = AnimalsViewModel();
+    _viewModel = AnimalsViewModel(
+      selectedFilter: FilterType.none.displayText,
+      animalService: widget.animalService,
+    );
   }
 
   @override
@@ -42,7 +50,7 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
   @override
   Map<String, dynamic> getInitialState() => {
     'isExpanded': false,
-    'selectedFilter': 'Filter',
+    'selectedFilter': FilterType.none.displayText,  // Change this from 'Filter' to FilterType.none.displayText
   };
 
   @override
@@ -81,13 +89,18 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Consumer<AnimalsViewModel>(
-                  builder: (context, viewModel, _) => DropdownService.buildDropdown(
-                    type: DropdownType.filter,
-                    selectedValue: viewModel.selectedFilter,
-                    isExpanded: viewModel.isExpanded,
-                    onExpandChanged: (_) => viewModel.toggleExpanded(),
-                    onOptionSelected: viewModel.updateFilter,
-                  ),
+                  builder: (context, viewModel, _) {
+                    print('AnimalsScreen - Current Filter: ${viewModel.selectedFilter}'); // Debug print
+                    return DropdownManager().buildDropdown(
+                      type: DropdownType.filter,
+                      selectedValue: viewModel.selectedFilter,
+                      isExpanded: viewModel.isExpanded,
+                      onExpandChanged: (_) => viewModel.toggleExpanded(),
+                      onOptionSelected: (filter) {
+                        viewModel.updateFilter(filter);
+                      },
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -112,4 +125,35 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

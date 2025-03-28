@@ -2,7 +2,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 
-class LoginService implements LoginInterface {
+class LoginManager implements LoginInterface {
   static BrownButtonModel createButtonModel({
     required String text,
     String leftIconPath = '',

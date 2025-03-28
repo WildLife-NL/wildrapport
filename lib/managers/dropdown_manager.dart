@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
+import 'package:wildrapport/models/enums/filter_type.dart';
+import 'package:wildrapport/models/filter_button_model.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 
-class DropdownService {
-  static const String defaultFilterText = 'Filteren';
-  static const String sorteerOpCategorieText = 'Sorteer op Categorie';
-  static const Duration animationDuration = Duration(milliseconds: 200);
-  static const Curve animationCurve = Curves.easeInOut;
+class DropdownManager implements DropdownInterface {
+  final FilterManager _filterManager = FilterManager();
 
-  static Widget buildDropdown({
+  @override
+  Widget buildDropdown({
     required DropdownType type,
     required String selectedValue,
     required bool isExpanded,
@@ -21,273 +21,154 @@ class DropdownService {
   }) {
     switch (type) {
       case DropdownType.filter:
-        return _buildAnimatedDropdown(
-          content: _buildFilterDropdown(
-            selectedValue: selectedValue,
-            isExpanded: isExpanded,
-            onExpandChanged: onExpandChanged,
-            onOptionSelected: onOptionSelected,
-          ),
+        return _buildFilterDropdown(
+          selectedValue: selectedValue,
           isExpanded: isExpanded,
+          onExpandChanged: onExpandChanged,
+          onOptionSelected: onOptionSelected,
         );
-    
       default:
         throw UnimplementedError('Dropdown type not implemented');
     }
   }
 
-  static Widget _buildAnimatedDropdown({
-    required Widget content,
-    required bool isExpanded,
-  }) {
-    return AnimatedContainer(
-      duration: animationDuration,
-      curve: animationCurve,
-      child: AnimatedSize(
-        duration: animationDuration,
-        curve: animationCurve,
-        alignment: Alignment.topCenter,
-        child: content,
-      ),
-    );
-  }
-
-  static Widget _buildFilterDropdown({
+  Widget _buildFilterDropdown({
     required String selectedValue,
     required bool isExpanded,
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
   }) {
-    // Check if the current value is a category
-    bool isCategory = FilterManager.getAnimalCategories()
-        .any((category) => category['text'] == selectedValue);
-    bool isShowingCategories = selectedValue == sorteerOpCategorieText || isCategory;
-    
-    // Ensure we're using defaultFilterText ('Filteren') consistently
-    String currentValue = selectedValue == 'Filter' ? defaultFilterText : selectedValue;
-    
-    BrownButtonModel selectedModel = currentValue == defaultFilterText
-        ? BrownButtonModel(
-            text: defaultFilterText,
-            leftIconPath: 'circle_icon:filter_list',
-            rightIconPath: isExpanded 
-                ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-                : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-            leftIconPadding: 5,
-            leftIconSize: 38.0,
-            rightIconSize: 24.0,
-          )
-        : isShowingCategories
-            ? BrownButtonModel(
-                text: currentValue,
-                leftIconPath: 'circle_icon:category',
-                rightIconPath: isExpanded 
-                    ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-                    : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-                leftIconPadding: 5,
-                leftIconSize: 38.0,
-                rightIconSize: 24.0,
-              )
-            : _createSelectedModel(currentValue, isExpanded);
+    final bool isShowingCategories = selectedValue == FilterType.category.displayText ||
+                                   _filterManager.getAnimalCategories()
+                                       .any((category) => category['text'] == selectedValue);
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BrownButton(
-          model: selectedModel,
+          model: _createSelectedButtonModel(selectedValue, isExpanded).toBrownButtonModel(isExpanded: isExpanded),
           onPressed: () => onExpandChanged(!isExpanded),
         ),
-        if (isExpanded)
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-              color: AppColors.lightMintGreen,
-              borderRadius: BorderRadius.circular(25),
+        if (isExpanded) ...[
+          const SizedBox(height: 8),
+          if (isShowingCategories)
+            _buildCategoryOptions(onOptionSelected, onExpandChanged)
+          else
+            ..._buildFilterOptions(
+              selectedValue: selectedValue,
+              onOptionSelected: onOptionSelected,
+              onExpandChanged: onExpandChanged,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: isShowingCategories
-                  ? [
-                      CategoryFilterOptions(
-                        items: FilterManager.getAnimalCategories(),
-                        onCategorySelected: (category) {
-                          if (category == 'Resetten') {
-                            onOptionSelected(defaultFilterText);
-                            // Don't close the dropdown
-                          } else {
-                            onOptionSelected(category);
-                            onExpandChanged(false);
-                          }
-                        },
-                      ),
-                    ]
-                  : _getFilterOptions(
-                      selectedValue: currentValue,
-                      onOptionSelected: (selected) {
-                        onOptionSelected(selected);
-                        // Keep dropdown open for "Sorteer op Categorie" and "Resetten"
-                        if (selected != sorteerOpCategorieText && selected != 'Resetten') {
-                          onExpandChanged(false);
-                        }
-                      },
-                    ).map((button) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _buildAnimatedOption(child: button),
-                    )).toList(),
-            ),
-          ),
+        ],
       ],
     );
   }
 
-  static Widget _buildAnimatedOption({required Widget child}) {
-    return AnimatedOpacity(
-      opacity: 1.0,
-      duration: animationDuration,
-      curve: animationCurve,
-      child: child,
+  Widget _buildCategoryOptions(
+    Function(String) onOptionSelected,
+    Function(bool) onExpandChanged,
+  ) {
+    return CategoryFilterOptions(
+      items: _filterManager.getAnimalCategories(),
+      onCategorySelected: (category) {
+        onOptionSelected(category);
+        onExpandChanged(false);
+      },
+      onBackPressed: () => onOptionSelected(FilterType.none.displayText),
     );
   }
 
-  static List<BrownButton> _getFilterOptions({
+  List<Widget> _buildFilterOptions({
     required String selectedValue,
     required Function(String) onOptionSelected,
+    required Function(bool) onExpandChanged,
   }) {
-    final List<BrownButtonModel> models = [];
-    
-    // Only show reset button if we're not showing the default filter text
-    if (selectedValue != defaultFilterText) {
-      models.add(BrownButtonModel(
-        text: 'Resetten',
-        leftIconPath: 'circle_icon:restart_alt',
-        leftIconPadding: 5,
-        leftIconSize: 38.0,
-      ));
-    }
-    
-    // Get all filter options except the currently selected one
-    final allOptions = _getFilterDropdown().where((model) => 
-      model.text != selectedValue && 
-      // Also exclude if a category is selected
-      !FilterManager.getAnimalCategories()
-          .any((category) => category['text'] == selectedValue)
-    ).toList();
-    
-    // Add filtered options
-    models.addAll(allOptions);
-    
-    return models.map((model) => BrownButton(
-      model: model,
-      onPressed: () => onOptionSelected(model.text ?? ''),
-    )).toList();
-  }
+    final List<Widget> options = [];
 
-  static List<BrownButtonModel> _getFilterDropdown() {
-    return [
-      BrownButtonModel(
-        text: 'Sorteer alfabetisch',
-        leftIconPath: 'circle_icon:sort_by_alpha',
-        leftIconPadding: 5,
-        leftIconSize: 38.0,
-      ),
-      BrownButtonModel(
-        text: 'Sorteer op Categorie',
-        leftIconPath: 'circle_icon:category',
-        rightIconPath: 'assets/icons/filter_dropdown/arrow_next_icon.png',
-        leftIconPadding: 5,
-        leftIconSize: 38.0,
-        rightIconSize: 24.0,
-      ),
-      BrownButtonModel(
-        text: 'Meest gezien',
-        leftIconPath: 'circle_icon:visibility',
-        leftIconPadding: 5,
-        leftIconSize: 38.0,
-      ),
-    ];
-  }
-
-  static BrownButtonModel _createSelectedModel(String selectedValue, bool isExpanded) {
-    // Check if the selected value is a category
-    final categories = FilterManager.getAnimalCategories();
-    final selectedCategory = categories.firstWhere(
-      (category) => category['text'] == selectedValue,
-      orElse: () => {'text': '', 'icon': ''},
+    // Add filter options
+    options.addAll(
+      _filterManager.getAvailableFilters(selectedValue)
+          .map((filterModel) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: BrownButton(
+                  model: filterModel.toBrownButtonModel(),
+                  onPressed: () {
+                    onOptionSelected(filterModel.type.displayText);
+                    if (filterModel.type != FilterType.category && !filterModel.keepDropdownOpen) {
+                      onExpandChanged(false);
+                    }
+                  },
+                ),
+              ))
+          .toList(),
     );
 
-    // If it's a category, use its icon
-    if (selectedCategory['text']!.isNotEmpty) {
-      return BrownButtonModel(
-        text: selectedValue,
-        leftIconPath: selectedCategory['icon'],
-        rightIconPath: isExpanded 
-            ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-            : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-        leftIconPadding: 5,
-        leftIconSize: 38.0,
-        rightIconSize: 24.0,
+    // Only show reset when a filter is actually selected
+    final bool shouldShowReset = selectedValue != FilterType.none.displayText && 
+                                selectedValue != 'Filteren' &&
+                                selectedValue != 'Filter' &&
+                                selectedValue.isNotEmpty &&
+                                !_filterManager.getAvailableFilters(selectedValue)
+                                    .any((filter) => filter.type.displayText == selectedValue);
+
+    if (shouldShowReset) {
+      options.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: BrownButton(
+            model: BrownButtonModel(
+              text: 'Reset filter',
+              leftIconPath: 'assets/icons/filter_dropdown/reset_icon.png',
+              leftIconSize: 38.0,
+            ),
+            onPressed: () {
+              onOptionSelected(FilterType.none.displayText);
+              onExpandChanged(false);  // Close the dropdown after reset
+            },
+          ),
+        ),
       );
     }
 
-    // For non-category filters, map the filter name to its corresponding icon
-    String leftIconPath = 'circle_icon:filter_list';  // default
-    switch (selectedValue) {
-      case 'Sorteer alfabetisch':
-        leftIconPath = 'circle_icon:sort_by_alpha';
-        break;
-      case 'Meest gezien':
-        leftIconPath = 'circle_icon:visibility';
-        break;
-      case 'Sorteer op Categorie':
-        leftIconPath = 'circle_icon:category';
-        break;
+    return options;
+  }
+
+  FilterButtonModel _createSelectedButtonModel(String currentValue, bool isExpanded) {
+    if (currentValue == FilterType.none.displayText) {
+      return FilterButtonModel(
+        type: FilterType.none,
+        showRightArrow: false,
+        customText: 'Filteren',
+      );
     }
 
-    return BrownButtonModel(
-      text: selectedValue,
-      leftIconPath: leftIconPath,
-      rightIconPath: isExpanded 
-          ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-          : 'assets/icons/filter_dropdown/arrow_down_icon.png',
-      leftIconPadding: 5,
-      leftIconSize: 38.0,
-      rightIconSize: 24.0,
+    final categories = _filterManager.getAnimalCategories();
+    final isCategory = categories.any((category) => category['text'] == currentValue);
+    
+    if (isCategory) {
+      final category = categories.firstWhere(
+        (category) => category['text'] == currentValue,
+      );
+      return FilterButtonModel(
+        type: FilterType.category,
+        customText: currentValue,
+        customIcon: category['icon'],
+        showRightArrow: false,
+      );
+    }
+
+    final filterType = FilterType.values.firstWhere(
+      (type) => type.displayText == currentValue,
+      orElse: () => FilterType.none,
+    );
+
+    return FilterButtonModel(
+      type: filterType,
+      showRightArrow: filterType == FilterType.category,
+      keepDropdownOpen: filterType == FilterType.category,
     );
   }
-
-  static List<BrownButton> _createButtons(
-    List<BrownButtonModel> models,
-    Function(String) onOptionSelected,
-  ) {
-    return models.map((model) => BrownButton(
-      model: model,
-      onPressed: () => onOptionSelected(model.text ?? ''),
-    )).toList();
-  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

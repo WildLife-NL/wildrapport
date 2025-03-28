@@ -154,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
                         BrownButton(
-                          model: LoginService.createButtonModel(
+                          model: LoginManager.createButtonModel(
                             text: 'Login',
                             isLoginButton: true,  // This will use the login-specific styling
                           ),
