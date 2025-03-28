@@ -1,10 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/screen_state_manager.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 

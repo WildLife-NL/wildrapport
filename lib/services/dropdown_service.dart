@@ -133,19 +133,26 @@ class DropdownService {
     // Get regular filter options
     final filterOptions = _getFilterDropdown();
     
-    // Add reset button with the same positioning
+    // Add reset button only if a filter is selected
     if (filterOptions.any((model) => model.text == selectedValue)) {
       models.add(BrownButtonModel(
         text: 'Resetten',
         leftIconPath: 'assets/icons/filter_dropdown/reset_icon.png',
-        leftIconPadding: 5, // Add this to match the positioning
+        leftIconPadding: 5,
       ));
     }
     
     // Add regular filter options
     models.addAll(filterOptions);
     
-    return _createButtons(models, onOptionSelected);
+    return _createButtons(models, (selected) {
+      // If "Resetten" is clicked, pass the default filter text
+      if (selected == 'Resetten') {
+        onOptionSelected(defaultFilterText);
+      } else {
+        onOptionSelected(selected);
+      }
+    });
   }
 
   static List<BrownButtonModel> _getFilterDropdown() {
@@ -190,6 +197,10 @@ class DropdownService {
     )).toList();
   }
 }
+
+
+
+
 
 
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/managers/screen_state_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/reports/waarneming_report.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/services/animal_service.dart';
 import 'package:wildrapport/services/dropdown_service.dart';
@@ -28,6 +26,13 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
   String selectedFilter = 'Filter';
   late List<AnimalModel> animals;
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize animals list using AnimalService
+    animals = AnimalService.getAnimals();
+  }
 
   void _onAnimalSelected(String animal) {
     // Get and update current report
@@ -227,6 +232,7 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
     );
   }
 }
+
 
 
 

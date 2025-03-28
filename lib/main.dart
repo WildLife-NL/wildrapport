@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
-import 'package:dcdg/dcdg.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
