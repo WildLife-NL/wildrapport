@@ -70,10 +70,7 @@ class LoginManager implements LoginInterface {
     }
     catch(e){
       //TODO: Handle exception
-      throw Exception("Unhandled Unauthorized Exception");
+      throw Exception("Unhandled Unauthorized Exception")
     }
   }
 }
-
-
-
