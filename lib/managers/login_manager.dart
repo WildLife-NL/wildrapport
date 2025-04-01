@@ -1,12 +1,9 @@
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
-
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
-
-import 'package:wildlife_api_connection/auth_api.dart';
-import 'package:wildrapport/constants/api_url.dart';
-import 'package:wildlife_api_connection/models/user.dart';
+import 'package:wildrapport/providers/api_provider.dart';
+import 'package:wildrapport/models/user_model.dart';
 
 class LoginManager implements LoginInterface {
   static BrownButtonModel createButtonModel({
@@ -52,8 +49,7 @@ class LoginManager implements LoginInterface {
   @override
   Future<bool> sendLoginCode(String email) async {
     try{
-      AuthApi(ApiUrl.apiClient)
-      .authenticate("Wild Rapport", email);
+      ApiProvider(AppConfig.shared.apiClient).authenticate("Wild Rapport", email);
       return true;
     }
     catch(e){
@@ -63,14 +59,13 @@ class LoginManager implements LoginInterface {
   }
 
   @override
-  Future<User> verifyCode(String email, String code) async {
+  Future<UserModel> verifyCode(String email, String code) async {
     try{
-      return AuthApi(ApiUrl.apiClient)
-      .authorize(email, code);
+      return ApiProvider(AppConfig.shared.apiClient).authorize(email, code);
     }
     catch(e){
       //TODO: Handle exception
-      throw Exception("Unhandled Unauthorized Exception")
+      throw Exception("Unhandled Unauthorized Exception");
     }
   }
 }
