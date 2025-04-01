@@ -1,6 +1,9 @@
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/providers/api_provider.dart';
+import 'package:wildrapport/models/api_models/user.dart';
 
 class LoginManager implements LoginInterface {
   static BrownButtonModel createButtonModel({
@@ -44,17 +47,28 @@ class LoginManager implements LoginInterface {
   }
 
   @override
-  Future<bool> sendLoginCode(String email) {
-    // TODO: implement sendLoginCode
-    throw UnimplementedError();
+  Future<bool> sendLoginCode(String email) async {
+    try{
+      //check if there is a token in sharedpreference storage
+      ApiProvider(AppConfig.shared.apiClient).authenticate("Wild Rapport", email);
+      return true;
+    }
+    catch(e){
+      //TODO: Handle exception
+      return false;
+    }
   }
 
   @override
-  Future<bool> verifyCode(String email, String code) {
-    // TODO: implement verifyCode
-    throw UnimplementedError();
+  Future<User> verifyCode(String email, String code) async {
+    try{
+      return ApiProvider(AppConfig.shared.apiClient).authorize(email, code);
+    }
+    catch(e){
+      //TODO: Handle exception
+      throw Exception("Unhandled Unauthorized Exception");
+    }
   }
 }
 
-
-
+//use interface of api

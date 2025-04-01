@@ -7,6 +7,7 @@ import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
 import 'package:wildrapport/managers/login_manager.dart';
+import 'package:wildrapport/interfaces/login_interface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
+  final LoginInterface loginManager = LoginManager();
   bool showVerification = false;
 
   @override
@@ -39,18 +41,24 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    print('Login button pressed');
-    setState(() {
-      showVerification = true;
-    });
-    print('showVerification set to: $showVerification');
+  void _handleLogin() async {
+    debugPrint('Login button pressed');
+    bool response = await loginManager.sendLoginCode(emailController.text);
+    if (response){
+      setState(() {
+        showVerification = true;
+        debugPrint("Verification Code Send To Email!");
+        debugPrint('showVerification set to: $showVerification');
+      });
+    }
+    else{
+      debugPrint("Login Failed");
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
-    print('Building LoginScreen, showVerification: $showVerification');
+    debugPrint('Building LoginScreen, showVerification: $showVerification');
     final screenWidth = MediaQuery.of(context).size.width;
     
     return Scaffold(

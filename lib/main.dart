@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
@@ -10,13 +11,24 @@ import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
+import 'package:wildrapport/config/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   
   // Create instances of services
   final animalService = AnimalManager();
   final filterManager = FilterManager();
+  
+  await dotenv.load(fileName: ".env");
+  AppConfig.create();
+  
+  String? token = await _getToken();
+
+  if(token != null && token != ""){
+    debugPrint("Token already stored locally: $token");
+  }
   
   runApp(
     MultiProvider(
@@ -28,6 +40,11 @@ void main() {
       child: const MyApp(),
     ),
   );
+}
+
+Future<String?> _getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('bearer_token');
 }
 
 class MyApp extends StatefulWidget {
