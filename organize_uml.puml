@@ -1,0 +1,235 @@
+@startuml
+title WildRapport UML Diagram
+skinparam monochrome false
+left to right direction
+
+package "Constants" {
+  class "AppColors" {
+    {static} +Color darkGreen
+    {static} +Color brown
+    {static} +Color lightMintGreen
+    {static} +Color offWhite
+  }
+  class "AppTextTheme" {
+    {static} +TextTheme textTheme
+  }
+  class "AssetPreloader" {
+    {static} +dynamic precacheAllAssets()
+  }
+}
+
+package "Interfaces" {
+  abstract class "AnimalRepositoryInterface" {
+    +List<AnimalModel> getAnimals()
+  }
+  abstract class "AnimalSelectionInterface" {
+    +AnimalModel handleAnimalSelection()
+  }
+  abstract class "DropdownInterface" {
+    +Widget buildDropdown()
+  }
+  abstract class "CategoryInterface" {
+    +List<Map<String, String>> getAnimalCategories()
+  }
+  abstract class "FilterInterface" {
+    +List<T> filterByCategory()
+  }
+  abstract class "SortInterface" {
+    +List<T> sortAlphabetically()
+    +List<T> sortByMostViewed()
+  }
+  abstract class "LoginInterface" {
+    +dynamic handleLogin()
+    +dynamic handleVerificationCode()
+    +dynamic resendCode()
+    +dynamic verifyCode()
+    +dynamic sendLoginCode()
+  }
+  abstract class "ScreenStateInterface" {
+    +void loadScreenState()
+    +void saveScreenState()
+    +void updateState()
+    +Map<String, dynamic> getCurrentState()
+    +void safeSetState()
+  }
+}
+
+package "Managers"  {
+  class "AnimalManager" {
+    +List<AnimalModel> getAnimals()
+    +AnimalModel handleAnimalSelection()
+  }
+  class "DropdownManager" {
+    -FilterManager _filterManager
+    +Widget buildDropdown()
+    -Widget _buildFilterDropdown()
+  }
+  class "FilterManager" {
+    {static} -List<FilterButtonModel> _filterOptions
+    +List<FilterButtonModel> getAvailableFilters()
+    +List<Map<String, String>> getAnimalCategories()
+    +List<T> filterByCategory()
+    +List<T> sortAlphabetically()
+    +List<T> sortByMostViewed()
+  }
+  class "LoginManager" {
+    {static} +BrownButtonModel createButtonModel()
+    +dynamic handleLogin()
+    +dynamic handleVerificationCode()
+    +dynamic resendCode()
+    +dynamic sendLoginCode()
+    +dynamic verifyCode()
+  }
+  abstract class "ScreenStateManager" {
+    +String screenName
+    +void initState()
+    +void dispose()
+    +void loadScreenState()
+    +void saveScreenState()
+    +void updateState()
+    +Map<String, dynamic> getCurrentState()
+    +void safeSetState()
+  }
+}
+
+package "Models"  {
+  class "AnimalModel" {
+    -String _animalImagePath
+    -String _animalName
+    -int _viewCount
+    +String animalImagePath
+    +String animalName
+    +int viewCount
+  }
+  class "BrownButtonModel" {
+    {static} +double DEFAULT_BUTTON_HEIGHT
+    -String? _text
+    +String? text
+    +Map<String, dynamic> toMap()
+  }
+  class "FilterButtonModel" {
+    +FilterType type
+    +bool showRightArrow
+    +BrownButtonModel toBrownButtonModel()
+  }
+}
+
+package "Providers" {
+  class "AppStateProvider" {
+    -Map<String, Map<String, dynamic>> _screenStates
+    -Map<String, dynamic> _activeReports
+    +void setScreenState()
+    +T? getScreenState()
+    +void clearScreenState()
+    +void initializeReport()
+    +T? getCurrentReport()
+  }
+}
+
+package "Screens"  {
+  class "AnimalsScreen" {
+    +String screenTitle
+    +AnimalManager animalService
+    +State<AnimalsScreen> createState()
+  }
+  class "LoginScreen" {
+    +State<LoginScreen> createState()
+  }
+  class "OverzichtScreen" {
+    +State<OverzichtScreen> createState()
+  }
+}
+
+package "ViewModels"  {
+  class "AnimalsViewModel" {
+    +bool isExpanded
+    +String selectedFilter
+    +List<AnimalModel> animals
+    -AnimalManager _animalService
+    +void toggleExpanded()
+    +void handleAnimalSelection()
+  }
+  class "LoginViewModel" {
+    +TextEditingController emailController
+    +bool showVerification
+    +void handleLogin()
+    +bool isValidEmail()
+  }
+  class "OverzichtViewModel" {
+    +String userName
+    +double topContainerHeight
+    +void updateUserName()
+  }
+}
+
+package "Widgets" {
+  class "AnimalGrid" {
+    +List<AnimalModel> animals
+    +dynamic Function(AnimalModel) onAnimalSelected
+    +Widget build()
+  }
+  class "AnimalTile" {
+    +AnimalModel animal
+    +void Function() onTap
+    +Widget build()
+  }
+  class "BrownButton" {
+    +BrownButtonModel? model
+    +void Function() onPressed
+    +Widget build()
+  }
+  class "CustomAppBar" {
+    +IconData? leftIcon
+    +String? centerText
+    +void Function()? onLeftIconPressed
+    +Widget build()
+  }
+}
+
+package "Main"  {
+  class "MyApp" {
+    +State<MyApp> createState()
+  }
+  class "_MyAppState" {
+    -bool _isLoading
+    +Widget build()
+  }
+}
+
+' Relationships'
+AnimalManager <|--> AnimalRepositoryInterface
+AnimalManager <|--> AnimalSelectionInterface
+DropdownManager <|--> DropdownInterface
+DropdownManager o--> FilterManager
+FilterManager <|--> CategoryInterface
+FilterManager <|--> FilterInterface
+FilterManager <|--> SortInterface
+LoginManager <|--> LoginInterface
+ScreenStateManager <|--> ScreenStateInterface
+AnimalsScreen --> AnimalManager
+AnimalsViewModel o--> AnimalManager
+AnimalGrid --> AnimalModel
+BrownButton --> BrownButtonModel
+FilterButtonModel --> BrownButtonModel
+AppStateProvider --> ScreenStateManager
+AnimalsViewModel --> AnimalGrid
+LoginViewModel --> LoginManager
+
+legend right
+  |= Color | Layer |
+  | <back:LightGray>   </back> | Constants |
+  | <back:LightBlue>   </back> | Interfaces |
+  | <back:LightGreen>  </back> | Managers |
+  | <back:LightYellow> </back> | Models |
+  | <back:LightPink>   </back> | Providers |
+  | <back:LightCyan>   </back> | Screens |
+  | <back:LightOrange> </back> | ViewModels |
+  | <back:LightPurple> </back> | Widgets |
+  | <back:White>      </back> | Main |
+  |= Arrow | Meaning |
+  | --> | Dependency |
+  | <|--> | Implements/Inherits |
+  | o--> | Aggregation |
+endlegend
+
+@enduml
