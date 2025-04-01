@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
+import 'package:wildrapport/models/api_models/user.dart';
 
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
@@ -24,6 +26,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final List<TextEditingController> controllers =
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
+  final LoginInterface loginManager = LoginManager();
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +123,15 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         const Spacer(),
         BrownButton(
           model: LoginManager.createButtonModel(text: 'Verifiëren'),
-          onPressed: () {
+          onPressed: () async {
             // First unfocus any active text fields
             FocusScope.of(context).unfocus();
             
             // Get the verification code
             final code = controllers.map((c) => c.text).join();
+            debugPrint("Email: ${widget.email} & Code: $code");
+            User response = await loginManager.verifyCode(widget.email, code);
+            debugPrint("verified!!");
             
             // Navigate without rebuilding
             if (context.mounted) {

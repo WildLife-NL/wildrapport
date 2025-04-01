@@ -33,7 +33,7 @@ class ApiProvider implements ApiInterface{
       json = response.body.isNotEmpty ? jsonDecode(response.body) : null;
       debugPrint('Auth api: $json');
     } catch (_) {}
-
+    debugPrint("statusCode: ${response.statusCode}");
     if (response.statusCode == HttpStatus.ok) {
       return json ?? {};
     } else {
@@ -43,6 +43,7 @@ class ApiProvider implements ApiInterface{
   
   @override
   Future<User> authorize(String email, String code) async {
+    debugPrint("Starting Authorization");
     http.Response response = await client.put(
       'auth/',
       {
@@ -51,19 +52,25 @@ class ApiProvider implements ApiInterface{
       },
       authenticated: false,
     );
+    debugPrint("Response code: ${response.statusCode}");
 
     Map<String, dynamic>? json;
     try {
       json = jsonDecode(response.body);
       debugPrint('V1 Auth api: $json');
-    } catch (_) {}
+    } catch (error) {
+      debugPrint("Error: $error");
+    }
 
     if (response.statusCode == HttpStatus.ok) {
+      debugPrint("Code Succesfully Verified!");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('bearer_token', json!["token"]);
+      debugPrint("Code stored in shared prefrences");
       User user = User.fromJson(json);
       return user;
     } else {
+      debugPrint("Could not verify code!");
       throw Exception(json!["detail"]);
     }
   }

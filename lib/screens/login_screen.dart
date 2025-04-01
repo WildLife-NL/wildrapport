@@ -43,8 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() async {
     debugPrint('Login button pressed');
-    Future<bool> response = loginManager.sendLoginCode(emailController.text);
-    if (await response){
+    bool response = await loginManager.sendLoginCode(emailController.text);
+    if (response){
       setState(() {
         showVerification = true;
         debugPrint("Verification Code Send To Email!");

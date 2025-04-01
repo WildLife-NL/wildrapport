@@ -12,6 +12,7 @@ import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,13 @@ void main() async{
   
   await dotenv.load(fileName: ".env");
   AppConfig.create();
+  
+  String? token = await _getToken();
 
+  if(token != null && token != ""){
+    debugPrint("Token already stored locally: $token");
+  }
+  
   runApp(
     MultiProvider(
       providers: [
@@ -33,6 +40,11 @@ void main() async{
       child: const MyApp(),
     ),
   );
+}
+
+Future<String?> _getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('bearer_token');
 }
 
 class MyApp extends StatefulWidget {
