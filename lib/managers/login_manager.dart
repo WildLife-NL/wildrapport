@@ -69,3 +69,5 @@ class LoginManager implements LoginInterface {
     }
   }
 }
+
+//use interface of api
