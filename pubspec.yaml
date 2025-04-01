@@ -93,6 +93,7 @@ flutter:
     - assets/icons/filter_dropdown/evenhoevigen.png
     - assets/icons/filter_dropdown/knaagdieren.png
     - assets/icons/filter_dropdown/roofdieren.png
+    - .env
     
 
   fonts:

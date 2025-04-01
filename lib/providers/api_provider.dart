@@ -6,9 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:wildrapport/interfaces/api_interface.dart';
 import 'package:wildrapport/providers/api_client.dart';
 
-/* Models */
-import 'package:wildrapport/models/user_model.dart';
-import 'package:wildrapport/models/animal_model.dart';
+/* Api Models */
+import 'package:wildrapport/models/api_models/user.dart';
+import 'package:wildrapport/models/api_models/species.dart';
 
 
 class ApiProvider implements ApiInterface{
@@ -42,7 +42,7 @@ class ApiProvider implements ApiInterface{
   }
   
   @override
-  Future<UserModel> authorize(String email, String code) async {
+  Future<User> authorize(String email, String code) async {
     http.Response response = await client.put(
       'auth/',
       {
@@ -61,7 +61,7 @@ class ApiProvider implements ApiInterface{
     if (response.statusCode == HttpStatus.ok) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('bearer_token', json!["token"]);
-      UserModel user = UserModel.fromJson(json);
+      User user = User.fromJson(json);
       return user;
     } else {
       throw Exception(json!["detail"]);
@@ -71,7 +71,7 @@ class ApiProvider implements ApiInterface{
   /* Species */
 
   @override
-  Future<List<AnimalModel>> getAllSpecies() async {
+  Future<List<Species>> getAllSpecies() async {
     http.Response response = await client.get(
         'species/',
         authenticated: true,
@@ -81,8 +81,8 @@ class ApiProvider implements ApiInterface{
 
       if (response.statusCode == HttpStatus.ok) {
         json = jsonDecode(response.body);
-        List<AnimalModel> species =
-        (json as List).map((e) => AnimalModel.fromJson(e)).toList();
+        List<Species> species =
+        (json as List).map((e) => Species.fromJson(e)).toList();
         return species;
     } 
     else {
@@ -91,7 +91,7 @@ class ApiProvider implements ApiInterface{
   }
 
   @override
-  Future<AnimalModel> getSpecies(String id) async {
+  Future<Species> getSpecies(String id) async {
     http.Response response = await client.get(
       'species/$id/',
       authenticated: true,
@@ -101,7 +101,7 @@ class ApiProvider implements ApiInterface{
 
     if (response.statusCode == HttpStatus.ok) {
       json = jsonDecode(response.body);
-      AnimalModel species = AnimalModel.fromJson(json!);
+      Species species = Species.fromJson(json!);
       return species;
     } 
     else {
