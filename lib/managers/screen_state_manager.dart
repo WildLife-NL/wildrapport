@@ -82,7 +82,3 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
     );
   }
 }
-
-
-
-

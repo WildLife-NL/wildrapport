@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
@@ -22,21 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool showVerification = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<AppStateProvider>();
-      showVerification = provider.getScreenState<bool>('LoginScreen', 'showVerification') ?? false;
-      emailController.text = provider.getScreenState<String>('LoginScreen', 'email') ?? '';
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
   void dispose() {
-    final provider = context.read<AppStateProvider>();
-    provider.setScreenState('LoginScreen', 'showVerification', showVerification);
-    provider.setScreenState('LoginScreen', 'email', emailController.text);
     emailController.dispose();
     super.dispose();
   }
@@ -44,14 +28,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleLogin() async {
     debugPrint('Login button pressed');
     bool response = await loginManager.sendLoginCode(emailController.text);
-    if (response){
+    if (response) {
       setState(() {
         showVerification = true;
-        debugPrint("Verification Code Send To Email!");
-        debugPrint('showVerification set to: $showVerification');
+        debugPrint("Verification Code Sent To Email!");
       });
-    }
-    else{
+    } else {
       debugPrint("Login Failed");
     }
   }
@@ -164,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         BrownButton(
                           model: LoginManager.createButtonModel(
                             text: 'Login',
-                            isLoginButton: true,  // This will use the login-specific styling
+                            isLoginButton: true,
                           ),
                           onPressed: _handleLogin,
                         ),
@@ -203,36 +185,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
