@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
-import 'package:wildrapport/managers/screen_state_manager.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/viewmodels/animals_view_model.dart';
@@ -24,16 +23,18 @@ class AnimalsScreen extends StatefulWidget {
   State<AnimalsScreen> createState() => _AnimalsScreenState();
 }
 
-class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
+class _AnimalsScreenState extends State<AnimalsScreen> {
   late final ScrollController _scrollController;
   late final AnimalsViewModel _viewModel;
+  bool _isExpanded = false;
+  String _selectedFilter = FilterType.none.displayText;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _viewModel = AnimalsViewModel(
-      selectedFilter: FilterType.none.displayText,
+      selectedFilter: _selectedFilter,
       animalService: widget.animalService,
     );
   }
@@ -44,32 +45,18 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
     super.dispose();
   }
 
-  @override
-  String get screenName => 'AnimalsScreen';
-
-  @override
-  Map<String, dynamic> getInitialState() => {
-    'isExpanded': false,
-    'selectedFilter': FilterType.none.displayText,  // Change this from 'Filter' to FilterType.none.displayText
-  };
-
-  @override
-  void updateState(String key, dynamic value) {
-    switch (key) {
-      case 'isExpanded':
-        _viewModel.isExpanded = value as bool;
-        break;
-      case 'selectedFilter':
-        _viewModel.selectedFilter = value as String;
-        break;
-    }
+  void _updateFilter(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+    });
+    _viewModel.updateFilter(filter);
   }
 
-  @override
-  Map<String, dynamic> getCurrentState() => {
-    'isExpanded': _viewModel.isExpanded,
-    'selectedFilter': _viewModel.selectedFilter,
-  };
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,19 +75,12 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Consumer<AnimalsViewModel>(
-                  builder: (context, viewModel, _) {
-                    print('AnimalsScreen - Current Filter: ${viewModel.selectedFilter}'); // Debug print
-                    return DropdownManager().buildDropdown(
-                      type: DropdownType.filter,
-                      selectedValue: viewModel.selectedFilter,
-                      isExpanded: viewModel.isExpanded,
-                      onExpandChanged: (_) => viewModel.toggleExpanded(),
-                      onOptionSelected: (filter) {
-                        viewModel.updateFilter(filter);
-                      },
-                    );
-                  },
+                child: DropdownManager().buildDropdown(
+                  type: DropdownType.filter,
+                  selectedValue: _selectedFilter,
+                  isExpanded: _isExpanded,
+                  onExpandChanged: (_) => _toggleExpanded(),
+                  onOptionSelected: _updateFilter,
                 ),
               ),
               Expanded(
@@ -125,35 +105,3 @@ class _AnimalsScreenState extends ScreenStateManager<AnimalsScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
