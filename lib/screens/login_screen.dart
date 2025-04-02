@@ -29,30 +29,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleLogin() {
     debugPrint('Login button pressed');
-    try {
-      bool response = await loginManager.sendLoginCode(emailController.text);
-      if (response) {
+    
+    // Show verification screen immediately
+    setState(() {
+      isError = false;
+      errorMessage = '';
+      showVerification = true;
+    });
+
+    // Handle API call in the background
+    loginManager.sendLoginCode(emailController.text).then((response) {
+      debugPrint("Verification Code Sent To Email!");
+    }).catchError((e) {
+      if (mounted) {
         setState(() {
-          isError = false;
-          errorMessage = '';
-          showVerification = true;
-          debugPrint("Verification Code Sent To Email!");
-        });
-      } else {
-        setState(() {
+          showVerification = false;
           isError = true;
-          errorMessage = 'Login mislukt';
+          errorMessage = e.toString();
           debugPrint("Login Failed");
         });
       }
-    } catch (e) {
-      setState(() {
-        isError = true;
-        errorMessage = e.toString();
-      });
-    }
+    });
   }
 
   @override
@@ -236,6 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 

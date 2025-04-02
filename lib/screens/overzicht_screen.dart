@@ -144,18 +144,30 @@ class ActionButtons extends StatelessWidget {
           children: [
             WhiteBulkButton(
               text: 'RapportenKaart',
-              leftWidget: Icon(Icons.map, color: AppColors.brown),
+              leftWidget: CircleIconContainer(
+                icon: Icons.map,
+                iconColor: AppColors.brown,
+                size: 48,
+              ),
               rightWidget: Icon(Icons.arrow_forward_ios, color: Colors.black54),
             ),
             WhiteBulkButton(
               text: 'Rapporteren',
-              leftWidget: Icon(Icons.edit_note, color: AppColors.brown),
+              leftWidget: CircleIconContainer(
+                icon: Icons.edit_note,
+                iconColor: AppColors.brown,
+                size: 48,
+              ),
               rightWidget: Icon(Icons.arrow_forward_ios, color: Colors.black54),
               onPressed: onRapporterenPressed,
             ),
             WhiteBulkButton(
               text: 'Mijn Rapporten',
-              leftWidget: Icon(Icons.description, color: AppColors.brown),
+              leftWidget: CircleIconContainer(
+                icon: Icons.description,
+                iconColor: AppColors.brown,
+                size: 48,
+              ),
               rightWidget: Icon(Icons.arrow_forward_ios, color: Colors.black54),
             ),
           ],
@@ -164,3 +176,4 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
+
