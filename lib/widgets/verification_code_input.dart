@@ -7,6 +7,7 @@ import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/models/api_models/user.dart';
+import 'package:lottie/lottie.dart';
 
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
@@ -27,6 +28,8 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
   final LoginInterface loginManager = LoginManager();
+  bool isLoading = false;
+  User? verifiedUser;
 
   Future<void> _verifyCode() async {
     // First unfocus any active text fields
@@ -36,21 +39,38 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     final code = controllers.map((c) => c.text).join();
     debugPrint("Email: ${widget.email} & Code: $code");
     
+    setState(() {
+      isLoading = true;
+    });
+    
     try {
       User response = await loginManager.verifyCode(widget.email, code);
       debugPrint("verified!!");
       
-      // Navigate without rebuilding
-      if (context.mounted) {
+      // Store the user response but don't navigate yet
+      verifiedUser = response;
+      
+      // Wait for animation to complete at least one cycle (assuming animation is ~1 second)
+      await Future.delayed(const Duration(milliseconds: 1500));
+      
+      // Navigate if still mounted and verified
+      if (context.mounted && verifiedUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (_) => const OverzichtScreen(),
           ),
-          (route) => false, // This removes all previous routes
+          (route) => false,
         );
       }
     } catch (e) {
-      // Show error toast
+      // Wait a moment before showing error to ensure smooth animation
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      setState(() {
+        isLoading = false;
+        verifiedUser = null;
+      });
+      
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -71,6 +91,26 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Center(
+        child: SizedBox(
+          width: 200,
+          height: 200,
+          child: Lottie.asset(
+            'assets/loaders/loading_paw.json',
+            fit: BoxFit.contain,
+            repeat: true,
+            animate: true,
+            frameRate: FrameRate(60),
+            // Optional: You can add onLoaded callback to get exact animation duration
+            onLoaded: (composition) {
+              debugPrint('Animation duration: ${composition.duration}');
+            },
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -215,3 +255,5 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     super.dispose();
   }
 }
+
+
