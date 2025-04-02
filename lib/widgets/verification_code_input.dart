@@ -29,31 +29,27 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
   final LoginInterface loginManager = LoginManager();
   bool isLoading = false;
+  bool isError = false;
   User? verifiedUser;
 
   Future<void> _verifyCode() async {
-    // First unfocus any active text fields
     FocusScope.of(context).unfocus();
-    
-    // Get the verification code
+
     final code = controllers.map((c) => c.text).join();
     debugPrint("Email: ${widget.email} & Code: $code");
-    
+
     setState(() {
       isLoading = true;
+      isError = false;
     });
-    
+
     try {
       User response = await loginManager.verifyCode(widget.email, code);
       debugPrint("verified!!");
-      
-      // Store the user response but don't navigate yet
+
       verifiedUser = response;
-      
-      // Wait for animation to complete at least one cycle (assuming animation is ~1 second)
       await Future.delayed(const Duration(milliseconds: 1500));
-      
-      // Navigate if still mounted and verified
+
       if (context.mounted && verifiedUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -63,22 +59,15 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         );
       }
     } catch (e) {
-      // Wait a moment before showing error to ensure smooth animation
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       setState(() {
         isLoading = false;
+        isError = true;
         verifiedUser = null;
       });
-      
+
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Verkeerde code. Probeer het opnieuw.'),
-            backgroundColor: AppColors.brown,
-          ),
-        );
-        
         // Clear all fields
         for (var controller in controllers) {
           controller.clear();
@@ -87,6 +76,79 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         focusNodes[0].requestFocus();
       }
     }
+  }
+
+  Widget _buildTextField(int index) {
+    return Container(
+      width: 45,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: isError ? Colors.red.shade50.withOpacity(0.9) : Colors.white,
+        border: isError
+            ? Border.all(color: Colors.red.shade300, width: 1.0)
+            : Border.all(color: Colors.grey[300]!),
+        boxShadow: [
+          BoxShadow(
+            color: isError
+                ? Colors.red.withOpacity(0.1)
+                : Colors.black.withOpacity(0.25),
+            spreadRadius: 0,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: RawKeyboardListener(
+        focusNode: FocusNode(), // Unique FocusNode for each listener
+        onKey: (RawKeyEvent event) {
+          if (event is RawKeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.backspace) {
+            // If current field is empty and not the first field
+            if (controllers[index].text.isEmpty && index > 0) {
+              // Move focus to previous field and clear it
+              focusNodes[index - 1].requestFocus();
+              controllers[index - 1].clear();
+            }
+          }
+        },
+        child: TextField(
+          controller: controllers[index],
+          focusNode: focusNodes[index],
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(1),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          decoration: const InputDecoration(
+            filled: true,
+            fillColor: Colors.transparent,
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+          ),
+          onChanged: (value) {
+            if (isError) {
+              setState(() => isError = false);
+            }
+            if (value.isNotEmpty) {
+              // Move to next field if not the last one
+              if (index < 5) {
+                focusNodes[index + 1].requestFocus();
+              } else if (index == 5) {
+                // Verify code if all fields are filled
+                if (controllers.every((c) => c.text.isNotEmpty)) {
+                  _verifyCode();
+                }
+              }
+            } else if (value.isEmpty && index > 0) {
+              // Move to previous field when backspace clears the current field
+              focusNodes[index - 1].requestFocus();
+            }
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -102,10 +164,6 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
             repeat: true,
             animate: true,
             frameRate: FrameRate(60),
-            // Optional: You can add onLoaded callback to get exact animation duration
-            onLoaded: (composition) {
-              debugPrint('Animation duration: ${composition.duration}');
-            },
           ),
         ),
       );
@@ -117,7 +175,11 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         Row(
           children: [
             IconButton(
-              onPressed: widget.onBack,
+              onPressed: () {
+                // Unfocus all text fields before going back
+                FocusScope.of(context).unfocus();
+                widget.onBack();
+              },
               icon: Icon(
                 Icons.arrow_back_rounded,
                 color: AppColors.brown,
@@ -146,71 +208,23 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(
-            6,
-            (index) => Container(
-              width: 45,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    spreadRadius: 0,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: controllers[index],
-                focusNode: focusNodes[index],
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(1),
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.darkGreen),
-                  ),
-                ),
-                onChanged: (value) {
-                  if (value.isNotEmpty && index < 5) {
-                    focusNodes[index + 1].requestFocus();
-                  }
-                  if (value.isEmpty && index > 0) {
-                    focusNodes[index - 1].requestFocus();
-                  }
-                  
-                  // Check if all fields are filled
-                  if (value.isNotEmpty && index == 5) {
-                    // Verify if all fields have a value
-                    bool allFilled = controllers.every((controller) => 
-                      controller.text.isNotEmpty
-                    );
-                    if (allFilled) {
-                      _verifyCode();
-                    }
-                  }
-                },
+        if (isError) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 20, top: 10),
+            child: Text(
+              'Verkeerde code. Probeer het opnieuw.',
+              style: TextStyle(
+                color: Colors.red.shade600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
+        ],
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(6, (index) => _buildTextField(index)),
         ),
         const Spacer(),
         BrownButton(
@@ -255,5 +269,3 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     super.dispose();
   }
 }
-
-
