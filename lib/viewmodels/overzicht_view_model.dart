@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 
 class OverzichtViewModel extends ChangeNotifier {
   String userName = 'John Doe';
@@ -12,13 +11,5 @@ class OverzichtViewModel extends ChangeNotifier {
   void updateUserName(String newName) {
     userName = newName;
     notifyListeners();
-  }
-
-  void saveState(AppStateProvider provider) {
-    provider.setScreenState('OverzichtScreen', 'userName', userName);
-  }
-
-  void loadState(AppStateProvider provider) {
-    userName = provider.getScreenState('OverzichtScreen', 'userName') ?? 'John Doe';
   }
 }

@@ -53,24 +53,18 @@ class AnimalsViewModel extends ChangeNotifier {
   void handleAnimalSelection(BuildContext context, AnimalModel animal, String screenTitle) {
     final selectedAnimal = _animalService.handleAnimalSelection(animal);
     
-    // Update report
-    final provider = Provider.of<AppStateProvider>(context, listen: false);
-    final report = provider.getCurrentReport<WaarnemingReport>();
-    if (report != null) {
-      provider.updateCurrentReport('selectedAnimal', selectedAnimal.animalName);
-      
-      // Navigate based on report type
-      if (screenTitle == 'Waarnemingen' || screenTitle == 'Diergezondheid') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const OverzichtScreen(),
-          ),
-        );
-      }
+    // Navigate based on report type
+    if (screenTitle == 'Waarnemingen' || screenTitle == 'Diergezondheid') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const OverzichtScreen(),
+        ),
+      );
     }
   }
 }
+
 
 
 

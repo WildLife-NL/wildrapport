@@ -33,7 +33,6 @@ void main() async{
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppStateProvider()),
         Provider<AnimalRepositoryInterface>(create: (_) => animalService),
         Provider<FilterInterface>.value(value: filterManager),
       ],
