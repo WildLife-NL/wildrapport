@@ -1,8 +1,12 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 
-class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterface {
+class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterface, AnimalManagerInterface {
+  final _listeners = <Function()>[];
+  String _selectedFilter = 'Filteren';
+
   @override
   List<AnimalModel> getAnimals() {
     return [
@@ -37,7 +41,33 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
   AnimalModel handleAnimalSelection(AnimalModel selectedAnimal) {
     return selectedAnimal;
   }
+
+  @override
+  String getSelectedFilter() => _selectedFilter;
+
+  @override
+  void updateFilter(String filter) {
+    _selectedFilter = filter;
+    _notifyListeners();
+  }
+
+  @override
+  void addListener(Function() listener) {
+    _listeners.add(listener);
+  }
+
+  @override
+  void removeListener(Function() listener) {
+    _listeners.remove(listener);
+  }
+
+  void _notifyListeners() {
+    for (final listener in _listeners) {
+      listener();
+    }
+  }
 }
+
 
 
 

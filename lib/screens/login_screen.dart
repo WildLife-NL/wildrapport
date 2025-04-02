@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/api/auth_api.dart';
-import 'package:wildrapport/config/app_config.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
-import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,10 +17,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
-  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));  
+  late final LoginInterface _loginManager;
   bool showVerification = false;
   bool isError = false;
   String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loginManager = context.read<LoginInterface>();
+  }
 
   @override
   void dispose() {
@@ -29,29 +34,30 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     debugPrint('Login button pressed');
-    
-    // Show verification screen immediately
-    setState(() {
-      isError = false;
-      errorMessage = '';
-      showVerification = true;
-    });
-
-    // Handle API call in the background
-    loginManager.sendLoginCode(emailController.text).then((response) {
-      debugPrint("Verification Code Sent To Email!");
-    }).catchError((e) {
-      if (mounted) {
+    try {
+      bool response = await _loginManager.sendLoginCode(emailController.text);
+      if (response) {
         setState(() {
-          showVerification = false;
+          isError = false;
+          errorMessage = '';
+          showVerification = true;
+          debugPrint("Verification Code Sent To Email!");
+        });
+      } else {
+        setState(() {
           isError = true;
-          errorMessage = e.toString();
+          errorMessage = 'Login mislukt';
           debugPrint("Login Failed");
         });
       }
-    });
+    } catch (e) {
+      setState(() {
+        isError = true;
+        errorMessage = e.toString();
+      });
+    }
   }
 
   @override
@@ -194,9 +200,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
                         BrownButton(
-                          model: LoginManager.createButtonModel(
+                          model: ButtonModelFactory.createLoginButton(
                             text: 'Login',
-                            isLoginButton: true,
                           ),
                           onPressed: _handleLogin,
                         ),
@@ -235,9 +240,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
-
-
 
 

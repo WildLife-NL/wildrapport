@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
@@ -9,7 +10,9 @@ import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 
 class DropdownManager implements DropdownInterface {
-  final FilterManager _filterManager = FilterManager();
+  final FilterInterface _filterManager;
+
+  DropdownManager(this._filterManager);
 
   @override
   Widget buildDropdown({
@@ -39,7 +42,7 @@ class DropdownManager implements DropdownInterface {
     required Function(String) onOptionSelected,
   }) {
     final bool isShowingCategories = selectedValue == FilterType.category.displayText ||
-                                   _filterManager.getAnimalCategories()
+                                   (_filterManager as CategoryInterface).getAnimalCategories()
                                        .any((category) => category['text'] == selectedValue);
 
     return Column(
@@ -69,7 +72,7 @@ class DropdownManager implements DropdownInterface {
     Function(bool) onExpandChanged,
   ) {
     return CategoryFilterOptions(
-      items: _filterManager.getAnimalCategories(),
+      items: (_filterManager as CategoryInterface).getAnimalCategories(),
       onCategorySelected: (category) {
         onOptionSelected(category);
         onExpandChanged(false);
@@ -142,7 +145,7 @@ class DropdownManager implements DropdownInterface {
       );
     }
 
-    final categories = _filterManager.getAnimalCategories();
+    final categories = (_filterManager as CategoryInterface).getAnimalCategories();
     final isCategory = categories.any((category) => category['text'] == currentValue);
     
     if (isCategory) {
@@ -169,6 +172,11 @@ class DropdownManager implements DropdownInterface {
     );
   }
 }
+
+
+
+
+
 
 
 
