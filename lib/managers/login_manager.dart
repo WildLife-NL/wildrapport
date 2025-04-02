@@ -74,7 +74,7 @@ class LoginManager implements LoginInterface {
     }
 
     try {
-      await ApiProvider(AppConfig.shared.apiClient).authenticate("Wild Rapport", email.trim());
+      await authApi.authenticate("Wild Rapport", email.trim());
       return true;
     } catch (e) {
       throw Exception("Login failed: $e");
@@ -84,7 +84,7 @@ class LoginManager implements LoginInterface {
   @override
   Future<User> verifyCode(String email, String code) async {
     try{
-      return ApiProvider(AppConfig.shared.apiClient).authorize(email, code);
+      return authApi.authorize(email, code);
     }
     catch(e){
       //TODO: Handle exception
@@ -94,5 +94,3 @@ class LoginManager implements LoginInterface {
 }
 
 //use interface of api
-
-
