@@ -13,9 +13,8 @@ import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/widgets/rapporteren.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Create instances of services
@@ -72,6 +71,14 @@ class _MyAppState extends State<MyApp> {
         ),
         textTheme: AppTextTheme.textTheme,
         fontFamily: 'Arimo',
+        snackBarTheme: const SnackBarThemeData(
+          backgroundColor: AppColors.brown300,
+          behavior: SnackBarBehavior.floating,
+          contentTextStyle: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Arimo',
+          ),
+        ),
       ),
       home: _isLoading 
         ? LoadingScreen(
@@ -81,7 +88,7 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const Rapporteren(), // Changed from LoginScreen to Rapporteren
+        : const LoginScreen(), // Changed from Rapporteren to LoginScreen
     );
   }
 }

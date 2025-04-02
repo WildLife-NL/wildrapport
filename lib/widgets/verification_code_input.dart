@@ -28,6 +28,47 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
   final LoginInterface loginManager = LoginManager();
 
+  Future<void> _verifyCode() async {
+    // First unfocus any active text fields
+    FocusScope.of(context).unfocus();
+    
+    // Get the verification code
+    final code = controllers.map((c) => c.text).join();
+    debugPrint("Email: ${widget.email} & Code: $code");
+    
+    try {
+      User response = await loginManager.verifyCode(widget.email, code);
+      debugPrint("verified!!");
+      
+      // Navigate without rebuilding
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => const OverzichtScreen(),
+          ),
+          (route) => false, // This removes all previous routes
+        );
+      }
+    } catch (e) {
+      // Show error toast
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verkeerde code. Probeer het opnieuw.'),
+            backgroundColor: AppColors.brown,
+          ),
+        );
+        
+        // Clear all fields
+        for (var controller in controllers) {
+          controller.clear();
+        }
+        // Focus on first field
+        focusNodes[0].requestFocus();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -115,6 +156,17 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
                   if (value.isEmpty && index > 0) {
                     focusNodes[index - 1].requestFocus();
                   }
+                  
+                  // Check if all fields are filled
+                  if (value.isNotEmpty && index == 5) {
+                    // Verify if all fields have a value
+                    bool allFilled = controllers.every((controller) => 
+                      controller.text.isNotEmpty
+                    );
+                    if (allFilled) {
+                      _verifyCode();
+                    }
+                  }
                 },
               ),
             ),
@@ -123,26 +175,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         const Spacer(),
         BrownButton(
           model: LoginManager.createButtonModel(text: 'Verifiëren'),
-          onPressed: () async {
-            // First unfocus any active text fields
-            FocusScope.of(context).unfocus();
-            
-            // Get the verification code
-            final code = controllers.map((c) => c.text).join();
-            debugPrint("Email: ${widget.email} & Code: $code");
-            User response = await loginManager.verifyCode(widget.email, code);
-            debugPrint("verified!!");
-            
-            // Navigate without rebuilding
-            if (context.mounted) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const OverzichtScreen(),
-                ),
-                (route) => false, // This removes all previous routes
-              );
-            }
-          },
+          onPressed: _verifyCode,
         ),
         const SizedBox(height: 15),
         Center(

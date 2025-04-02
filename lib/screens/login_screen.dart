@@ -18,6 +18,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final LoginInterface loginManager = LoginManager();
   bool showVerification = false;
+  bool isError = false;
+  String errorMessage = '';
 
   @override
   void dispose() {
@@ -27,14 +29,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() async {
     debugPrint('Login button pressed');
-    bool response = await loginManager.sendLoginCode(emailController.text);
-    if (response) {
+    try {
+      bool response = await loginManager.sendLoginCode(emailController.text);
+      if (response) {
+        setState(() {
+          isError = false;
+          errorMessage = '';
+          showVerification = true;
+          debugPrint("Verification Code Sent To Email!");
+        });
+      } else {
+        setState(() {
+          isError = true;
+          errorMessage = 'Login mislukt';
+          debugPrint("Login Failed");
+        });
+      }
+    } catch (e) {
       setState(() {
-        showVerification = true;
-        debugPrint("Verification Code Sent To Email!");
+        isError = true;
+        errorMessage = e.toString();
       });
-    } else {
-      debugPrint("Login Failed");
     }
   }
 
@@ -117,14 +132,35 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 5),
+                        if (isError) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8, bottom: 5),
+                            child: Text(
+                              errorMessage,
+                              style: TextStyle(
+                                color: Colors.red.shade600,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.offWhite,
+                            color: isError 
+                              ? Colors.red.shade50.withOpacity(0.9) 
+                              : AppColors.offWhite,
                             borderRadius: BorderRadius.circular(25),
+                            border: isError ? Border.all(
+                              color: Colors.red.shade300,
+                              width: 1.0,
+                            ) : null,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
+                                color: isError 
+                                  ? Colors.red.withOpacity(0.1) 
+                                  : Colors.black.withOpacity(0.25),
                                 spreadRadius: 0,
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
@@ -133,8 +169,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: TextField(
                             controller: emailController,
+                            onChanged: (value) {
+                              if (isError) {
+                                setState(() {
+                                  isError = false;
+                                  errorMessage = '';
+                                });
+                              }
+                            },
                             decoration: InputDecoration(
                               hintText: 'voorbeeld@gmail.com',
+                              hintStyle: TextStyle(
+                                color: isError 
+                                  ? Colors.red.shade200
+                                  : Colors.grey,
+                              ),
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
@@ -185,3 +234,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
+
+
+

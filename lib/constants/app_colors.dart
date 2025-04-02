@@ -7,6 +7,8 @@ class AppColors {
   // Main colors
   static const Color darkGreen = Color(0xFF1C4620);
   static const Color brown = Color(0xFF5E3E27);
-  static const Color lightMintGreen = Color(0xFFE3F5E4);  // Updated to new color
+  static const Color brown300 = Color(0xFFD6BF6E);  // Added new color
+  static const Color lightMintGreen = Color(0xFFE3F5E4);
   static const Color offWhite = Color(0xFFFFFFFc);
 }
+

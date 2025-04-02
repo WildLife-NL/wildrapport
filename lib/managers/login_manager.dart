@@ -4,8 +4,23 @@ import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/providers/api_provider.dart';
 import 'package:wildrapport/models/api_models/user.dart';
+import 'package:wildrapport/exceptions/validation_exception.dart';
 
 class LoginManager implements LoginInterface {
+  // Email validation regex
+  static final _emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+
+  @override
+  String? validateEmail(String? email) {
+    if (email == null || email.trim().isEmpty) {
+      return 'Voer een e-mailadres in';
+    }
+    if (!_emailRegex.hasMatch(email.trim())) {
+      return 'Voer een geldig e-mailadres in';
+    }
+    return null;
+  }
+
   static BrownButtonModel createButtonModel({
     required String text,
     String leftIconPath = '',
@@ -48,14 +63,17 @@ class LoginManager implements LoginInterface {
 
   @override
   Future<bool> sendLoginCode(String email) async {
-    try{
-      //check if there is a token in sharedpreference storage
-      ApiProvider(AppConfig.shared.apiClient).authenticate("Wild Rapport", email);
-      return true;
+    // Validate email first
+    final validationError = validateEmail(email);
+    if (validationError != null) {
+      throw ValidationException(validationError);
     }
-    catch(e){
-      //TODO: Handle exception
-      return false;
+
+    try {
+      await ApiProvider(AppConfig.shared.apiClient).authenticate("Wild Rapport", email.trim());
+      return true;
+    } catch (e) {
+      throw Exception("Login failed: $e");
     }
   }
 
@@ -72,3 +90,5 @@ class LoginManager implements LoginInterface {
 }
 
 //use interface of api
+
+
