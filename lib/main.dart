@@ -13,6 +13,7 @@ import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/widgets/rapporteren.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,7 +81,7 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const LoginScreen(), // Changed from TestScreen back to LoginScreen
+        : const Rapporteren(), // Changed from LoginScreen to Rapporteren
     );
   }
 }
