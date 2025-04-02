@@ -1,5 +1,6 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:wildrapport/config/app_config.dart';
+import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/providers/api_provider.dart';
@@ -7,6 +8,9 @@ import 'package:wildrapport/models/api_models/user.dart';
 import 'package:wildrapport/exceptions/validation_exception.dart';
 
 class LoginManager implements LoginInterface {
+  final AuthApiInterface authApi;
+  LoginManager(this.authApi);
+  
   // Email validation regex
   static final _emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
 

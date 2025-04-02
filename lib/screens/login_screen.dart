@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
@@ -16,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
-  final LoginInterface loginManager = LoginManager();
+  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));  
   bool showVerification = false;
   bool isError = false;
   String errorMessage = '';

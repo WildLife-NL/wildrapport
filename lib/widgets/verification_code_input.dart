@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
@@ -27,7 +29,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
   final List<TextEditingController> controllers =
       List.generate(6, (index) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
-  final LoginInterface loginManager = LoginManager();
+  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));  
   bool isLoading = false;
   User? verifiedUser;
 
