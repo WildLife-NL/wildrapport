@@ -7,7 +7,7 @@ import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
@@ -88,7 +88,7 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const LoginScreen(), // Changed from Rapporteren to LoginScreen
+        : const OverzichtScreen(), // Changed from LoginScreen to OverzichtScreen
     );
   }
 }
