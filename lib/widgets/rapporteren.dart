@@ -22,7 +22,7 @@ class _RapporterenState extends State<Rapporteren> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnimalsScreen(screenTitle: reportType),
+        builder: (context) => AnimalsScreen(appBarTitle: reportType),
       ),
     );
   }
@@ -200,6 +200,7 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
 
 
 

@@ -2,7 +2,8 @@ enum FilterType {
   none,
   alphabetical,
   category,
-  mostViewed;
+  mostViewed,
+  search;
 
   String get displayText {
     switch (this) {
@@ -14,6 +15,8 @@ enum FilterType {
         return 'Sorteer op Categorie';
       case FilterType.mostViewed:
         return 'Meest gezien';
+      case FilterType.search:
+        return 'Zoeken';
     }
   }
 
@@ -27,8 +30,12 @@ enum FilterType {
         return 'circle_icon:category';
       case FilterType.mostViewed:
         return 'circle_icon:visibility';
+      case FilterType.search:
+        return 'circle_icon:search';  // Changed to use built-in search icon
     }
   }
 }
+
+
 
 

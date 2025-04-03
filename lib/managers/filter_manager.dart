@@ -1,21 +1,34 @@
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
-import 'package:wildrapport/models/filter_button_model.dart';
+import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/models/animal_model.dart';
 
 class FilterManager implements CategoryInterface, FilterInterface, SortInterface {
-  // These are the DEFAULT options that should show when no filter is selected
-  static final List<FilterButtonModel> _filterOptions = [
-    FilterButtonModel(type: FilterType.alphabetical),
-    FilterButtonModel(
-      type: FilterType.category,
-      showRightArrow: true,
-      keepDropdownOpen: true,
+  static final List<BrownButtonModel> _filterOptions = [
+    BrownButtonModel(
+      text: FilterType.alphabetical.displayText,
+      leftIconPath: FilterType.alphabetical.iconPath,
+      leftIconSize: 38.0,
+      rightIconSize: 24.0,
+      leftIconPadding: 5,
     ),
-    FilterButtonModel(type: FilterType.mostViewed),
+    BrownButtonModel(
+      text: FilterType.mostViewed.displayText,
+      leftIconPath: FilterType.mostViewed.iconPath,
+      leftIconSize: 38.0,
+      rightIconSize: 24.0,
+      leftIconPadding: 5,
+    ),
+    BrownButtonModel(
+      text: FilterType.search.displayText,
+      leftIconPath: FilterType.search.iconPath,
+      leftIconSize: 38.0,
+      rightIconSize: 24.0,
+      leftIconPadding: 5,
+    ),
   ];
 
-  List<FilterButtonModel> getAvailableFilters(String currentFilter) {
-    // Only return filter options if we have an actual filter selected
+  List<BrownButtonModel> getAvailableFilters(String currentFilter) {
     if (currentFilter == FilterType.none.displayText || 
         currentFilter == 'Filteren' ||
         currentFilter.isEmpty) {
@@ -23,9 +36,25 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
     }
     
     return _filterOptions.where((filter) =>
-      filter.type.displayText != currentFilter &&
+      filter.text != currentFilter &&
       !getAnimalCategories().any((category) => category['text'] == currentFilter)
     ).toList();
+  }
+
+  @override
+  List<AnimalModel> filterAnimalsAlphabetically(List<AnimalModel> animals) {
+    // Separate "Onbekend" from other animals
+    final unknown = animals.where((animal) => animal.animalName == 'Onbekend').toList();
+    final regularAnimals = animals.where((animal) => animal.animalName != 'Onbekend').toList();
+
+    // Sort regular animals
+    final sortedRegularAnimals = sortAlphabetically(
+      regularAnimals,
+      (animal) => animal.animalName.toLowerCase(),
+    );
+
+    // Combine sorted regular animals with unknown at the bottom
+    return [...sortedRegularAnimals, ...unknown];
   }
 
   @override
@@ -65,20 +94,6 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
       ..sort((a, b) => getViewCount(b).compareTo(getViewCount(a)));
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

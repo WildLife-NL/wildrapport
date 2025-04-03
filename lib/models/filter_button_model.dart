@@ -23,17 +23,26 @@ class FilterButtonModel {
   });
 
   BrownButtonModel toBrownButtonModel({bool isExpanded = false}) {
+    // Show right arrow for category filter, main filter button (none), or when explicitly set
+    final bool shouldShowRightIcon = showRightArrow || 
+        type == FilterType.none ||  // Added this condition
+        (!isExpanded && type != FilterType.alphabetical && type != FilterType.mostViewed);
+
     return BrownButtonModel(
       text: customText ?? type.displayText,
       leftIconPath: customIcon ?? type.iconPath,
       rightIconPath: showRightArrow
           ? 'assets/icons/filter_dropdown/arrow_next_icon.png'
-          : isExpanded
-              ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-              : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+          : shouldShowRightIcon
+              ? isExpanded
+                  ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+                  : 'assets/icons/filter_dropdown/arrow_down_icon.png'
+              : null,  // No right icon for alphabetical and most viewed
       leftIconPadding: leftIconPadding,
       leftIconSize: leftIconSize,
       rightIconSize: rightIconSize,
     );
   }
 }
+
+

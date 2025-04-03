@@ -8,10 +8,10 @@ import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class AnimalsScreen extends StatefulWidget {
-  final String screenTitle;
+  final String appBarTitle;
 
   const AnimalsScreen({
-    required this.screenTitle,
+    this.appBarTitle = 'Animals',  // Default value provided
     super.key,
   });
 
@@ -90,7 +90,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: widget.screenTitle,
+              centerText: widget.appBarTitle,
               rightIcon: Icons.menu,
               onLeftIconPressed: () => Navigator.pop(context),
               onRightIconPressed: () {/* Handle menu */},
@@ -155,10 +155,6 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
-
-
-
-
 
 
 

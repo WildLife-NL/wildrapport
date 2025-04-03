@@ -96,6 +96,8 @@ class BrownButton extends StatelessWidget {
         return Icons.filter_list;
       case 'restart_alt':
         return Icons.restart_alt;
+      case 'search':
+        return Icons.search;  // Added search icon
       default:
         return Icons.error;
     }
@@ -140,6 +142,7 @@ class CircleIconContainer extends StatelessWidget {
     );
   }
 }
+
 
 
 

@@ -39,7 +39,8 @@ void main() async {
   final speciesApi = SpeciesApi(apiClient);
   
   final loginManager = LoginManager(authApi);
-  final animalManager = AnimalManager(speciesApi); // Create a single instance
+  final filterManager = FilterManager();
+  final animalManager = AnimalManager(speciesApi, filterManager); // Pass filterManager here
   
   runApp(
     MultiProvider(
@@ -51,10 +52,10 @@ void main() async {
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),
-        Provider<FilterInterface>.value(value: FilterManager()),
+        Provider<FilterInterface>.value(value: filterManager),
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
         Provider<DropdownInterface>.value(
-          value: DropdownManager(FilterManager()),
+          value: DropdownManager(filterManager),
         ),
       ],
       child: const MyApp(),
@@ -95,7 +96,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Replace LoginScreen with AnimalsScreen for testing
-      home: const AnimalsScreen(screenTitle: 'Test Animals'),
+      home: const AnimalsScreen(),
     );
   }
 }

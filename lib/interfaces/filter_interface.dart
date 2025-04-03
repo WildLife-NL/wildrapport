@@ -1,4 +1,5 @@
-import 'package:wildrapport/models/filter_button_model.dart';
+import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/models/animal_model.dart';
 
 abstract class CategoryInterface {
   List<Map<String, String>> getAnimalCategories();
@@ -11,7 +12,9 @@ abstract class FilterInterface {
     bool Function(T item, String category) filterFunction,
   );
 
-  List<FilterButtonModel> getAvailableFilters(String currentFilter);
+  List<BrownButtonModel> getAvailableFilters(String currentFilter);
+  
+  List<AnimalModel> filterAnimalsAlphabetically(List<AnimalModel> animals);
 }
 
 abstract class SortInterface {
@@ -25,5 +28,7 @@ abstract class SortInterface {
     int Function(T item) getViewCount,
   );
 }
+
+
 
 

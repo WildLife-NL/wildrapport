@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
-import 'package:wildrapport/models/filter_button_model.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 
@@ -49,7 +49,16 @@ class DropdownManager implements DropdownInterface {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BrownButton(
-          model: _createSelectedButtonModel(selectedValue, isExpanded).toBrownButtonModel(isExpanded: isExpanded),
+          model: BrownButtonModel(
+            text: selectedValue == FilterType.none.displayText ? 'Filteren' : selectedValue,
+            leftIconPath: _getSelectedFilterIcon(selectedValue),
+            rightIconPath: isExpanded 
+                ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
+                : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+            leftIconSize: 38.0,
+            rightIconSize: 24.0,
+            leftIconPadding: 5,
+          ),
           onPressed: () => onExpandChanged(!isExpanded),
         ),
         if (isExpanded) ...[
@@ -91,18 +100,70 @@ class DropdownManager implements DropdownInterface {
     // Add filter options
     options.addAll(
       _filterManager.getAvailableFilters(selectedValue)
-          .map((filterModel) => Padding(
+          .map((filterModel) {
+            if (filterModel.text == FilterType.search.displayText) {
+              return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: BrownButton(
-                  model: filterModel.toBrownButtonModel(),
-                  onPressed: () {
-                    onOptionSelected(filterModel.type.displayText);
-                    if (filterModel.type != FilterType.category && !filterModel.keepDropdownOpen) {
-                      onExpandChanged(false);
-                    }
-                  },
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.brown,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: CircleIconContainer(
+                          icon: Icons.search,
+                          iconColor: AppColors.brown,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          style: const TextStyle(color: Colors.white),
+                          cursorColor: Colors.white,
+                          decoration: const InputDecoration(
+                            hintText: 'Zoek een dier...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: Colors.white70),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                          onChanged: (value) {
+                            // TODO: Implement search functionality
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ))
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: BrownButton(
+                model: filterModel,
+                onPressed: () {
+                  if (filterModel.text == FilterType.mostViewed.displayText) {
+                    return;
+                  }
+                  
+                  onOptionSelected(filterModel.text ?? '');
+                  if (filterModel.text != FilterType.category.displayText) {
+                    onExpandChanged(false);
+                  }
+                },
+              ),
+            );
+          })
           .toList(),
     );
 
@@ -112,7 +173,7 @@ class DropdownManager implements DropdownInterface {
                                 selectedValue != 'Filter' &&
                                 selectedValue.isNotEmpty &&
                                 !_filterManager.getAvailableFilters(selectedValue)
-                                    .any((filter) => filter.type.displayText == selectedValue);
+                                    .any((filter) => filter.text == selectedValue);
 
     if (shouldShowReset) {
       options.add(
@@ -136,42 +197,47 @@ class DropdownManager implements DropdownInterface {
     return options;
   }
 
-  FilterButtonModel _createSelectedButtonModel(String currentValue, bool isExpanded) {
-    if (currentValue == FilterType.none.displayText) {
-      return FilterButtonModel(
-        type: FilterType.none,
-        showRightArrow: false,
-        customText: 'Filteren',
-      );
+  String _getSelectedFilterIcon(String selectedValue) {
+    if (selectedValue == FilterType.none.displayText || selectedValue == 'Filteren') {
+      return FilterType.none.iconPath;
     }
 
+    // Check for categories first
     final categories = (_filterManager as CategoryInterface).getAnimalCategories();
-    final isCategory = categories.any((category) => category['text'] == currentValue);
-    
-    if (isCategory) {
-      final category = categories.firstWhere(
-        (category) => category['text'] == currentValue,
-      );
-      return FilterButtonModel(
-        type: FilterType.category,
-        customText: currentValue,
-        customIcon: category['icon'],
-        showRightArrow: false,
-      );
+    final selectedCategory = categories.firstWhere(
+      (category) => category['text'] == selectedValue,
+      orElse: () => {'icon': ''},
+    );
+
+    if (selectedCategory['icon']?.isNotEmpty ?? false) {
+      return selectedCategory['icon']!;
     }
 
+    // Handle filter types
     final filterType = FilterType.values.firstWhere(
-      (type) => type.displayText == currentValue,
+      (type) => type.displayText == selectedValue,
       orElse: () => FilterType.none,
     );
 
-    return FilterButtonModel(
-      type: filterType,
-      showRightArrow: filterType == FilterType.category,
-      keepDropdownOpen: filterType == FilterType.category,
-    );
+    return filterType.iconPath;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
