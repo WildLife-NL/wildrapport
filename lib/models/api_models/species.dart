@@ -1,18 +1,18 @@
 class Species {
   final String id;
-  final String name;
+  final String category;
   final String commonName;
 
   Species({
     required this.id,
-    required this.name,
+    required this.category,
     required this.commonName,
   });
 
   factory Species.fromJson(Map<String, dynamic> json) {
     return Species(
       id: json['ID'],
-      name: json['name'],
+      category: json['category'],
       commonName: json['commonName'],
     );
   }
@@ -20,7 +20,7 @@ class Species {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
+      'category': category,
       'commonName': commonName,
     };
   }
