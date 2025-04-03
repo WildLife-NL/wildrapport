@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class BrownButton extends StatelessWidget {
   final BrownButtonModel? model;
@@ -128,72 +129,3 @@ class BrownButton extends StatelessWidget {
     }
   }
 }
-
-class CircleIconContainer extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final double size;
-  final double? iconSize;
-
-  const CircleIconContainer({
-    super.key,
-    required this.icon,
-    required this.iconColor,
-    this.size = 38.0,
-    this.iconSize,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: iconColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Icon(
-        icon,
-        color: iconColor,
-        size: iconSize ?? (size * 0.5),  // Use custom iconSize if provided
-      ),
-    );
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
