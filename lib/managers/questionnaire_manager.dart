@@ -12,7 +12,7 @@ class QuestionnaireManager implements QuestionnaireInterface{
     //Change to actual test questionaire ID.
     //This is here so we can test, in future we want to get, 
     //questionnaires in a different way than using ID
-    final String id = "1";
+    final String id = "0344790e-8e86-4c5f-982d-9879928bb9e4";
 
     return questionnaireAPI.getQuestionnaireByID(id);
   }
@@ -30,5 +30,10 @@ class QuestionnaireManager implements QuestionnaireInterface{
       }
     }
     return questionnaireWidgets;
+  }
+  
+  @override
+  int? getAmountOfQuestions(int amount) { //replace int amount with Questionnaire questionnaire after testing
+    return amount;
   } 
 }
