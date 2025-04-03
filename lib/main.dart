@@ -114,7 +114,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ReportDecisionScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
+      home: AnimalGenderScreen(
+        animal: AnimalModel(
+          animalImagePath: 'assets/wolf.png',
+          animalName: 'Demo Wolf',
+          viewCount: 0,
+        ),
+      ),
     );
   }
 }
