@@ -11,6 +11,7 @@ import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
+import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class DropdownManager implements DropdownInterface {
   final FilterInterface _filterManager;

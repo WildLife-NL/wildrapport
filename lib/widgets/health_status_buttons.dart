@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/widgets/brown_button.dart' as brown_button;
 import 'package:wildrapport/widgets/white_bulk_button.dart';
+import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class HealthStatusButtons extends StatelessWidget {
   final Function(String) onStatusSelected;
@@ -52,26 +54,51 @@ class HealthStatusButtons extends StatelessWidget {
                 ],
               ),
             ),
-            _buildButton('Andere', finalIconSize),
-            _buildButton('Dood', finalIconSize),
-            _buildButton('Ziek', finalIconSize),
-            _buildButton('Gezond', finalIconSize),
+            _buildButton('Andere', finalIconSize, Icons.help_outline), // Question mark for "Other"
+            _buildButton('Dood', finalIconSize, Icons.dangerous), // Dangerous icon for "Dead"
+            _buildButton('Ziek', finalIconSize, Icons.sick), // Sick icon for "Sick"
+            _buildButton('Gezond', finalIconSize, Icons.favorite), // Heart icon for "Healthy"
           ],
         ),
       ),
     );
   }
 
-  Widget _buildButton(String text, double iconSize) {
+  Widget _buildButton(String text, double iconSize, IconData leftIcon) {
     return WhiteBulkButton(
       text: text,
+      leftWidget: CircleIconContainer(
+        icon: leftIcon,
+        iconColor: AppColors.brown,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        size: 70.0,
+        iconSize: 57.0,
+      ),
       rightWidget: Icon(
         Icons.arrow_forward_ios,
-        color: Colors.black54,
-        size: iconSize,
+        color: AppColors.brown,
+        size: 32.0,  // Increased from iconSize to a fixed larger size
+        shadows: [
+          Shadow(
+            color: Colors.black.withOpacity(0.25),
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
       ),
       onPressed: () => onStatusSelected(text),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
