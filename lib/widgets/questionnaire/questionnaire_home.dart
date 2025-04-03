@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home_buttons.dart';
 
 class QuestionnaireHome extends StatefulWidget{
@@ -75,7 +78,7 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => const OverzichtScreen(),
                 ),
               );
             },
@@ -83,11 +86,13 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => const OverzichtScreen(),
                 ),
               );
             },
             onVragenlijnstOpenenPressed: () {
+              Future<Questionnaire> questionnaire = _questionnaireManager.getQuestionnaire();
+              debugPrint("Name: $questionnaire");
               Navigator.push(
                 context,
                 MaterialPageRoute(

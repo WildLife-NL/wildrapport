@@ -29,6 +29,7 @@ import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
+import 'package:wildrapport/screens/questionnaire_screen.dart';
 import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
@@ -111,7 +112,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ReportDecisionScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
+      home: const QuestionnaireScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
     );
   }
 }
