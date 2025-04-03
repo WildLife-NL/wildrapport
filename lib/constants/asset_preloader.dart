@@ -10,7 +10,7 @@ class AssetPreloader {
       'assets/LogoWildlifeNL.png',
       'assets/LogoHeadWildlifeNL.png',
       
-      // Animal assets - Prioritize these
+      // Animal assets
       'assets/wolf.png',
       'assets/fox.png',
       'assets/marten.png',
@@ -32,19 +32,6 @@ class AssetPreloader {
       'assets/icons/rapporteren/health_icon.png',
       'assets/icons/rapporteren/sighting_icon.png',
       'assets/icons/rapporteren/accident_icon.png',
-      
-      // Filter dropdown icons
-      'assets/icons/filter_dropdown/arrow_down_icon.png',
-      'assets/icons/filter_dropdown/arrow_up_icon.png',
-      'assets/icons/filter_dropdown/arrow_next_icon.png',
-      'assets/icons/filter_dropdown/category_icon.png',
-      'assets/icons/filter_dropdown/filter_icon.png',
-      'assets/icons/filter_dropdown/letter_icon.png',
-      'assets/icons/filter_dropdown/seen_icon.png',
-      'assets/icons/filter_dropdown/reset_icon.png',
-      'assets/icons/filter_dropdown/Evenhoevigen.png',
-      'assets/icons/filter_dropdown/Knaagdieren.png',
-      'assets/icons/filter_dropdown/Roofdieren.png',
     ];
 
     // Pre-create image providers for better caching
@@ -62,4 +49,5 @@ class AssetPreloader {
     await Future.wait(precacheFutures);
   }
 }
+
 

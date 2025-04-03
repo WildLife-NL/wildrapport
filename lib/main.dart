@@ -18,14 +18,15 @@ import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
+import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +41,7 @@ void main() async {
   
   final loginManager = LoginManager(authApi);
   final filterManager = FilterManager();
-  final animalManager = AnimalManager(speciesApi, filterManager); // Pass filterManager here
+  final animalManager = AnimalManager(speciesApi, filterManager);
   
   runApp(
     MultiProvider(
@@ -95,8 +96,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      // Replace LoginScreen with AnimalsScreen for testing
-      home: const AnimalsScreen(),
+      home: const AnimalConditionScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
     );
   }
 }

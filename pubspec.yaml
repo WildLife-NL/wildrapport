@@ -82,9 +82,7 @@ flutter:
     - assets/icons/rapporteren/health_icon.png
     - assets/icons/rapporteren/sighting_icon.png
     - assets/icons/rapporteren/accident_icon.png
-    - assets/icons/filter_dropdown/arrow_down_icon.png
-    - assets/icons/filter_dropdown/arrow_up_icon.png
-    - assets/icons/filter_dropdown/arrow_next_icon.png
+    - .env
     - assets/icons/filter_dropdown/category_icon.png
     - assets/icons/filter_dropdown/filter_icon.png
     - assets/icons/filter_dropdown/letter_icon.png
@@ -93,7 +91,6 @@ flutter:
     - assets/icons/filter_dropdown/evenhoevigen.png
     - assets/icons/filter_dropdown/knaagdieren.png
     - assets/icons/filter_dropdown/roofdieren.png
-    - assets/icons/filter_dropdown/search_icon.png
     - .env
     
 
