@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/api/answer_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
@@ -12,9 +14,11 @@ import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
+import 'package:wildrapport/managers/questionnaire_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
@@ -39,9 +43,15 @@ void main() async {
   final authApi = AuthApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
   
+  final questionnaireAPI = QuestionaireApi(apiClient);
+  final answerAPI = AnswerApi(apiClient);    
+
   final loginManager = LoginManager(authApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
+
+  final questionnaireManager = QuestionnaireManager(questionnaireAPI);
+  final answerManager = AnswerManager(answerAPI);
   
   runApp(
     MultiProvider(
@@ -58,6 +68,8 @@ void main() async {
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
+        Provider<QuestionnaireManager>.value(value: questionnaireManager),
+        Provider<AnswerManager>.value(value: answerManager),
       ],
       child: const MyApp(),
     ),
