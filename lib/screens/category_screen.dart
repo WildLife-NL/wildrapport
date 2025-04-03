@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/health_status_buttons.dart';
+import 'package:wildrapport/widgets/selection_button_group.dart';
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({super.key});
@@ -24,7 +24,7 @@ class CategoryScreen extends StatelessWidget {
               onLeftIconPressed: () => Navigator.pop(context),
               onRightIconPressed: () {/* Handle menu */},
             ),
-            HealthStatusButtons(
+            SelectionButtonGroup(
               buttons: [
                 (text: 'Evenhoevigen', icon: null, imagePath: 'assets/icons/category/evenhoevigen.png'),
                 (text: 'Knaagdieren', icon: null, imagePath: 'assets/icons/category/knaagdieren.png'),
@@ -46,6 +46,8 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/health_status_buttons.dart';
+import 'package:wildrapport/widgets/selection_button_group.dart';
 
 class AnimalConditionScreen extends StatelessWidget {
   const AnimalConditionScreen({super.key});
@@ -23,7 +23,7 @@ class AnimalConditionScreen extends StatelessWidget {
               onLeftIconPressed: () => Navigator.pop(context),
               onRightIconPressed: () {/* Handle menu */},
             ),
-            HealthStatusButtons(
+            SelectionButtonGroup(
               buttons: const [
                 (text: 'Gezond', icon: Icons.check_circle, imagePath: null),
                 (text: 'Ziek', icon: Icons.sick, imagePath: null),
@@ -45,6 +45,8 @@ class AnimalConditionScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

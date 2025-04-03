@@ -3,12 +3,12 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
-class HealthStatusButtons extends StatelessWidget {
+class SelectionButtonGroup extends StatelessWidget {
   final Function(String) onStatusSelected;
   final String title;
   final List<({String text, IconData? icon, String? imagePath})> buttons;
 
-  const HealthStatusButtons({
+  const SelectionButtonGroup({
     super.key,
     required this.onStatusSelected,
     required this.buttons,
@@ -119,6 +119,7 @@ class HealthStatusButtons extends StatelessWidget {
     );
   }
 }
+
 
 
 
