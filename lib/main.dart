@@ -23,6 +23,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
@@ -108,13 +109,14 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AnimalConditionScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
+      home: const CategoryScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
     );
   }
 }
 
 
 // Separate widget for MediaQuery modifications
+// ignore: unused_element
 class _MediaQueryWrapper extends StatelessWidget {
   final Widget child;
 

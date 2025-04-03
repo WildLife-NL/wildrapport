@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/brown_button.dart' as brown_button;
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class HealthStatusButtons extends StatelessWidget {
   final Function(String) onStatusSelected;
   final String title;
+  final List<({String text, IconData? icon, String? imagePath})> buttons;
 
   const HealthStatusButtons({
     super.key,
     required this.onStatusSelected,
+    required this.buttons,
     this.title = 'Title', // Default value
   });
 
@@ -19,16 +20,16 @@ class HealthStatusButtons extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     
     // Calculate responsive text size
-    final double fontSize = screenSize.width * 0.06; // 6% of width
+    final double fontSize = screenSize.width * 0.06;
     final double minFontSize = 20.0;
     final double maxFontSize = 28.0;
     final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
     
-    // Calculate responsive icon size
-    final double iconSize = screenSize.width * 0.05; // 5% of width
-    final double minIconSize = 18.0;
-    final double maxIconSize = 24.0;
-    final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
+    // Calculate responsive icon sizes
+    final double circleSize = screenSize.width * 0.15;
+    final double minCircleSize = 64.0;
+    final double maxCircleSize = 80.0;
+    final double finalCircleSize = circleSize.clamp(minCircleSize, maxCircleSize);
 
     return Expanded(
       child: Padding(
@@ -54,30 +55,58 @@ class HealthStatusButtons extends StatelessWidget {
                 ],
               ),
             ),
-            _buildButton('Andere', finalIconSize, Icons.help_outline), // Question mark for "Other"
-            _buildButton('Dood', finalIconSize, Icons.dangerous), // Dangerous icon for "Dead"
-            _buildButton('Ziek', finalIconSize, Icons.sick), // Sick icon for "Sick"
-            _buildButton('Gezond', finalIconSize, Icons.favorite), // Heart icon for "Healthy"
+            ...buttons.reversed.map((button) => _buildButton(
+                  text: button.text,
+                  icon: button.icon,
+                  imagePath: button.imagePath,
+                  circleSize: finalCircleSize,
+                  arrowSize: finalCircleSize * 0.3,
+                )),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildButton(String text, double iconSize, IconData leftIcon) {
+  Widget _buildButton({
+    required String text,
+    IconData? icon,
+    String? imagePath,
+    required double circleSize,
+    required double arrowSize,
+  }) {
+    Widget? leftWidget;
+    
+    if (icon != null) {
+      leftWidget = text == 'Andere' 
+          ? CircleIconContainer(
+              size: circleSize,
+              icon: icon,
+              iconColor: AppColors.brown,
+              backgroundColor: AppColors.offWhite,
+              iconSize: circleSize * 0.5,
+            )
+          : Icon(
+              icon,
+              color: AppColors.brown,
+              size: circleSize * 0.8,
+            );
+    } else if (imagePath != null) {
+      leftWidget = Image.asset(
+        imagePath,
+        width: circleSize * 1.2,
+        height: circleSize * 1.2,
+        fit: BoxFit.contain,
+      );
+    }
+
     return WhiteBulkButton(
       text: text,
-      leftWidget: CircleIconContainer(
-        icon: leftIcon,
-        iconColor: AppColors.brown,
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        size: 70.0,
-        iconSize: 57.0,
-      ),
+      leftWidget: leftWidget,
       rightWidget: Icon(
         Icons.arrow_forward_ios,
         color: AppColors.brown,
-        size: 32.0,  // Increased from iconSize to a fixed larger size
+        size: arrowSize * 1.4,
         shadows: [
           Shadow(
             color: Colors.black.withOpacity(0.25),
@@ -90,6 +119,9 @@ class HealthStatusButtons extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

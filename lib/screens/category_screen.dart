@@ -3,11 +3,12 @@ import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/health_status_buttons.dart';
 
-class AnimalConditionScreen extends StatelessWidget {
-  const AnimalConditionScreen({super.key});
+class CategoryScreen extends StatelessWidget {
+  const CategoryScreen({super.key});
 
   void _handleStatusSelection(String status) {
     // TODO: Implement status selection handling
+    print('Selected status: $status');
   }
 
   @override
@@ -18,20 +19,20 @@ class AnimalConditionScreen extends StatelessWidget {
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Dier Conditie',
+              centerText: 'Categorie',
               rightIcon: Icons.menu,
               onLeftIconPressed: () => Navigator.pop(context),
               onRightIconPressed: () {/* Handle menu */},
             ),
             HealthStatusButtons(
-              buttons: const [
-                (text: 'Gezond', icon: Icons.check_circle, imagePath: null),
-                (text: 'Ziek', icon: Icons.sick, imagePath: null),
-                (text: 'Dood', icon: Icons.dangerous, imagePath: null),
+              buttons: [
+                (text: 'Evenhoevigen', icon: null, imagePath: 'assets/icons/category/evenhoevigen.png'),
+                (text: 'Knaagdieren', icon: null, imagePath: 'assets/icons/category/knaagdieren.png'),
+                (text: 'Roofdieren', icon: null, imagePath: 'assets/icons/category/roofdieren.png'),
                 (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
               ],
               onStatusSelected: _handleStatusSelection,
-              title: 'Selecteer dier Conditie',
+              title: 'Selecteer Categorie',
             ),
           ],
         ),
@@ -39,12 +40,14 @@ class AnimalConditionScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () => Navigator.pop(context),
         onNextPressed: () {
-          // TODO: Implement next screen navigation
+          print('Next pressed');
         },
       ),
     );
   }
 }
+
+
 
 
 

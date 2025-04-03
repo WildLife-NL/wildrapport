@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class WhiteBulkButton extends StatelessWidget {
   final String text;
@@ -60,11 +61,15 @@ class WhiteBulkButton extends StatelessWidget {
                   ),
                 ),
                 if (rightWidget != null)
-                  Container(
-                    child: rightWidget!,  // Directly use the rightWidget without ShaderMask
-                  )
+                  rightWidget!
                 else 
-                  const SizedBox(),
+                  CircleIconContainer(
+                    icon: Icons.arrow_forward_ios,
+                    iconColor: AppColors.brown,
+                    size: 48, // Increased from 38
+                    iconSize: 28, // Increased from 20
+                    backgroundColor: AppColors.offWhite,
+                  ),
               ],
             ),
           ),
@@ -73,12 +78,6 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
 
 
 

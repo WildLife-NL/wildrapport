@@ -82,16 +82,11 @@ flutter:
     - assets/icons/rapporteren/health_icon.png
     - assets/icons/rapporteren/sighting_icon.png
     - assets/icons/rapporteren/accident_icon.png
+    - assets/icons/category/evenhoevigen.png
+    - assets/icons/category/knaagdieren.png
+    - assets/icons/category/roofdieren.png
     - .env
-    - assets/icons/filter_dropdown/category_icon.png
-    - assets/icons/filter_dropdown/filter_icon.png
-    - assets/icons/filter_dropdown/letter_icon.png
-    - assets/icons/filter_dropdown/seen_icon.png
-    - assets/icons/filter_dropdown/reset_icon.png
-    - assets/icons/filter_dropdown/evenhoevigen.png
-    - assets/icons/filter_dropdown/knaagdieren.png
-    - assets/icons/filter_dropdown/roofdieren.png
-    - .env
+
     
 
   fonts:
