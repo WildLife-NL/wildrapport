@@ -30,5 +30,10 @@ class QuestionnaireManager implements QuestionnaireInterface{
       }
     }
     return questionnaireWidgets;
+  }
+  
+  @override
+  int? getAmountOfQuestions(int amount) { //replace int amount with Questionnaire questionnaire after testing
+    return amount;
   } 
 }

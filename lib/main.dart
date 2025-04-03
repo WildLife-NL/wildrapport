@@ -13,6 +13,7 @@ import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
+import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
@@ -70,7 +71,7 @@ void main() async {
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
-        Provider<QuestionnaireManager>.value(value: questionnaireManager),
+        Provider<QuestionnaireInterface>.value(value: questionnaireManager),
         Provider<AnswerManager>.value(value: answerManager),
       ],
       child: const MyApp(),
