@@ -45,12 +45,7 @@ class BrownButton extends StatelessWidget {
                 else
                   const SizedBox(width: 24),
                 if (model?.rightIconPath != null && model!.rightIconPath!.isNotEmpty)
-                  Image.asset(
-                    model!.rightIconPath!,
-                    width: model!.rightIconSize,
-                    height: model!.rightIconSize,
-                    fit: BoxFit.contain,
-                  )
+                  _buildRightIcon()
                 else
                   const SizedBox(width: 24),
               ],
@@ -74,12 +69,34 @@ class BrownButton extends StatelessWidget {
       return CircleIconContainer(
         icon: _getIconData(iconName),
         iconColor: AppColors.brown,
+        size: model!.leftIconSize ?? 38.0,  // Use the model's size
       );
     }
     return Image.asset(
       model!.leftIconPath!,
       width: model!.leftIconSize,
       height: model!.leftIconSize,
+      fit: BoxFit.contain,
+    );
+  }
+
+  Widget _buildRightIcon() {
+    if (model?.rightIconPath?.startsWith('circle_icon:') ?? false) {
+      final iconName = model!.rightIconPath!.split(':')[1];
+      return Transform.translate(
+        offset: const Offset(3, 0),  // Move 3px to the right
+        child: CircleIconContainer(
+          icon: _getIconData(iconName),
+          iconColor: AppColors.brown,
+          size: model!.rightIconSize ?? 38.0,
+          iconSize: (model!.rightIconSize ?? 38.0) * 0.75,  // Increased from 0.6 to 0.75 for bigger arrows
+        ),
+      );
+    }
+    return Image.asset(
+      model!.rightIconPath!,
+      width: model!.rightIconSize,
+      height: model!.rightIconSize,
       fit: BoxFit.contain,
     );
   }
@@ -97,7 +114,15 @@ class BrownButton extends StatelessWidget {
       case 'restart_alt':
         return Icons.restart_alt;
       case 'search':
-        return Icons.search;  // Added search icon
+        return Icons.search;
+      case 'keyboard_arrow_up':
+        return Icons.keyboard_arrow_up;
+      case 'keyboard_arrow_down':
+        return Icons.keyboard_arrow_down;
+      case 'arrow_forward_ios':
+        return Icons.arrow_forward_ios;
+      case 'pets':
+        return Icons.pets;
       default:
         return Icons.error;
     }
@@ -108,12 +133,14 @@ class CircleIconContainer extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final double size;
+  final double? iconSize;
 
   const CircleIconContainer({
     super.key,
     required this.icon,
     required this.iconColor,
     this.size = 38.0,
+    this.iconSize,
   });
 
   @override
@@ -137,11 +164,16 @@ class CircleIconContainer extends StatelessWidget {
       child: Icon(
         icon,
         color: iconColor,
-        size: size * 0.5,  // Icon size is half of container size
+        size: iconSize ?? (size * 0.5),  // Use custom iconSize if provided
       ),
     );
   }
 }
+
+
+
+
+
 
 
 

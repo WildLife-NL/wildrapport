@@ -16,13 +16,33 @@ class CustomAppBar extends StatelessWidget {
     this.rightIcon,
     this.onLeftIconPressed,
     this.onRightIconPressed,
-    this.preserveState = true,  // Default to true
+    this.preserveState = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    
+    // Calculate responsive dimensions
+    final double barHeight = screenSize.height * 0.05; // 5% of screen height
+    final double minHeight = 24.0;
+    final double maxHeight = 40.0;
+    final double finalHeight = barHeight.clamp(minHeight, maxHeight);
+    
+    // Calculate responsive text size
+    final double fontSize = screenSize.width * 0.05; // 5% of screen width
+    final double minFontSize = 16.0;
+    final double maxFontSize = 24.0;
+    final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
+    
+    // Calculate responsive icon size
+    final double iconSize = screenSize.width * 0.06; // 6% of screen width
+    final double minIconSize = 24.0;
+    final double maxIconSize = 32.0;
+    final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
+
     return Container(
-      height: 24,
+      height: finalHeight,
       color: Colors.transparent,
       child: Row(
         children: [
@@ -34,7 +54,9 @@ class CustomAppBar extends StatelessWidget {
               children: [
                 if (leftIcon != null)
                   Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
+                    padding: EdgeInsets.only(
+                      left: screenSize.width * 0.04, // 4% of screen width
+                    ),
                     child: GestureDetector(
                       onTap: onLeftIconPressed ?? () {
                         Navigator.of(context).pop();
@@ -42,7 +64,7 @@ class CustomAppBar extends StatelessWidget {
                       child: Icon(
                         Icons.arrow_back_ios,
                         color: AppColors.brown,
-                        size: 28,
+                        size: finalIconSize,
                       ),
                     ),
                   ),
@@ -56,9 +78,9 @@ class CustomAppBar extends StatelessWidget {
             child: Center(
               child: Text(
                 centerText ?? '',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.brown,
-                  fontSize: 20,
+                  fontSize: finalFontSize,
                   fontFamily: 'Arimo',
                   fontWeight: FontWeight.bold,
                 ),
@@ -76,13 +98,15 @@ class CustomAppBar extends StatelessWidget {
               children: [
                 if (rightIcon != null)
                   Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
+                    padding: EdgeInsets.only(
+                      right: screenSize.width * 0.04, // 4% of screen width
+                    ),
                     child: GestureDetector(
                       onTap: onRightIconPressed,
                       child: Icon(
                         Icons.menu,
                         color: AppColors.brown,
-                        size: 28,
+                        size: finalIconSize,
                       ),
                     ),
                   ),
@@ -94,6 +118,7 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 }
+
 
 
 

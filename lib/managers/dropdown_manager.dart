@@ -17,39 +17,21 @@ class DropdownManager implements DropdownInterface {
 
   DropdownManager(this._filterManager);
 
-  @override
-  Widget buildDropdown({
-    required DropdownType type,
-    required String selectedValue,
-    required bool isExpanded,
-    required Function(bool) onExpandChanged,
-    required Function(String) onOptionSelected,
-    required BuildContext context,  // Add context parameter here
-  }) {
-    switch (type) {
-      case DropdownType.filter:
-        return _buildFilterDropdown(
-          selectedValue: selectedValue,
-          isExpanded: isExpanded,
-          onExpandChanged: onExpandChanged,
-          onOptionSelected: onOptionSelected,
-          context: context,  // Pass context here
-        );
-      default:
-        throw UnimplementedError('Dropdown type not implemented');
-    }
-  }
-
   Widget _buildFilterDropdown({
     required String selectedValue,
     required bool isExpanded,
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
-    required BuildContext context,  // Add context parameter here
+    required BuildContext context,
   }) {
     final bool isShowingCategories = selectedValue == FilterType.category.displayText ||
                                    (_filterManager as CategoryInterface).getAnimalCategories()
                                        .any((category) => category['text'] == selectedValue);
+
+    // Create the main filter button model
+    final bool shouldShowRightIcon = !isExpanded && 
+        selectedValue != FilterType.alphabetical.displayText && 
+        selectedValue != FilterType.mostViewed.displayText;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,10 +41,12 @@ class DropdownManager implements DropdownInterface {
             text: selectedValue == FilterType.none.displayText ? 'Filteren' : selectedValue,
             leftIconPath: _getSelectedFilterIcon(selectedValue),
             rightIconPath: isExpanded 
-                ? 'assets/icons/filter_dropdown/arrow_up_icon.png'
-                : 'assets/icons/filter_dropdown/arrow_down_icon.png',
+                ? 'circle_icon:keyboard_arrow_up'
+                : shouldShowRightIcon 
+                    ? 'circle_icon:keyboard_arrow_down'
+                    : null,
             leftIconSize: 38.0,
-            rightIconSize: 24.0,
+            rightIconSize: 38.0,  // Make it the same size as leftIconSize
             leftIconPadding: 5,
           ),
           onPressed: () => onExpandChanged(!isExpanded),
@@ -76,7 +60,7 @@ class DropdownManager implements DropdownInterface {
               selectedValue: selectedValue,
               onOptionSelected: onOptionSelected,
               onExpandChanged: onExpandChanged,
-              context: context,  // Pass context here
+              context: context,
             ),
         ],
       ],
@@ -232,7 +216,35 @@ class DropdownManager implements DropdownInterface {
 
     return filterType.iconPath;
   }
+  
+  @override
+  Widget buildDropdown({
+    required DropdownType type,
+    required String selectedValue,
+    required bool isExpanded,
+    required Function(bool) onExpandChanged,
+    required Function(String) onOptionSelected,
+    required BuildContext context,
+  }) {
+    switch (type) {
+      case DropdownType.filter:
+        return _buildFilterDropdown(
+          selectedValue: selectedValue,
+          isExpanded: isExpanded,
+          onExpandChanged: onExpandChanged,
+          onOptionSelected: onOptionSelected,
+          context: context,
+        );
+      default:
+        throw UnimplementedError('Dropdown type not implemented');
+    }
+  }
 }
+
+
+
+
+
 
 
 

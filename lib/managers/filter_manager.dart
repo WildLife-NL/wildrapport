@@ -7,21 +7,21 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
   static final List<BrownButtonModel> _filterOptions = [
     BrownButtonModel(
       text: FilterType.alphabetical.displayText,
-      leftIconPath: FilterType.alphabetical.iconPath,
+      leftIconPath: 'circle_icon:sort_by_alpha',  // Using Flutter icon
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
     ),
     BrownButtonModel(
       text: FilterType.mostViewed.displayText,
-      leftIconPath: FilterType.mostViewed.iconPath,
+      leftIconPath: 'circle_icon:visibility',  // Using Flutter icon
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
     ),
     BrownButtonModel(
       text: FilterType.search.displayText,
-      leftIconPath: FilterType.search.iconPath,
+      leftIconPath: 'circle_icon:search',  // Using Flutter icon
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
@@ -60,9 +60,9 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
   @override
   List<Map<String, String>> getAnimalCategories() {
     return [
-      {'icon': 'assets/icons/filter_dropdown/evenhoevigen.png', 'text': 'Evenhoevigen'},
-      {'icon': 'assets/icons/filter_dropdown/knaagdieren.png', 'text': 'Knaagdieren'},
-      {'icon': 'assets/icons/filter_dropdown/roofdieren.png', 'text': 'Roofdieren'},
+      {'icon': 'circle_icon:pets', 'text': 'Evenhoevigen'},  // Using Flutter icon
+      {'icon': 'circle_icon:pets', 'text': 'Knaagdieren'},   // Using Flutter icon
+      {'icon': 'circle_icon:pets', 'text': 'Roofdieren'},    // Using Flutter icon
     ];
   }
 
@@ -105,6 +105,7 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
     }).toList();
   }
 }
+
 
 
 
