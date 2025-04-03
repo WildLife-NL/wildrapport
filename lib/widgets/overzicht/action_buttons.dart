@@ -5,11 +5,21 @@ import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
-  final Function() onRapporterenPressed;
+  final List<({String text, IconData icon, VoidCallback? onPressed})> buttons;
+  final double? verticalPadding;
+  final double? horizontalPadding;
+  final double? buttonSpacing;
+  final bool useCircleIcons;
+  final double iconSize;
 
   const ActionButtons({
     super.key,
-    required this.onRapporterenPressed,
+    required this.buttons,
+    this.verticalPadding,
+    this.horizontalPadding,
+    this.buttonSpacing,
+    this.useCircleIcons = true,
+    this.iconSize = 48,
   });
 
   @override
@@ -17,25 +27,21 @@ class ActionButtons extends StatelessWidget {
     return Expanded(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05,
-          vertical: MediaQuery.of(context).size.height * 0.02,
+          horizontal: horizontalPadding ?? MediaQuery.of(context).size.width * 0.05,
+          vertical: verticalPadding ?? MediaQuery.of(context).size.height * 0.02,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildButton(
-              text: 'RapportenKaart',
-              icon: Icons.map,
-            ),
-            _buildButton(
-              text: 'Rapporteren',
-              icon: Icons.edit_note,
-              onPressed: onRapporterenPressed,
-            ),
-            _buildButton(
-              text: 'Mijn Rapporten',
-              icon: Icons.description,
-            ),
+            for (var button in buttons) ...[
+              _buildButton(
+                text: button.text,
+                icon: button.icon,
+                onPressed: button.onPressed,
+              ),
+              if (button != buttons.last)
+                SizedBox(height: buttonSpacing ?? MediaQuery.of(context).size.height * 0.02),
+            ],
           ],
         ),
       ),
@@ -49,11 +55,17 @@ class ActionButtons extends StatelessWidget {
   }) {
     return WhiteBulkButton(
       text: text,
-      leftWidget: CircleIconContainer(
-        icon: icon,
-        iconColor: AppColors.brown,
-        size: 48,
-      ),
+      leftWidget: useCircleIcons 
+          ? CircleIconContainer(
+              icon: icon,
+              iconColor: AppColors.brown,
+              size: iconSize,
+            )
+          : Icon(
+              icon,
+              color: AppColors.brown,
+              size: iconSize,
+            ),
       rightWidget: const Icon(
         Icons.arrow_forward_ios,
         color: Colors.black54,
@@ -62,3 +74,7 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
+
+
+
+

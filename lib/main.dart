@@ -19,9 +19,11 @@ import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
+import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/animal_gender_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
@@ -110,7 +112,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ReportDecisionScreen(),  // Changed from AnimalsScreen to AnimalConditionScreen
+      home: AnimalGenderScreen(
+        animal: AnimalModel(
+          animalImagePath: 'assets/wolf.png',
+          animalName: 'Demo Wolf',
+          viewCount: 0,
+        ),
+      ),
     );
   }
 }

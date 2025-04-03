@@ -39,20 +39,41 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
             usernameFontSize: _overzichtManager.usernameFontSize,
           ),
           ActionButtons(
-            onRapporterenPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Rapporteren(),
-                ),
-              );
-            },
+            buttons: [
+              (
+                text: 'RapportenKaart',
+                icon: Icons.map,
+                onPressed: () {
+                  // Handle RapportenKaart action
+                },
+              ),
+              (
+                text: 'Rapporteren',
+                icon: Icons.edit_note,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Rapporteren(),
+                    ),
+                  );
+                },
+              ),
+              (
+                text: 'Mijn Rapporten',
+                icon: Icons.description,
+                onPressed: () {
+                  // Handle Mijn Rapporten action
+                },
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
+
 
 
 
