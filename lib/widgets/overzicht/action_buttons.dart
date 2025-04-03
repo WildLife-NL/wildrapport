@@ -11,6 +11,7 @@ class ActionButtons extends StatelessWidget {
   final double? buttonSpacing;
   final bool useCircleIcons;
   final double iconSize;
+  final double buttonHeight; // Added this property
 
   const ActionButtons({
     super.key,
@@ -20,6 +21,7 @@ class ActionButtons extends StatelessWidget {
     this.buttonSpacing,
     this.useCircleIcons = true,
     this.iconSize = 48,
+    this.buttonHeight = 160, // Added with default value
   });
 
   @override
@@ -28,19 +30,22 @@ class ActionButtons extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding ?? MediaQuery.of(context).size.width * 0.05,
-          vertical: verticalPadding ?? MediaQuery.of(context).size.height * 0.02,
+          vertical: verticalPadding ?? 0,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center, // Changed from start to center
           children: [
             for (var button in buttons) ...[
-              _buildButton(
-                text: button.text,
-                icon: button.icon,
-                onPressed: button.onPressed,
+              SizedBox(
+                height: buttonHeight,
+                child: _buildButton(
+                  text: button.text,
+                  icon: button.icon,
+                  onPressed: button.onPressed,
+                ),
               ),
               if (button != buttons.last)
-                SizedBox(height: buttonSpacing ?? MediaQuery.of(context).size.height * 0.02),
+                SizedBox(height: buttonSpacing ?? 0), // Ensure spacing is 0 when null
             ],
           ],
         ),
@@ -74,6 +79,9 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

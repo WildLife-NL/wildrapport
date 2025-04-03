@@ -75,10 +75,11 @@ class AnimalGenderScreen extends StatelessWidget {
                   ),
                 ],
                 useCircleIcons: false,
-                iconSize: 96, // Increased from 72
+                iconSize: 96,
                 verticalPadding: 0,
                 horizontalPadding: 0,
-                buttonSpacing: 4, // Reduced from 8
+                buttonSpacing: 4,
+                buttonHeight: 120, // Set to default WhiteBulkButton height
               ),
             ],
           ),
@@ -93,6 +94,8 @@ class AnimalGenderScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

@@ -29,10 +29,8 @@ class DropdownManager implements DropdownInterface {
                                    (_filterManager as CategoryInterface).getAnimalCategories()
                                        .any((category) => category['text'] == selectedValue);
 
-    // Create the main filter button model
-    final bool shouldShowRightIcon = !isExpanded && 
-        selectedValue != FilterType.alphabetical.displayText && 
-        selectedValue != FilterType.mostViewed.displayText;
+    // Remove the condition that was hiding the arrow
+    final bool shouldShowRightIcon = true;  // Always show the arrow
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,11 +41,9 @@ class DropdownManager implements DropdownInterface {
             leftIconPath: _getSelectedFilterIcon(selectedValue),
             rightIconPath: isExpanded 
                 ? 'circle_icon:keyboard_arrow_up'
-                : shouldShowRightIcon 
-                    ? 'circle_icon:keyboard_arrow_down'
-                    : null,
+                : 'circle_icon:keyboard_arrow_down',
             leftIconSize: 38.0,
-            rightIconSize: 38.0,  // Make it the same size as leftIconSize
+            rightIconSize: 38.0,
             leftIconPadding: 5,
           ),
           onPressed: () => onExpandChanged(!isExpanded),
@@ -178,7 +174,7 @@ class DropdownManager implements DropdownInterface {
           child: BrownButton(
             model: BrownButtonModel(
               text: 'Reset filter',
-              leftIconPath: 'assets/icons/filter_dropdown/reset_icon.png',
+              leftIconPath: 'circle_icon:restart_alt',  // Changed from PNG to Flutter icon
               leftIconSize: 38.0,
             ),
             onPressed: () {
@@ -241,6 +237,8 @@ class DropdownManager implements DropdownInterface {
     }
   }
 }
+
+
 
 
 

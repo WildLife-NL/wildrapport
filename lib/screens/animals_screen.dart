@@ -6,6 +6,7 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:lottie/lottie.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
@@ -120,8 +121,18 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: SizedBox(
+          width: 200,
+          height: 200,
+          child: Lottie.asset(
+            'assets/loaders/loading_paw.json',
+            fit: BoxFit.contain,
+            repeat: true,
+            animate: true,
+            frameRate: FrameRate(60),
+          ),
+        ),
       );
     }
 
@@ -156,6 +167,8 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
+
+
 
 
 

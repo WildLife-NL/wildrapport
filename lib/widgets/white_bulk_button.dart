@@ -8,6 +8,7 @@ class WhiteBulkButton extends StatelessWidget {
   final Widget? leftWidget;
   final Widget? rightWidget;
   final VoidCallback? onPressed;
+  final double height;
 
   const WhiteBulkButton({
     super.key,
@@ -15,12 +16,13 @@ class WhiteBulkButton extends StatelessWidget {
     this.leftWidget,
     this.rightWidget,
     this.onPressed,
+    this.height = 120,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 120,
+      height: height,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.offWhite,
@@ -78,6 +80,7 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
 
 
 
