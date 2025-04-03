@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/api/api_client.dart';
+import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/interfaces/login_interface.dart';
+import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/dropdown_manager.dart';
+import 'package:wildrapport/managers/login_manager.dart';
+import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
@@ -17,28 +28,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Create instances of services
-  final animalService = AnimalManager();
-  final filterManager = FilterManager();
-  
   await dotenv.load(fileName: ".env");
-  AppConfig.create();
   
-  String? token = await _getToken();
-
-  if(token != null && token != ""){
-    debugPrint("Token already stored locally: $token");
-  }
+  final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
+  final appConfig = AppConfig(apiClient);
+  
+  final authApi = AuthApi(apiClient);
+  final speciesApi = SpeciesApi(apiClient);
+  final userService = UserService();
+  
+  final loginManager = LoginManager(authApi);
+  final animalManager = AnimalManager();
+  final filterManager = FilterManager();
+  final overzichtManager = OverzichtManager();
+  final dropdownManager = DropdownManager(filterManager);
   
   runApp(
     MultiProvider(
       providers: [
-        Provider<AnimalRepositoryInterface>(create: (_) => animalService),
+        Provider<AppConfig>.value(value: appConfig),
+        Provider<ApiClient>.value(value: apiClient),
+        Provider<AuthApiInterface>.value(value: authApi),
+        Provider<LoginInterface>.value(value: loginManager),
+        Provider<AnimalRepositoryInterface>.value(value: animalManager),
+        Provider<AnimalManagerInterface>.value(value: animalManager),
         Provider<FilterInterface>.value(value: filterManager),
+        Provider<OverzichtInterface>.value(value: overzichtManager),
+        Provider<DropdownInterface>.value(value: dropdownManager),
       ],
       child: const MyApp(),
     ),
   );
+}
+
+class UserService {
 }
 
 Future<String?> _getToken() async {
@@ -88,7 +111,7 @@ class _MyAppState extends State<MyApp> {
               });
             },
           )
-        : const LoginScreen(), // Changed from Rapporteren to LoginScreen
+        : const LoginScreen(), // Changed from OverzichtScreen to LoginScreen
     );
   }
 }
