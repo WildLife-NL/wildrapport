@@ -15,6 +15,8 @@ abstract class FilterInterface {
   List<BrownButtonModel> getAvailableFilters(String currentFilter);
   
   List<AnimalModel> filterAnimalsAlphabetically(List<AnimalModel> animals);
+  
+  List<AnimalModel> searchAnimals(List<AnimalModel> animals, String searchTerm);
 }
 
 abstract class SortInterface {
@@ -28,6 +30,7 @@ abstract class SortInterface {
     int Function(T item) getViewCount,
   );
 }
+
 
 
 

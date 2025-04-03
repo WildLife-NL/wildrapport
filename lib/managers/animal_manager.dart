@@ -12,6 +12,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
   final SpeciesApiInterface _speciesApi;
   final FilterInterface _filterManager;
   List<AnimalModel>? _cachedAnimals;
+  String? _currentSearchTerm;
   
   AnimalManager(this._speciesApi, this._filterManager);
 
@@ -47,9 +48,14 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     if (_selectedFilter == FilterType.alphabetical.displayText) {
       return _filterManager.filterAnimalsAlphabetically(animals);
     } 
-    // Most viewed filter is currently disabled - returns unfiltered list
     else if (_selectedFilter == FilterType.mostViewed.displayText) {
+      // Temporarily disabled - return unfiltered list
       return animals;
+    }
+    else if (_selectedFilter == FilterType.search.displayText || _currentSearchTerm?.isNotEmpty == true) {
+      // Always apply search if there's a search term or if search filter is selected
+      final searchTerm = _currentSearchTerm ?? '';
+      return _filterManager.searchAnimals(animals, searchTerm);
     }
     return animals;
   }
@@ -69,6 +75,11 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     _notifyListeners();
   }
 
+  void updateSearchTerm(String searchTerm) {
+    _currentSearchTerm = searchTerm;
+    _notifyListeners();
+  }
+
   @override
   void addListener(Function() listener) {
     _listeners.add(listener);
@@ -85,6 +96,10 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
+
+
+
 
 
 

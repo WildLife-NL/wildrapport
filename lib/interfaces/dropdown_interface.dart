@@ -8,5 +8,6 @@ abstract class DropdownInterface {
     required bool isExpanded,
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
+    required BuildContext context,
   });
 }

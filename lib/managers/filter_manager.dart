@@ -93,7 +93,19 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
     return List<T>.from(items)
       ..sort((a, b) => getViewCount(b).compareTo(getViewCount(a)));
   }
+
+  @override
+  List<AnimalModel> searchAnimals(List<AnimalModel> animals, String searchTerm) {
+    if (searchTerm.isEmpty) return animals;
+    
+    final searchTermLower = searchTerm.toLowerCase();
+    return animals.where((animal) {
+      final animalNameLower = animal.animalName.toLowerCase();
+      return animalNameLower.contains(searchTermLower);
+    }).toList();
+  }
 }
+
 
 
 

@@ -103,6 +103,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
                 isExpanded: _isExpanded,
                 onExpandChanged: (_) => _toggleExpanded(),
                 onOptionSelected: _animalManager.updateFilter,
+                context: context,
               ),
             ),
             Expanded(
@@ -155,6 +156,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
+
 
 
 

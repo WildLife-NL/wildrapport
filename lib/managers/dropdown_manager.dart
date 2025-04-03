@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
@@ -21,6 +24,7 @@ class DropdownManager implements DropdownInterface {
     required bool isExpanded,
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
+    required BuildContext context,  // Add context parameter here
   }) {
     switch (type) {
       case DropdownType.filter:
@@ -29,6 +33,7 @@ class DropdownManager implements DropdownInterface {
           isExpanded: isExpanded,
           onExpandChanged: onExpandChanged,
           onOptionSelected: onOptionSelected,
+          context: context,  // Pass context here
         );
       default:
         throw UnimplementedError('Dropdown type not implemented');
@@ -40,6 +45,7 @@ class DropdownManager implements DropdownInterface {
     required bool isExpanded,
     required Function(bool) onExpandChanged,
     required Function(String) onOptionSelected,
+    required BuildContext context,  // Add context parameter here
   }) {
     final bool isShowingCategories = selectedValue == FilterType.category.displayText ||
                                    (_filterManager as CategoryInterface).getAnimalCategories()
@@ -70,6 +76,7 @@ class DropdownManager implements DropdownInterface {
               selectedValue: selectedValue,
               onOptionSelected: onOptionSelected,
               onExpandChanged: onExpandChanged,
+              context: context,  // Pass context here
             ),
         ],
       ],
@@ -94,6 +101,7 @@ class DropdownManager implements DropdownInterface {
     required String selectedValue,
     required Function(String) onOptionSelected,
     required Function(bool) onExpandChanged,
+    required BuildContext context,  // Add context parameter here
   }) {
     final List<Widget> options = [];
 
@@ -123,7 +131,7 @@ class DropdownManager implements DropdownInterface {
                       Padding(
                         padding: const EdgeInsets.only(left: 6),
                         child: CircleIconContainer(
-                          icon: Icons.search,
+                          icon: Icons.search,  // Using Flutter's built-in search icon
                           iconColor: AppColors.brown,
                         ),
                       ),
@@ -138,7 +146,10 @@ class DropdownManager implements DropdownInterface {
                             contentPadding: EdgeInsets.symmetric(horizontal: 16),
                           ),
                           onChanged: (value) {
-                            // TODO: Implement search functionality
+                            final animalManager = Provider.of<AnimalManagerInterface>(context, listen: false);
+                            if (animalManager is AnimalManager) {
+                              animalManager.updateSearchTerm(value);
+                            }
                           },
                         ),
                       ),
@@ -222,29 +233,6 @@ class DropdownManager implements DropdownInterface {
     return filterType.iconPath;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
