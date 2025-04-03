@@ -48,4 +48,10 @@ class SpeciesApi implements SpeciesApiInterface{
       throw Exception(json ?? "Failed to get species");
     }
   }
+  
+  @override
+  Future<Species> getSpeciesByCategory(String category) {
+    // TODO: implement getSpeciesByCategory
+    throw UnimplementedError();
+  }
 }
