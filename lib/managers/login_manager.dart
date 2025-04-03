@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:wildrapport/config/app_config.dart';
-=======
 import 'package:flutter/src/widgets/framework.dart';
->>>>>>> ea995d1a941e8197abbd889d59a295f52ace64a9
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
@@ -106,7 +103,6 @@ class LoginManager implements LoginInterface {
   }
 
   @override
-<<<<<<< HEAD
   void setVerificationVisible(bool visible) {
     _showVerification = visible;
     _notifyListeners();
@@ -141,7 +137,6 @@ class LoginManager implements LoginInterface {
   void _notifyListeners() {
     for (final listener in _listeners) {
       listener();
-=======
   Future<bool> sendLoginCode(String email) async {
     // Validate email first
     final validationError = validateEmail(email);
@@ -165,12 +160,7 @@ class LoginManager implements LoginInterface {
     catch(e){
       //TODO: Handle exception
       throw Exception("Unhandled Unauthorized Exception");
->>>>>>> ea995d1a941e8197abbd889d59a295f52ace64a9
     }
   }
 }
-
-<<<<<<< HEAD
-=======
-//use interface of api
->>>>>>> ea995d1a941e8197abbd889d59a295f52ace64a9
+  }}

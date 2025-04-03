@@ -6,6 +6,7 @@ import 'package:wildrapport/api/auth_api.dart';
 import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
@@ -24,6 +25,7 @@ import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/screens/animals_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,13 +37,9 @@ void main() async {
   
   final authApi = AuthApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
-  final userService = UserService();
   
   final loginManager = LoginManager(authApi);
-  final animalManager = AnimalManager();
-  final filterManager = FilterManager();
-  final overzichtManager = OverzichtManager();
-  final dropdownManager = DropdownManager(filterManager);
+  final animalManager = AnimalManager(speciesApi); // Create a single instance
   
   runApp(
     MultiProvider(
@@ -49,12 +47,15 @@ void main() async {
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
+        Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),
-        Provider<FilterInterface>.value(value: filterManager),
-        Provider<OverzichtInterface>.value(value: overzichtManager),
-        Provider<DropdownInterface>.value(value: dropdownManager),
+        Provider<FilterInterface>.value(value: FilterManager()),
+        Provider<OverzichtInterface>.value(value: OverzichtManager()),
+        Provider<DropdownInterface>.value(
+          value: DropdownManager(FilterManager()),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -69,23 +70,13 @@ Future<String?> _getToken() async {
   return prefs.getString('bearer_token');
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  bool _isLoading = true;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'WildRapport',
-      builder: (context, child) {
-        return _MediaQueryWrapper(child: child!);
-      },
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.lightMintGreen,
         colorScheme: ColorScheme.fromSeed(
@@ -103,15 +94,8 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      home: _isLoading 
-        ? LoadingScreen(
-            onLoadingComplete: () {
-              setState(() {
-                _isLoading = false;
-              });
-            },
-          )
-        : const LoginScreen(), // Changed from OverzichtScreen to LoginScreen
+      // Replace LoginScreen with AnimalsScreen for testing
+      home: const AnimalsScreen(screenTitle: 'Test Animals'),
     );
   }
 }

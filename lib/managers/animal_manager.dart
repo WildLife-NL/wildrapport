@@ -2,43 +2,48 @@
 import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 
 class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterface, AnimalManagerInterface {
   final _listeners = <Function()>[];
   String _selectedFilter = 'Filteren';
+  final SpeciesApiInterface _speciesApi;
+  List<AnimalModel>? _cachedAnimals;
+  
+  AnimalManager(this._speciesApi);
 
   @override
-  List<AnimalModel> getAnimals() {
-    return [
-      AnimalModel(
+  Future<List<AnimalModel>> getAnimals() async {
+    try {
+      if (_cachedAnimals != null) {
+        return _cachedAnimals!;
+      }
+
+      final species = await _speciesApi.getAllSpecies();
+      _cachedAnimals = species.map((s) => AnimalModel(
         animalImagePath: 'assets/wolf.png',
-        animalName: 'Grijze Wolf',
-      ),
-      AnimalModel(
-        animalImagePath: 'assets/fox.png',
-        animalName: 'Red Fox',
-      ),
-      AnimalModel(
-        animalImagePath: 'assets/marten.png',
-        animalName: 'Steenmarter',
-      ),
-      AnimalModel(
-        animalImagePath: 'assets/deer.png',
-        animalName: 'Edelhert',
-      ),
-      AnimalModel(
-        animalImagePath: 'assets/tiger.png',
-        animalName: 'Tiger',
-      ),
-      AnimalModel(
-        animalImagePath: 'assets/beer.png',
-        animalName: 'Grizzlybeer',
-      ),
-    ];
+        animalName: s.commonName,
+        viewCount: 0,
+      )).toList();
+
+      // Add the "Unknown" option with no image
+      _cachedAnimals!.add(AnimalModel(
+        animalImagePath:null,  // No image path for unknown
+        animalName: 'Onbekend',
+        viewCount: 0,
+      ));
+      
+      return _cachedAnimals!;
+    } catch (e) {
+      debugPrint('Error fetching animals: $e');
+      throw Exception('Failed to load animals: $e');
+    }
   }
 
   @override
   AnimalModel handleAnimalSelection(AnimalModel selectedAnimal) {
+    // Empty implementation for now, just logging the selected animal
+    debugPrint('Selected animal: ${selectedAnimal.animalName}');
     return selectedAnimal;
   }
 
@@ -67,6 +72,15 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
+
+
+
+
+
+
+
+
 
 
 
