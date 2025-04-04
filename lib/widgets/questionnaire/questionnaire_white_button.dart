@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 
-class QuestionnaireWhiteButton extends StatelessWidget{
+class QuestionnaireWhiteButton extends StatelessWidget {
   final String text;
   final double? height;
   final double? width;
@@ -17,6 +17,7 @@ class QuestionnaireWhiteButton extends StatelessWidget{
     this.rightWidget,
     this.onPressed,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,29 +44,35 @@ class QuestionnaireWhiteButton extends StatelessWidget{
           highlightColor: AppColors.brown.withOpacity(0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.min,
+            child: Stack(
+              alignment: Alignment.topRight,  // Align the icon to the top-right
               children: [
-                Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: AppTextTheme.textTheme.titleMedium?.copyWith(
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.25),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
+                // Centered Text
+                Center(
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.brown,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 20).copyWith(
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.25),
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                          ),
+                        ],
                       ),
-                    ],
                   ),
                 ),
+                // Positioned Icon in top-right corner
                 if (rightWidget != null)
-                  Container(
-                    child: rightWidget!,  // Directly use the rightWidget without ShaderMask
-                  )
-                else 
-                  const SizedBox(),
+                  Positioned(
+                    top: 4,  // Adjust the distance from the top
+                    right: 0,  // Adjust the distance from the right
+                    child: rightWidget!,
+                  ),
               ],
             ),
           ),

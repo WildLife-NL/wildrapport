@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/api/questionaire_api.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
@@ -8,24 +9,15 @@ import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home_buttons.dart';
 
-class QuestionnaireHome extends StatefulWidget{
-  const QuestionnaireHome({super.key});
+class QuestionnaireHome extends StatelessWidget {
+  final VoidCallback nextScreen;
 
-  @override
-  State<QuestionnaireHome> createState() => _QuestionnaireHomeState();
-}
+  const QuestionnaireHome({super.key, required this.nextScreen});
 
-class _QuestionnaireHomeState extends State<QuestionnaireHome>{
-  late final QuestionnaireInterface _questionnaireManager;
-
-  @override
-  void initState() {
-    super.initState();
-    _questionnaireManager = context.read<QuestionnaireInterface>();
-    debugPrint("Home");
-  }
   @override
   Widget build(BuildContext context){
+    final questionnaireManager = context.read<QuestionnaireInterface>();
+
     return
       Column(
         children: [
@@ -34,7 +26,7 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
               child: Text(
               "Wil je de natuur helpen door een paar vragen te beantwoorden?",
               textAlign: TextAlign.center,
-              style: AppTextTheme.textTheme.titleMedium?.copyWith(
+              style: AppTextTheme.textTheme.titleLarge?.copyWith(
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.25),
@@ -48,8 +40,12 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
           Column(
             children: [
               Text(
-                "Total",
-                style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                "Totaal",
+                style: TextStyle(
+                  color: AppColors.darkGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ).copyWith(
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.25),
@@ -60,8 +56,12 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
                             ),
               ),
               Text(
-                "${_questionnaireManager.getAmountOfQuestions(2)}",
-                style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                "${questionnaireManager.getAmountOfQuestions(2)}",
+                style: TextStyle(
+                  color: AppColors.darkGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ).copyWith(
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.25),
@@ -73,6 +73,7 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
               )
             ],
           ),
+          SizedBox(height: 40),
           QuestionnaireHomeButtons(
             onOverslaanPressed: () {
               Navigator.push(
@@ -90,16 +91,7 @@ class _QuestionnaireHomeState extends State<QuestionnaireHome>{
                 ),
               );
             },
-            onVragenlijnstOpenenPressed: () {
-              Future<Questionnaire> questionnaire = _questionnaireManager.getQuestionnaire();
-              debugPrint("Name: $questionnaire");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ),
-              );
-            },
+            onVragenlijnstOpenenPressed: () => nextScreen(),
           ),
         ],
       );

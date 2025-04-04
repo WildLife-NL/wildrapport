@@ -1,39 +1,59 @@
+import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/widgets/questionnaire/questionnaire_home.dart';
+import 'package:wildrapport/widgets/questionnaire/questionnaire_multiple_choice.dart';
+import 'package:wildrapport/widgets/questionnaire/questionnaire_open_response.dart';
 
-class QuestionnaireManager implements QuestionnaireInterface{
+class QuestionnaireManager implements QuestionnaireInterface {
   final QuestionnaireApiInterface questionnaireAPI;
   QuestionnaireManager(this.questionnaireAPI);
 
   @override
-  Future<Questionnaire> getQuestionnaire() {
-    //Change to actual test questionaire ID.
-    //This is here so we can test, in future we want to get, 
-    //questionnaires in a different way than using ID
-    final String id = "0344790e-8e86-4c5f-982d-9879928bb9e4";
-
-    return questionnaireAPI.getQuestionnaireByID(id);
+  Future<Questionnaire> getQuestionnaire() async {
+    final String id = "34f54147-8296-4aa9-9a39-6c48dbf88c70";
+    return await questionnaireAPI.getQuestionnaireByID(id);
   }
-  List<dynamic> buildQuestionnaireLayout(Questionnaire questionnaire){
-    final List<dynamic> questionnaireWidgets = List<dynamic>.empty();
+
+
+  @override
+  Future<List<dynamic>> buildQuestionnaireLayout(VoidCallback nextScreen, VoidCallback previousScreen) async {
+    final Questionnaire questionnaire = await getQuestionnaire();
+    final List<Widget> questionnaireWidgets = [];
+    questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen));
     
-    //Implement logic to determine what widget to put in list
-    //Questionnaire screen will then display one by one
-    for (Question question in questionnaire.questions!){
-      if(question.allowMultipleResponse == true){
-        //Create multiplechoice widget
+    for (Question question in questionnaire.questions!) {
+      debugPrint("Question Description: ${question.description}");
+      debugPrint("Allow Open Response: ${question.allowOpenResponse}");
+      if (!question.allowOpenResponse) {
+        debugPrint("index: ${question.index}");
+        questionnaireWidgets.add(
+          QuestionnaireMultipleChoice(
+            question: question,
+            questionnaire: questionnaire,
+            onNextPressed: nextScreen,
+            onBackPressed: previousScreen,
+          ),
+        );
       }
-      if(question.allowOpenResponse == true){
-        //Create openresponse widget
+      if (question.allowOpenResponse) {
+        questionnaireWidgets.add(
+          QuestionnaireOpenResponse(
+            question: question,
+            questionnaire: questionnaire,
+            onNextPressed: nextScreen,
+            onBackPressed: previousScreen,
+          ),
+        );
       }
     }
     return questionnaireWidgets;
   }
   
   @override
-  int? getAmountOfQuestions(int amount) { //replace int amount with Questionnaire questionnaire after testing
+  int? getAmountOfQuestions(int amount) {
     return amount;
-  } 
+  }
 }

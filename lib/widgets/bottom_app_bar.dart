@@ -17,10 +17,12 @@ class CustomBottomAppBar extends StatelessWidget {
 
   void _handleBackPress() {
     debugPrint('CustomBottomAppBar: Back button pressed');
+    onBackPressed();
   }
 
   void _handleNextPress() {
     debugPrint('CustomBottomAppBar: Next button pressed');
+    onNextPressed();
   }
 
   @override

@@ -6,7 +6,7 @@ import 'package:wildrapport/widgets/questionnaire/questionnaire_white_button.dar
 class QuestionnaireHomeButtons extends StatelessWidget{
   final Function() onOverslaanPressed;
   final Function() onBewaarVoorLaterPressed;
-  final Function() onVragenlijnstOpenenPressed;
+  final VoidCallback onVragenlijnstOpenenPressed;
 
   const QuestionnaireHomeButtons({
     super.key,
@@ -33,18 +33,18 @@ class QuestionnaireHomeButtons extends StatelessWidget{
               width: 200,
               onPressed: onOverslaanPressed,
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 24),
               _buildButton(
               text: "Bewaar voor later", 
-              image: Image.asset("assets/icons/questionnaire/arrow.png"),
+              image: Image.asset("assets/icons/questionnaire/save.png"),
               height: 63,
               width: 277,
               onPressed: onBewaarVoorLaterPressed,
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 24),
               _buildButton(
               text: "Vragenlijst Openen", 
-              image: Image.asset("assets/icons/questionnaire/arrow.png"),
+              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
               onPressed: onVragenlijnstOpenenPressed,

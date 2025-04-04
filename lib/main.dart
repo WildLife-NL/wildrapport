@@ -114,7 +114,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const OverzichtScreen(),
+      home: const QuestionnaireScreen(),
     );
   }
 }
