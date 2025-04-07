@@ -114,7 +114,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const OverzichtScreen(),
+      home:  AnimalGenderScreen(
+        animal: AnimalModel.new(
+          animalName: 'wolf',
+          animalImagePath: 'assets/wolf.png',
+          viewCount: 0,
+        ),
+      ),
     );
   }
 }
