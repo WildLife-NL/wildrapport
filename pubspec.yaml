@@ -86,6 +86,9 @@ flutter:
     - assets/icons/category/knaagdieren.png
     - assets/icons/category/roofdieren.png
     - assets/icons/questionnaire/arrow.png
+    - assets/icons/gender/male_gender.png
+    - assets/icons/gender/female_gender.png
+    - assets/icons/gender/unknown_gender.png
     - .env
 
     
