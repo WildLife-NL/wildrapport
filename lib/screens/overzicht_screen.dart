@@ -43,6 +43,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
               (
                 text: 'RapportenKaart',
                 icon: Icons.map,
+                imagePath: null,
                 onPressed: () {
                   // Handle RapportenKaart action
                 },
@@ -50,6 +51,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
               (
                 text: 'Rapporteren',
                 icon: Icons.edit_note,
+                imagePath: null,
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -62,6 +64,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
               (
                 text: 'Mijn Rapporten',
                 icon: Icons.description,
+                imagePath: null,
                 onPressed: () {
                   // Handle Mijn Rapporten action
                 },
@@ -78,6 +81,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     );
   }
 }
+
 
 
 

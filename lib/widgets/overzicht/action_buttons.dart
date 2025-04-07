@@ -5,13 +5,13 @@ import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
-  final List<({String text, IconData icon, VoidCallback? onPressed})> buttons;
+  final List<({String text, IconData? icon, String? imagePath, VoidCallback? onPressed})> buttons;
   final double? verticalPadding;
   final double? horizontalPadding;
   final double? buttonSpacing;
   final bool useCircleIcons;
   final double iconSize;
-  final double buttonHeight; // Added this property
+  final double buttonHeight;
 
   const ActionButtons({
     super.key,
@@ -21,7 +21,7 @@ class ActionButtons extends StatelessWidget {
     this.buttonSpacing,
     this.useCircleIcons = true,
     this.iconSize = 48,
-    this.buttonHeight = 160, // Added with default value
+    this.buttonHeight = 160,
   });
 
   @override
@@ -33,7 +33,7 @@ class ActionButtons extends StatelessWidget {
           vertical: verticalPadding ?? 0,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Changed from start to center
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var button in buttons) ...[
               SizedBox(
@@ -41,11 +41,12 @@ class ActionButtons extends StatelessWidget {
                 child: _buildButton(
                   text: button.text,
                   icon: button.icon,
+                  imagePath: button.imagePath,
                   onPressed: button.onPressed,
                 ),
               ),
               if (button != buttons.last)
-                SizedBox(height: buttonSpacing ?? 0), // Ensure spacing is 0 when null
+                SizedBox(height: buttonSpacing ?? 0),
             ],
           ],
         ),
@@ -55,12 +56,14 @@ class ActionButtons extends StatelessWidget {
 
   Widget _buildButton({
     required String text,
-    required IconData icon,
+    IconData? icon,
+    String? imagePath,
     VoidCallback? onPressed,
   }) {
-    return WhiteBulkButton(
-      text: text,
-      leftWidget: useCircleIcons 
+    Widget? leftWidget;
+    
+    if (icon != null) {
+      leftWidget = useCircleIcons 
           ? CircleIconContainer(
               icon: icon,
               iconColor: AppColors.brown,
@@ -70,7 +73,24 @@ class ActionButtons extends StatelessWidget {
               icon,
               color: AppColors.brown,
               size: iconSize,
-            ),
+            );
+    } else if (imagePath != null) {
+      leftWidget = useCircleIcons
+          ? CircleIconContainer(
+              imagePath: imagePath,
+              size: iconSize,
+            )
+          : Image.asset(
+              imagePath,
+              width: iconSize,
+              height: iconSize,
+              fit: BoxFit.contain,
+            );
+    }
+
+    return WhiteBulkButton(
+      text: text,
+      leftWidget: leftWidget,
       rightWidget: const Icon(
         Icons.arrow_forward_ios,
         color: Colors.black54,
@@ -79,6 +99,7 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
+
 
 
 

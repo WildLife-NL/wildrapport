@@ -86,8 +86,6 @@ flutter:
     - assets/icons/category/knaagdieren.png
     - assets/icons/category/roofdieren.png
     - assets/icons/questionnaire/arrow.png
-    - assets/icons/questionnaire/arrow_forward.png
-    - assets/icons/questionnaire/save.png
     - .env
 
     

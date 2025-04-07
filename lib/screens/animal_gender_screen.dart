@@ -54,32 +54,35 @@ class AnimalGenderScreen extends StatelessWidget {
                 buttons: [
                   (
                     text: 'Vrouwelijk',
-                    icon: Icons.female_outlined,
+                    imagePath: 'assets/icons/gender/female_gender.png',
+                    icon: null,
                     onPressed: () {
                       // Handle female selection
                     },
                   ),
                   (
                     text: 'Mannelijk',
-                    icon: Icons.male_rounded,
+                     imagePath: 'assets/icons/gender/male_gender.png',
+                    icon: null,
                     onPressed: () {
                       // Handle male selection
                     },
                   ),
                   (
                     text: 'Onbekend',
-                    icon: Icons.question_mark_outlined,
+                     imagePath: 'assets/icons/gender/unknown_gender.png',
+                    icon: null,
                     onPressed: () {
                       // Handle unknown selection
                     },
                   ),
                 ],
                 useCircleIcons: false,
-                iconSize: 96,
+                iconSize: 76,  // Reduced from 96 to 76 (20px smaller)
                 verticalPadding: 0,
                 horizontalPadding: 0,
-                buttonSpacing: 4,
-                buttonHeight: 120, // Set to default WhiteBulkButton height
+                buttonSpacing: 14,  // Increased from 4 to 14 (10px more spacing)
+                buttonHeight: 120,
               ),
             ],
           ),
@@ -94,6 +97,7 @@ class AnimalGenderScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 
