@@ -33,6 +33,7 @@ import 'package:wildrapport/screens/loading_screen.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/questionnaire_screen.dart';
 import 'package:wildrapport/screens/report_decision_screen.dart';
+import 'package:wildrapport/screens/test_screen.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
@@ -114,13 +115,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home:  AnimalGenderScreen(
-        animal: AnimalModel.new(
-          animalName: 'wolf',
-          animalImagePath: 'assets/wolf.png',
-          viewCount: 0,
-        ),
-      ),
+      home: const TestScreen(),  // Changed this line to directly show TestScreen
     );
   }
 }
