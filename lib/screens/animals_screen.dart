@@ -2,18 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
+import 'package:wildrapport/models/waarneming_model.dart';
+import 'package:wildrapport/screens/animal_condition_screen.dart';
+import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
+  final WaarnemingModel? waarnemingModel;  // Make it optional since not all routes will have it
 
   const AnimalsScreen({
-    this.appBarTitle = 'Animals',  // Default value provided
-    super.key,
+    super.key, 
+    required this.appBarTitle,
+    this.waarnemingModel,
   });
 
   @override
@@ -21,23 +27,32 @@ class AnimalsScreen extends StatefulWidget {
 }
 
 class _AnimalsScreenState extends State<AnimalsScreen> {
-  late final ScrollController _scrollController;
   late final AnimalManagerInterface _animalManager;
-  bool _isExpanded = false;
-  bool _isLoading = true;
-  String? _error;
   List<AnimalModel>? _animals;
+  String? _error;
+  bool _isLoading = true;
+  bool _isExpanded = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    debugPrint('[AnimalsScreen] Initializing screen');
     _animalManager = context.read<AnimalManagerInterface>();
     _animalManager.addListener(_handleStateChange);
+    
+    if (widget.waarnemingModel != null) {
+      debugPrint('[AnimalsScreen] Initialized with WaarnemingModel');
+      debugPrint('[AnimalsScreen] WaarnemingModel state: ${widget.waarnemingModel!.toJson()}');
+    } else {
+      debugPrint('[AnimalsScreen] Initialized without WaarnemingModel');
+    }
+    
     _loadAnimals();
   }
 
   Future<void> _loadAnimals() async {
+    debugPrint('[AnimalsScreen] Starting to load animals');
     try {
       setState(() {
         _isLoading = true;
@@ -45,6 +60,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
       });
 
       final animals = await _animalManager.getAnimals();
+      debugPrint('[AnimalsScreen] Successfully loaded ${animals.length} animals');
       
       if (mounted) {
         setState(() {
@@ -52,7 +68,11 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('[AnimalsScreen] ERROR: Failed to load animals');
+      debugPrint('[AnimalsScreen] Error details: $e');
+      debugPrint('[AnimalsScreen] Stack trace: $stackTrace');
+      
       if (mounted) {
         setState(() {
           _error = e.toString();
@@ -64,6 +84,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
 
   @override
   void dispose() {
+    debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
     _animalManager.removeListener(_handleStateChange);
     super.dispose();
@@ -76,9 +97,41 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   }
 
   void _toggleExpanded() {
+    debugPrint('[AnimalsScreen] Toggling expanded state from $_isExpanded to ${!_isExpanded}');
     setState(() {
       _isExpanded = !_isExpanded;
     });
+  }
+
+  void _handleAnimalSelection(AnimalModel selectedAnimal) {
+    debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
+    
+    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    debugPrint('[AnimalsScreen] Updating waarneming with selected animal');
+    final updatedWaarneming = waarnemingManager.updateSelectedAnimal(selectedAnimal);
+    
+    // Convert to JSON and highlight changes
+    final oldJson = waarnemingManager.getCurrentWaarneming()?.toJson() ?? {};
+    final newJson = updatedWaarneming.toJson();
+    final greenStart = '\x1B[32m';
+    final colorEnd = '\x1B[0m';
+    
+    final prettyJson = newJson.map((key, value) {
+      final oldValue = oldJson[key];
+      final isChanged = oldValue != value;
+      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
+      return MapEntry(key, prettyValue);
+    });
+    
+    debugPrint('[AnimalsScreen] Waarneming state after update: $prettyJson');
+    
+    debugPrint('[AnimalsScreen] Navigating to ReportDecisionScreen');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ReportDecisionScreen(),
+      ),
+    );
   }
 
   @override
@@ -162,11 +215,17 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
       controller: _scrollController,
       child: AnimalGrid(
         animals: _animals!,
-        onAnimalSelected: _animalManager.handleAnimalSelection,
+        onAnimalSelected: _handleAnimalSelection,
       ),
     );
   }
 }
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/widgets/rapporteren.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 
 class AppStateProvider with ChangeNotifier {
   final Map<String, Map<String, dynamic>> _screenStates = {};

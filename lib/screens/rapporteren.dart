@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
+import 'package:wildrapport/models/waarneming_model.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});
@@ -19,12 +23,69 @@ class _RapporterenState extends State<Rapporteren> {
       selectedCategory = reportType;
     });
     
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AnimalsScreen(appBarTitle: reportType),
-      ),
-    );
+    if (reportType == 'Waarnemingen') {
+      debugPrint('[Rapporteren] Starting Waarneming report creation process');
+      debugPrint('[Rapporteren] Selected report type: $reportType');
+      
+      try {
+        // Get the WaarnemingReportingInterface instance
+        final waarnemingManager = context.read<WaarnemingReportingInterface>();
+        debugPrint('[Rapporteren] Successfully obtained WaarnemingReportingInterface');
+        
+        // Create a new waarneming model
+        final WaarnemingModel waarneming = waarnemingManager.createWaarneming();
+        debugPrint('[Rapporteren] Successfully created new WaarnemingModel');
+        debugPrint('[Rapporteren] WaarnemingModel initial state: ${waarneming.toJson()}');
+        
+        // Navigate directly to AnimalConditionScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnimalConditionScreen(),
+          ),
+        ).then((_) {
+          debugPrint('[Rapporteren] Returned from AnimalConditionScreen');
+        });
+        
+        debugPrint('[Rapporteren] Navigation to AnimalConditionScreen initiated');
+        
+      } catch (e, stackTrace) {
+        debugPrint('[Rapporteren] ERROR: Failed to create Waarneming report');
+        debugPrint('[Rapporteren] Error details: $e');
+        debugPrint('[Rapporteren] Stack trace: $stackTrace');
+        
+        // Show error dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: const Text('Failed to create observation report. Please try again.'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    } else {
+      debugPrint('[Rapporteren] Navigating to AnimalsScreen for non-Waarneming report');
+      debugPrint('[Rapporteren] Report type: $reportType');
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalsScreen(appBarTitle: reportType),
+        ),
+      );
+    }
   }
 
   @override
@@ -200,6 +261,10 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
+
+
+
 
 
 

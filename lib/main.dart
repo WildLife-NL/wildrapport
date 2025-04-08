@@ -40,6 +40,7 @@ import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +82,9 @@ void main() async {
         ),
         Provider<QuestionnaireInterface>.value(value: questionnaireManager),
         Provider<AnswerManager>.value(value: answerManager),
-        Provider<WaarnemingReportingInterface>.value(value: waarnemingReportingManager),
+        Provider<WaarnemingReportingInterface>(
+          create: (context) => waarnemingReportingManager,
+        ),
       ],
       child: const MyApp(),
     ),
@@ -120,7 +123,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const TestScreen(),  // Changed this line to directly show TestScreen
+      home: const Rapporteren (),  // 
     );
   }
 }

@@ -5,7 +5,7 @@ import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
-import 'package:wildrapport/widgets/rapporteren.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
