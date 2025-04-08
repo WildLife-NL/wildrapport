@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/models/waarneming_model.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
+import 'package:wildrapport/screens/animal_amount_selection.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -23,32 +24,32 @@ class AnimalGenderScreen extends StatelessWidget {
     debugPrint('[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}');
     
     final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final updatedWaarneming = WaarnemingModel(
-      animals: waarneming.animals,
-      condition: waarneming.condition,
-      category: waarneming.category,
-      gender: selectedGender,
-      age: waarneming.age,
-      description: waarneming.description,
-      location: waarneming.location,
-      dateTime: waarneming.dateTime,
-      images: waarneming.images,
-    );
+    
+    try {
+      // Update the gender using the manager
+      final updatedWaarneming = waarnemingManager.updateGender(selectedGender);
+      
+      debugPrint('[AnimalGenderScreen] Successfully updated gender');
 
-    // Convert to JSON and highlight changes
-    final oldJson = waarneming.toJson();
-    final newJson = updatedWaarneming.toJson();
-    final greenStart = '\x1B[32m';
-    final colorEnd = '\x1B[0m';
-    
-    final prettyJson = newJson.map((key, value) {
-      final oldValue = oldJson[key];
-      final isChanged = oldValue != value;
-      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
-      return MapEntry(key, prettyValue);
-    });
-    
-    debugPrint('[AnimalGenderScreen] Waarneming state after update: $prettyJson');
+      // Navigate to the amount selection screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalAmountSelectionScreen(
+            waarneming: updatedWaarneming,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('[AnimalGenderScreen] Error updating gender: $e');
+      // Show error dialog or snackbar to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Er is een fout opgetreden bij het bijwerken van het geslacht'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -67,7 +68,7 @@ class AnimalGenderScreen extends StatelessWidget {
       );
     }
 
-    debugPrint('[AnimalGenderScreen] Using animal: {animalName: ${animal.animalName}, animalImagePath: ${animal.animalImagePath}');
+    debugPrint('[AnimalGenderScreen] Using animal: {animalName: ${animal.animalName}, animalImagePath: ${animal.animalImagePath}}');
 
     return Scaffold(
       body: SafeArea(
@@ -155,12 +156,15 @@ class AnimalGenderScreen extends StatelessWidget {
         },
         onNextPressed: () {
           debugPrint('[AnimalGenderScreen] Next button pressed');
-          // Handle next screen navigation
         },
+        showNextButton: false,  // Hide the next button
       ),
     );
   }
 }
+
+
+
 
 
 

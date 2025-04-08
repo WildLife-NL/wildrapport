@@ -124,7 +124,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AnimalAmountSelectionScreen(),
+      home: const OverzichtScreen(),
     );
   }
 }

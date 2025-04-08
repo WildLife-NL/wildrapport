@@ -6,15 +6,14 @@ import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/waarneming_model.dart';
-import 'package:wildrapport/screens/animal_condition_screen.dart';
-import 'package:wildrapport/screens/report_decision_screen.dart';
+import 'package:wildrapport/screens/animal_gender_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
-  final WaarnemingModel? waarnemingModel;  // Make it optional since not all routes will have it
+  final WaarnemingModel? waarnemingModel;
 
   const AnimalsScreen({
     super.key, 
@@ -28,6 +27,7 @@ class AnimalsScreen extends StatefulWidget {
 
 class _AnimalsScreenState extends State<AnimalsScreen> {
   late final AnimalManagerInterface _animalManager;
+  late final WaarnemingReportingInterface _waarnemingManager;
   List<AnimalModel>? _animals;
   String? _error;
   bool _isLoading = true;
@@ -39,11 +39,15 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     super.initState();
     debugPrint('[AnimalsScreen] Initializing screen');
     _animalManager = context.read<AnimalManagerInterface>();
+    _waarnemingManager = context.read<WaarnemingReportingInterface>();
     _animalManager.addListener(_handleStateChange);
     
     if (widget.waarnemingModel != null) {
-      debugPrint('[AnimalsScreen] Initialized with WaarnemingModel');
-      debugPrint('[AnimalsScreen] WaarnemingModel state: ${widget.waarnemingModel!.toJson()}');
+      debugPrint('[AnimalsScreen] Initialized with WaarnemingModel: ${widget.waarnemingModel!.toJson()}');
+      // Instead of creating new, update the existing waarneming
+      if (widget.waarnemingModel?.animals?.isNotEmpty == true) {
+        _waarnemingManager.updateSelectedAnimal(widget.waarnemingModel!.animals!.first);
+      }
     } else {
       debugPrint('[AnimalsScreen] Initialized without WaarnemingModel');
     }
@@ -105,57 +109,33 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
     debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
+    debugPrint('[AnimalsScreen] Current waarneming before update: ${_waarnemingManager.getCurrentWaarneming()?.toJson()}');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
-    
-    // Use category from either the passed model or current waarneming
-    final category = widget.waarnemingModel?.category ?? currentWaarneming?.category;
-    
-    debugPrint('[AnimalsScreen] Using category: ${category.toString()}');
+    try {
+      // Update the animal using the manager
+      final updatedWaarneming = _waarnemingManager.updateSelectedAnimal(selectedAnimal);
+      
+      debugPrint('[AnimalsScreen] Successfully updated animal');
+      debugPrint('[AnimalsScreen] Updated waarneming state: ${updatedWaarneming.toJson()}');
 
-    if (currentWaarneming == null) {
-      debugPrint('[AnimalsScreen] ERROR: No waarneming model found when handling animal selection');
-      return;
-    }
-
-    debugPrint('[AnimalsScreen] Updating waarneming with selected animal');
-    final updatedWaarneming = WaarnemingModel(
-      animals: [selectedAnimal],
-      condition: currentWaarneming.condition,
-      category: category,  // Use the retrieved category
-      gender: currentWaarneming.gender,
-      age: currentWaarneming.age,
-      description: currentWaarneming.description,
-      location: currentWaarneming.location,
-      dateTime: currentWaarneming.dateTime,
-      images: currentWaarneming.images,
-    );
-    
-    // Convert to JSON and highlight changes
-    final oldJson = currentWaarneming.toJson();
-    final newJson = updatedWaarneming.toJson();
-    final greenStart = '\x1B[32m';
-    final colorEnd = '\x1B[0m';
-    
-    final prettyJson = newJson.map((key, value) {
-      final oldValue = oldJson[key];
-      final isChanged = oldValue != value;
-      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
-      return MapEntry(key, prettyValue);
-    });
-    
-    debugPrint('[AnimalsScreen] Waarneming state after update: $prettyJson');
-    
-    debugPrint('[AnimalsScreen] Navigating to ReportDecisionScreen');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReportDecisionScreen(
-          waarneming: updatedWaarneming,
+      // Navigate to the gender selection screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalGenderScreen(
+            waarneming: updatedWaarneming,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      debugPrint('[AnimalsScreen] Error updating animal: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Er is een fout opgetreden bij het selecteren van het dier'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -244,11 +224,6 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
-
-
-
-
-
 
 
 

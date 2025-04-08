@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -8,9 +10,85 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/waarneming_model.dart';
 
-class AnimalAmountSelectionScreen extends StatelessWidget {
-  const AnimalAmountSelectionScreen({super.key});
+class AnimalAmountSelectionScreen extends StatefulWidget {
+  final WaarnemingModel waarneming;
+
+  const AnimalAmountSelectionScreen({
+    super.key,
+    required this.waarneming,
+  });
+
+  @override
+  State<AnimalAmountSelectionScreen> createState() => _AnimalAmountSelectionScreenState();
+}
+
+class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScreen> {
+  final Map<AnimalAge, int> _counts = {
+    for (var age in AnimalAge.values) age: 0
+  };
+  final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _handleNextPressed(BuildContext context) {
+    debugPrint('[AnimalAmountSelectionScreen] Handling next button press');
+    
+    final animal = widget.waarneming.animals?.first;
+    if (animal == null) {
+      debugPrint('[AnimalAmountSelectionScreen] ERROR: No animal found in waarneming');
+      return;
+    }
+
+    // Create ViewCountModel with the counts
+    final viewCount = ViewCountModel(
+      pasGeborenAmount: _counts[AnimalAge.pasGeboren] ?? 0,
+      onvolwassenAmount: _counts[AnimalAge.onvolwassen] ?? 0,
+      volwassenAmount: _counts[AnimalAge.volwassen] ?? 0,
+      unknownAmount: _counts[AnimalAge.onbekend] ?? 0,
+    );
+
+    debugPrint('[AnimalAmountSelectionScreen] Counts: ${_counts.toString()}');
+    debugPrint('[AnimalAmountSelectionScreen] Description: ${_descriptionController.text}');
+
+    // Create updated animal with view count and existing properties
+    final updatedAnimal = AnimalModel(
+      animalImagePath: animal.animalImagePath,
+      animalName: animal.animalName,
+      viewCount: viewCount,
+      condition: animal.condition,
+      gender: animal.gender,
+    );
+
+    // Create updated waarneming
+    final updatedWaarneming = WaarnemingModel(
+      animals: [updatedAnimal],
+      category: widget.waarneming.category,  // Maintain the category
+      description: _descriptionController.text.trim(),
+      location: widget.waarneming.location,
+      dateTime: widget.waarneming.dateTime,
+      images: widget.waarneming.images,
+    );
+
+    debugPrint('[AnimalAmountSelectionScreen] Updated waarneming: ${updatedWaarneming.toJson()}');
+    // TODO: Navigate to next screen or save the waarneming
+  }
+
+  // New method to determine the most prevalent age based on counts
+  AnimalAge? _determinePrevalentAge() {
+    if (_counts.values.every((count) => count == 0)) return null;
+    
+    return _counts.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+  }
+
+  bool get _hasNonZeroCount => _counts.values.any((count) => count > 0);
 
   String _formatAnimalAgeName(AnimalAge age) {
     switch (age) {
@@ -65,6 +143,9 @@ class AnimalAmountSelectionScreen extends StatelessWidget {
           iconSize: iconSize,
           iconScale: iconScale,
           onCountChanged: (name, count) {
+            setState(() {
+              _counts[age] = count;
+            });
             debugPrint('[$name] Count changed to: $count');
           },
         ),
@@ -91,34 +172,54 @@ class AnimalAmountSelectionScreen extends StatelessWidget {
         iconScale: iconScale,
         iconColor: iconColor,
         onCountChanged: (name, count) {
+          setState(() {
+            _counts[age] = count;
+          });
           debugPrint('[$name] Count changed to: $count');
         },
       ),
     );
   }
 
+  String _getGenderIconName(AnimalGender? gender) {
+    switch (gender) {
+      case AnimalGender.mannelijk:
+        return 'male';
+      case AnimalGender.vrouwelijk:
+        return 'female';
+      case AnimalGender.onbekend:
+      case null:
+        return 'unknown';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final animal = AnimalModel(
-      animalImagePath: 'assets/wolf.png',
-      animalName: 'Wolf',
-    );
+    final animal = widget.waarneming.animals?.first;
+    if (animal == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Error: No animal data found'),
+        ),
+      );
+    }
 
-    final gender = AnimalModel(
-      animalImagePath: 'assets/icons/gender/female_gender.png',
-      animalName: 'Vrouwelijk',
+    // Create gender model for display using the animal's gender
+    final genderModel = AnimalModel(
+      animalImagePath: 'assets/icons/gender/${_getGenderIconName(animal.gender)}_gender.png',
+      animalName: animal.gender?.toString().split('.').last ?? 'Unknown',
     );
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: SingleChildScrollView(  // Added ScrollView
+          child: SingleChildScrollView(
             child: Column(
               children: [
                 CustomAppBar(
                   leftIcon: Icons.arrow_back_ios,
-                  centerText: 'Selecteer aantal',  // Changed from 'Aantal'
+                  centerText: 'Selecteer aantal',
                   rightIcon: Icons.menu,
                   onLeftIconPressed: () => Navigator.pop(context),
                   onRightIconPressed: () => debugPrint('[AnimalAmountSelectionScreen] Menu button pressed'),
@@ -130,11 +231,11 @@ class AnimalAmountSelectionScreen extends StatelessWidget {
                     children: [
                       CompactAnimalDisplay(animal: animal),
                       const SizedBox(width: 8),
-                      CompactAnimalDisplay(animal: gender),
+                      CompactAnimalDisplay(animal: genderModel),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24), // Added spacing here
+                const SizedBox(height: 24),
                 Container(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -150,64 +251,7 @@ class AnimalAmountSelectionScreen extends StatelessWidget {
                           );
                         }).toList(),
                         const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: Text(
-                              'Opmerkingen',
-                              style: TextStyle(
-                                color: AppColors.brown,
-                                fontSize: 20, // Increased from 16 to 20
-                                fontWeight: FontWeight.bold,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                          height: 120, // Increased height
-                          decoration: BoxDecoration(
-                            color: AppColors.offWhite,
-                            borderRadius: BorderRadius.circular(25),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                spreadRadius: 0,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            maxLines: 3, // Increased to 3 lines
-                            decoration: InputDecoration(
-                              hintText: 'Typ hier ...',
-                              hintStyle: TextStyle(
-                                color: AppColors.brown.withOpacity(0.5),
-                                fontSize: 16,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                            ),
-                            style: TextStyle(
-                              color: AppColors.brown,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                        _buildDescriptionSection(),
                       ],
                     ),
                   ),
@@ -219,11 +263,84 @@ class AnimalAmountSelectionScreen extends StatelessWidget {
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () => Navigator.pop(context),
-        onNextPressed: () => debugPrint('[AnimalAmountSelectionScreen] Next button pressed'),
+        onNextPressed: () => _handleNextPressed(context),
+        showNextButton: _hasNonZeroCount,
       ),
     );
   }
+
+  Widget _buildDescriptionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Text(
+            'Opmerkingen',
+            style: TextStyle(
+              color: AppColors.brown,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          height: 120,
+          decoration: BoxDecoration(
+            color: AppColors.offWhite,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                spreadRadius: 0,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _descriptionController,
+            maxLines: 4,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.offWhite,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            style: TextStyle(
+              color: AppColors.brown,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

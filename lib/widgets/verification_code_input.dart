@@ -25,14 +25,20 @@ class VerificationCodeInput extends StatefulWidget {
   State<VerificationCodeInput> createState() => _VerificationCodeInputState();
 }
 
-class _VerificationCodeInputState extends State<VerificationCodeInput> {
-  final List<TextEditingController> controllers =
-      List.generate(6, (index) => TextEditingController());
+class _VerificationCodeInputState extends State<VerificationCodeInput> with SingleTickerProviderStateMixin {
+  final List<TextEditingController> controllers = List.generate(6, (index) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
-  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));  
+  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));
+  late final AnimationController _animationController;
   bool isLoading = false;
   bool isError = false;
   User? verifiedUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(vsync: this);
+  }
 
   Future<void> _verifyCode() async {
     FocusScope.of(context).unfocus();
@@ -48,8 +54,9 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     try {
       User response = await loginManager.verifyCode(widget.email, code);
       debugPrint("verified!!");
-
       verifiedUser = response;
+
+      // Wait for at least one full animation cycle
       await Future.delayed(const Duration(milliseconds: 1500));
 
       if (context.mounted && verifiedUser != null) {
@@ -61,8 +68,6 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
         );
       }
     } catch (e) {
-      await Future.delayed(const Duration(milliseconds: 500));
-
       setState(() {
         isLoading = false;
         isError = true;
@@ -70,11 +75,9 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
       });
 
       if (context.mounted) {
-        // Clear all fields
         for (var controller in controllers) {
           controller.clear();
         }
-        // Focus on first field
         focusNodes[0].requestFocus();
       }
     }
@@ -166,6 +169,11 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
             repeat: true,
             animate: true,
             frameRate: FrameRate(60),
+            controller: _animationController,
+            onLoaded: (composition) {
+              _animationController.duration = composition.duration;
+              _animationController.forward();
+            },
           ),
         ),
       );
@@ -262,6 +270,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
 
   @override
   void dispose() {
+    _animationController.dispose();
     for (var controller in controllers) {
       controller.dispose();
     }
@@ -271,3 +280,4 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> {
     super.dispose();
   }
 }
+
