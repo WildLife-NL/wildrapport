@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/models/animal_model.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/models/waarneming_model.dart';
+import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -9,15 +12,63 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 
 class AnimalGenderScreen extends StatelessWidget {
-  final AnimalModel animal;
+  final WaarnemingModel waarneming;
 
   const AnimalGenderScreen({
     super.key,
-    required this.animal,
+    required this.waarneming,
   });
+
+  void _handleGenderSelection(BuildContext context, AnimalGender selectedGender) {
+    debugPrint('[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}');
+    
+    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    final updatedWaarneming = WaarnemingModel(
+      animals: waarneming.animals,
+      condition: waarneming.condition,
+      category: waarneming.category,
+      gender: selectedGender,
+      age: waarneming.age,
+      description: waarneming.description,
+      location: waarneming.location,
+      dateTime: waarneming.dateTime,
+      images: waarneming.images,
+    );
+
+    // Convert to JSON and highlight changes
+    final oldJson = waarneming.toJson();
+    final newJson = updatedWaarneming.toJson();
+    final greenStart = '\x1B[32m';
+    final colorEnd = '\x1B[0m';
+    
+    final prettyJson = newJson.map((key, value) {
+      final oldValue = oldJson[key];
+      final isChanged = oldValue != value;
+      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
+      return MapEntry(key, prettyValue);
+    });
+    
+    debugPrint('[AnimalGenderScreen] Waarneming state after update: $prettyJson');
+  }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[AnimalGenderScreen] Building screen');
+    debugPrint('[AnimalGenderScreen] Current waarneming state: ${waarneming.toJson()}');
+
+    final animal = waarneming.animals?.first;
+    
+    if (animal == null) {
+      debugPrint('[AnimalGenderScreen] ERROR: No animal found in waarneming model');
+      return const Scaffold(
+        body: Center(
+          child: Text('Error: No animal data found'),
+        ),
+      );
+    }
+
+    debugPrint('[AnimalGenderScreen] Using animal: {animalName: ${animal.animalName}, animalImagePath: ${animal.animalImagePath}');
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -28,8 +79,14 @@ class AnimalGenderScreen extends StatelessWidget {
                 leftIcon: Icons.arrow_back_ios,
                 centerText: 'Geslacht',
                 rightIcon: Icons.menu,
-                onLeftIconPressed: () => Navigator.pop(context),
-                onRightIconPressed: () {/* Handle menu */},
+                onLeftIconPressed: () {
+                  debugPrint('[AnimalGenderScreen] Back button pressed');
+                  Navigator.pop(context);
+                },
+                onRightIconPressed: () {
+                  debugPrint('[AnimalGenderScreen] Menu button pressed');
+                  /* Handle menu */
+                },
               ),
               const SizedBox(height: 16),
               SplitRowContainer(
@@ -49,7 +106,7 @@ class AnimalGenderScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16), // Reduced from 24 to 16
+              const SizedBox(height: 16),
               ActionButtons(
                 buttons: [
                   (
@@ -57,31 +114,34 @@ class AnimalGenderScreen extends StatelessWidget {
                     imagePath: 'assets/icons/gender/female_gender.png',
                     icon: null,
                     onPressed: () {
-                      // Handle female selection
+                      debugPrint('[AnimalGenderScreen] Female gender selected');
+                      _handleGenderSelection(context, AnimalGender.vrouwelijk);
                     },
                   ),
                   (
                     text: 'Mannelijk',
-                     imagePath: 'assets/icons/gender/male_gender.png',
+                    imagePath: 'assets/icons/gender/male_gender.png',
                     icon: null,
                     onPressed: () {
-                      // Handle male selection
+                      debugPrint('[AnimalGenderScreen] Male gender selected');
+                      _handleGenderSelection(context, AnimalGender.mannelijk);
                     },
                   ),
                   (
                     text: 'Onbekend',
-                     imagePath: 'assets/icons/gender/unknown_gender.png',
+                    imagePath: 'assets/icons/gender/unknown_gender.png',
                     icon: null,
                     onPressed: () {
-                      // Handle unknown selection
+                      debugPrint('[AnimalGenderScreen] Unknown gender selected');
+                      _handleGenderSelection(context, AnimalGender.onbekend);
                     },
                   ),
                 ],
                 useCircleIcons: false,
-                iconSize: 76,  // Reduced from 96 to 76 (20px smaller)
+                iconSize: 76,
                 verticalPadding: 0,
                 horizontalPadding: 0,
-                buttonSpacing: 14,  // Increased from 4 to 14 (10px more spacing)
+                buttonSpacing: 14,
                 buttonHeight: 120,
               ),
             ],
@@ -89,14 +149,25 @@ class AnimalGenderScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () => Navigator.pop(context),
+        onBackPressed: () {
+          debugPrint('[AnimalGenderScreen] Bottom back button pressed');
+          Navigator.pop(context);
+        },
         onNextPressed: () {
+          debugPrint('[AnimalGenderScreen] Next button pressed');
           // Handle next screen navigation
         },
       ),
     );
   }
 }
+
+
+
+
+
+
+
 
 
 

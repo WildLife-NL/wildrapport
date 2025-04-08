@@ -27,14 +27,12 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
       _cachedAnimals = species.map((s) => AnimalModel(
         animalImagePath: 'assets/wolf.png',
         animalName: s.commonName,
-        viewCount: 0,
       )).toList();
 
       // Add the "Unknown" option with no image
       _cachedAnimals!.add(AnimalModel(
         animalImagePath: null,  // No image path for unknown
         animalName: 'Onbekend',
-        viewCount: 0,
       ));
       
       return _getFilteredAnimals(_cachedAnimals!);
@@ -96,6 +94,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
 
 
 

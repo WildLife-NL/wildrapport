@@ -107,11 +107,33 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
     
     final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
+    
+    // Use category from either the passed model or current waarneming
+    final category = widget.waarnemingModel?.category ?? currentWaarneming?.category;
+    
+    debugPrint('[AnimalsScreen] Using category: ${category.toString()}');
+
+    if (currentWaarneming == null) {
+      debugPrint('[AnimalsScreen] ERROR: No waarneming model found when handling animal selection');
+      return;
+    }
+
     debugPrint('[AnimalsScreen] Updating waarneming with selected animal');
-    final updatedWaarneming = waarnemingManager.updateSelectedAnimal(selectedAnimal);
+    final updatedWaarneming = WaarnemingModel(
+      animals: [selectedAnimal],
+      condition: currentWaarneming.condition,
+      category: category,  // Use the retrieved category
+      gender: currentWaarneming.gender,
+      age: currentWaarneming.age,
+      description: currentWaarneming.description,
+      location: currentWaarneming.location,
+      dateTime: currentWaarneming.dateTime,
+      images: currentWaarneming.images,
+    );
     
     // Convert to JSON and highlight changes
-    final oldJson = waarnemingManager.getCurrentWaarneming()?.toJson() ?? {};
+    final oldJson = currentWaarneming.toJson();
     final newJson = updatedWaarneming.toJson();
     final greenStart = '\x1B[32m';
     final colorEnd = '\x1B[0m';
@@ -129,7 +151,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ReportDecisionScreen(),
+        builder: (context) => ReportDecisionScreen(
+          waarneming: updatedWaarneming,
+        ),
       ),
     );
   }
@@ -220,10 +244,6 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
-
-
-
-
 
 
 

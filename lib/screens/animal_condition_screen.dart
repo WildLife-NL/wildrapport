@@ -23,8 +23,6 @@ class AnimalConditionScreen extends StatelessWidget {
       return;
     }
     
-    debugPrint('[AnimalConditionScreen] Current waarneming state before update: ${currentWaarneming.toJson()}');
-    
     // Map the selected status to AnimalCondition enum
     AnimalCondition selectedCondition;
     switch (status.toLowerCase()) {
@@ -43,7 +41,21 @@ class AnimalConditionScreen extends StatelessWidget {
 
     debugPrint('[AnimalConditionScreen] Updating condition to: ${selectedCondition.toString()}');
     final updatedWaarneming = waarnemingManager.updateCondition(selectedCondition);
-    debugPrint('[AnimalConditionScreen] Waarneming state after update: ${updatedWaarneming.toJson()}');
+    
+    // Convert to JSON and highlight changes
+    final oldJson = currentWaarneming.toJson();
+    final newJson = updatedWaarneming.toJson();
+    final greenStart = '\x1B[32m';
+    final colorEnd = '\x1B[0m';
+    
+    final prettyJson = newJson.map((key, value) {
+      final oldValue = oldJson[key];
+      final isChanged = oldValue != value;
+      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
+      return MapEntry(key, prettyValue);
+    });
+    
+    debugPrint('[AnimalConditionScreen] Waarneming state after update: $prettyJson');
     
     // Navigate to category screen
     debugPrint('[AnimalConditionScreen] Navigating to CategoryScreen');
@@ -118,6 +130,7 @@ class AnimalConditionScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 

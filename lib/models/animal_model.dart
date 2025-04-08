@@ -1,12 +1,16 @@
+import 'package:wildrapport/models/view_count_model.dart';
+
 class AnimalModel {
-  final String? animalImagePath;  // Make nullable
+  final String? animalImagePath;
   final String animalName;
-  int viewCount;
+  final ViewCountModel viewCount;
 
   AnimalModel({
-    this.animalImagePath,  // Make optional
+    this.animalImagePath,
     required this.animalName,
-    required this.viewCount,
-  });
+    ViewCountModel? viewCount,
+  }) : viewCount = viewCount ?? ViewCountModel();
 }
+
+
 

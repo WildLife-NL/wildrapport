@@ -5,9 +5,16 @@ import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/models/waarneming_model.dart';
+import 'package:wildrapport/screens/animal_gender_screen.dart';
 
 class ReportDecisionScreen extends StatelessWidget {
-  const ReportDecisionScreen({super.key});
+  final WaarnemingModel waarneming;
+
+  const ReportDecisionScreen({
+    super.key,
+    required this.waarneming,
+  });
 
   Widget _buildArrowIcon() {
     return Icon(
@@ -26,6 +33,9 @@ class ReportDecisionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[ReportDecisionScreen] Building screen');
+    debugPrint('[ReportDecisionScreen] Current waarneming state: ${waarneming.toJson()}');
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -34,8 +44,14 @@ class ReportDecisionScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Rapporteren',
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => Navigator.pop(context),
-              onRightIconPressed: () {/* Handle menu */},
+              onLeftIconPressed: () {
+                debugPrint('[ReportDecisionScreen] Back button pressed');
+                Navigator.pop(context);
+              },
+              onRightIconPressed: () {
+                debugPrint('[ReportDecisionScreen] Menu button pressed');
+                /* Handle menu */
+              },
             ),
             Expanded(
               child: Padding(
@@ -68,6 +84,7 @@ class ReportDecisionScreen extends StatelessWidget {
                       ),
                       rightWidget: _buildArrowIcon(),
                       onPressed: () {
+                        debugPrint('[ReportDecisionScreen] Naar Tabel button pressed');
                         // TODO: Implement navigation to table
                       },
                     ),
@@ -81,7 +98,16 @@ class ReportDecisionScreen extends StatelessWidget {
                       ),
                       rightWidget: _buildArrowIcon(),
                       onPressed: () {
-                        // TODO: Implement navigation to steps
+                        debugPrint('[ReportDecisionScreen] In Stappen button pressed');
+                        debugPrint('[ReportDecisionScreen] Navigating to AnimalGenderScreen with waarneming: ${waarneming.toJson()}');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AnimalGenderScreen(
+                              waarneming: waarneming,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -92,13 +118,19 @@ class ReportDecisionScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () => Navigator.pop(context),
+        onBackPressed: () {
+          debugPrint('[ReportDecisionScreen] Bottom back button pressed');
+          Navigator.pop(context);
+        },
         onNextPressed: () {},
         showNextButton: false,  // Hide the next button
       ),
     );
   }
 }
+
+
+
 
 
 

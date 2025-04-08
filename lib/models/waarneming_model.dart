@@ -6,6 +6,7 @@ import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/models/image_list_model.dart';
 import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/view_count_model.dart';
 
 class WaarnemingModel {
   final List<AnimalModel>? animals;
@@ -34,7 +35,7 @@ class WaarnemingModel {
     'animals': animals?.map((animal) => {
       'animalImagePath': animal.animalImagePath,
       'animalName': animal.animalName,
-      'viewCount': animal.viewCount,
+      'viewCount': animal.viewCount.toJson(),
     }).toList(),
     'condition': condition?.toString(),
     'category': category?.toString(),
@@ -52,7 +53,9 @@ class WaarnemingModel {
           json['animals'].map((x) => AnimalModel(
             animalImagePath: x['animalImagePath'],
             animalName: x['animalName'],
-            viewCount: x['viewCount'],
+            viewCount: x['viewCount'] != null 
+              ? ViewCountModel.fromJson(x['viewCount'])
+              : null,
           ))
         )
       : null,
@@ -92,3 +95,4 @@ class WaarnemingModel {
       : null,
   );
 }
+

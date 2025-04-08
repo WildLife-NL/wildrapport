@@ -28,6 +28,8 @@ class WaarnemingReportingManager implements WaarnemingReportingInterface {
   WaarnemingModel updateSelectedAnimal(AnimalModel selectedAnimal) {
     debugPrint('[WaarnemingManager] Updating selected animal: ${selectedAnimal.animalName}');
     
+    final oldJson = _currentWaarneming?.toJson() ?? {};
+    
     _currentWaarneming = WaarnemingModel(
       animals: [selectedAnimal],
       condition: _currentWaarneming?.condition,
@@ -40,6 +42,19 @@ class WaarnemingReportingManager implements WaarnemingReportingInterface {
       images: _currentWaarneming?.images,
     );
     
+    // Convert to JSON and highlight changes
+    final newJson = _currentWaarneming!.toJson();
+    final greenStart = '\x1B[32m';
+    final colorEnd = '\x1B[0m';
+    
+    final prettyJson = newJson.map((key, value) {
+      final oldValue = oldJson[key];
+      final isChanged = oldValue != value;
+      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
+      return MapEntry(key, prettyValue);
+    });
+    
+    debugPrint('[WaarnemingManager] Waarneming state after update: $prettyJson');
     _notifyListeners();
     return _currentWaarneming!;
   }
@@ -53,6 +68,8 @@ class WaarnemingReportingManager implements WaarnemingReportingInterface {
       throw StateError('No current waarneming found');
     }
     
+    final oldJson = _currentWaarneming!.toJson();
+    
     _currentWaarneming = WaarnemingModel(
       animals: _currentWaarneming?.animals,
       condition: condition,
@@ -65,7 +82,19 @@ class WaarnemingReportingManager implements WaarnemingReportingInterface {
       images: _currentWaarneming?.images,
     );
     
-    debugPrint('[WaarnemingManager] Condition updated successfully. New state: ${_currentWaarneming?.toJson()}');
+    // Convert to JSON and highlight changes
+    final newJson = _currentWaarneming!.toJson();
+    final greenStart = '\x1B[32m';
+    final colorEnd = '\x1B[0m';
+    
+    final prettyJson = newJson.map((key, value) {
+      final oldValue = oldJson[key];
+      final isChanged = oldValue != value;
+      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
+      return MapEntry(key, prettyValue);
+    });
+    
+    debugPrint('[WaarnemingManager] Waarneming state after update: $prettyJson');
     _notifyListeners();
     return _currentWaarneming!;
   }
@@ -89,6 +118,7 @@ class WaarnemingReportingManager implements WaarnemingReportingInterface {
     }
   }
 }
+
 
 
 

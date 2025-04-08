@@ -39,6 +39,8 @@ class CategoryScreen extends StatelessWidget {
     }
 
     debugPrint('[CategoryScreen] Updating category to: ${selectedCategory.toString()}');
+    
+    // Update the waarneming with the selected category
     final updatedWaarneming = WaarnemingModel(
       animals: currentWaarneming.animals,
       condition: currentWaarneming.condition,
@@ -51,28 +53,13 @@ class CategoryScreen extends StatelessWidget {
       images: currentWaarneming.images,
     );
     
-    // Convert to JSON and highlight changes
-    final oldJson = currentWaarneming.toJson();
-    final newJson = updatedWaarneming.toJson();
-    final greenStart = '\x1B[32m';
-    final colorEnd = '\x1B[0m';
-    
-    final prettyJson = newJson.map((key, value) {
-      final oldValue = oldJson[key];
-      final isChanged = oldValue != value;
-      final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
-      return MapEntry(key, prettyValue);
-    });
-    
-    debugPrint('[CategoryScreen] Waarneming state after update: $prettyJson');
-    
-    // Navigate to AnimalsScreen
+    // Navigate to AnimalsScreen with the updated waarneming
     debugPrint('[CategoryScreen] Navigating to AnimalsScreen');
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AnimalsScreen(
-          appBarTitle: 'Dieren',
+          appBarTitle: 'Waarnemingen',
           waarnemingModel: updatedWaarneming,
         ),
       ),
@@ -90,7 +77,7 @@ class CategoryScreen extends StatelessWidget {
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Categorie',
+              centerText: 'Waarnemingen',  // Changed from 'Categorie'
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
                 debugPrint('[CategoryScreen] Back button pressed in app bar');
@@ -140,6 +127,10 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 
 
