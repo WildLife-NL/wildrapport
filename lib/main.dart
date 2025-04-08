@@ -14,12 +14,14 @@ import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
+import 'package:wildrapport/managers/waarneming_reporting_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -60,6 +62,8 @@ void main() async {
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
   final answerManager = AnswerManager(answerAPI);
   
+  final waarnemingReportingManager = WaarnemingReportingManager();
+  
   runApp(
     MultiProvider(
       providers: [
@@ -77,6 +81,7 @@ void main() async {
         ),
         Provider<QuestionnaireInterface>.value(value: questionnaireManager),
         Provider<AnswerManager>.value(value: answerManager),
+        Provider<WaarnemingReportingInterface>.value(value: waarnemingReportingManager),
       ],
       child: const MyApp(),
     ),
