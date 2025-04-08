@@ -41,6 +41,7 @@ import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/screens/animal_amount_selection.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -123,7 +124,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Rapporteren (),  // 
+      home: const AnimalAmountSelectionScreen(),
     );
   }
 }

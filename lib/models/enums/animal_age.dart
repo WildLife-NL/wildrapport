@@ -1,6 +1,6 @@
 enum AnimalAge {
   pasGeboren,
-  volwassen,
   onvolwassen,
+  volwassen,
   onbekend
 }
