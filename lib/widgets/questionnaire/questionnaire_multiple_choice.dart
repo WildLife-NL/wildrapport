@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/models/api_models/answer.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';

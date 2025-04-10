@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
-import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
