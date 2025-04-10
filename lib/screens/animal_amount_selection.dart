@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/screens/add_another_animal_screen.dart';
@@ -10,10 +10,8 @@ import 'package:wildrapport/widgets/split_row_container.dart';
 import 'package:wildrapport/widgets/compact_animal_display.dart';
 import 'package:wildrapport/widgets/count_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
-import 'package:wildrapport/models/waarneming_model.dart';
 
 class AnimalAmountSelectionScreen extends StatefulWidget {
   const AnimalAmountSelectionScreen({super.key});
@@ -23,7 +21,7 @@ class AnimalAmountSelectionScreen extends StatefulWidget {
 }
 
 class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScreen> {
-  late final WaarnemingReportingInterface _waarnemingManager;
+  late final AnimalSightingReportingInterface _animalSightingManager;
   final Map<AnimalAge, int> _counts = {
     for (var age in AnimalAge.values) age: 0
   };
@@ -32,19 +30,19 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
   @override
   void initState() {
     super.initState();
-    _waarnemingManager = context.read<WaarnemingReportingInterface>();
-    _validateWaarneming();
+    _animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    _validateanimalSighting();
   }
 
-  void _validateWaarneming() {
-    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
-    if (currentWaarneming == null || currentWaarneming.animalSelected == null) {
-      debugPrint('[AnimalAmountSelectionScreen] No active waarneming or selected animal found');
+  void _validateanimalSighting() {
+    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
+    if (currentanimalSighting == null || currentanimalSighting.animalSelected == null) {
+      debugPrint('[AnimalAmountSelectionScreen] No active animalSighting or selected animal found');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Geen actieve waarneming of geselecteerd dier gevonden'),
+            content: Text('Geen actieve animalSighting of geselecteerd dier gevonden'),
             backgroundColor: Colors.red,
           ),
         );
@@ -70,22 +68,22 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     );
     
     // Update the view count on the currently selected animal
-    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
-    if (currentWaarneming?.animalSelected == null) {
+    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
+    if (currentanimalSighting?.animalSelected == null) {
       debugPrint('[AnimalAmountSelectionScreen] ERROR: No animal selected to update');
       return;
     }
     
     // Update the view count
-    _waarnemingManager.updateViewCount(viewCount);
+    _animalSightingManager.updateViewCount(viewCount);
     
     // Update the description if it's not empty
     if (_descriptionController.text.isNotEmpty) {
-      _waarnemingManager.updateDescription(_descriptionController.text);
+      _animalSightingManager.updateDescription(_descriptionController.text);
     }
     
-    // Log the waarneming state after updating
-    debugPrint('[AnimalAmountSelectionScreen] Waarneming after updating view count and description: ${_waarnemingManager.getCurrentWaarneming()?.toJson()}');
+    // Log the animalSighting state after updating
+    debugPrint('[AnimalAmountSelectionScreen] animalSighting after updating view count and description: ${_animalSightingManager.getCurrentanimalSighting()?.toJson()}');
     
     // Navigate to AddAnotherAnimalScreen instead of popping
     Navigator.push(
@@ -212,8 +210,8 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
 
   @override
   Widget build(BuildContext context) {
-    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
-    final selectedAnimal = currentWaarneming?.animalSelected;
+    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
+    final selectedAnimal = currentanimalSighting?.animalSelected;
 
     if (selectedAnimal == null) {
       return const Scaffold(

@@ -8,7 +8,7 @@ import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 
-class WaarnemingModel {
+class AnimalSightingModel {
   final List<AnimalModel>? animals;
   final AnimalModel? animalSelected;
   final AnimalCategory? category;
@@ -17,7 +17,7 @@ class WaarnemingModel {
   final DateTimeModel? dateTime;
   final ImageListModel? images;
 
-  WaarnemingModel({
+  AnimalSightingModel({
     this.animals,
     this.category,
     this.description,
@@ -51,7 +51,7 @@ class WaarnemingModel {
     };
   }
 
-  factory WaarnemingModel.fromJson(Map<String, dynamic> json) => WaarnemingModel(
+  factory AnimalSightingModel.fromJson(Map<String, dynamic> json) => AnimalSightingModel(
     animals: json['animals'] != null 
       ? List<AnimalModel>.from(
           json['animals'].map((x) => AnimalModel(

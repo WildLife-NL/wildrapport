@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 
 class AddAnotherAnimalScreen extends StatelessWidget {
@@ -14,16 +14,16 @@ class AddAnotherAnimalScreen extends StatelessWidget {
     debugPrint('[AddAnotherAnimalScreen] Button selected: $selection');
     
     if (selection.toLowerCase() == 'overslaan') {
-      final waarnemingManager = context.read<WaarnemingReportingInterface>();
+      final animalSightingManager = context.read<AnimalSightingReportingInterface>();
       
       try {
         // Log the state before finalizing
-        final currentWaarneming = waarnemingManager.getCurrentWaarneming();
-        debugPrint('[AddAnotherAnimalScreen] Waarneming before finalizing: ${currentWaarneming?.toJson()}');
+        final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
+        debugPrint('[AddAnotherAnimalScreen] animalSighting before finalizing: ${currentanimalSighting?.toJson()}');
 
         // Finalize the current animal (adds to list and clears selected)
-        final updatedWaarneming = waarnemingManager.finalizeAnimal();
-        debugPrint('[AddAnotherAnimalScreen] Waarneming after finalizing animal: ${updatedWaarneming.toJson()}');
+        final updatedanimalSighting = animalSightingManager.finalizeAnimal();
+        debugPrint('[AddAnotherAnimalScreen] animalSighting after finalizing animal: ${updatedanimalSighting.toJson()}');
         
       } catch (e) {
         debugPrint('[AddAnotherAnimalScreen] Error finalizing animal: $e');
@@ -87,12 +87,12 @@ class AddAnotherAnimalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
-    final existingGender = currentWaarneming?.animalSelected?.gender;
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
+    final existingGender = currentanimalSighting?.animalSelected?.gender;
     
     debugPrint('[AddAnotherAnimalScreen] Building screen');
-    debugPrint('[AddAnotherAnimalScreen] Current waarneming: ${currentWaarneming?.toJson()}');
+    debugPrint('[AddAnotherAnimalScreen] Current animalSighting: ${currentanimalSighting?.toJson()}');
     debugPrint('[AddAnotherAnimalScreen] Current animal gender: $existingGender');
 
     // Calculate responsive dimensions
@@ -151,6 +151,7 @@ class AddAnotherAnimalScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: screenSize.height * 0.02),
+              // Remove the outer Expanded widget and keep only this one
               Expanded(
                 child: ActionButtons(
                   buttons: availableButtons,
@@ -180,6 +181,7 @@ class AddAnotherAnimalScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 

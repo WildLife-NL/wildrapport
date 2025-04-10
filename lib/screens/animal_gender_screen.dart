@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/models/waarneming_model.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/screens/animal_amount_selection.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -18,11 +17,11 @@ class AnimalGenderScreen extends StatelessWidget {
   void _handleGenderSelection(BuildContext context, AnimalGender selectedGender) {
     debugPrint('[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     
     try {
       // Update the gender using the manager
-      waarnemingManager.updateGender(selectedGender);
+      animalSightingManager.updateGender(selectedGender);
       
       debugPrint('[AnimalGenderScreen] Successfully updated gender');
 
@@ -49,24 +48,24 @@ class AnimalGenderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('[AnimalGenderScreen] Building screen');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final waarneming = waarnemingManager.getCurrentWaarneming();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSighting = animalSightingManager.getCurrentanimalSighting();
     
-    if (waarneming == null) {
-      debugPrint('[AnimalGenderScreen] ERROR: No waarneming found');
+    if (animalSighting == null) {
+      debugPrint('[AnimalGenderScreen] ERROR: No animalSighting found');
       return const Scaffold(
         body: Center(
-          child: Text('Error: No waarneming found'),
+          child: Text('Error: No animalSighting found'),
         ),
       );
     }
 
-    debugPrint('[AnimalGenderScreen] Current waarneming state: ${waarneming.toJson()}');
+    debugPrint('[AnimalGenderScreen] Current animalSighting state: ${animalSighting.toJson()}');
 
-    final animal = waarneming.animalSelected;
+    final animal = animalSighting.animalSelected;
     
     if (animal == null) {
-      debugPrint('[AnimalGenderScreen] ERROR: No selected animal found in waarneming model');
+      debugPrint('[AnimalGenderScreen] ERROR: No selected animal found in animalSighting model');
       return const Scaffold(
         body: Center(
           child: Text('Error: No animal data found'),

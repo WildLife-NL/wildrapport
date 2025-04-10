@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -15,26 +15,26 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  late final WaarnemingReportingInterface _waarnemingManager;
+  late final AnimalSightingReportingInterface _animalSightingManager;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     debugPrint('[CategoryScreen] Initializing screen');
-    _waarnemingManager = context.read<WaarnemingReportingInterface>();
-    _validateWaarneming();
+    _animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    _validateanimalSighting();
   }
 
-  void _validateWaarneming() {
-    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
-    if (currentWaarneming == null) {
-      debugPrint('[CategoryScreen] No active waarneming found');
+  void _validateanimalSighting() {
+    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
+    if (currentanimalSighting == null) {
+      debugPrint('[CategoryScreen] No active animalSighting found');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Geen actieve waarneming gevonden'),
+            content: Text('Geen actieve animalSighting gevonden'),
             backgroundColor: Colors.red,
           ),
         );
@@ -63,7 +63,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       }
 
       debugPrint('[CategoryScreen] Updating category to: $selectedCategory');
-      _waarnemingManager.updateCategory(selectedCategory);
+      _animalSightingManager.updateCategory(selectedCategory);
       
       Navigator.push(
         context,
@@ -81,10 +81,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void _handleNextPressed(BuildContext context) {
     debugPrint('[CategoryScreen] Next button pressed');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
     
-    if (currentWaarneming?.category == null) {
+    if (currentanimalSighting?.category == null) {
       debugPrint('[CategoryScreen] Attempted to proceed without selecting category');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecteer eerst een categorie')),
@@ -97,7 +97,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => AnimalsScreen(
-          appBarTitle: 'Waarnemingen',
+          appBarTitle: 'animalSightingen',
         ),
       ),
     );
@@ -105,7 +105,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Remove waarneming logging from build method
+    // Remove animalSighting logging from build method
     return Scaffold(
       body: Stack(
         children: [
@@ -114,7 +114,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               children: [
                 CustomAppBar(
                   leftIcon: Icons.arrow_back_ios,
-                  centerText: 'Waarnemingen',
+                  centerText: 'animalSightingen',
                   rightIcon: Icons.menu,
                   onLeftIconPressed: () {
                     debugPrint('[CategoryScreen] Back button pressed in app bar');

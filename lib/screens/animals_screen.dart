@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
-import 'package:wildrapport/models/waarneming_model.dart';
 import 'package:wildrapport/screens/animal_gender_screen.dart';
 import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
@@ -26,7 +25,7 @@ class AnimalsScreen extends StatefulWidget {
 
 class _AnimalsScreenState extends State<AnimalsScreen> {
   late final AnimalManagerInterface _animalManager;
-  late final WaarnemingReportingInterface _waarnemingManager;
+  late final AnimalSightingReportingInterface _animalSightingManager;
   final ScrollController _scrollController = ScrollController();
   List<AnimalModel>? _animals;
   String? _error;
@@ -38,21 +37,21 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     super.initState();
     debugPrint('[AnimalsScreen] Initializing screen');
     _animalManager = context.read<AnimalManagerInterface>();
-    _waarnemingManager = context.read<WaarnemingReportingInterface>();
+    _animalSightingManager = context.read<AnimalSightingReportingInterface>();
     _animalManager.addListener(_handleStateChange);
-    _validateWaarneming();
+    _validateanimalSighting();
     _loadAnimals();
   }
 
-  void _validateWaarneming() {
-    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
-    if (currentWaarneming == null) {
-      debugPrint('[AnimalsScreen] No active waarneming found');
+  void _validateanimalSighting() {
+    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
+    if (currentanimalSighting == null) {
+      debugPrint('[AnimalsScreen] No active animalSighting found');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Geen actieve waarneming gevonden'),
+            content: Text('Geen actieve animalSighting gevonden'),
             backgroundColor: Colors.red,
           ),
         );
@@ -116,13 +115,13 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
     debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
     final processedAnimal = _animalManager.handleAnimalSelection(selectedAnimal);
-    final updatedWaarneming = _waarnemingManager.updateSelectedAnimal(processedAnimal);
+    final updatedanimalSighting = _animalSightingManager.updateSelectedAnimal(processedAnimal);
     
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ReportDecisionScreen(
-          waarneming: updatedWaarneming,
+          animalSighting: updatedanimalSighting,
         ),
       ),
     );

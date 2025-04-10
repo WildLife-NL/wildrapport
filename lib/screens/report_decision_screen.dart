@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/screens/animal_amount_selection.dart';
+import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/screens/animal_gender_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -7,14 +7,13 @@ import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/models/waarneming_model.dart';
 
 class ReportDecisionScreen extends StatelessWidget {
-  final WaarnemingModel waarneming;
+  final AnimalSightingModel animalSighting;
 
   const ReportDecisionScreen({
     super.key,
-    required this.waarneming,
+    required this.animalSighting,
   });
 
   Widget _buildArrowIcon() {
@@ -35,7 +34,7 @@ class ReportDecisionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('[ReportDecisionScreen] Building screen');
-    debugPrint('[ReportDecisionScreen] Current waarneming state: ${waarneming.toJson()}');
+    debugPrint('[ReportDecisionScreen] Current animalSighting state: ${animalSighting.toJson()}');
 
     return Scaffold(
       body: SafeArea(
@@ -100,7 +99,7 @@ class ReportDecisionScreen extends StatelessWidget {
                       rightWidget: _buildArrowIcon(),
                       onPressed: () {
                         debugPrint('[ReportDecisionScreen] In Stappen button pressed');
-                        debugPrint('[ReportDecisionScreen] Navigating to AnimalGenderScreen with waarneming: ${waarneming.toJson()}');
+                        debugPrint('[ReportDecisionScreen] Navigating to AnimalGenderScreen with animalSighting: ${animalSighting.toJson()}');
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -30,30 +30,28 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding ?? MediaQuery.of(context).size.width * 0.05,
-          vertical: verticalPadding ?? 0,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var button in buttons) ...[
-              SizedBox(
-                height: buttonHeight,
-                child: _buildButton(
-                  text: button.text,
-                  icon: button.icon,
-                  imagePath: button.imagePath,
-                  onPressed: button.onPressed,
-                ),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding ?? MediaQuery.of(context).size.width * 0.05,
+        vertical: verticalPadding ?? 0,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var button in buttons) ...[
+            SizedBox(
+              height: buttonHeight,
+              child: _buildButton(
+                text: button.text,
+                icon: button.icon,
+                imagePath: button.imagePath,
+                onPressed: button.onPressed,
               ),
-              if (button != buttons.last)
-                SizedBox(height: buttonSpacing ?? 0),
-            ],
+            ),
+            if (button != buttons.last)
+              SizedBox(height: buttonSpacing ?? 0),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -110,6 +108,7 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
+
 
 
 

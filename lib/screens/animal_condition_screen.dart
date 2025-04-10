@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/compact_animal_display.dart';
 import 'package:wildrapport/widgets/selection_button_group.dart';
-import 'package:collection/collection.dart';
 
 class AnimalConditionScreen extends StatelessWidget {
   const AnimalConditionScreen({super.key});
@@ -15,13 +13,13 @@ class AnimalConditionScreen extends StatelessWidget {
   void _handleStatusSelection(BuildContext context, String status) {
     debugPrint('[AnimalConditionScreen] Handling status selection: $status');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
     
-    if (currentWaarneming == null) {
-      debugPrint('[AnimalConditionScreen] ERROR: No waarneming model found when handling status selection');
-      // Create a new waarneming if none exists
-      waarnemingManager.createWaarneming();
+    if (currentanimalSighting == null) {
+      debugPrint('[AnimalConditionScreen] ERROR: No animalSighting model found when handling status selection');
+      // Create a new animalSighting if none exists
+      animalSightingManager.createanimalSighting();
     }
     
     // Map the selected status to AnimalCondition enum
@@ -42,11 +40,11 @@ class AnimalConditionScreen extends StatelessWidget {
 
     try {
       debugPrint('[AnimalConditionScreen] Updating condition to: ${selectedCondition.toString()}');
-      final updatedWaarneming = waarnemingManager.updateCondition(selectedCondition);
+      final updatedanimalSighting = animalSightingManager.updateCondition(selectedCondition);
       
       // Convert to JSON and highlight changes
-      final oldJson = currentWaarneming?.toJson() ?? {};
-      final newJson = updatedWaarneming.toJson();
+      final oldJson = currentanimalSighting?.toJson() ?? {};
+      final newJson = updatedanimalSighting.toJson();
       final greenStart = '\x1B[32m';
       final colorEnd = '\x1B[0m';
       
@@ -57,7 +55,7 @@ class AnimalConditionScreen extends StatelessWidget {
         return MapEntry(key, prettyValue);
       });
       
-      debugPrint('[AnimalConditionScreen] Waarneming state after update: $prettyJson');
+      debugPrint('[AnimalConditionScreen] animalSighting state after update: $prettyJson');
       
       // Navigate to category screen
       debugPrint('[AnimalConditionScreen] Navigating to CategoryScreen');
@@ -82,13 +80,13 @@ class AnimalConditionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('[AnimalConditionScreen] Building screen');
     
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
     
-    if (currentWaarneming == null) {
-      debugPrint('[AnimalConditionScreen] ERROR: No waarneming model found');
+    if (currentanimalSighting == null) {
+      debugPrint('[AnimalConditionScreen] ERROR: No animalSighting model found');
     } else {
-      debugPrint('[AnimalConditionScreen] Current waarneming state: ${currentWaarneming.toJson()}');
+      debugPrint('[AnimalConditionScreen] Current animalSighting state: ${currentanimalSighting.toJson()}');
     }
     
     return Scaffold(
@@ -100,10 +98,10 @@ class AnimalConditionScreen extends StatelessWidget {
               centerText: 'Dier Conditie',
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                debugPrint('[AnimalConditionScreen] Navigating back and clearing waarneming');
-                // Get the manager and clear the waarneming
-                final waarnemingManager = context.read<WaarnemingReportingInterface>();
-                waarnemingManager.clearCurrentWaarneming();
+                debugPrint('[AnimalConditionScreen] Navigating back and clearing animalSighting');
+                // Get the manager and clear the animalSighting
+                final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+                animalSightingManager.clearCurrentanimalSighting();
                 Navigator.pop(context);
               },
               onRightIconPressed: () {
@@ -127,9 +125,9 @@ class AnimalConditionScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           debugPrint('[AnimalConditionScreen] Back button pressed in bottom bar');
-          // Also clear the waarneming when using the bottom back button
-          final waarnemingManager = context.read<WaarnemingReportingInterface>();
-          waarnemingManager.clearCurrentWaarneming();
+          // Also clear the animalSighting when using the bottom back button
+          final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+          animalSightingManager.clearCurrentanimalSighting();
           Navigator.pop(context);
         },
         onNextPressed: () {

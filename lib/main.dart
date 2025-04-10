@@ -7,6 +7,7 @@ import 'package:wildrapport/api/auth_api.dart';
 import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
@@ -14,18 +15,15 @@ import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
-import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
-import 'package:wildrapport/managers/waarneming_reporting_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/screens/add_another_animal_screen.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,7 +50,7 @@ void main() async {
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
   final answerManager = AnswerManager(answerAPI);
   
-  final waarnemingReportingManager = WaarnemingReportingManager();
+  final animalSightingReportingManager = AnimalSightingReportingManager();
   
   runApp(
     MultiProvider(
@@ -71,8 +69,8 @@ void main() async {
         ),
         Provider<QuestionnaireInterface>.value(value: questionnaireManager),
         Provider<AnswerManager>.value(value: answerManager),
-        Provider<WaarnemingReportingInterface>(
-          create: (context) => waarnemingReportingManager,
+        Provider<AnimalSightingReportingInterface>(
+          create: (context) => animalSightingReportingManager,
         ),
       ],
       child: const MyApp(),
