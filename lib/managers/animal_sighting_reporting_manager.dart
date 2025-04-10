@@ -219,7 +219,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
   }
 
   @override
-  AnimalSightingModel finalizeAnimal() {
+  AnimalSightingModel finalizeAnimal({bool clearSelected = true}) {
     if (_currentanimalSighting?.animalSelected == null) {
       throw StateError('No animal selected to finalize');
     }
@@ -230,7 +230,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
 
     _currentanimalSighting = AnimalSightingModel(
       animals: currentAnimals,
-      animalSelected: null, // Clear the selected animal
+      animalSelected: clearSelected ? null : _currentanimalSighting!.animalSelected, // Only clear if specified
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
       location: _currentanimalSighting!.location,
@@ -289,6 +289,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     _notifyListeners();
   }
 }
+
 
 
 

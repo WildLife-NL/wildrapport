@@ -39,7 +39,8 @@ abstract class AnimalSightingReportingInterface {
   void removeListener(VoidCallback listener);
 
   /// Finalizes the currently selected animal by adding it to the animals list
-  AnimalSightingModel finalizeAnimal();
+  /// If clearSelected is true (default), the selected animal will be cleared after adding
+  AnimalSightingModel finalizeAnimal({bool clearSelected = true});
 
   /// Clears the current animalSighting
   void clearCurrentanimalSighting();
@@ -47,6 +48,7 @@ abstract class AnimalSightingReportingInterface {
   /// Updates the description in the animalSighting
   AnimalSightingModel updateDescription(String description);
 }
+
 
 
 

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/view_count_model.dart';
+import 'package:wildrapport/screens/animal_amount_selection.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
@@ -11,37 +15,91 @@ class AddAnotherAnimalScreen extends StatelessWidget {
   const AddAnotherAnimalScreen({super.key});
 
   void _handleButtonSelection(BuildContext context, String selection) {
-    debugPrint('[AddAnotherAnimalScreen] Button selected: $selection');
+    final greenLog = '\x1B[32m';
+    final resetLog = '\x1B[0m';
+    debugPrint('${greenLog}[AddAnotherAnimalScreen] Button selected: $selection$resetLog');
     
-    if (selection.toLowerCase() == 'overslaan') {
-      final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-      
-      try {
-        // Log the state before finalizing
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    
+    try {
+      if (selection.toLowerCase() == 'overslaan') {
+        // Log the state before adding to list
         final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
-        debugPrint('[AddAnotherAnimalScreen] animalSighting before finalizing: ${currentanimalSighting?.toJson()}');
-
-        // Finalize the current animal (adds to list and clears selected)
-        final updatedanimalSighting = animalSightingManager.finalizeAnimal();
-        debugPrint('[AddAnotherAnimalScreen] animalSighting after finalizing animal: ${updatedanimalSighting.toJson()}');
+        debugPrint('${greenLog}[AddAnotherAnimalScreen] State before adding to list: ${currentanimalSighting?.toJson()}$resetLog');
         
-      } catch (e) {
-        debugPrint('[AddAnotherAnimalScreen] Error finalizing animal: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Er is een fout opgetreden bij het verwerken van het dier'),
-            backgroundColor: Colors.red,
+        // Add current animal to the list and clear it
+        if (currentanimalSighting?.animalSelected != null) {
+          final updatedAnimalSighting = animalSightingManager.finalizeAnimal(clearSelected: true);
+          debugPrint('${greenLog}[AddAnotherAnimalScreen] State after adding to list: ${updatedAnimalSighting.toJson()}$resetLog');
+        }
+      } else {
+        // Handle gender selection (vrouwelijk, mannelijk, onbekend)
+        AnimalGender selectedGender;
+        switch (selection.toLowerCase()) {
+          case 'vrouwelijk':
+            selectedGender = AnimalGender.vrouwelijk;
+            break;
+          case 'mannelijk':
+            selectedGender = AnimalGender.mannelijk;
+            break;
+          case 'onbekend':
+            selectedGender = AnimalGender.onbekend;
+            break;
+          default:
+            throw StateError('Invalid gender selection');
+        }
+
+        // First add the current animal to the list but don't clear it
+        final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
+        if (currentanimalSighting?.animalSelected != null) {
+          animalSightingManager.finalizeAnimal(clearSelected: false);
+        }
+
+        // Then update the gender
+        animalSightingManager.updateGender(selectedGender);
+
+        // Reset view count and description for the next animal
+        animalSightingManager.updateViewCount(ViewCountModel());
+        animalSightingManager.updateDescription("");
+
+        // Navigate to amount selection screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnimalAmountSelectionScreen(),
           ),
         );
       }
+    } catch (e) {
+      debugPrint('${greenLog}[AddAnotherAnimalScreen] Error processing animal: $e$resetLog');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Er is een fout opgetreden bij het verwerken van het dier'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-    // Handle other button selections here if needed
   }
 
   List<({String text, String? imagePath, IconData? icon, VoidCallback onPressed})> _getAvailableButtons(
     BuildContext context,
     AnimalGender? existingGender,
   ) {
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
+    
+    // Get all genders that are already used in the animals list
+    final usedGenders = currentSighting?.animals
+        ?.where((animal) => animal.animalName == currentSighting.animalSelected?.animalName)
+        .map((animal) => animal.gender)
+        .whereType<AnimalGender>()
+        .toSet() ?? {};
+
+    // If there's a currently selected animal's gender, add it to used genders
+    if (existingGender != null) {
+      usedGenders.add(existingGender);
+    }
+
     final List<({String text, String? imagePath, IconData? icon, VoidCallback onPressed})> allButtons = [
       (
         text: 'Vrouwelijk',
@@ -69,16 +127,20 @@ class AddAnotherAnimalScreen extends StatelessWidget {
       ),
     ];
 
-    // Filter out the button that matches the existing gender
+    // Filter out buttons for genders that are already used
     return allButtons.where((button) {
-      switch (existingGender) {
-        case AnimalGender.vrouwelijk:
-          return button.text != 'Vrouwelijk';
-        case AnimalGender.mannelijk:
-          return button.text != 'Mannelijk';
-        case AnimalGender.onbekend:
-          return button.text != 'Onbekend';
-        case null:
+      // Always show the "Overslaan" button
+      if (button.text == 'Overslaan') return true;
+
+      // Filter out buttons based on used genders
+      switch (button.text) {
+        case 'Vrouwelijk':
+          return !usedGenders.contains(AnimalGender.vrouwelijk);
+        case 'Mannelijk':
+          return !usedGenders.contains(AnimalGender.mannelijk);
+        case 'Onbekend':
+          return !usedGenders.contains(AnimalGender.onbekend);
+        default:
           return true;
       }
     }).toList();
@@ -181,6 +243,17 @@ class AddAnotherAnimalScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -38,6 +38,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
             welcomeFontSize: _overzichtManager.welcomeFontSize,
             usernameFontSize: _overzichtManager.usernameFontSize,
           ),
+          const SizedBox(height: 24), // Added padding here
           ActionButtons(
             buttons: [
               (
@@ -73,7 +74,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
             iconSize: 64,
             verticalPadding: 0,
             horizontalPadding: MediaQuery.of(context).size.width * 0.05,
-            buttonSpacing: 16, // Increased from 8 to 16 pixels
+            buttonSpacing: 16,
             buttonHeight: 140,
           ),
         ],
@@ -81,6 +82,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     );
   }
 }
+
 
 
 
