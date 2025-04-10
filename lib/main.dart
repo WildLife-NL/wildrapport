@@ -27,6 +27,7 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';

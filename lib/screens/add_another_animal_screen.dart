@@ -6,6 +6,7 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/screens/animal_amount_selection.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
@@ -32,6 +33,14 @@ class AddAnotherAnimalScreen extends StatelessWidget {
           final updatedAnimalSighting = animalSightingManager.finalizeAnimal(clearSelected: true);
           debugPrint('${greenLog}[AddAnotherAnimalScreen] State after adding to list: ${updatedAnimalSighting.toJson()}$resetLog');
         }
+
+        // Navigate to the AnimalListOverviewScreen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnimalListOverviewScreen(),
+          ),
+        );
       } else {
         // Handle gender selection (vrouwelijk, mannelijk, onbekend)
         AnimalGender selectedGender;
@@ -49,20 +58,18 @@ class AddAnotherAnimalScreen extends StatelessWidget {
             throw StateError('Invalid gender selection');
         }
 
-        // First add the current animal to the list but don't clear it
         final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
         if (currentanimalSighting?.animalSelected != null) {
-          animalSightingManager.finalizeAnimal(clearSelected: false);
+          // Preserve the existing description when finalizing
+          animalSightingManager.finalizeAnimal(clearSelected: false);  // This might be clearing the description
         }
 
-        // Then update the gender
+        // Update the gender but keep the existing description
         animalSightingManager.updateGender(selectedGender);
 
-        // Reset view count and description for the next animal
+        // Reset only view count for the next gender variation
         animalSightingManager.updateViewCount(ViewCountModel());
-        animalSightingManager.updateDescription("");
 
-        // Navigate to amount selection screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -119,7 +126,8 @@ class AddAnotherAnimalScreen extends StatelessWidget {
         icon: null,
         onPressed: () => _handleButtonSelection(context, 'onbekend'),
       ),
-      (
+      // Only show skip button if not all genders are used
+      if (usedGenders.length < 3) (
         text: 'Overslaan',
         imagePath: null,
         icon: Icons.double_arrow,
@@ -129,7 +137,7 @@ class AddAnotherAnimalScreen extends StatelessWidget {
 
     // Filter out buttons for genders that are already used
     return allButtons.where((button) {
-      // Always show the "Overslaan" button
+      // Always show the "Overslaan" button if it exists
       if (button.text == 'Overslaan') return true;
 
       // Filter out buttons based on used genders
@@ -243,6 +251,12 @@ class AddAnotherAnimalScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
 
 
 

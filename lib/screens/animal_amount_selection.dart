@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart'
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/screens/add_another_animal_screen.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -73,25 +74,59 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
       debugPrint('[AnimalAmountSelectionScreen] ERROR: No animal selected to update');
       return;
     }
-    
-    // Update the view count
+
     _animalSightingManager.updateViewCount(viewCount);
     
-    // Update the description if it's not empty
+    // Update description if provided
     if (_descriptionController.text.isNotEmpty) {
-      _animalSightingManager.updateDescription(_descriptionController.text);
+      final currentDescription = currentanimalSighting?.description ?? '';
+      final selectedGender = currentanimalSighting?.animalSelected?.gender;
+      
+      String newDescription = '';
+      if (currentDescription.isNotEmpty) {
+        newDescription = '$currentDescription\n\n';  // Add double newline for spacing
+      }
+      newDescription += '${_getGenderText(selectedGender)}: ${_descriptionController.text}';
+      
+      _animalSightingManager.updateDescription(newDescription);
     }
+
+    // Check if all genders are used for the current animal
+    final usedGenders = currentanimalSighting?.animals
+        ?.where((animal) => animal.animalName == currentanimalSighting.animalSelected?.animalName)
+        .map((animal) => animal.gender)
+        .whereType<AnimalGender>()
+        .toSet() ?? {};
     
-    // Log the animalSighting state after updating
-    debugPrint('[AnimalAmountSelectionScreen] animalSighting after updating view count and description: ${_animalSightingManager.getCurrentanimalSighting()?.toJson()}');
-    
-    // Navigate to AddAnotherAnimalScreen instead of popping
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddAnotherAnimalScreen(),
-      ),
-    );
+    // Add the current gender to the used genders
+    if (currentanimalSighting?.animalSelected?.gender != null) {
+      usedGenders.add(currentanimalSighting!.animalSelected!.gender!);
+    }
+
+    final bool allGendersUsed = usedGenders.length >= 3;
+
+    if (allGendersUsed) {
+      // Make sure the current animal's data is saved before finalizing
+      _animalSightingManager.finalizeAnimal(clearSelected: true);
+      
+      // Add debug print
+      debugPrint('Final description before navigation: ${_animalSightingManager.getCurrentanimalSighting()?.description}');
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AnimalListOverviewScreen(),
+        ),
+      );
+    } else {
+      // Navigate to AddAnotherAnimalScreen for more gender selections
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddAnotherAnimalScreen(),
+        ),
+      );
+    }
   }
 
   // New method to determine the most prevalent age based on counts
@@ -205,6 +240,19 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
       case AnimalGender.onbekend:
       case null:
         return 'unknown';
+    }
+  }
+
+  String _getGenderText(AnimalGender? gender) {
+    switch (gender) {
+      case AnimalGender.vrouwelijk:
+        return 'Vrouwelijk';
+      case AnimalGender.mannelijk:
+        return 'Mannelijk';
+      case AnimalGender.onbekend:
+        return 'Onbekend';
+      default:
+        return '';
     }
   }
 
@@ -354,6 +402,11 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     );
   }
 }
+
+
+
+
+
 
 
 
