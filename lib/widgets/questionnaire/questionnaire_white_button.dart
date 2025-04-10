@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/app_text_theme.dart';
 
 class QuestionnaireWhiteButton extends StatelessWidget {
   final String text;

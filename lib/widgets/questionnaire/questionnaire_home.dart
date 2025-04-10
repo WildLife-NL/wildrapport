@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
-import 'package:wildrapport/models/api_models/questionaire.dart';
-import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home_buttons.dart';
 
