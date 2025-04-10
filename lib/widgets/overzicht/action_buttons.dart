@@ -12,6 +12,8 @@ class ActionButtons extends StatelessWidget {
   final bool useCircleIcons;
   final double iconSize;
   final double buttonHeight;
+  final Map<int, Color> customIconColors;
+  final Set<int> useCircleIconsForIndices;
 
   const ActionButtons({
     super.key,
@@ -22,6 +24,8 @@ class ActionButtons extends StatelessWidget {
     this.useCircleIcons = true,
     this.iconSize = 48,
     this.buttonHeight = 160,
+    this.customIconColors = const {},
+    this.useCircleIconsForIndices = const {},
   });
 
   @override
@@ -63,42 +67,53 @@ class ActionButtons extends StatelessWidget {
     Widget? leftWidget;
     
     if (icon != null) {
-      leftWidget = useCircleIcons 
+      final int buttonIndex = buttons.indexWhere((b) => b.text == text);
+      final Color iconColor = customIconColors[buttonIndex] ?? AppColors.brown;
+      final bool useCircle = useCircleIconsForIndices.contains(buttonIndex);
+
+      leftWidget = useCircle
           ? CircleIconContainer(
               icon: icon,
-              iconColor: AppColors.brown,
+              iconColor: iconColor,
               size: iconSize,
             )
           : Icon(
               icon,
-              color: AppColors.brown,
+              color: iconColor,
               size: iconSize,
             );
     } else if (imagePath != null) {
-      leftWidget = useCircleIcons
-          ? CircleIconContainer(
-              imagePath: imagePath,
-              size: iconSize,
-            )
-          : Image.asset(
-              imagePath,
-              width: iconSize,
-              height: iconSize,
-              fit: BoxFit.contain,
-            );
+      leftWidget = Image.asset(
+        imagePath,
+        width: iconSize,
+        height: iconSize,
+        fit: BoxFit.contain,
+      );
     }
 
     return WhiteBulkButton(
       text: text,
       leftWidget: leftWidget,
-      rightWidget: const Icon(
+      rightWidget: Icon(
         Icons.arrow_forward_ios,
-        color: Colors.black54,
+        color: AppColors.brown,
+        size: 24,
+        shadows: [
+          Shadow(
+            color: Colors.black.withOpacity(0.25),
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
       ),
       onPressed: onPressed,
     );
   }
 }
+
+
+
+
 
 
 

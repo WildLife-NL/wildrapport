@@ -22,26 +22,14 @@ import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
 import 'package:wildrapport/managers/waarneming_reporting_manager.dart';
-import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/screens/animal_gender_screen.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
-import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/add_another_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/screens/loading_screen.dart';
-import 'package:wildrapport/screens/animal_condition_screen.dart';
-import 'package:wildrapport/screens/questionnaire_screen.dart';
-import 'package:wildrapport/screens/report_decision_screen.dart';
-import 'package:wildrapport/screens/test_screen.dart';
-import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
-import 'package:wildrapport/screens/animal_amount_selection.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -124,7 +112,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const OverzichtScreen(),
+      home: const Rapporteren(),
     );
   }
 }

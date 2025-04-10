@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
+import 'package:wildrapport/screens/add_another_animal_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -86,8 +87,13 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     // Log the waarneming state after updating
     debugPrint('[AnimalAmountSelectionScreen] Waarneming after updating view count and description: ${_waarnemingManager.getCurrentWaarneming()?.toJson()}');
     
-    // Navigate to next screen
-    Navigator.pop(context);  // or navigate to the next screen
+    // Navigate to AddAnotherAnimalScreen instead of popping
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddAnotherAnimalScreen(),
+      ),
+    );
   }
 
   // New method to determine the most prevalent age based on counts
@@ -219,8 +225,10 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
 
     // Create gender model for display using the animal's gender
     final genderModel = AnimalModel(
-      animalImagePath: 'assets/icons/gender/${_getGenderIconName(selectedAnimal.gender)}_gender.png',
-      animalName: selectedAnimal.gender?.toString().split('.').last ?? 'Unknown',
+      animalImagePath: selectedAnimal.gender != null 
+          ? 'assets/icons/gender/${_getGenderIconName(selectedAnimal.gender)}_gender.png'
+          : null,
+      animalName: selectedAnimal.gender?.toString().split('.').last ?? 'Onbekend',
     );
 
     return Scaffold(
@@ -237,14 +245,20 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
                   onLeftIconPressed: () => Navigator.pop(context),
                   onRightIconPressed: () => debugPrint('[AnimalAmountSelectionScreen] Menu button pressed'),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03), // Added padding
                 SplitRowContainer(
                   rightWidget: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      CompactAnimalDisplay(animal: selectedAnimal),
+                      CompactAnimalDisplay(
+                        animal: selectedAnimal,
+                        height: MediaQuery.of(context).size.height * 0.12,
+                      ),
                       const SizedBox(width: 8),
-                      CompactAnimalDisplay(animal: genderModel),
+                      CompactAnimalDisplay(
+                        animal: genderModel,
+                        height: MediaQuery.of(context).size.height * 0.12,
+                      ),
                     ],
                   ),
                 ),
@@ -342,6 +356,9 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     );
   }
 }
+
+
+
 
 
 

@@ -17,9 +17,9 @@ class CompactAnimalDisplay extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     
     // Calculate responsive dimensions
-    final double calculatedHeight = height ?? screenSize.height * 0.15; // 15% of screen height
-    final double minHeight = 100.0;
-    final double maxHeight = 150.0;
+    final double calculatedHeight = height ?? screenSize.height * 0.17; // Increased from 0.15 to 0.17
+    final double minHeight = 110.0; // Increased from 100.0
+    final double maxHeight = 160.0; // Increased from 150.0
     final double finalHeight = calculatedHeight.clamp(minHeight, maxHeight);
     
     // Calculate responsive text size
@@ -34,65 +34,64 @@ class CompactAnimalDisplay extends StatelessWidget {
     final double maxPadding = 16.0;
     final double finalPadding = paddingSize.clamp(minPadding, maxPadding);
 
-    return IntrinsicWidth(
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.offWhite,
-          borderRadius: BorderRadius.circular(finalPadding),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: finalPadding / 3,
-              offset: Offset(0, finalPadding / 6),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.all(finalPadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(finalPadding),
-              child: animal.animalImagePath != null
-                  ? Image.asset(
+    return Container(
+      width: finalHeight * 0.85, // Increased from 0.8 to 0.85
+      decoration: BoxDecoration(
+        color: AppColors.offWhite,
+        borderRadius: BorderRadius.circular(finalPadding),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: finalPadding / 3,
+            offset: Offset(0, finalPadding / 6),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(finalPadding),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(finalPadding),
+            child: animal.animalImagePath != null
+                ? SizedBox(
+                    height: finalHeight - (finalPadding * 2),
+                    child: Image.asset(
                       animal.animalImagePath!,
-                      height: finalHeight,
                       fit: BoxFit.contain,
-                    )
-                  : SizedBox(
-                      height: finalHeight,
-                      width: finalHeight,
-                      child: Icon(
-                        Icons.help_outline,
-                        color: AppColors.brown,
-                        size: finalHeight * 0.3, // Responsive icon size
-                      ),
                     ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: finalPadding * 0.75),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  animal.animalName,
-                  style: TextStyle(
-                    color: AppColors.brown,
-                    fontSize: finalFontSize,
-                    fontWeight: FontWeight.bold,
+                  )
+                : SizedBox(
+                    height: finalHeight - (finalPadding * 2),
+                    child: Icon(
+                      Icons.help_outline,
+                      color: AppColors.brown,
+                      size: (finalHeight - (finalPadding * 2)) * 0.3,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: finalPadding * 0.75),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                animal.animalName,
+                style: TextStyle(
+                  color: AppColors.brown,
+                  fontSize: finalFontSize,
+                  fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
 
 
 
