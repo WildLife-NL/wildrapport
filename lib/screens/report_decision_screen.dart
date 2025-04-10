@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/screens/animal_amount_selection.dart';
+import 'package:wildrapport/screens/animal_gender_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
@@ -6,7 +8,6 @@ import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/models/waarneming_model.dart';
-import 'package:wildrapport/screens/animal_gender_screen.dart';
 
 class ReportDecisionScreen extends StatelessWidget {
   final WaarnemingModel waarneming;
@@ -103,9 +104,7 @@ class ReportDecisionScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AnimalGenderScreen(
-                              waarneming: waarneming,
-                            ),
+                            builder: (context) => AnimalGenderScreen(),
                           ),
                         );
                       },
@@ -128,11 +127,5 @@ class ReportDecisionScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
 
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/waarneming_reporting_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -13,22 +15,41 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/waarneming_model.dart';
 
 class AnimalAmountSelectionScreen extends StatefulWidget {
-  final WaarnemingModel waarneming;
-
-  const AnimalAmountSelectionScreen({
-    super.key,
-    required this.waarneming,
-  });
+  const AnimalAmountSelectionScreen({super.key});
 
   @override
   State<AnimalAmountSelectionScreen> createState() => _AnimalAmountSelectionScreenState();
 }
 
 class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScreen> {
+  late final WaarnemingReportingInterface _waarnemingManager;
   final Map<AnimalAge, int> _counts = {
     for (var age in AnimalAge.values) age: 0
   };
   final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _waarnemingManager = context.read<WaarnemingReportingInterface>();
+    _validateWaarneming();
+  }
+
+  void _validateWaarneming() {
+    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
+    if (currentWaarneming == null || currentWaarneming.animalSelected == null) {
+      debugPrint('[AnimalAmountSelectionScreen] No active waarneming or selected animal found');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Geen actieve waarneming of geselecteerd dier gevonden'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -36,47 +57,37 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     super.dispose();
   }
 
-  void _handleNextPressed(BuildContext context) {
-    debugPrint('[AnimalAmountSelectionScreen] Handling next button press');
+  void _handleNextPressed() {
+    debugPrint('[AnimalAmountSelectionScreen] Next button pressed');
     
-    final animal = widget.waarneming.animals?.first;
-    if (animal == null) {
-      debugPrint('[AnimalAmountSelectionScreen] ERROR: No animal found in waarneming');
-      return;
-    }
-
-    // Create ViewCountModel with the counts
+    // Create view count from the current counts
     final viewCount = ViewCountModel(
       pasGeborenAmount: _counts[AnimalAge.pasGeboren] ?? 0,
       onvolwassenAmount: _counts[AnimalAge.onvolwassen] ?? 0,
       volwassenAmount: _counts[AnimalAge.volwassen] ?? 0,
       unknownAmount: _counts[AnimalAge.onbekend] ?? 0,
     );
-
-    debugPrint('[AnimalAmountSelectionScreen] Counts: ${_counts.toString()}');
-    debugPrint('[AnimalAmountSelectionScreen] Description: ${_descriptionController.text}');
-
-    // Create updated animal with view count and existing properties
-    final updatedAnimal = AnimalModel(
-      animalImagePath: animal.animalImagePath,
-      animalName: animal.animalName,
-      viewCount: viewCount,
-      condition: animal.condition,
-      gender: animal.gender,
-    );
-
-    // Create updated waarneming
-    final updatedWaarneming = WaarnemingModel(
-      animals: [updatedAnimal],
-      category: widget.waarneming.category,  // Maintain the category
-      description: _descriptionController.text.trim(),
-      location: widget.waarneming.location,
-      dateTime: widget.waarneming.dateTime,
-      images: widget.waarneming.images,
-    );
-
-    debugPrint('[AnimalAmountSelectionScreen] Updated waarneming: ${updatedWaarneming.toJson()}');
-    // TODO: Navigate to next screen or save the waarneming
+    
+    // Update the view count on the currently selected animal
+    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
+    if (currentWaarneming?.animalSelected == null) {
+      debugPrint('[AnimalAmountSelectionScreen] ERROR: No animal selected to update');
+      return;
+    }
+    
+    // Update the view count
+    _waarnemingManager.updateViewCount(viewCount);
+    
+    // Update the description if it's not empty
+    if (_descriptionController.text.isNotEmpty) {
+      _waarnemingManager.updateDescription(_descriptionController.text);
+    }
+    
+    // Log the waarneming state after updating
+    debugPrint('[AnimalAmountSelectionScreen] Waarneming after updating view count and description: ${_waarnemingManager.getCurrentWaarneming()?.toJson()}');
+    
+    // Navigate to next screen
+    Navigator.pop(context);  // or navigate to the next screen
   }
 
   // New method to determine the most prevalent age based on counts
@@ -195,19 +206,21 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
 
   @override
   Widget build(BuildContext context) {
-    final animal = widget.waarneming.animals?.first;
-    if (animal == null) {
+    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
+    final selectedAnimal = currentWaarneming?.animalSelected;
+
+    if (selectedAnimal == null) {
       return const Scaffold(
         body: Center(
-          child: Text('Error: No animal data found'),
+          child: Text('Error: No animal selected'),
         ),
       );
     }
 
     // Create gender model for display using the animal's gender
     final genderModel = AnimalModel(
-      animalImagePath: 'assets/icons/gender/${_getGenderIconName(animal.gender)}_gender.png',
-      animalName: animal.gender?.toString().split('.').last ?? 'Unknown',
+      animalImagePath: 'assets/icons/gender/${_getGenderIconName(selectedAnimal.gender)}_gender.png',
+      animalName: selectedAnimal.gender?.toString().split('.').last ?? 'Unknown',
     );
 
     return Scaffold(
@@ -229,7 +242,7 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
                   rightWidget: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      CompactAnimalDisplay(animal: animal),
+                      CompactAnimalDisplay(animal: selectedAnimal),
                       const SizedBox(width: 8),
                       CompactAnimalDisplay(animal: genderModel),
                     ],
@@ -263,7 +276,7 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () => Navigator.pop(context),
-        onNextPressed: () => _handleNextPressed(context),
+        onNextPressed: _handleNextPressed,
         showNextButton: _hasNonZeroCount,
       ),
     );
@@ -329,6 +342,12 @@ class _AnimalAmountSelectionScreenState extends State<AnimalAmountSelectionScree
     );
   }
 }
+
+
+
+
+
+
 
 
 

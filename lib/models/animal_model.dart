@@ -1,7 +1,6 @@
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
-import 'package:wildrapport/models/enums/animal_age.dart';
 
 class AnimalModel {
   final String? animalImagePath;

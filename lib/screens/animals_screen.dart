@@ -7,18 +7,17 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/waarneming_model.dart';
 import 'package:wildrapport/screens/animal_gender_screen.dart';
+import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
-  final WaarnemingModel? waarnemingModel;
 
   const AnimalsScreen({
     super.key, 
     required this.appBarTitle,
-    this.waarnemingModel,
   });
 
   @override
@@ -28,11 +27,11 @@ class AnimalsScreen extends StatefulWidget {
 class _AnimalsScreenState extends State<AnimalsScreen> {
   late final AnimalManagerInterface _animalManager;
   late final WaarnemingReportingInterface _waarnemingManager;
+  final ScrollController _scrollController = ScrollController();
   List<AnimalModel>? _animals;
   String? _error;
   bool _isLoading = true;
   bool _isExpanded = false;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -41,18 +40,24 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     _animalManager = context.read<AnimalManagerInterface>();
     _waarnemingManager = context.read<WaarnemingReportingInterface>();
     _animalManager.addListener(_handleStateChange);
-    
-    if (widget.waarnemingModel != null) {
-      debugPrint('[AnimalsScreen] Initialized with WaarnemingModel: ${widget.waarnemingModel!.toJson()}');
-      // Instead of creating new, update the existing waarneming
-      if (widget.waarnemingModel?.animals?.isNotEmpty == true) {
-        _waarnemingManager.updateSelectedAnimal(widget.waarnemingModel!.animals!.first);
-      }
-    } else {
-      debugPrint('[AnimalsScreen] Initialized without WaarnemingModel');
-    }
-    
+    _validateWaarneming();
     _loadAnimals();
+  }
+
+  void _validateWaarneming() {
+    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
+    if (currentWaarneming == null) {
+      debugPrint('[AnimalsScreen] No active waarneming found');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Geen actieve waarneming gevonden'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _loadAnimals() async {
@@ -91,6 +96,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
     _animalManager.removeListener(_handleStateChange);
+    // Consider cleaning up any other resources or listeners
     super.dispose();
   }
 
@@ -109,33 +115,17 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
     debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
-    debugPrint('[AnimalsScreen] Current waarneming before update: ${_waarnemingManager.getCurrentWaarneming()?.toJson()}');
+    final processedAnimal = _animalManager.handleAnimalSelection(selectedAnimal);
+    final updatedWaarneming = _waarnemingManager.updateSelectedAnimal(processedAnimal);
     
-    try {
-      // Update the animal using the manager
-      final updatedWaarneming = _waarnemingManager.updateSelectedAnimal(selectedAnimal);
-      
-      debugPrint('[AnimalsScreen] Successfully updated animal');
-      debugPrint('[AnimalsScreen] Updated waarneming state: ${updatedWaarneming.toJson()}');
-
-      // Navigate to the gender selection screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnimalGenderScreen(
-            waarneming: updatedWaarneming,
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReportDecisionScreen(
+          waarneming: updatedWaarneming,
         ),
-      );
-    } catch (e) {
-      debugPrint('[AnimalsScreen] Error updating animal: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Er is een fout opgetreden bij het selecteren van het dier'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override
@@ -224,6 +214,20 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -13,12 +13,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 
 class AnimalGenderScreen extends StatelessWidget {
-  final WaarnemingModel waarneming;
-
-  const AnimalGenderScreen({
-    super.key,
-    required this.waarneming,
-  });
+  const AnimalGenderScreen({super.key});
 
   void _handleGenderSelection(BuildContext context, AnimalGender selectedGender) {
     debugPrint('[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}');
@@ -27,7 +22,7 @@ class AnimalGenderScreen extends StatelessWidget {
     
     try {
       // Update the gender using the manager
-      final updatedWaarneming = waarnemingManager.updateGender(selectedGender);
+      waarnemingManager.updateGender(selectedGender);
       
       debugPrint('[AnimalGenderScreen] Successfully updated gender');
 
@@ -35,9 +30,7 @@ class AnimalGenderScreen extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AnimalAmountSelectionScreen(
-            waarneming: updatedWaarneming,
-          ),
+          builder: (context) => const AnimalAmountSelectionScreen(),
         ),
       );
     } catch (e) {
@@ -55,12 +48,25 @@ class AnimalGenderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('[AnimalGenderScreen] Building screen');
+    
+    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    final waarneming = waarnemingManager.getCurrentWaarneming();
+    
+    if (waarneming == null) {
+      debugPrint('[AnimalGenderScreen] ERROR: No waarneming found');
+      return const Scaffold(
+        body: Center(
+          child: Text('Error: No waarneming found'),
+        ),
+      );
+    }
+
     debugPrint('[AnimalGenderScreen] Current waarneming state: ${waarneming.toJson()}');
 
-    final animal = waarneming.animals?.first;
+    final animal = waarneming.animalSelected;
     
     if (animal == null) {
-      debugPrint('[AnimalGenderScreen] ERROR: No animal found in waarneming model');
+      debugPrint('[AnimalGenderScreen] ERROR: No selected animal found in waarneming model');
       return const Scaffold(
         body: Center(
           child: Text('Error: No animal data found'),
@@ -162,6 +168,9 @@ class AnimalGenderScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

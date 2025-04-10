@@ -88,6 +88,12 @@ class _RapporterenState extends State<Rapporteren> {
     }
   }
 
+  void _handleBackNavigation(BuildContext context) {
+    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    waarnemingManager.clearCurrentWaarneming();
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -102,7 +108,7 @@ class _RapporterenState extends State<Rapporteren> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Rapporteren',
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => Navigator.of(context).pop(),
+              onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
             ),
             SizedBox(height: screenSize.height * 0.03),
@@ -261,6 +267,7 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
 
 
 

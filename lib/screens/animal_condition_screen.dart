@@ -100,7 +100,10 @@ class AnimalConditionScreen extends StatelessWidget {
               centerText: 'Dier Conditie',
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                debugPrint('[AnimalConditionScreen] Navigating back');
+                debugPrint('[AnimalConditionScreen] Navigating back and clearing waarneming');
+                // Get the manager and clear the waarneming
+                final waarnemingManager = context.read<WaarnemingReportingInterface>();
+                waarnemingManager.clearCurrentWaarneming();
                 Navigator.pop(context);
               },
               onRightIconPressed: () {
@@ -124,6 +127,9 @@ class AnimalConditionScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           debugPrint('[AnimalConditionScreen] Back button pressed in bottom bar');
+          // Also clear the waarneming when using the bottom back button
+          final waarnemingManager = context.read<WaarnemingReportingInterface>();
+          waarnemingManager.clearCurrentWaarneming();
           Navigator.pop(context);
         },
         onNextPressed: () {
@@ -141,6 +147,7 @@ class AnimalConditionScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 

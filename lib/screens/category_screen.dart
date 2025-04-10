@@ -7,13 +7,43 @@ import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/selection_button_group.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 
-class CategoryScreen extends StatelessWidget {
+class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
 
+  @override
+  State<CategoryScreen> createState() => _CategoryScreenState();
+}
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  late final WaarnemingReportingInterface _waarnemingManager;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('[CategoryScreen] Initializing screen');
+    _waarnemingManager = context.read<WaarnemingReportingInterface>();
+    _validateWaarneming();
+  }
+
+  void _validateWaarneming() {
+    final currentWaarneming = _waarnemingManager.getCurrentWaarneming();
+    if (currentWaarneming == null) {
+      debugPrint('[CategoryScreen] No active waarneming found');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Geen actieve waarneming gevonden'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+    }
+  }
+
   void _handleStatusSelection(BuildContext context, String status) {
-    debugPrint('[CategoryScreen] Category selected: $status');
-    
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
+    setState(() => _isLoading = true);
     
     try {
       // Convert string to AnimalCategory enum
@@ -32,32 +62,19 @@ class CategoryScreen extends StatelessWidget {
           selectedCategory = AnimalCategory.andere;
       }
 
-      debugPrint('[CategoryScreen] Converting status "$status" to category: ${selectedCategory.toString()}');
+      debugPrint('[CategoryScreen] Updating category to: $selectedCategory');
+      _waarnemingManager.updateCategory(selectedCategory);
       
-      // Update the waarneming with the selected category using the manager
-      final updatedWaarneming = waarnemingManager.updateCategory(selectedCategory);
-      debugPrint('[CategoryScreen] Successfully updated category');
-      debugPrint('[CategoryScreen] Updated waarneming state: ${updatedWaarneming.toJson()}');
-      
-      // Navigate to AnimalsScreen with the updated waarneming
-      debugPrint('[CategoryScreen] Navigating to AnimalsScreen');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AnimalsScreen(
-            appBarTitle: 'Waarnemingen',
-            waarnemingModel: updatedWaarneming,
+          builder: (context) => const AnimalsScreen(
+            appBarTitle: 'Selecteer Dier',
           ),
         ),
       );
-    } catch (e) {
-      debugPrint('[CategoryScreen] Error updating category: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Er is een fout opgetreden bij het bijwerken van de categorie'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -70,10 +87,7 @@ class CategoryScreen extends StatelessWidget {
     if (currentWaarneming?.category == null) {
       debugPrint('[CategoryScreen] Attempted to proceed without selecting category');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecteer eerst een categorie'),
-          duration: Duration(seconds: 2),
-        ),
+        const SnackBar(content: Text('Selecteer eerst een categorie')),
       );
       return;
     }
@@ -84,7 +98,6 @@ class CategoryScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => AnimalsScreen(
           appBarTitle: 'Waarnemingen',
-          waarnemingModel: currentWaarneming,
         ),
       ),
     );
@@ -92,45 +105,44 @@ class CategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final waarnemingManager = context.read<WaarnemingReportingInterface>();
-    final currentWaarneming = waarnemingManager.getCurrentWaarneming();
-
-    debugPrint('[CategoryScreen] Building screen');
-    if (currentWaarneming != null) {
-      debugPrint('[CategoryScreen] Current waarneming state: ${currentWaarneming.toJson()}');
-    } else {
-      debugPrint('[CategoryScreen] No current waarneming found');
-    }
-
+    // Remove waarneming logging from build method
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
-              centerText: 'Waarnemingen',
-              rightIcon: Icons.menu,
-              onLeftIconPressed: () {
-                debugPrint('[CategoryScreen] Back button pressed in app bar');
-                Navigator.pop(context);
-              },
-              onRightIconPressed: () {
-                debugPrint('[CategoryScreen] Menu button pressed');
-                /* Handle menu */
-              },
-            ),
-            SelectionButtonGroup(
-              buttons: const [
-                (text: 'Evenhoevigen', icon: null, imagePath: 'assets/icons/category/evenhoevigen.png'),
-                (text: 'Knaagdieren', icon: null, imagePath: 'assets/icons/category/knaagdieren.png'),
-                (text: 'Roofdieren', icon: null, imagePath: 'assets/icons/category/roofdieren.png'),
-                (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                CustomAppBar(
+                  leftIcon: Icons.arrow_back_ios,
+                  centerText: 'Waarnemingen',
+                  rightIcon: Icons.menu,
+                  onLeftIconPressed: () {
+                    debugPrint('[CategoryScreen] Back button pressed in app bar');
+                    Navigator.pop(context);
+                  },
+                  onRightIconPressed: () {
+                    debugPrint('[CategoryScreen] Menu button pressed');
+                    /* Handle menu */
+                  },
+                ),
+                SelectionButtonGroup(
+                  buttons: const [
+                    (text: 'Evenhoevigen', icon: null, imagePath: 'assets/icons/category/evenhoevigen.png'),
+                    (text: 'Knaagdieren', icon: null, imagePath: 'assets/icons/category/knaagdieren.png'),
+                    (text: 'Roofdieren', icon: null, imagePath: 'assets/icons/category/roofdieren.png'),
+                    (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
+                  ],
+                  onStatusSelected: (status) => _handleStatusSelection(context, status),
+                  title: 'Selecteer Categorie',
+                ),
               ],
-              onStatusSelected: (status) => _handleStatusSelection(context, status),
-              title: 'Selecteer Categorie',
             ),
-          ],
-        ),
+          ),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
@@ -142,6 +154,15 @@ class CategoryScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
 
 
 

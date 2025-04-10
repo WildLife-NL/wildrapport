@@ -37,8 +37,16 @@ abstract class WaarnemingReportingInterface {
 
   /// Removes a listener
   void removeListener(VoidCallback listener);
-}
 
+  /// Finalizes the currently selected animal by adding it to the animals list
+  WaarnemingModel finalizeAnimal();
+
+  /// Clears the current waarneming
+  void clearCurrentWaarneming();
+
+  /// Updates the description in the waarneming
+  WaarnemingModel updateDescription(String description);
+}
 
 
 

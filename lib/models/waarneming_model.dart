@@ -10,6 +10,7 @@ import 'package:wildrapport/models/view_count_model.dart';
 
 class WaarnemingModel {
   final List<AnimalModel>? animals;
+  final AnimalModel? animalSelected;
   final AnimalCategory? category;
   final String? description;
   final LocationModel? location;
@@ -23,6 +24,7 @@ class WaarnemingModel {
     this.location,
     this.dateTime,
     this.images,
+    this.animalSelected,
   });
 
   Map<String, dynamic> toJson() {
@@ -34,6 +36,13 @@ class WaarnemingModel {
         'condition': animal.condition?.toString(),
         'gender': animal.gender?.toString(),
       }).toList(),
+      'animalSelected': animalSelected != null ? {
+        'animalImagePath': animalSelected!.animalImagePath,
+        'animalName': animalSelected!.animalName,
+        'viewCount': animalSelected!.viewCount?.toJson(),
+        'condition': animalSelected!.condition?.toString(),
+        'gender': animalSelected!.gender?.toString(),
+      } : null,
       'category': category?.toString(),
       'description': description,
       'location': location?.toJson(),
@@ -84,6 +93,7 @@ class WaarnemingModel {
       : null,
   );
 }
+
 
 
 
