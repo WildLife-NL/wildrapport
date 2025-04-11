@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/screens/animal_amount_selection.dart';
+import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/split_row_container.dart';
@@ -15,26 +17,20 @@ class AnimalGenderScreen extends StatelessWidget {
   const AnimalGenderScreen({super.key});
 
   void _handleGenderSelection(BuildContext context, AnimalGender selectedGender) {
-    debugPrint('[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}');
+    final orangeLog = '\x1B[38;5;208m';
+    final resetLog = '\x1B[0m';
+    
+    debugPrint('${orangeLog}[AnimalGenderScreen] Gender selected: ${selectedGender.toString()}$resetLog');
     
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final navigationManager = context.read<NavigationStateInterface>();
     
-    try {
-      // Update the gender using the manager
-      animalSightingManager.updateGender(selectedGender);
-      
-      debugPrint('[AnimalGenderScreen] Successfully updated gender');
-
-      // Navigate to the amount selection screen
-      Navigator.push(
+    if (animalSightingManager.handleGenderSelection(selectedGender)) {
+      navigationManager.pushReplacementForward(
         context,
-        MaterialPageRoute(
-          builder: (context) => const AnimalAmountSelectionScreen(),
-        ),
+        const AnimalAmountSelectionScreen(),
       );
-    } catch (e) {
-      debugPrint('[AnimalGenderScreen] Error updating gender: $e');
-      // Show error dialog or snackbar to user
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Er is een fout opgetreden bij het bijwerken van het geslacht'),
@@ -46,34 +42,20 @@ class AnimalGenderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[AnimalGenderScreen] Building screen');
+    final orangeLog = '\x1B[38;5;208m';
+    final resetLog = '\x1B[0m';
     
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final animalSighting = animalSightingManager.getCurrentanimalSighting();
+    final navigationManager = context.read<NavigationStateInterface>();
     
-    if (animalSighting == null) {
-      debugPrint('[AnimalGenderScreen] ERROR: No animalSighting found');
-      return const Scaffold(
-        body: Center(
-          child: Text('Error: No animalSighting found'),
-        ),
-      );
-    }
-
-    debugPrint('[AnimalGenderScreen] Current animalSighting state: ${animalSighting.toJson()}');
-
-    final animal = animalSighting.animalSelected;
-    
-    if (animal == null) {
-      debugPrint('[AnimalGenderScreen] ERROR: No selected animal found in animalSighting model');
+    if (!animalSightingManager.validateActiveAnimalSighting()) {
+      debugPrint('${orangeLog}[AnimalGenderScreen] ERROR: No valid animal sighting$resetLog');
       return const Scaffold(
         body: Center(
           child: Text('Error: No animal data found'),
         ),
       );
     }
-
-    debugPrint('[AnimalGenderScreen] Using animal: {animalName: ${animal.animalName}, animalImagePath: ${animal.animalImagePath}}');
 
     return Scaffold(
       body: SafeArea(
@@ -86,17 +68,21 @@ class AnimalGenderScreen extends StatelessWidget {
                 centerText: 'Geslacht',
                 rightIcon: Icons.menu,
                 onLeftIconPressed: () {
-                  debugPrint('[AnimalGenderScreen] Back button pressed');
-                  Navigator.pop(context);
+                  debugPrint('${orangeLog}[AnimalGenderScreen] Back button pressed$resetLog');
+                  navigationManager.pushReplacementBack(
+                    context,
+                    const ReportDecisionScreen(),
+                  );
                 },
                 onRightIconPressed: () {
-                  debugPrint('[AnimalGenderScreen] Menu button pressed');
-                  /* Handle menu */
+                  debugPrint('${orangeLog}[AnimalGenderScreen] Menu button pressed$resetLog');
                 },
               ),
               const SizedBox(height: 16),
               SplitRowContainer(
-                rightWidget: CompactAnimalDisplay(animal: animal),
+                rightWidget: CompactAnimalDisplay(
+                  animal: animalSightingManager.getCurrentanimalSighting()!.animalSelected!,
+                ),
               ),
               const SizedBox(height: 24),
               Text(
@@ -156,17 +142,22 @@ class AnimalGenderScreen extends StatelessWidget {
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
-          debugPrint('[AnimalGenderScreen] Bottom back button pressed');
-          Navigator.pop(context);
-        },
-        onNextPressed: () {
-          debugPrint('[AnimalGenderScreen] Next button pressed');
+          debugPrint('${orangeLog}[AnimalGenderScreen] Bottom back button pressed$resetLog');
+          navigationManager.pushReplacementBack(
+            context,
+            const ReportDecisionScreen(),
+          );
         },
         showNextButton: false,  // Hide the next button
       ),
     );
   }
 }
+
+
+
+
+
 
 
 

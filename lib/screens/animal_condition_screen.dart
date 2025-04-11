@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -11,62 +12,22 @@ class AnimalConditionScreen extends StatelessWidget {
   const AnimalConditionScreen({super.key});
 
   void _handleStatusSelection(BuildContext context, String status) {
-    debugPrint('[AnimalConditionScreen] Handling status selection: $status');
+    final greenLog = '\x1B[32m';
+    final resetLog = '\x1B[0m';
+    
+    debugPrint('${greenLog}[AnimalConditionScreen] Handling status selection: $status$resetLog');
     
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
     
-    if (currentanimalSighting == null) {
-      debugPrint('[AnimalConditionScreen] ERROR: No animalSighting model found when handling status selection');
-      // Create a new animalSighting if none exists
-      animalSightingManager.createanimalSighting();
-    }
-    
-    // Map the selected status to AnimalCondition enum
-    AnimalCondition selectedCondition;
-    switch (status.toLowerCase()) {
-      case 'gezond':
-        selectedCondition = AnimalCondition.gezond;
-        break;
-      case 'ziek':
-        selectedCondition = AnimalCondition.ziek;
-        break;
-      case 'dood':
-        selectedCondition = AnimalCondition.dood;
-        break;
-      default:
-        selectedCondition = AnimalCondition.andere;
-    }
-
     try {
-      debugPrint('[AnimalConditionScreen] Updating condition to: ${selectedCondition.toString()}');
-      final updatedanimalSighting = animalSightingManager.updateCondition(selectedCondition);
+      final updatedSighting = animalSightingManager.updateConditionFromString(status);
+      debugPrint('${greenLog}[AnimalConditionScreen] Successfully updated condition to: $status$resetLog');
+      debugPrint('${greenLog}[AnimalConditionScreen] Current animal sighting state: ${updatedSighting.toJson()}$resetLog');
       
-      // Convert to JSON and highlight changes
-      final oldJson = currentanimalSighting?.toJson() ?? {};
-      final newJson = updatedanimalSighting.toJson();
-      final greenStart = '\x1B[32m';
-      final colorEnd = '\x1B[0m';
-      
-      final prettyJson = newJson.map((key, value) {
-        final oldValue = oldJson[key];
-        final isChanged = oldValue != value;
-        final prettyValue = isChanged ? '$greenStart$value$colorEnd' : value;
-        return MapEntry(key, prettyValue);
-      });
-      
-      debugPrint('[AnimalConditionScreen] animalSighting state after update: $prettyJson');
-      
-      // Navigate to category screen
-      debugPrint('[AnimalConditionScreen] Navigating to CategoryScreen');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CategoryScreen(),
-        ),
-      );
+      final navigationManager = context.read<NavigationStateInterface>();
+      navigationManager.pushReplacementForward(context, const CategoryScreen());
     } catch (e) {
-      debugPrint('[AnimalConditionScreen] Error updating condition: $e');
+      debugPrint('${greenLog}[AnimalConditionScreen] Error updating condition: $e$resetLog');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Er is een fout opgetreden bij het bijwerken van de conditie'),
@@ -78,17 +39,6 @@ class AnimalConditionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[AnimalConditionScreen] Building screen');
-    
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
-    
-    if (currentanimalSighting == null) {
-      debugPrint('[AnimalConditionScreen] ERROR: No animalSighting model found');
-    } else {
-      debugPrint('[AnimalConditionScreen] Current animalSighting state: ${currentanimalSighting.toJson()}');
-    }
-    
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -98,24 +48,15 @@ class AnimalConditionScreen extends StatelessWidget {
               centerText: 'Dier Conditie',
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                debugPrint('[AnimalConditionScreen] Navigating back and clearing animalSighting');
-                // Get the manager and clear the animalSighting
-                final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-                animalSightingManager.clearCurrentanimalSighting();
-                Navigator.pop(context);
+                final navigationManager = context.read<NavigationStateInterface>();
+                navigationManager.resetToHome(context);
               },
               onRightIconPressed: () {
                 debugPrint('[AnimalConditionScreen] Menu button pressed');
-                /* Handle menu */
               },
             ),
             SelectionButtonGroup(
-              buttons: const [
-                (text: 'Gezond', icon: Icons.check_circle, imagePath: null),
-                (text: 'Ziek', icon: Icons.sick, imagePath: null),
-                (text: 'Dood', icon: Icons.dangerous, imagePath: null),
-                (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
-              ],
+              buttons: AnimalSightingReportingInterface.conditionButtons,
               onStatusSelected: (status) => _handleStatusSelection(context, status),
               title: 'Selecteer dier Conditie',
             ),
@@ -124,16 +65,10 @@ class AnimalConditionScreen extends StatelessWidget {
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
-          debugPrint('[AnimalConditionScreen] Back button pressed in bottom bar');
-          // Also clear the animalSighting when using the bottom back button
-          final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-          animalSightingManager.clearCurrentanimalSighting();
-          Navigator.pop(context);
+          final navigationManager = context.read<NavigationStateInterface>();
+          navigationManager.resetToHome(context);
         },
         onNextPressed: () {
-          debugPrint('[AnimalConditionScreen] Next button pressed in bottom bar');
-          // Since no condition is selected yet, we can either disable the next button
-          // or show a message to the user
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Selecteer eerst een conditie'),
@@ -141,10 +76,25 @@ class AnimalConditionScreen extends StatelessWidget {
             ),
           );
         },
+        showNextButton: false,  // Hide the next button
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/screens/animal_gender_screen.dart';
+import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/managers/navigation_state_manager.dart';
 
 class ReportDecisionScreen extends StatelessWidget {
-  final AnimalSightingModel animalSighting;
-
-  const ReportDecisionScreen({
-    super.key,
-    required this.animalSighting,
-  });
+  const ReportDecisionScreen({super.key});
 
   Widget _buildArrowIcon() {
     return Icon(
@@ -33,8 +33,11 @@ class ReportDecisionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navigationManager = context.read<NavigationStateInterface>();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSighting = animalSightingManager.getCurrentanimalSighting();
     debugPrint('[ReportDecisionScreen] Building screen');
-    debugPrint('[ReportDecisionScreen] Current animalSighting state: ${animalSighting.toJson()}');
+    debugPrint('[ReportDecisionScreen] Current animalSighting state: ${animalSighting?.toJson()}');
 
     return Scaffold(
       body: SafeArea(
@@ -46,7 +49,10 @@ class ReportDecisionScreen extends StatelessWidget {
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
                 debugPrint('[ReportDecisionScreen] Back button pressed');
-                Navigator.pop(context);
+                navigationManager.pushReplacementBack(
+                  context,
+                  const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+                );
               },
               onRightIconPressed: () {
                 debugPrint('[ReportDecisionScreen] Menu button pressed');
@@ -99,12 +105,9 @@ class ReportDecisionScreen extends StatelessWidget {
                       rightWidget: _buildArrowIcon(),
                       onPressed: () {
                         debugPrint('[ReportDecisionScreen] In Stappen button pressed');
-                        debugPrint('[ReportDecisionScreen] Navigating to AnimalGenderScreen with animalSighting: ${animalSighting.toJson()}');
-                        Navigator.push(
+                        navigationManager.pushReplacementForward(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => AnimalGenderScreen(),
-                          ),
+                          AnimalGenderScreen(),
                         );
                       },
                     ),
@@ -118,7 +121,10 @@ class ReportDecisionScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           debugPrint('[ReportDecisionScreen] Bottom back button pressed');
-          Navigator.pop(context);
+          navigationManager.pushReplacementBack(
+            context,
+            const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+          );
         },
         onNextPressed: () {},
         showNextButton: false,  // Hide the next button
@@ -126,5 +132,7 @@ class ReportDecisionScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 

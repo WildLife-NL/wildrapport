@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/screens/animal_gender_screen.dart';
+import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -23,9 +25,11 @@ class AnimalsScreen extends StatefulWidget {
   State<AnimalsScreen> createState() => _AnimalsScreenState();
 }
 
-class _AnimalsScreenState extends State<AnimalsScreen> {
+class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProviderStateMixin {
   late final AnimalManagerInterface _animalManager;
   late final AnimalSightingReportingInterface _animalSightingManager;
+  late final NavigationStateInterface _navigationManager;
+  late final AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
   List<AnimalModel>? _animals;
   String? _error;
@@ -36,17 +40,19 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   void initState() {
     super.initState();
     debugPrint('[AnimalsScreen] Initializing screen');
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2), // Set a default duration
+    );
     _animalManager = context.read<AnimalManagerInterface>();
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    _navigationManager = context.read<NavigationStateInterface>();
     _animalManager.addListener(_handleStateChange);
-    _validateanimalSighting();
-    _loadAnimals();
+    _validateAndLoad();
   }
 
-  void _validateanimalSighting() {
-    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
-    if (currentanimalSighting == null) {
-      debugPrint('[AnimalsScreen] No active animalSighting found');
+  void _validateAndLoad() {
+    if (!_animalSightingManager.validateActiveAnimalSighting()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +62,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
           ),
         );
       });
+      return;
     }
+    _loadAnimals();
   }
 
   Future<void> _loadAnimals() async {
@@ -94,8 +102,8 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   void dispose() {
     debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
+    _animationController.dispose();
     _animalManager.removeListener(_handleStateChange);
-    // Consider cleaning up any other resources or listeners
     super.dispose();
   }
 
@@ -113,17 +121,23 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
   }
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
-    debugPrint('[AnimalsScreen] Animal selected: ${selectedAnimal.animalName}');
-    final processedAnimal = _animalManager.handleAnimalSelection(selectedAnimal);
-    final updatedanimalSighting = _animalSightingManager.updateSelectedAnimal(processedAnimal);
+    final updatedSighting = _animalSightingManager.processAnimalSelection(
+      selectedAnimal,
+      _animalManager,
+    );
     
-    Navigator.push(
+    _navigationManager.pushReplacementForward(
       context,
-      MaterialPageRoute(
-        builder: (context) => ReportDecisionScreen(
-          animalSighting: updatedanimalSighting,
-        ),
-      ),
+      ReportDecisionScreen(),
+    );
+  }
+
+  void _handleBackNavigation() {
+    debugPrint('[AnimalsScreen] Back button pressed');
+    _navigationManager.dispose(); // Call dispose first to clean up resources
+    _navigationManager.pushReplacementBack(
+      context,
+      const CategoryScreen(),
     );
   }
 
@@ -139,7 +153,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: widget.appBarTitle,
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => Navigator.pop(context),
+              onLeftIconPressed: _handleBackNavigation,
               onRightIconPressed: () {/* Handle menu */},
             ),
             Padding(
@@ -177,6 +191,11 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
             repeat: true,
             animate: true,
             frameRate: FrameRate(60),
+            controller: _animationController,
+            onLoaded: (composition) {
+              _animationController.duration = composition.duration;
+              _animationController.repeat(); // Start repeating animation after composition is loaded
+            },
           ),
         ),
       );
@@ -213,6 +232,14 @@ class _AnimalsScreenState extends State<AnimalsScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
 
 
 

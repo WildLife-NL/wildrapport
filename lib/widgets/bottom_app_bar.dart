@@ -3,14 +3,14 @@ import 'package:wildrapport/constants/app_colors.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final VoidCallback onBackPressed;
-  final VoidCallback onNextPressed;
+  final VoidCallback? onNextPressed;  // Make optional
   final bool showNextButton;
   final bool showBackButton;  // New parameter
 
   const CustomBottomAppBar({
     super.key,
     required this.onBackPressed,
-    required this.onNextPressed,
+    this.onNextPressed,  // Remove required
     this.showNextButton = true,
     this.showBackButton = true,  // Default to true for backward compatibility
   });
@@ -22,7 +22,7 @@ class CustomBottomAppBar extends StatelessWidget {
 
   void _handleNextPress() {
     debugPrint('CustomBottomAppBar: Next button pressed');
-    onNextPressed();
+    onNextPressed?.call();  // Use safe call
   }
 
   @override
@@ -143,6 +143,7 @@ class CustomBottomAppBar extends StatelessWidget {
     );
   }
 }
+
 
 
 

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/models/enums/animal_category.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/selection_button_group.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/animal_condition_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -16,96 +17,65 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   late final AnimalSightingReportingInterface _animalSightingManager;
+  late final NavigationStateInterface _navigationManager;
   bool _isLoading = false;
+  final purpleLog = '\x1B[35m';
+  final resetLog = '\x1B[0m';
 
   @override
   void initState() {
     super.initState();
-    debugPrint('[CategoryScreen] Initializing screen');
+    debugPrint('${purpleLog}[CategoryScreen] Initializing screen$resetLog');
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    _validateanimalSighting();
+    _navigationManager = context.read<NavigationStateInterface>();
+    
+    final currentState = _animalSightingManager.getCurrentanimalSighting();
+    debugPrint('${purpleLog}[CategoryScreen] Initial animal sighting state: ${currentState?.toJson()}$resetLog');
   }
 
-  void _validateanimalSighting() {
-    final currentanimalSighting = _animalSightingManager.getCurrentanimalSighting();
-    if (currentanimalSighting == null) {
-      debugPrint('[CategoryScreen] No active animalSighting found');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Geen actieve animalSighting gevonden'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      });
-    }
+  void _handleBackNavigation() {
+    if (!mounted) return;
+    _navigationManager.dispose(); // Clean up resources
+    _navigationManager.pushReplacementBack(
+      context,
+      const AnimalConditionScreen(),
+    );
   }
 
   void _handleStatusSelection(BuildContext context, String status) {
-    setState(() => _isLoading = true);
-    
+    if (!mounted) return;
     try {
-      // Convert string to AnimalCategory enum
-      AnimalCategory selectedCategory;
-      switch (status.toLowerCase()) {
-        case 'evenhoevigen':
-          selectedCategory = AnimalCategory.evenhoevigen;
-          break;
-        case 'knaagdieren':
-          selectedCategory = AnimalCategory.knaagdieren;
-          break;
-        case 'roofdieren':
-          selectedCategory = AnimalCategory.roofdieren;
-          break;
-        default:
-          selectedCategory = AnimalCategory.andere;
-      }
-
-      debugPrint('[CategoryScreen] Updating category to: $selectedCategory');
-      _animalSightingManager.updateCategory(selectedCategory);
+      setState(() => _isLoading = true);
       
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AnimalsScreen(
-            appBarTitle: 'Selecteer Dier',
+      final selectedCategory = _animalSightingManager.convertStringToCategory(status);
+      final updatedSighting = _animalSightingManager.updateCategory(selectedCategory);
+      
+      if (mounted) {
+        _navigationManager.dispose(); // Clean up resources
+        _navigationManager.pushReplacementForward(
+          context,
+          const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+        );
+      }
+    } catch (e) {
+      debugPrint('${purpleLog}[CategoryScreen] Error updating category: $e$resetLog');
+      if (mounted) {  // Check if still mounted before showing snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Er is een fout opgetreden bij het bijwerken van de categorie'),
+            backgroundColor: Colors.red,
           ),
-        ),
-      );
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);  // Hide loading indicator
+      }
     }
-  }
-
-  void _handleNextPressed(BuildContext context) {
-    debugPrint('[CategoryScreen] Next button pressed');
-    
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
-    
-    if (currentanimalSighting?.category == null) {
-      debugPrint('[CategoryScreen] Attempted to proceed without selecting category');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecteer eerst een categorie')),
-      );
-      return;
-    }
-    
-    debugPrint('[CategoryScreen] Category selected, proceeding to AnimalsScreen');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AnimalsScreen(
-          appBarTitle: 'animalSightingen',
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Remove animalSighting logging from build method
     return Scaffold(
       body: Stack(
         children: [
@@ -116,13 +86,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   leftIcon: Icons.arrow_back_ios,
                   centerText: 'animalSightingen',
                   rightIcon: Icons.menu,
-                  onLeftIconPressed: () {
-                    debugPrint('[CategoryScreen] Back button pressed in app bar');
-                    Navigator.pop(context);
-                  },
+                  onLeftIconPressed: _handleBackNavigation,
                   onRightIconPressed: () {
-                    debugPrint('[CategoryScreen] Menu button pressed');
-                    /* Handle menu */
+                    debugPrint('${purpleLog}[CategoryScreen] Menu button pressed$resetLog');
                   },
                 ),
                 SelectionButtonGroup(
@@ -145,15 +111,30 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ],
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () {
-          debugPrint('[CategoryScreen] Back button pressed in bottom bar');
-          Navigator.pop(context);
-        },
-        onNextPressed: () => _handleNextPressed(context),
+        onBackPressed: _handleBackNavigation,
+        onNextPressed: () {},
+        showNextButton: false,
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

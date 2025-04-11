@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:wildrapport/interfaces/animal_interface.dart';
+import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_model.dart';
@@ -29,6 +32,9 @@ abstract class AnimalSightingReportingInterface {
   /// Updates the category in the animalSighting
   AnimalSightingModel updateCategory(AnimalCategory category);
 
+  /// Converts a string representation of a category to AnimalCategory enum
+  AnimalCategory convertStringToCategory(String status);
+
   /// Gets the current animalSighting model
   AnimalSightingModel? getCurrentanimalSighting();
 
@@ -47,7 +53,29 @@ abstract class AnimalSightingReportingInterface {
 
   /// Updates the description in the animalSighting
   AnimalSightingModel updateDescription(String description);
+
+  AnimalSightingModel updateConditionFromString(String status);
+  static const List<({String text, IconData icon, String? imagePath})> conditionButtons = 
+    AnimalSightingReportingManager.conditionButtons;
+
+  /// Validates if there is an active animal sighting
+  bool validateActiveAnimalSighting();
+
+  /// Processes animal selection by coordinating with animal manager
+  AnimalSightingModel processAnimalSelection(
+    AnimalModel selectedAnimal,
+    AnimalManagerInterface animalManager,
+  );
+
+  /// Handles gender selection and validation
+  /// Returns true if successful, false if there was an error
+  bool handleGenderSelection(AnimalGender selectedGender);
 }
+
+
+
+
+
 
 
 
