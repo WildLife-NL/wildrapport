@@ -119,7 +119,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Rapporteren(),
+      home: const LoginScreen(),
     );
   }
 }
