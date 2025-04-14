@@ -59,21 +59,9 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
-  void clearCurrentReport() {
-    _activeReports.remove('currentReport');
-    notifyListeners();
-  }
-
   void resetApplicationState(BuildContext context, {Widget? destination}) {
     _screenStates.clear();
     _activeReports.clear();
-    
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => destination ?? const Rapporteren(),
-      ),
-    );
-    
     notifyListeners();
   }
 
@@ -83,6 +71,7 @@ class AppStateProvider with ChangeNotifier {
     super.dispose();
   }
 }
+
 
 
 

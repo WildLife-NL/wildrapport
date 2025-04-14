@@ -8,6 +8,7 @@ import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_list_table.dart';
 import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 
 class AnimalListOverviewScreen extends StatefulWidget {
   const AnimalListOverviewScreen({super.key});
@@ -30,108 +31,38 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
     });
   }
 
+  void _handleConfirmedNavigation(BuildContext context) {
+    try {
+      final navigationManager = context.read<NavigationStateInterface>();
+      navigationManager.resetToHome(context);
+    } catch (e) {
+      debugPrint('Error during navigation: $e');
+    }
+  }
+
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: AppColors.offWhite,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
-                  spreadRadius: 0,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Waarneming annuleren?'),
+          content: const Text('Weet je zeker dat je deze waarneming wilt annuleren?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Nee'),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Text(
-                    'Weet je zeker dat je terug wilt gaan?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.brown,
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Text(
-                    'Alle ingevoerde gegevens worden gewist.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text(
-                          'Annuleren',
-                          style: TextStyle(color: AppColors.brown),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkGreen,
-                        ),
-                        child: const Text(
-                          'Bevestigen',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _handleConfirmedNavigation(context);
+              },
+              child: const Text('Ja'),
             ),
-          ),
+          ],
         );
       },
-    ).then((confirmed) {
-      if (confirmed == true) {
-        try {
-          // Clear the current animal sighting
-          _animalSightingManager.clearCurrentanimalSighting();
-          
-          // Reset application state
-          _appStateProvider.clearCurrentReport();
-          
-          // Navigate to reporting screen and clear the stack
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const Rapporteren(),
-            ),
-            (route) => false,
-          );
-          
-          // Reset application state after navigation
-          _appStateProvider.resetApplicationState(context);
-        } catch (e) {
-          debugPrint('Error during confirmation dialog handling: $e');
-          // Handle the error appropriately
-        }
-      }
-    });
+    );
   }
 
   @override
@@ -204,6 +135,9 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
     );
   }
 }
+
+
+
 
 
 

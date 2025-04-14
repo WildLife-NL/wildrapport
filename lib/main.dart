@@ -29,6 +29,7 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
@@ -61,6 +62,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<AppStateProvider>(
+          create: (context) => AppStateProvider(),
+        ),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
@@ -119,7 +123,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginScreen(),
+      home: const Rapporteren(),
     );
   }
 }

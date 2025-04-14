@@ -8,10 +8,5 @@ abstract class ScreenStateInterface {
   void safeSetState(VoidCallback fn);
 }
 
-abstract class ReportManagerInterface {
-  void initializeReportFlow(String reportType);
-  T? getCurrentReport<T>();
-  void updateReport(String property, dynamic value);
-  void clearAllConfirmation(BuildContext context);
-  void resetApplication({Widget? destination});
-}
+// Remove ReportManagerInterface methods that are now handled by NavigationStateInterface
+

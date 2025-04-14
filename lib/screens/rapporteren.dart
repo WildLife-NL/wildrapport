@@ -21,6 +21,8 @@ class _RapporterenState extends State<Rapporteren> {
   String selectedCategory = '';
 
   void _handleReportTypeSelection(String reportType) {
+    if (!mounted) return;
+    
     setState(() {
       selectedCategory = reportType;
     });
@@ -29,22 +31,18 @@ class _RapporterenState extends State<Rapporteren> {
     
     if (reportType == 'animalSightingen') {
       debugPrint('[Rapporteren] Starting animalSighting report creation process');
-      debugPrint('[Rapporteren] Selected report type: $reportType');
       
       try {
         final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-        debugPrint('[Rapporteren] Successfully obtained animalSightingReportingInterface');
         
-        final AnimalSightingModel animalSighting = animalSightingManager.createanimalSighting();
-        debugPrint('[Rapporteren] Successfully created new animalSightingModel');
-        debugPrint('[Rapporteren] animalSightingModel initial state: ${animalSighting.toJson()}');
+        // Create the animal sighting before navigation
+        animalSightingManager.createanimalSighting();
         
+        // Then navigate
         navigationManager.pushReplacementForward(
           context,
           const AnimalConditionScreen(),
         );
-        
-        debugPrint('[Rapporteren] Navigation to AnimalConditionScreen initiated');
         
       } catch (e, stackTrace) {
         debugPrint('[Rapporteren] ERROR: Failed to create animalSighting report');
@@ -72,9 +70,6 @@ class _RapporterenState extends State<Rapporteren> {
         }
       }
     } else {
-      debugPrint('[Rapporteren] Navigating to AnimalsScreen for non-animalSighting report');
-      debugPrint('[Rapporteren] Report type: $reportType');
-      
       navigationManager.pushReplacementForward(
         context,
         AnimalsScreen(appBarTitle: reportType),
@@ -160,6 +155,8 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
+
 
 
 

@@ -384,7 +384,87 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       return false;
     }
   }
+
+  @override
+  AnimalSightingModel updateAnimal(AnimalModel updatedAnimal) {
+    if (_currentanimalSighting == null) {
+      throw StateError('No current animalSighting found');
+    }
+
+    final oldJson = _currentanimalSighting!.toJson();
+    
+    // Find and update the animal in the list
+    final updatedAnimals = List<AnimalModel>.from(_currentanimalSighting!.animals ?? []);
+    final animalIndex = updatedAnimals.indexWhere(
+      (animal) => animal.animalName == updatedAnimal.animalName && animal.gender == updatedAnimal.gender
+    );
+    
+    if (animalIndex != -1) {
+      updatedAnimals[animalIndex] = updatedAnimal;
+    }
+
+    _currentanimalSighting = AnimalSightingModel(
+      animals: updatedAnimals,
+      animalSelected: _currentanimalSighting!.animalSelected,
+      category: _currentanimalSighting!.category,
+      description: _currentanimalSighting!.description,
+      location: _currentanimalSighting!.location,
+      dateTime: _currentanimalSighting!.dateTime,
+      images: _currentanimalSighting!.images,
+    );
+    
+    debugPrint('[animalSightingManager] Updating animal. Previous state: $oldJson');
+    debugPrint('[animalSightingManager] New state: ${_currentanimalSighting!.toJson()}');
+    
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
+
+  // Single source of truth for updating animal data
+  AnimalSightingModel updateAnimalData(
+    String animalName,
+    AnimalGender gender, {
+    ViewCountModel? viewCount,
+    AnimalCondition? condition,
+    String? description,
+  }) {
+    if (_currentanimalSighting == null) {
+      throw StateError('No current animalSighting found');
+    }
+
+    final updatedAnimals = List<AnimalModel>.from(_currentanimalSighting!.animals ?? []);
+    final animalIndex = updatedAnimals.indexWhere(
+      (animal) => animal.animalName == animalName && animal.gender == gender
+    );
+
+    if (animalIndex != -1) {
+      final currentAnimal = updatedAnimals[animalIndex];
+      updatedAnimals[animalIndex] = AnimalModel(
+        animalImagePath: currentAnimal.animalImagePath,
+        animalName: currentAnimal.animalName,
+        condition: condition ?? currentAnimal.condition,
+        gender: currentAnimal.gender,
+        viewCount: viewCount ?? currentAnimal.viewCount,
+      );
+    }
+
+    _currentanimalSighting = AnimalSightingModel(
+      animals: updatedAnimals,
+      animalSelected: _currentanimalSighting!.animalSelected,
+      category: _currentanimalSighting!.category,
+      description: description ?? _currentanimalSighting!.description,
+      location: _currentanimalSighting!.location,
+      dateTime: _currentanimalSighting!.dateTime,
+      images: _currentanimalSighting!.images,
+    );
+
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
 }
+
+
+
 
 
 

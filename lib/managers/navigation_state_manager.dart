@@ -10,10 +10,6 @@ class NavigationStateManager implements NavigationStateInterface {
   final greenLog = '\x1B[32m';
   final resetLog = '\x1B[0m';
 
-  void addController(TextEditingController controller) {
-    _controllers.add(controller);
-  }
-
   @override
   void dispose() {
     debugPrint('${greenLog}[NavigationStateManager] Disposing controllers: ${_controllers.length} controllers$resetLog');
@@ -21,33 +17,32 @@ class NavigationStateManager implements NavigationStateInterface {
       controller.dispose();
     }
     _controllers.clear();
-    debugPrint('${greenLog}[NavigationStateManager] All controllers disposed and cleared$resetLog');
   }
 
   @override
   void resetToHome(BuildContext context) {
-    // Clear animal sighting state
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    animalSightingManager.clearCurrentanimalSighting();
-
-    // Navigate to home screen
+    // First, navigate to new screen and clear the navigation stack
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => const Rapporteren(),
       ),
       (route) => false,
     );
+
+    // Then, clear all state after navigation is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      clearApplicationState(context);
+    });
   }
 
   @override
   void clearApplicationState(BuildContext context) {
-    // Clear animal sighting state
+    // Clear animal-specific state
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     animalSightingManager.clearCurrentanimalSighting();
 
-    // Clear app state
+    // Clear global app state
     final appStateProvider = context.read<AppStateProvider>();
-    appStateProvider.clearCurrentReport();
     appStateProvider.resetApplicationState(context);
   }
 
@@ -61,7 +56,6 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void pushReplacementForward(BuildContext context, Widget screen) {
-    debugPrint('${greenLog}[NavigationStateManager] Replacing current screen with next screen$resetLog');
     dispose(); // Clean up before navigation
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -72,7 +66,6 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void pushReplacementBack(BuildContext context, Widget screen) {
-    debugPrint('${greenLog}[NavigationStateManager] Replacing current screen with previous screen$resetLog');
     dispose(); // Clean up before navigation
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -81,5 +74,4 @@ class NavigationStateManager implements NavigationStateInterface {
     );
   }
 }
-
 

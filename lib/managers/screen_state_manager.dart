@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
@@ -70,15 +71,10 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
   }
 
   void clearAllConfirmation(BuildContext context) {
-    context.read<AppStateProvider>().clearCurrentReport();
-    Navigator.of(context).pop();
-    context.read<AppStateProvider>().resetApplicationState(context);
+    context.read<NavigationStateInterface>().resetToHome(context);
   }
 
   void resetApplication({Widget? destination}) {
-    context.read<AppStateProvider>().resetApplicationState(
-      context,
-      destination: destination,
-    );
+    context.read<NavigationStateInterface>().resetToHome(context);
   }
 }

@@ -156,87 +156,92 @@ class AddAnotherAnimalScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentanimalSighting = animalSightingManager.getCurrentanimalSighting();
-    final existingGender = currentanimalSighting?.animalSelected?.gender;
-    
-    debugPrint('[AddAnotherAnimalScreen] Building screen');
-    debugPrint('[AddAnotherAnimalScreen] Current animalSighting: ${currentanimalSighting?.toJson()}');
-    debugPrint('[AddAnotherAnimalScreen] Current animal gender: $existingGender');
-
-    // Calculate responsive dimensions
-    final double titleFontSize = screenSize.width * 0.05;
-    final double minTitleSize = 18.0;
-    final double maxTitleSize = 24.0;
-    final double finalTitleSize = titleFontSize.clamp(minTitleSize, maxTitleSize);
-
-    final double iconSize = screenSize.width * 0.18;
-    final double minIconSize = 76.0;
-    final double maxIconSize = 96.0;
-    final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
-
-    final double buttonHeight = screenSize.height * 0.15;
-    final double minButtonHeight = 100.0;
-    final double maxButtonHeight = 120.0;
-    final double finalButtonHeight = buttonHeight.clamp(minButtonHeight, maxButtonHeight);
-
-    final double horizontalPadding = screenSize.width * 0.04;
-    final double buttonSpacing = screenSize.height * 0.02;
-
-    final availableButtons = _getAvailableButtons(context, existingGender);
-    final skipButtonIndex = availableButtons.indexWhere((b) => b.text == 'Overslaan');
-
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: Column(
-            children: [
-              CustomAppBar(
-                leftIcon: Icons.arrow_back_ios,
-                centerText: 'Voeg dier toe',
-                rightIcon: Icons.menu,
-                onLeftIconPressed: () {
-                  debugPrint('[AddAnotherAnimalScreen] Back button pressed');
-                  Navigator.pop(context);
-                },
-                onRightIconPressed: () {
-                  debugPrint('[AddAnotherAnimalScreen] Menu button pressed');
-                },
-              ),
-              SizedBox(height: screenSize.height * 0.03),
-              Text(
-                'Selecteer optie',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: finalTitleSize,
-                  color: Colors.brown,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.25),
-                      offset: const Offset(0, 2),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: screenSize.height * 0.02),
-              // Remove the outer Expanded widget and keep only this one
-              Expanded(
-                child: ActionButtons(
-                  buttons: availableButtons,
-                  useCircleIcons: false,
-                  iconSize: finalIconSize,
-                  verticalPadding: 0,
-                  horizontalPadding: 0,
-                  buttonSpacing: buttonSpacing,
-                  buttonHeight: finalButtonHeight,
-                  customIconColors: {skipButtonIndex: AppColors.darkGreen},
-                  useCircleIconsForIndices: {skipButtonIndex},
-                ),
-              ),
-            ],
+        child: Selector<AnimalSightingReportingInterface, ({AnimalSightingModel? sighting, AnimalGender? gender})>(
+          selector: (_, manager) => (
+            sighting: manager.getCurrentanimalSighting(),
+            gender: manager.getCurrentanimalSighting()?.animalSelected?.gender,
           ),
+          shouldRebuild: (previous, next) {
+            return previous.sighting != next.sighting || previous.gender != next.gender;
+          },
+          builder: (context, data, _) {
+            debugPrint('[AddAnotherAnimalScreen] Building screen');
+            debugPrint('[AddAnotherAnimalScreen] Current animalSighting: ${data.sighting?.toJson()}');
+            debugPrint('[AddAnotherAnimalScreen] Current animal gender: ${data.gender}');
+
+            final screenSize = MediaQuery.of(context).size;
+            final availableButtons = _getAvailableButtons(context, data.gender);
+            
+            // Calculate responsive dimensions
+            final double titleFontSize = screenSize.width * 0.05;
+            final double minTitleSize = 18.0;
+            final double maxTitleSize = 24.0;
+            final double finalTitleSize = titleFontSize.clamp(minTitleSize, maxTitleSize);
+
+            final double iconSize = screenSize.width * 0.18;
+            final double minIconSize = 76.0;
+            final double maxIconSize = 96.0;
+            final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
+
+            final double buttonHeight = screenSize.height * 0.15;
+            final double minButtonHeight = 100.0;
+            final double maxButtonHeight = 120.0;
+            final double finalButtonHeight = buttonHeight.clamp(minButtonHeight, maxButtonHeight);
+
+            final double horizontalPadding = screenSize.width * 0.04;
+            final double buttonSpacing = screenSize.height * 0.02;
+
+            final skipButtonIndex = availableButtons.indexWhere((b) => b.text == 'Overslaan');
+
+            return Column(
+              children: [
+                CustomAppBar(
+                  leftIcon: Icons.arrow_back_ios,
+                  centerText: 'Voeg dier toe',
+                  rightIcon: Icons.menu,
+                  onLeftIconPressed: () {
+                    debugPrint('[AddAnotherAnimalScreen] Back button pressed');
+                    Navigator.pop(context);
+                  },
+                  onRightIconPressed: () {
+                    debugPrint('[AddAnotherAnimalScreen] Menu button pressed');
+                  },
+                ),
+                SizedBox(height: screenSize.height * 0.03),
+                Text(
+                  'Selecteer optie',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: finalTitleSize,
+                    color: Colors.brown,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.25),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: screenSize.height * 0.02),
+                // Remove the outer Expanded widget and keep only this one
+                Expanded(
+                  child: ActionButtons(
+                    buttons: availableButtons,
+                    useCircleIcons: false,
+                    iconSize: 64,  // Fixed size instead of dynamic
+                    verticalPadding: 0,
+                    horizontalPadding: MediaQuery.of(context).size.width * 0.05,
+                    buttonSpacing: 16,  // Fixed spacing
+                    buttonHeight: 140,  // Fixed height instead of dynamic
+                    customIconColors: {skipButtonIndex: AppColors.darkGreen},
+                    useCircleIconsForIndices: {skipButtonIndex},
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
@@ -251,6 +256,9 @@ class AddAnotherAnimalScreen extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

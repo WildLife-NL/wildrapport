@@ -70,7 +70,11 @@ abstract class AnimalSightingReportingInterface {
   /// Handles gender selection and validation
   /// Returns true if successful, false if there was an error
   bool handleGenderSelection(AnimalGender selectedGender);
+
+  /// Updates an existing animal in the animals list
+  AnimalSightingModel updateAnimal(AnimalModel updatedAnimal);
 }
+
 
 
 
