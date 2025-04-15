@@ -16,6 +16,7 @@ import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
+import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
@@ -26,6 +27,7 @@ import 'package:wildrapport/managers/location_screen_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
+import 'package:wildrapport/managers/permission_manager.dart';
 import 'package:wildrapport/managers/possesion_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -67,6 +69,9 @@ void main() async {
   
   final locationScreenManager = LocationScreenManager();
   
+  final prefs = await SharedPreferences.getInstance();
+  final permissionManager = PermissionManager(prefs);
+
   runApp(
     MultiProvider(
       providers: [
@@ -96,6 +101,9 @@ void main() async {
         ),
         Provider<LocationScreenInterface>(
           create: (_) => locationScreenManager,
+        ),
+        Provider<PermissionInterface>(
+          create: (_) => permissionManager,
         ),
       ],
       child: const MyApp(),
@@ -135,7 +143,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LocationScreen(),
+      home: const LoginScreen(),
     );
   }
 }

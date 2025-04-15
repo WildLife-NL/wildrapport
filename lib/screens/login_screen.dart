@@ -7,6 +7,7 @@ import 'package:wildrapport/screens/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
+import 'package:wildrapport/interfaces/permission_interface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,6 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _loginManager = context.read<LoginInterface>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPermissions();
+    });
+  }
+
+  Future<void> _checkPermissions() async {
+    final permissionManager = context.read<PermissionInterface>();
+    await permissionManager.handleInitialPermissions(context);
   }
 
   @override
@@ -244,6 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 

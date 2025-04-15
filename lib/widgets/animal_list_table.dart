@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/view_count_model.dart';
+import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
@@ -28,7 +31,6 @@ class _AnimalListTableState extends State<AnimalListTable> {
   void initState() {
     super.initState();
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    // Only add the listener if we need to
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _animalSightingManager.addListener(_handleStateChange);
@@ -41,13 +43,11 @@ class _AnimalListTableState extends State<AnimalListTable> {
 
   @override
   void dispose() {
-    // Clean up controllers
     _opmerkingController.dispose();
     for (var controller in _controllers.values) {
       controller.dispose();
     }
     
-    // Remove the listener safely
     if (mounted) {
       _animalSightingManager.removeListener(_handleStateChange);
     }
@@ -263,6 +263,8 @@ class _AnimalListTableState extends State<AnimalListTable> {
     }
     return _getCountForAgeAndGender(age, gender, context);
   }
+
+  // _handleNextPressed method has been removed
 
   @override
   Widget build(BuildContext context) {
@@ -572,6 +574,9 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
+
 
 
 
