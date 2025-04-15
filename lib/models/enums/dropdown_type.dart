@@ -1,5 +1,5 @@
 enum DropdownType {
   filter,
   login,
-  // Add more types as needed
+  location,  // Add location type
 }

@@ -9,6 +9,7 @@ import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
+import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/category_filter_options.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
@@ -213,7 +214,77 @@ class DropdownManager implements DropdownInterface {
 
     return filterType.iconPath;
   }
-  
+
+  Widget _buildLocationDropdown({
+    required String selectedValue,
+    required bool isExpanded,
+    required Function(bool) onExpandChanged,
+    required Function(String) onOptionSelected,
+    required BuildContext context,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BrownButton(
+          model: BrownButtonModel(
+            text: selectedValue == LocationType.current.displayText 
+                ? LocationType.current.displayText 
+                : selectedValue,
+            leftIconPath: _getLocationIcon(selectedValue),
+            rightIconPath: isExpanded 
+                ? 'circle_icon:keyboard_arrow_up'
+                : 'circle_icon:keyboard_arrow_down',
+            leftIconSize: 38.0,
+            rightIconSize: 38.0,
+            leftIconPadding: 5,
+          ),
+          onPressed: () => onExpandChanged(!isExpanded),
+        ),
+        if (isExpanded) ...[
+          const SizedBox(height: 8),
+          ..._buildLocationOptions(
+            selectedValue: selectedValue,
+            onOptionSelected: onOptionSelected,
+            onExpandChanged: onExpandChanged,
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _getLocationIcon(String selectedValue) {
+    return LocationType.values.firstWhere(
+      (type) => type.displayText == selectedValue,
+      orElse: () => LocationType.current,
+    ).iconPath;
+  }
+
+  List<Widget> _buildLocationOptions({
+    required String selectedValue,
+    required Function(String) onOptionSelected,
+    required Function(bool) onExpandChanged,
+  }) {
+    return LocationType.values
+        .where((type) => type.displayText != selectedValue)
+        .map((type) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: BrownButton(
+          model: BrownButtonModel(
+            text: type.displayText,
+            leftIconPath: type.iconPath,
+            leftIconSize: 38.0,
+            leftIconPadding: 5,  // Add the same padding as the header button
+          ),
+          onPressed: () {
+            onOptionSelected(type.displayText);
+            onExpandChanged(false);
+          },
+        ),
+      );
+    }).toList();
+  }
+
   @override
   Widget buildDropdown({
     required DropdownType type,
@@ -232,11 +303,23 @@ class DropdownManager implements DropdownInterface {
           onOptionSelected: onOptionSelected,
           context: context,
         );
+      case DropdownType.location:
+        return _buildLocationDropdown(
+          selectedValue: selectedValue,
+          isExpanded: isExpanded,
+          onExpandChanged: onExpandChanged,
+          onOptionSelected: onOptionSelected,
+          context: context,
+        );
       default:
         throw UnimplementedError('Dropdown type not implemented');
     }
   }
 }
+
+
+
+
 
 
 

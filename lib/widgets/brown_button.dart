@@ -67,10 +67,13 @@ class BrownButton extends StatelessWidget {
   Widget _buildLeftIcon() {
     if (model?.leftIconPath?.startsWith('circle_icon:') ?? false) {
       final iconName = model!.leftIconPath!.split(':')[1];
-      return CircleIconContainer(
-        icon: _getIconData(iconName),
-        iconColor: AppColors.brown,
-        size: model!.leftIconSize ?? 38.0,  // Use the model's size
+      return Transform.translate(
+        offset: const Offset(0, 0),  // Changed from -3 to 3 to move right
+        child: CircleIconContainer(
+          icon: _getIconData(iconName),
+          iconColor: AppColors.brown,
+          size: model!.leftIconSize ?? 38.0,
+        ),
       );
     }
     return Image.asset(
@@ -124,8 +127,17 @@ class BrownButton extends StatelessWidget {
         return Icons.arrow_forward_ios;
       case 'pets':
         return Icons.pets;
+      case 'my_location':
+        return Icons.my_location;
+      case 'place':
+        return Icons.place;
+      case 'close':
+        return Icons.close;  // Added close icon
       default:
         return Icons.error;
     }
   }
 }
+
+
+
