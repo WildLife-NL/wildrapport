@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DamageTypeDropdown extends StatefulWidget {
-  const DamageTypeDropdown({super.key});
+  final ValueChanged<String>? onChanged; // 🔥 <-- Added
+
+  const DamageTypeDropdown({super.key, this.onChanged});
 
   @override
   State<DamageTypeDropdown> createState() => _CustomDropdownState();
@@ -25,9 +27,7 @@ class _CustomDropdownState extends State<DamageTypeDropdown> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Getroffen Gebied',
-              ),
+              const Text('Getroffen Gebied'),
               const SizedBox(width: 10),
               Container(
                 width: 150,
@@ -62,9 +62,12 @@ class _CustomDropdownState extends State<DamageTypeDropdown> {
                           fontSize: 18,
                         ),
                         onChanged: (String? newValue) {
-                          setState(() {
-                            selectedValue = newValue!;
-                          });
+                          if (newValue != null) {
+                            setState(() {
+                              selectedValue = newValue;
+                            });
+                            widget.onChanged?.call(newValue); // 🔥 Callback fired
+                          }
                         },
                         items: dropdownItems.map((item) {
                           return DropdownMenuItem<String>(

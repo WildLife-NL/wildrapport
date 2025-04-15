@@ -4,12 +4,14 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/beta_models/possesion_damage_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
-import 'package:wildrapport/screens/gewasschade_animal_screen.dart';
+import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/report_button.dart';
 
@@ -43,7 +45,10 @@ class _RapporterenState extends State<Rapporteren> {
         break;
       case 'Gewasschade':
         selectedReportType = ReportType.gewasschade;
-        nextScreen = GewasschadeAnimalScreen(appBarTitle: reportType);
+        nextScreen = ChangeNotifierProvider(
+          create: (_) => PossesionDamageModel(),
+          child: PossesionDamagesScreen(),
+        );
         break;
       case 'Diergezondheid':
         selectedReportType = ReportType.verkeersongeval;

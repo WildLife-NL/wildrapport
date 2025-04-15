@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 
 class SuspectedAnimal extends StatefulWidget{
@@ -9,6 +12,17 @@ class SuspectedAnimal extends StatefulWidget{
 }
 
 class _SuspectedAnimalState extends State<SuspectedAnimal> {
+
+  Future<dynamic> pressed(String animalType){
+    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    formProvider.setSuspectedAnimal(animalType);
+    return Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GewasschadeAnimalScreen(appBarTitle: 'Kies Dier'),
+                ),
+              );
+  }
 
   @override
   Widget build(BuildContext context){
@@ -26,6 +40,7 @@ return Center(
               image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 63,
               width: 200,
+              onPressed: () => pressed("Onbekend"),
               ),
               SizedBox(height: 24),
               _buildButton(
@@ -33,6 +48,7 @@ return Center(
               image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 63,
               width: 277,
+              onPressed: () => pressed("Vogels"),
               ),
               SizedBox(height: 24),
               _buildButton(
@@ -40,6 +56,7 @@ return Center(
               image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
+              onPressed: () => pressed("Knaagdieren"),
               ),
               SizedBox(height: 24),
               _buildButton(
@@ -47,6 +64,7 @@ return Center(
               image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
+              onPressed: () => pressed("Evenhoevigen"),
               ),
           ],
         )
