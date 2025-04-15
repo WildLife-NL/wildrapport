@@ -13,18 +13,18 @@ class GewasschadeDetails extends StatefulWidget {
 
 class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   final TextEditingController _responseController = TextEditingController();
-
   double currentDamage = 0;
   double expectedDamage = 0;
 
   @override
   Widget build(BuildContext context) {
     final formProvider = Provider.of<PossesionDamageFormProvider>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DamageTypeDropdown(
-          onChanged: (value) => formProvider.setImpactedAreaType(value),        ),
+          onChanged: (value) => formProvider.setImpactedAreaType(value)),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -45,8 +45,8 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         const SizedBox(height: 30),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: const Text(
-            "Intensiteit schade op dit moment",
+          child: Text(
+            "Intensiteit schade op dit moment: ${formProvider.currentDamage.round()}%",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -58,14 +58,14 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
             min: 0,
             max: 100,
             divisions: 100,
-            label: currentDamage.round().toString(),
+            label: formProvider.currentDamage.round().toString(),
             activeColor: AppColors.brown,
           ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: const Text(
-            "Verwachte schade in de toekomst",
+          child: Text(
+            "Verwachte schade in de toekomst: ${formProvider.expectedDamage.round()}%",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -77,7 +77,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
             min: 0,
             max: 100,
             divisions: 100,
-            label: expectedDamage.round().toString(),
+            label: formProvider.expectedDamage.round().toString(),
             activeColor: AppColors.brown,
           ),
         ),
@@ -86,7 +86,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: TextField(
             onChanged: (val) => formProvider.setDescription(val),
-            maxLines: 5, // You can increase or make null for expanding
+            maxLines: 5, 
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,

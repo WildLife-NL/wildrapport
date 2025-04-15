@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DamageTypeDropdown extends StatefulWidget {
-  final ValueChanged<String>? onChanged; // 🔥 <-- Added
+  final ValueChanged<String>? onChanged; 
 
   const DamageTypeDropdown({super.key, this.onChanged});
 
@@ -66,7 +66,7 @@ class _CustomDropdownState extends State<DamageTypeDropdown> {
                             setState(() {
                               selectedValue = newValue;
                             });
-                            widget.onChanged?.call(newValue); // 🔥 Callback fired
+                            widget.onChanged?.call(newValue);
                           }
                         },
                         items: dropdownItems.map((item) {

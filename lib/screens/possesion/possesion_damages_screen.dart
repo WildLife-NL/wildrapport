@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_model.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -75,6 +72,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,
               showNextButton: currentIndex < 1,
+              showBackButton: currentIndex > 0,
         ),
           ],
         )

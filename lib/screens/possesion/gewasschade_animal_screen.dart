@@ -8,8 +8,6 @@ import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/widgets/animal_grid.dart';
-import 'package:lottie/lottie.dart';
 import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 
 class GewasschadeAnimalScreen extends StatefulWidget {
@@ -72,7 +70,8 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
     // TODO: Implement gewasschade specific animal selection logic
-    debugPrint('[GewasschadeAnimalScreen] Selected animal: ${selectedAnimal.animalName}');
+    debugPrint('[GewasschadeAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
+    debugPrint('[GewasschadeAnimalScreen] Selected animal ID: ');
   }
 
 void _buildReportTest(){
