@@ -8,6 +8,7 @@ import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/gewasschade_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/report_button.dart';
@@ -42,11 +43,11 @@ class _RapporterenState extends State<Rapporteren> {
         break;
       case 'Gewasschade':
         selectedReportType = ReportType.gewasschade;
-        nextScreen = AnimalsScreen(appBarTitle: reportType);
+        nextScreen = GewasschadeAnimalScreen(appBarTitle: reportType);
         break;
       case 'Diergezondheid':
         selectedReportType = ReportType.verkeersongeval;
-        nextScreen =  AnimalsScreen(appBarTitle: reportType);
+        nextScreen = AnimalsScreen(appBarTitle: reportType);
         break;
       default:
         throw Exception('Unknown report type: $reportType');
@@ -137,6 +138,7 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
 
 
 

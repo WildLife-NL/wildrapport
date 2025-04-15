@@ -12,6 +12,7 @@ import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
@@ -167,71 +168,22 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
                 context: context,
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: _buildContent(),
-              ),
+            ScrollableAnimalGrid(
+              animals: _animals,  // Pass directly without the ?? []
+              isLoading: _isLoading,
+              error: _error,
+              scrollController: _scrollController,
+              onAnimalSelected: _handleAnimalSelection,
+              onRetry: _loadAnimals,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (_isLoading) {
-      return Center(
-        child: SizedBox(
-          width: 200,
-          height: 200,
-          child: Lottie.asset(
-            'assets/loaders/loading_paw.json',
-            fit: BoxFit.contain,
-            repeat: true,
-            animate: true,
-            frameRate: FrameRate(60),
-            controller: _animationController,
-            onLoaded: (composition) {
-              _animationController.duration = composition.duration;
-              _animationController.repeat(); // Start repeating animation after composition is loaded
-            },
-          ),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Error: $_error'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadAnimals,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_animals == null || _animals!.isEmpty) {
-      return const Center(
-        child: Text('No animals found'),
-      );
-    }
-
-    return SingleChildScrollView(
-      controller: _scrollController,
-      child: AnimalGrid(
-        animals: _animals!,
-        onAnimalSelected: _handleAnimalSelection,
       ),
     );
   }
 }
+
+
 
 
 
