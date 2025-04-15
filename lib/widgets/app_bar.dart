@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class CustomAppBar extends StatelessWidget {
   final IconData? leftIcon;
@@ -22,6 +24,10 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final appStateProvider = context.watch<AppStateProvider>();
+    
+    // Use the report type's display text if available, otherwise use provided centerText
+    final displayText = appStateProvider.currentReportType?.displayText ?? centerText ?? '';
     
     // Calculate responsive dimensions
     final double barHeight = screenSize.height * 0.05; // 5% of screen height
@@ -77,7 +83,7 @@ class CustomAppBar extends StatelessWidget {
             flex: 2,
             child: Center(
               child: Text(
-                centerText ?? '',
+                displayText,
                 style: TextStyle(
                   color: AppColors.brown,
                   fontSize: finalFontSize,
@@ -118,6 +124,7 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 }
+
 
 
 

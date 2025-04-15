@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/models/beta_models/accident_report_model.dart';
+import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
+import 'package:wildrapport/models/beta_models/possesion_model.dart';
+import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 
 class AppStateProvider with ChangeNotifier {
   final Map<String, Map<String, dynamic>> _screenStates = {};
   final Map<String, dynamic> _activeReports = {};
+  ReportType? _currentReportType;
+
+  ReportType? get currentReportType => _currentReportType;
 
   void setScreenState(String screenName, String key, dynamic value) {
     if (value == null) {
@@ -40,11 +48,23 @@ class AppStateProvider with ChangeNotifier {
   }
 
 
-  void initializeReport(String reportType) {
+  void initializeReport(ReportType reportType) {
+    _currentReportType = reportType;
     final report = switch (reportType) {
-      _ => throw Exception('Unknown report type: $reportType'),
+      ReportType.waarneming => SightingReport(animals: [], systemDateTime: DateTime.now()),
+      ReportType.gewasschade => PossesionDamageReport(
+        possesion: Possesion(possesionName: ''),
+        impactedAreaType: 'hectare',
+        impactedArea: 0.0,
+        currentImpactDamages: '0',
+        estimatedTotalDamages: '0',
+        systemDateTime: DateTime.now(),
+      ),
+      ReportType.verkeersongeval => AccidentReport(),
     };
     
+    _activeReports['currentReport'] = report;
+    notifyListeners();
   }
 
   T? getCurrentReport<T>() {
@@ -62,6 +82,7 @@ class AppStateProvider with ChangeNotifier {
   void resetApplicationState(BuildContext context, {Widget? destination}) {
     _screenStates.clear();
     _activeReports.clear();
+    _currentReportType = null;
     notifyListeners();
   }
 
@@ -71,6 +92,10 @@ class AppStateProvider with ChangeNotifier {
     super.dispose();
   }
 }
+
+
+
+
 
 
 

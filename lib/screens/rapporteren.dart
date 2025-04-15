@@ -4,6 +4,8 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
@@ -28,53 +30,33 @@ class _RapporterenState extends State<Rapporteren> {
     });
     
     final navigationManager = context.read<NavigationStateInterface>();
+    final appStateProvider = context.read<AppStateProvider>();
     
-    if (reportType == 'animalSightingen') {
-      debugPrint('[Rapporteren] Starting animalSighting report creation process');
-      
-      try {
-        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-        
-        // Create the animal sighting before navigation
-        animalSightingManager.createanimalSighting();
-        
-        // Then navigate
-        navigationManager.pushReplacementForward(
-          context,
-          const AnimalConditionScreen(),
-        );
-        
-      } catch (e, stackTrace) {
-        debugPrint('[Rapporteren] ERROR: Failed to create animalSighting report');
-        debugPrint('[Rapporteren] Error details: $e');
-        debugPrint('[Rapporteren] Stack trace: $stackTrace');
-        
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Error'),
-                content: const Text('Failed to create observation report. Please try again.'),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      navigationManager.pushReplacementBack(context, const Rapporteren());
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
-    } else {
-      navigationManager.pushReplacementForward(
-        context,
-        AnimalsScreen(appBarTitle: reportType),
-      );
+    ReportType selectedReportType;
+    Widget nextScreen;
+
+    switch (reportType) {
+      case 'animalSightingen':
+        selectedReportType = ReportType.waarneming;
+        nextScreen = const AnimalConditionScreen();
+        break;
+      case 'Gewasschade':
+        selectedReportType = ReportType.gewasschade;
+        nextScreen = AnimalsScreen(appBarTitle: reportType);
+        break;
+      case 'Diergezondheid':
+        selectedReportType = ReportType.verkeersongeval;
+        nextScreen =  AnimalsScreen(appBarTitle: reportType);
+        break;
+      default:
+        throw Exception('Unknown report type: $reportType');
     }
+
+    // Initialize the report in the app state
+    appStateProvider.initializeReport(selectedReportType);
+
+    // Navigate to the next screen
+    navigationManager.pushReplacementForward(context, nextScreen);
   }
 
   void _handleBackNavigation(BuildContext context) {
@@ -155,6 +137,7 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
 
 
 

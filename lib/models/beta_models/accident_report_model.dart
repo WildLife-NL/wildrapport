@@ -2,28 +2,22 @@ import 'package:wildrapport/interfaces/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/beta_models/sighted_animal_model.dart';
 
-class AccidentReport implements Reportable{
-  final String? accidentReportID;
-  final String? description;
-  final String damages;
-  final List<SightedAnimal>? animals;
-  final ReportLocation? userSelectedLocation;
-  final ReportLocation? systemLocation;
-  final DateTime? userSelectedDateTime;
-  final DateTime systemDateTime;
+class AccidentReport implements Reportable {
+  String? accidentReportID;
+  String? description;
+  String damages;
+  List<SightedAnimal>? animals;
+  ReportLocation? userSelectedLocation;
+  ReportLocation? systemLocation;
+  DateTime? userSelectedDateTime;
+  DateTime systemDateTime;
 
-  AccidentReport({
-    this.accidentReportID,
-    this.description,
-    required this.damages,
-    this.animals,
-    this.userSelectedLocation,
-    this.systemLocation,
-    this.userSelectedDateTime,
-    required this.systemDateTime,
-  });
-    @override
-    Map<String, dynamic> toJson() {
+  AccidentReport() :
+    damages = "0",
+    animals = [],
+    systemDateTime = DateTime.now();
+  @override
+  Map<String, dynamic> toJson() {
     List<dynamic>? listAnimals;
     listAnimals = List<dynamic>.from(animals!.map((x) => x.toJson()));
     dynamic jsonUserSelectedLocation = userSelectedLocation!.toJson();
@@ -40,15 +34,19 @@ class AccidentReport implements Reportable{
       "animals": listAnimals,
     };
   }
-  factory AccidentReport.fromJson(Map<String, dynamic> json) => AccidentReport(
-      accidentReportID: json["accidentReportID"],
-      description: json["description"],
-      damages: json["damages"],
-      userSelectedLocation: json["userSelectedLocation"] = ReportLocation.fromJson(json["userSelectedLocation"]),
-      systemLocation: json["systemLocation"] = ReportLocation.fromJson(json["systemLocation"]),
-      userSelectedDateTime: json["userSelectedDateTime"],
-      systemDateTime: json["systemDateTime"],
-      animals: json["animals"] = List<SightedAnimal>.from(
-        json["animals"].map((x) => SightedAnimal.fromJson(x))),
-    );
+
+  factory AccidentReport.fromJson(Map<String, dynamic> json) {
+    final report = AccidentReport();
+    report.accidentReportID = json["accidentReportID"];
+    report.description = json["description"];
+    report.damages = json["damages"];
+    report.userSelectedLocation = ReportLocation.fromJson(json["userSelectedLocation"]);
+    report.systemLocation = ReportLocation.fromJson(json["systemLocation"]);
+    report.userSelectedDateTime = json["userSelectedDateTime"];
+    report.systemDateTime = json["systemDateTime"];
+    report.animals = List<SightedAnimal>.from(
+      json["animals"].map((x) => SightedAnimal.fromJson(x)));
+    return report;
+  }
 }
+
