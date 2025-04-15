@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
@@ -59,7 +57,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: "Vragenlijst",
+              centerText: "Gewasschade",
               rightIcon: Icons.menu,
               onLeftIconPressed: () => Navigator.push(
                 context,

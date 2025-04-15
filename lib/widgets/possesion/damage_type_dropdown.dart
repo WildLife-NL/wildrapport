@@ -22,10 +22,13 @@ class _CustomDropdownState extends State<DamageTypeDropdown> {
       children: [
         Row(
           children: [
-            const Text('Getroffen Gebied'),
+            const Text(
+              'Getroffen Gebied',
+            ),
             const SizedBox(width: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              width: 120,
               decoration: BoxDecoration(
                 color: const Color(0xFF6C452D), // Brown background
                 borderRadius: BorderRadius.circular(30),

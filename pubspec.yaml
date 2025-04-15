@@ -91,6 +91,7 @@ flutter:
     - assets/icons/gender/female_gender.png
     - assets/icons/gender/male_gender.png
     - assets/icons/gender/unknown_gender.png
+    - assets/icons/possesion/impacted_area_type.png
     - .env
 
     

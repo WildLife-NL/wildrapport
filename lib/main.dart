@@ -35,6 +35,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 
@@ -126,7 +127,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Rapporteren(),
+      home: const PossesionDamagesScreen(),
     );
   }
 }

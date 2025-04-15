@@ -17,14 +17,7 @@ class _gewasschadeDetailsState extends State<GewasschadeDetails>{
   Widget build(BuildContext context){
     return Column(
       children: [
-        Row(
-          children: [
-            Text(
-              'Getroffen Gebied'
-            ),
-            DamageTypeDropdown(),
-          ],
-        ),
+        DamageTypeDropdown(),
         TextField(
           controller: _responseController,
           decoration: InputDecoration(
