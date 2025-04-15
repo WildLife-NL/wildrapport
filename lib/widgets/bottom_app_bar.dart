@@ -3,16 +3,16 @@ import 'package:wildrapport/constants/app_colors.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final VoidCallback onBackPressed;
-  final VoidCallback? onNextPressed;  // Make optional
+  final VoidCallback? onNextPressed;
   final bool showNextButton;
-  final bool showBackButton;  // New parameter
+  final bool showBackButton;
 
   const CustomBottomAppBar({
     super.key,
     required this.onBackPressed,
-    this.onNextPressed,  // Remove required
+    this.onNextPressed,
     this.showNextButton = true,
-    this.showBackButton = true,  // Default to true for backward compatibility
+    this.showBackButton = true,
   });
 
   void _handleBackPress() {
@@ -22,7 +22,7 @@ class CustomBottomAppBar extends StatelessWidget {
 
   void _handleNextPress() {
     debugPrint('CustomBottomAppBar: Next button pressed');
-    onNextPressed?.call();  // Use safe call
+    onNextPressed?.call();
   }
 
   @override
@@ -48,6 +48,7 @@ class CustomBottomAppBar extends StatelessWidget {
 
     return Container(
       height: finalHeight,
+      color: Colors.transparent, // Make container background transparent
       child: SafeArea(
         child: Row(
           mainAxisAlignment: showNextButton && showBackButton
@@ -56,7 +57,6 @@ class CustomBottomAppBar extends StatelessWidget {
                   ? MainAxisAlignment.end
                   : MainAxisAlignment.start,
           children: [
-            // Back button
             if (showBackButton)
               GestureDetector(
                 onTap: _handleBackPress,
@@ -96,8 +96,6 @@ class CustomBottomAppBar extends StatelessWidget {
                   ),
                 ),
               ),
-            
-            // Next button
             if (showNextButton)
               GestureDetector(
                 onTap: _handleNextPress,
@@ -143,6 +141,7 @@ class CustomBottomAppBar extends StatelessWidget {
     );
   }
 }
+
 
 
 

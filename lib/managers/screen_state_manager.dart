@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
 abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> implements ScreenStateInterface {
@@ -59,7 +60,7 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
 
   // Report handling methods
   void initializeReportFlow(String reportType) {
-    context.read<AppStateProvider>().initializeReport(reportType);
+    context.read<AppStateProvider>().initializeReport(reportType as ReportType);
   }
 
   T? getCurrentReport<T>() {

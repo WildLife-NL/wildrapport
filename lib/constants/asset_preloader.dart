@@ -32,6 +32,7 @@ class AssetPreloader {
       'assets/icons/rapporteren/health_icon.png',
       'assets/icons/rapporteren/sighting_icon.png',
       'assets/icons/rapporteren/accident_icon.png',
+      'assets/location/location_icon.png',
     ];
 
     // Pre-create image providers for better caching

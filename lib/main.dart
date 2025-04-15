@@ -12,6 +12,7 @@ import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
@@ -21,6 +22,7 @@ import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
+import 'package:wildrapport/managers/location_screen_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
@@ -63,6 +65,8 @@ void main() async {
   
   final animalSightingReportingManager = AnimalSightingReportingManager();
   
+  final locationScreenManager = LocationScreenManager();
+  
   runApp(
     MultiProvider(
       providers: [
@@ -89,6 +93,9 @@ void main() async {
         ),
         Provider<NavigationStateInterface>(
           create: (context) => NavigationStateManager(),
+        ),
+        Provider<LocationScreenInterface>(
+          create: (_) => locationScreenManager,
         ),
       ],
       child: const MyApp(),
@@ -128,7 +135,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Rapporteren(),
+      home: const LocationScreen(),
     );
   }
 }
