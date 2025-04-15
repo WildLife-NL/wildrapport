@@ -44,16 +44,15 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    // First, get the questionnaire
+    //Get Questionnaires, currently unused
     final questionnaire = await _questionnaireManager.getQuestionnaire();
     
-    // Now, build the questionnaire layout (async operation)
+    // Building the questionnaire list, based on the types of questions
     final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayout(
       nextScreen,
       previousScreen,
     );
 
-    // After the async operations are complete, update the state
     setState(() {
       questionnaireScreensList = questionnaireScreens;
     });

@@ -1,29 +1,29 @@
 class ReportLocation {
-  final double? coordinate1;
-  final double? coordinate2;
+  final double? latitude;
+  final double? longtitude;
   final String? cityName;
   final String? streetName;
   final String? houseNumber;
 
   ReportLocation({
-    this.coordinate1,
-    this.coordinate2,
+    this.latitude,
+    this.longtitude,
     this.cityName,
     this.streetName,
     this.houseNumber,
   });
 
   Map<String, dynamic> toJson() => {
-    'coordinate1': coordinate1,
-    'coordinate2': coordinate2,
+    'latitude': latitude,
+    'longtitude': longtitude,
     'cityName': cityName,
     'streetName': streetName,
     'houseNumber': houseNumber,
   };
 
   factory ReportLocation.fromJson(Map<String, dynamic> json) => ReportLocation(
-    coordinate1: json['coordinate1'],
-    coordinate2: json['coordinate2'],
+    latitude: json['latitude'],
+    longtitude: json['longtitude'],
     cityName: json['cityName'],
     streetName: json['streetName'],
     houseNumber: json['houseNumber'],

@@ -15,6 +15,7 @@ import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
+import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
@@ -23,6 +24,7 @@ import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
+import 'package:wildrapport/managers/possesion_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
@@ -33,7 +35,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/screens/questionnaire_screen.dart';
+import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 
 void main() async {
@@ -74,6 +76,7 @@ void main() async {
         Provider<AnimalManagerInterface>.value(value: animalManager),
         Provider<FilterInterface>.value(value: filterManager),
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
+        Provider<PossesionInterface>.value(value: PossesionManager()),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
