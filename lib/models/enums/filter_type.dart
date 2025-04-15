@@ -1,6 +1,5 @@
 enum FilterType {
   none('Filteren', 'circle_icon:filter_list'),
-  category('Categorieën', 'circle_icon:category'),
   alphabetical('Alfabetisch', 'circle_icon:sort_by_alpha'),
   mostViewed('Meest bekeken', 'circle_icon:visibility'),
   search('Zoeken', 'circle_icon:search');
@@ -10,4 +9,5 @@ enum FilterType {
 
   const FilterType(this.displayText, this.iconPath);
 }
+
 

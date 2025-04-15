@@ -3,25 +3,25 @@ import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 
-class FilterManager implements CategoryInterface, FilterInterface, SortInterface {
+class FilterManager implements FilterInterface, SortInterface {
   static final List<BrownButtonModel> _filterOptions = [
     BrownButtonModel(
       text: FilterType.alphabetical.displayText,
-      leftIconPath: 'circle_icon:sort_by_alpha',  // Using Flutter icon
+      leftIconPath: 'circle_icon:sort_by_alpha',
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
     ),
     BrownButtonModel(
       text: FilterType.mostViewed.displayText,
-      leftIconPath: 'circle_icon:visibility',  // Using Flutter icon
+      leftIconPath: 'circle_icon:visibility',
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
     ),
     BrownButtonModel(
       text: FilterType.search.displayText,
-      leftIconPath: 'circle_icon:search',  // Using Flutter icon
+      leftIconPath: 'circle_icon:search',
       leftIconSize: 38.0,
       rightIconSize: 24.0,
       leftIconPadding: 5,
@@ -36,8 +36,7 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
     }
     
     return _filterOptions.where((filter) =>
-      filter.text != currentFilter &&
-      !getAnimalCategories().any((category) => category['text'] == currentFilter)
+      filter.text != currentFilter
     ).toList();
   }
 
@@ -105,6 +104,7 @@ class FilterManager implements CategoryInterface, FilterInterface, SortInterface
     }).toList();
   }
 }
+
 
 
 

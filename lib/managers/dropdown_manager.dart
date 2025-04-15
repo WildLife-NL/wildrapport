@@ -26,13 +26,6 @@ class DropdownManager implements DropdownInterface {
     required Function(String) onOptionSelected,
     required BuildContext context,
   }) {
-    final bool isShowingCategories = selectedValue == FilterType.category.displayText ||
-                                   (_filterManager as CategoryInterface).getAnimalCategories()
-                                       .any((category) => category['text'] == selectedValue);
-
-    // Remove the condition that was hiding the arrow
-    final bool shouldShowRightIcon = true;  // Always show the arrow
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -51,31 +44,14 @@ class DropdownManager implements DropdownInterface {
         ),
         if (isExpanded) ...[
           const SizedBox(height: 8),
-          if (isShowingCategories)
-            _buildCategoryOptions(onOptionSelected, onExpandChanged)
-          else
-            ..._buildFilterOptions(
-              selectedValue: selectedValue,
-              onOptionSelected: onOptionSelected,
-              onExpandChanged: onExpandChanged,
-              context: context,
-            ),
+          ..._buildFilterOptions(
+            selectedValue: selectedValue,
+            onOptionSelected: onOptionSelected,
+            onExpandChanged: onExpandChanged,
+            context: context,
+          ),
         ],
       ],
-    );
-  }
-
-  Widget _buildCategoryOptions(
-    Function(String) onOptionSelected,
-    Function(bool) onExpandChanged,
-  ) {
-    return CategoryFilterOptions(
-      items: (_filterManager as CategoryInterface).getAnimalCategories(),
-      onCategorySelected: (category) {
-        onOptionSelected(category);
-        onExpandChanged(false);
-      },
-      onBackPressed: () => onOptionSelected(FilterType.none.displayText),
     );
   }
 
@@ -83,11 +59,10 @@ class DropdownManager implements DropdownInterface {
     required String selectedValue,
     required Function(String) onOptionSelected,
     required Function(bool) onExpandChanged,
-    required BuildContext context,  // Add context parameter here
+    required BuildContext context,
   }) {
     final List<Widget> options = [];
 
-    // Add filter options
     options.addAll(
       _filterManager.getAvailableFilters(selectedValue)
           .map((filterModel) {
@@ -113,7 +88,7 @@ class DropdownManager implements DropdownInterface {
                       Padding(
                         padding: const EdgeInsets.only(left: 6),
                         child: CircleIconContainer(
-                          icon: Icons.search,  // Using Flutter's built-in search icon
+                          icon: Icons.search,
                           iconColor: AppColors.brown,
                         ),
                       ),
@@ -145,14 +120,8 @@ class DropdownManager implements DropdownInterface {
               child: BrownButton(
                 model: filterModel,
                 onPressed: () {
-                  if (filterModel.text == FilterType.mostViewed.displayText) {
-                    return;
-                  }
-                  
                   onOptionSelected(filterModel.text ?? '');
-                  if (filterModel.text != FilterType.category.displayText) {
-                    onExpandChanged(false);
-                  }
+                  onExpandChanged(false);
                 },
               ),
             );
@@ -160,27 +129,21 @@ class DropdownManager implements DropdownInterface {
           .toList(),
     );
 
-    // Only show reset when a filter is actually selected
-    final bool shouldShowReset = selectedValue != FilterType.none.displayText && 
-                                selectedValue != 'Filteren' &&
-                                selectedValue != 'Filter' &&
-                                selectedValue.isNotEmpty &&
-                                !_filterManager.getAvailableFilters(selectedValue)
-                                    .any((filter) => filter.text == selectedValue);
-
-    if (shouldShowReset) {
+    if (selectedValue != FilterType.none.displayText && 
+        selectedValue != 'Filteren' &&
+        selectedValue.isNotEmpty) {
       options.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: BrownButton(
             model: BrownButtonModel(
               text: 'Reset filter',
-              leftIconPath: 'circle_icon:restart_alt',  // Changed from PNG to Flutter icon
+              leftIconPath: 'circle_icon:restart_alt',
               leftIconSize: 38.0,
             ),
             onPressed: () {
               onOptionSelected(FilterType.none.displayText);
-              onExpandChanged(false);  // Close the dropdown after reset
+              onExpandChanged(false);
             },
           ),
         ),
@@ -195,18 +158,6 @@ class DropdownManager implements DropdownInterface {
       return FilterType.none.iconPath;
     }
 
-    // Check for categories first
-    final categories = (_filterManager as CategoryInterface).getAnimalCategories();
-    final selectedCategory = categories.firstWhere(
-      (category) => category['text'] == selectedValue,
-      orElse: () => {'icon': ''},
-    );
-
-    if (selectedCategory['icon']?.isNotEmpty ?? false) {
-      return selectedCategory['icon']!;
-    }
-
-    // Handle filter types
     final filterType = FilterType.values.firstWhere(
       (type) => type.displayText == selectedValue,
       orElse: () => FilterType.none,
@@ -320,6 +271,7 @@ class DropdownManager implements DropdownInterface {
     }
   }
 }
+
 
 
 
