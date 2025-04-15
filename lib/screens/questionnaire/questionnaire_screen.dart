@@ -20,7 +20,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   void initState() {
     super.initState();
     _questionnaireManager = context.read<QuestionnaireInterface>();
-    _loadQuestionnaire(); // Call this asynchronously
+    _loadQuestionnaire(); 
   }
 
   void nextScreen() {
