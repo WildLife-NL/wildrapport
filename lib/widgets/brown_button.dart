@@ -21,7 +21,7 @@ class BrownButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.brown,
+          backgroundColor: model?.backgroundColor ?? AppColors.brown,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
             vertical: 0,
@@ -138,6 +138,7 @@ class BrownButton extends StatelessWidget {
     }
   }
 }
+
 
 
 

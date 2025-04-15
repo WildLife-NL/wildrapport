@@ -11,6 +11,8 @@ class AppColors {
   static const Color lightMintGreen = Color(0xFFE3F5E4);
   static const Color offWhite = Color(0xFFFFFFFc);
   static const Color lightMintGreen100 = Color(0xFFE3F5E4);
+  static const Color timber300 = Color(0xFF88C0A8);  // Renamed to timber300
 }
+
 
 

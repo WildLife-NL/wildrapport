@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class BrownButtonModel {
   // Default values
   static const double DEFAULT_BUTTON_HEIGHT = 48.0;
@@ -14,6 +16,7 @@ class BrownButtonModel {
   double? _width;
   double? _fontSize;
   double? _leftIconPadding;
+  Color? _backgroundColor;
 
   // Constructor
   BrownButtonModel({
@@ -26,6 +29,7 @@ class BrownButtonModel {
     double? width,
     double? fontSize,
     double? leftIconPadding,
+    Color? backgroundColor,
   })  : _text = text,
         _rightIconPath = rightIconPath,
         _leftIconPath = leftIconPath,
@@ -34,7 +38,8 @@ class BrownButtonModel {
         _height = height ?? DEFAULT_BUTTON_HEIGHT,
         _width = width,
         _fontSize = fontSize,
-        _leftIconPadding = leftIconPadding ?? DEFAULT_LEFT_ICON_PADDING;
+        _leftIconPadding = leftIconPadding ?? DEFAULT_LEFT_ICON_PADDING,
+        _backgroundColor = backgroundColor;
 
   // Getters
   String? get text => _text;
@@ -46,6 +51,7 @@ class BrownButtonModel {
   double? get width => _width;
   double? get fontSize => _fontSize;
   double? get leftIconPadding => _leftIconPadding;
+  Color? get backgroundColor => _backgroundColor;
 
   // Setters
   set text(String? value) => _text = value;
@@ -57,6 +63,7 @@ class BrownButtonModel {
   set width(double? value) => _width = value;
   set fontSize(double? value) => _fontSize = value;
   set leftIconPadding(double? value) => _leftIconPadding = value;
+  set backgroundColor(Color? value) => _backgroundColor = value;
 
   // Convert model to Map
   Map<String, dynamic> toMap() {
@@ -70,6 +77,7 @@ class BrownButtonModel {
       'width': _width,
       'fontSize': _fontSize,
       'leftIconPadding': _leftIconPadding,
+      'backgroundColor': _backgroundColor,
     };
   }
 
@@ -85,6 +93,7 @@ class BrownButtonModel {
       width: map['width'],
       fontSize: map['fontSize'],
       leftIconPadding: map['leftIconPadding'],
+      backgroundColor: map['backgroundColor'],
     );
   }
 
@@ -94,6 +103,7 @@ class BrownButtonModel {
     return 'DropdownModel(text: $_text, rightIconPath: $_rightIconPath, leftIconPath: $_leftIconPath)';
   }
 }
+
 
 
 

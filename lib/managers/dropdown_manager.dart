@@ -237,6 +237,7 @@ class DropdownManager implements DropdownInterface {
             leftIconSize: 38.0,
             rightIconSize: 38.0,
             leftIconPadding: 5,
+            backgroundColor: AppColors.brown,  // Now this will work
           ),
           onPressed: () => onExpandChanged(!isExpanded),
         ),
@@ -246,6 +247,7 @@ class DropdownManager implements DropdownInterface {
             selectedValue: selectedValue,
             onOptionSelected: onOptionSelected,
             onExpandChanged: onExpandChanged,
+            backgroundColor: AppColors.brown,  // Updated to timber300
           ),
         ],
       ],
@@ -263,6 +265,7 @@ class DropdownManager implements DropdownInterface {
     required String selectedValue,
     required Function(String) onOptionSelected,
     required Function(bool) onExpandChanged,
+    required Color backgroundColor,  // Add this parameter
   }) {
     return LocationType.values
         .where((type) => type.displayText != selectedValue)
@@ -274,7 +277,8 @@ class DropdownManager implements DropdownInterface {
             text: type.displayText,
             leftIconPath: type.iconPath,
             leftIconSize: 38.0,
-            leftIconPadding: 5,  // Add the same padding as the header button
+            leftIconPadding: 5,
+            backgroundColor: backgroundColor,  // Add this line
           ),
           onPressed: () {
             onOptionSelected(type.displayText);
@@ -316,6 +320,10 @@ class DropdownManager implements DropdownInterface {
     }
   }
 }
+
+
+
+
 
 
 
