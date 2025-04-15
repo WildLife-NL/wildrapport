@@ -18,44 +18,71 @@ class _CustomDropdownState extends State<DamageTypeDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            const Text(
-              'Getroffen Gebied',
-            ),
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              width: 120,
-              decoration: BoxDecoration(
-                color: const Color(0xFF6C452D), // Brown background
-                borderRadius: BorderRadius.circular(30),
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0, top: 10.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Getroffen Gebied',
               ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedValue,
-                  dropdownColor: const Color(0xFF6C452D),
-                  icon: const Icon(Icons.expand_less, color: Colors.white),
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedValue = newValue!;
-                    });
-                  },
-                  items: dropdownItems.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['value'],
-                      child: Text(item['text']!),
-                    );
-                  }).toList(),
+              const SizedBox(width: 10),
+              Container(
+                width: 150,
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6C452D),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Image.asset(
+                          "assets/icons/possesion/impacted_area_type.png",
+                          scale: 2,
+                        ),
+                      ],
+                    ),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedValue,
+                        isExpanded: true,
+                        icon: const Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(Icons.expand_less, color: Colors.white),
+                        ),
+                        dropdownColor: const Color(0xFF6C452D),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValue = newValue!;
+                          });
+                        },
+                        items: dropdownItems.map((item) {
+                          return DropdownMenuItem<String>(
+                            value: item['value'],
+                            child: Center(
+                              child: Text(item['text']!),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        )
-      ],
+            ],
+          )
+        ],
+      ),
     );
   }
 }

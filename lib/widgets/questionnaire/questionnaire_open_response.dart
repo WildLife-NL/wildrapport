@@ -58,12 +58,11 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               ),
             ),
           const SizedBox(height: 32),
-          // Single TextField for open response
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: TextField(
               controller: _responseController,
-              maxLines: 10,  // Adjust this for the number of lines you want
+              maxLines: 10,  
               decoration: InputDecoration(
                 hintText: 'Schrijf hier uw antwoord...',
                 border: OutlineInputBorder(
@@ -74,7 +73,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             ),
           ),
           Expanded(
-            child: Container(), // This will take up remaining space
+            child: Container(), 
           ),
           CustomBottomAppBar(
             onNextPressed: widget.onNextPressed,

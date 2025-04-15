@@ -44,9 +44,8 @@ class QuestionnaireWhiteButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Stack(
-              alignment: Alignment.topRight,  // Align the icon to the top-right
+              alignment: Alignment.topRight,
               children: [
-                // Centered Text
                 Center(
                   child: Text(
                     text,
@@ -65,11 +64,10 @@ class QuestionnaireWhiteButton extends StatelessWidget {
                       ),
                   ),
                 ),
-                // Positioned Icon in top-right corner
                 if (rightWidget != null)
                   Positioned(
-                    top: 4,  // Adjust the distance from the top
-                    right: 0,  // Adjust the distance from the right
+                    top: 4, 
+                    right: 0,  
                     child: rightWidget!,
                   ),
               ],
