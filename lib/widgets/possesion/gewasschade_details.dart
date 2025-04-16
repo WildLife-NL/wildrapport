@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/widgets/possesion/damage_type_dropdown.dart';
+import 'package:wildrapport/widgets/possesion/possesion_dropdown.dart';
 
 class GewasschadeDetails extends StatefulWidget {
   const GewasschadeDetails({super.key});
@@ -13,8 +13,6 @@ class GewasschadeDetails extends StatefulWidget {
 
 class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   final TextEditingController _responseController = TextEditingController();
-  double currentDamage = 0;
-  double expectedDamage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +21,37 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DamageTypeDropdown(
-          onChanged: (value) => formProvider.setImpactedAreaType(value)),
+        PossesionDropdown(
+          onChanged: (value) => formProvider.setImpactedCrop(value), 
+          getSelectedValue: formProvider.impactedCrop,
+          dropdownItems: [
+            {'text': 'Mais', 'value': 'mais'},
+            {'text': 'Bieten', 'value': 'bieten'},
+            {'text': 'Granen', 'value': 'granen'},
+            {'text': 'Bloementeelt', 'value': 'bloementeelt'},
+            {'text': 'Grasvelden', 'value': 'grasvelden'},
+            {'text': 'Boomteelt', 'value': 'boomteelt'},
+            {'text': 'Tuinbouw', 'value': 'tuinbouw'},
+          ],
+          containerHeight: 50,
+          containerWidth: 400,
+          startingValue: "mais",
+          hasDropdownSideDescription: false,
+        ),
+        const SizedBox(height: 10),
+        PossesionDropdown(
+          onChanged: (value) => formProvider.setImpactedAreaType(value), 
+          getSelectedValue: formProvider.impactedAreaType,
+          dropdownItems: [
+            {'text': 'ha', 'value': 'hectare'},
+            {'text': 'm2', 'value': 'vierkante meters'},
+            {'text': '%', 'value': 'percentage'},
+          ],
+          startingValue: "hectare",
+          hasDropdownSideDescription: true,
+          dropdownSideDescriptionText: "Getroffen Gebied",
+        ),
+          
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

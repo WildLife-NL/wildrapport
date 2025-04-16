@@ -7,6 +7,7 @@ import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 
@@ -72,12 +73,18 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
     // TODO: Implement gewasschade specific animal selection logic
     debugPrint('[GewasschadeAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
     debugPrint('[GewasschadeAnimalScreen] Selected animal ID: ');
+    Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LocationScreen(),
+                  ),
+                );
   }
 
 void _buildReportTest(){
     final provider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
     final report = PossesionDamageReport(
-      possesion: Possesion(possesionName: "grain"),
+      possesion: Possesion(possesionName: provider.impactedCrop),
       impactedAreaType: provider.impactedAreaType,
       impactedArea: double.tryParse(provider.impactedArea) ?? 0,
       currentImpactDamages: provider.currentDamage.toString(),
@@ -91,8 +98,8 @@ void _buildReportTest(){
     debugPrint("possesionName: ${report.possesion.possesionName}");
     debugPrint("impactedAreaType: ${report.impactedAreaType}");
     debugPrint("impactedArea: ${report.impactedArea}");
-    debugPrint("currentImpactDamages: ${report.currentImpactDamages}");
-    debugPrint("estimatedTotalDamages: ${report.estimatedTotalDamages}");
+    debugPrint("currentImpactDamages: ${report.currentImpactDamages}%");
+    debugPrint("estimatedTotalDamages: ${report.estimatedTotalDamages}%");
     debugPrint("description: ${report.decription}");
     debugPrint("sustpectedAnimalID: ${report.suspectedAnimalID}");
     debugPrint("systemDataTime: ${report.systemDateTime}");
@@ -103,7 +110,6 @@ void _buildReportTest(){
   @override
   Widget build(BuildContext context) {
     final dropdownInterface = context.read<DropdownInterface>();
-    
     return Scaffold(
       body: SafeArea(
         child: Column(

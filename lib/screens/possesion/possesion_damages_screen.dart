@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -51,6 +52,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
 
   @override
   Widget build(BuildContext context){
+    final provider = Provider.of<PossesionDamageFormProvider>(context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -59,12 +61,15 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
               leftIcon: Icons.arrow_back_ios,
               centerText: "Gewasschade",
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OverzichtScreen(),
-                ),
-              ),
+              onLeftIconPressed: () {
+                provider.clearStateOfValues();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OverzichtScreen(),
+                  ),
+                );
+              },
               onRightIconPressed: () {/* Handle menu */},
             ),
             Expanded(child: possesionDamagesWidgetList[currentIndex]),

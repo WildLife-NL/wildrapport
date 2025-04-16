@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 class PossesionDamageFormProvider extends ChangeNotifier {
+  String impactedCrop = '';
   double currentDamage = 0;
   double expectedDamage = 0;
   String impactedAreaType = '';
   String impactedArea = '';
   String description = '';
   String? suspectedAnimalID;
+  final greenLog = '\x1B[32m';
+
+  void setImpactedCrop(String value){
+    impactedCrop = value;
+    notifyListeners();
+  }
 
   void setCurrentDamage(double value) {
     currentDamage = value;
@@ -35,6 +42,17 @@ class PossesionDamageFormProvider extends ChangeNotifier {
 
   void setSuspectedAnimal(String value) {
     suspectedAnimalID = value;
+    notifyListeners();
+  }
+
+  void clearStateOfValues(){
+    debugPrint("$greenLog[PossesionDamageReportProvider]: Clearing Values!");
+    impactedCrop = '';
+    currentDamage = 0;
+    expectedDamage = 0;
+    impactedAreaType = '';
+    impactedArea = '';
+    description = '';
     notifyListeners();
   }
 }
