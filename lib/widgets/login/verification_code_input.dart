@@ -56,8 +56,18 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
       debugPrint("verified!!");
       verifiedUser = response;
 
-      // Wait for at least one full animation cycle
-      await Future.delayed(const Duration(milliseconds: 1500));
+      // Ensure animation plays at least one full cycle
+      if (_animationController.duration != null) {
+        // Reset animation to start
+        _animationController.reset();
+        // Start animation
+        _animationController.forward();
+        // Wait for one full cycle
+        await Future.delayed(_animationController.duration!);
+      } else {
+        // Fallback if animation duration isn't set
+        await Future.delayed(const Duration(milliseconds: 1500));
+      }
 
       if (context.mounted && verifiedUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -280,4 +290,5 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
     super.dispose();
   }
 }
+
 

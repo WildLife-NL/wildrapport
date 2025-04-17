@@ -73,6 +73,10 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager(prefs);
 
+  // Check for existing token
+  final String? token = await prefs.getString('bearer_token');
+  final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
+
   runApp(
     MultiProvider(
       providers: [
@@ -106,7 +110,7 @@ void main() async {
           create: (_) => permissionManager,
         ),
       ],
-      child: const MyApp(),
+      child: MyApp(initialScreen: initialScreen),
     ),
   );
 }
@@ -120,7 +124,9 @@ Future<String?> _getToken() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Widget initialScreen;
+  
+  const MyApp({super.key, required this.initialScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +149,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Rapporteren(),
+      home: const LoginScreen(),
     );
   }
 }

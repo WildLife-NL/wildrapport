@@ -43,6 +43,11 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
   }
 
   List<AnimalModel> _getFilteredAnimals(List<AnimalModel> animals) {
+    if (_currentSearchTerm?.isNotEmpty == true) {
+      // Apply search if there's a search term, regardless of filter
+      return _filterManager.searchAnimals(animals, _currentSearchTerm!);
+    }
+    
     if (_selectedFilter == FilterType.alphabetical.displayText) {
       return _filterManager.filterAnimalsAlphabetically(animals);
     } 
@@ -50,11 +55,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
       // Temporarily disabled - return unfiltered list
       return animals;
     }
-    else if (_selectedFilter == FilterType.search.displayText || _currentSearchTerm?.isNotEmpty == true) {
-      // Always apply search if there's a search term or if search filter is selected
-      final searchTerm = _currentSearchTerm ?? '';
-      return _filterManager.searchAnimals(animals, searchTerm);
-    }
+    
     return animals;
   }
 
@@ -75,7 +76,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
 
   void updateSearchTerm(String searchTerm) {
     _currentSearchTerm = searchTerm;
-    _notifyListeners();
+    _notifyListeners();  // Make sure this is called to trigger UI updates
   }
 
   @override
@@ -94,6 +95,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
 
 
 
