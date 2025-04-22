@@ -98,19 +98,21 @@ class _LocationScreenState extends State<LocationScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center, // Changed from start to center
                       children: [
-                        const SizedBox(height: 20),
-                        // Location section header
-                        Text(
-                          'Selecteer je locatie',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.brown,
+                        const SizedBox(height: 40), // Increased from 20
+                        // Location section header - centered and bigger
+                        Center( // Added Center widget
+                          child: Text(
+                            'Selecteer je locatie',
+                            style: TextStyle(
+                              fontSize: 24, // Increased from 18
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.brown,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 24), // Increased from 12
                         // Location dropdown
                         dropdownInterface.buildDropdown(
                           type: DropdownType.location,
@@ -120,7 +122,7 @@ class _LocationScreenState extends State<LocationScreen> {
                           onOptionSelected: _handleLocationSelection,
                           context: context,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 32), // Increased from 20
                         // Location display with map preview
                         Container(
                           decoration: BoxDecoration(
@@ -161,17 +163,17 @@ class _LocationScreenState extends State<LocationScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32), // Increased from 24
                         // Date & Time section header
                         Text(
                           'Datum en tijd',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 24, // Increased from 18
                             fontWeight: FontWeight.bold,
                             color: AppColors.brown,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 24), // Increased from 12
                         // DateTime dropdown
                         dropdownInterface.buildDropdown(
                           type: DropdownType.dateTime,
@@ -181,8 +183,8 @@ class _LocationScreenState extends State<LocationScreen> {
                           onOptionSelected: _handleDateTimeSelection,
                           context: context,
                         ),
-                        const SizedBox(height: 16),
-                        // Date and time cards
+                        const SizedBox(height: 24), // Increased from 16
+                        // Date and time cards remain the same...
                         Row(
                           children: [
                             Expanded(
@@ -327,5 +329,6 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
 
 
