@@ -54,15 +54,15 @@ class _LocationScreenState extends State<LocationScreen> {
     });
   }
 
-  void _toggleDateTimeExpanded() {
-    setState(() {
-      _isDateTimeExpanded = !_isDateTimeExpanded;
-    });
-  }
-
   void _handleLocationSelection(String location) {
     setState(() {
       _selectedLocation = location;
+    });
+  }
+
+  void _toggleDateTimeExpanded() {
+    setState(() {
+      _isDateTimeExpanded = !_isDateTimeExpanded;
     });
   }
 
@@ -329,6 +329,5 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
-
 
 
