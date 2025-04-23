@@ -316,7 +316,22 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   icon: Icons.check_circle,
                   label: 'Bevestig',
                   onPressed: _markedLocation != null ? () {
-                    // Handle location confirmation
+                    final position = Position(
+                      latitude: _markedLocation!.latitude,
+                      longitude: _markedLocation!.longitude,
+                      timestamp: DateTime.now(),
+                      accuracy: 0,
+                      altitude: 0,
+                      altitudeAccuracy: 0,
+                      heading: 0,
+                      headingAccuracy: 0,
+                      speed: 0,
+                      speedAccuracy: 0,
+                      isMocked: false,
+                    );
+                    context.read<MapProvider>().setSelectedLocation(position, _markedAddress);
+                    context.read<NavigationStateInterface>()
+                      .pushReplacementBack(context, const LocationScreen());
                   } : null,
                   isEnabled: _markedLocation != null,
                 ),
@@ -485,6 +500,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     return null;
   }
 }
+
+
 
 
 

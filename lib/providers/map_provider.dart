@@ -9,7 +9,9 @@ class MapProvider with ChangeNotifier {
   MapController? _mapController;
   bool _isInitialized = false;
   Position? currentPosition;
+  Position? selectedPosition;
   String currentAddress = "Loading...";
+  String selectedAddress = "";
   
   MapController get mapController {
     _mapController ??= MapController();
@@ -17,6 +19,9 @@ class MapProvider with ChangeNotifier {
   }
 
   bool get isInitialized => _isInitialized;
+
+  Position? get displayPosition => selectedPosition ?? currentPosition;
+  String get displayAddress => selectedPosition != null ? selectedAddress : currentAddress;
 
   void initialize() {
     if (!_isInitialized) {
@@ -29,6 +34,18 @@ class MapProvider with ChangeNotifier {
   void updatePosition(Position position, String address) {
     currentPosition = position;
     currentAddress = address;
+    notifyListeners();
+  }
+
+  void setSelectedLocation(Position position, String address) {
+    selectedPosition = position;
+    selectedAddress = address;
+    notifyListeners();
+  }
+
+  void clearSelectedLocation() {
+    selectedPosition = null;
+    selectedAddress = "";
     notifyListeners();
   }
 

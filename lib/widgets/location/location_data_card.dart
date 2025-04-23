@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class LocationDataCard extends StatelessWidget {
@@ -6,7 +7,7 @@ class LocationDataCard extends StatelessWidget {
   final String? streetName;
   final String? houseNumber;
   final bool isLoading;
-  final bool isCurrentLocation;  // Add this parameter
+  final bool isCurrentLocation;
 
   const LocationDataCard({
     super.key,
@@ -14,8 +15,31 @@ class LocationDataCard extends StatelessWidget {
     this.streetName,
     this.houseNumber,
     this.isLoading = false,
-    this.isCurrentLocation = true,  // Default to true for current location
+    this.isCurrentLocation = true,
   });
+
+  String get _fullAddress {
+    final List<String> parts = [];
+    if (streetName != null) {
+      parts.add('${streetName!}${houseNumber != null ? " $houseNumber" : ""}');
+    }
+    if (cityName != null) {
+      parts.add(cityName!);
+    }
+    return parts.join(', ');
+  }
+
+  void _copyAddress(BuildContext context) {
+    if (_fullAddress.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: _fullAddress));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Adres gekopieerd'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +67,6 @@ class LocationDataCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Title
-          Text(
-            titleText,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: locationColor,
-            ),
-          ),
-          const SizedBox(height: 8),
           // Location info
           Row(
             children: [
@@ -89,20 +103,48 @@ class LocationDataCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (_fullAddress.isNotEmpty)
+                            IconButton(
+                              icon: const Icon(Icons.copy, size: 20),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              color: locationColor,
+                              onPressed: () => _copyAddress(context),
+                              tooltip: 'Kopieer adres',
+                            ),
                         ],
                       ),
                       const SizedBox(height: 2),
                     ],
-                    if (cityName != null)
-                      Text(
-                        cityName!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
+                    Row(
+                      children: [
+                        if (cityName != null)
+                          Text(
+                            cityName!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        if (cityName != null)
+                          const Text(
+                            ' • ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        Text(
+                          titleText,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: locationColor,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      ],
+                    ),
                     if (cityName == null && streetName == null)
                       Text(
                         'Locatie niet beschikbaar',
@@ -126,7 +168,7 @@ class LocationDataCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),  // Restored border radius
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -145,6 +187,9 @@ class LocationDataCard extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

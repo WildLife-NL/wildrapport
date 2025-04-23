@@ -15,6 +15,7 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
+import 'package:wildrapport/widgets/location/location_map_preview.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -174,27 +175,10 @@ class _LocationScreenState extends State<LocationScreen> {
                           ),
                           child: Column(
                             children: [
-                              // Map preview placeholder
-                              Container(
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(15),
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.map,
-                                    size: 48,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                              // Location display
+                              const LocationMapPreview(),
                               LocationDisplay(
                                 onLocationIconTap: _handleLocationIconTap,
-                                locationText: 'Huidige locatie wordt geladen...',
+                                locationText: context.watch<MapProvider>().displayAddress,
                               ),
                             ],
                           ),
@@ -365,6 +349,7 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
 
 
 
