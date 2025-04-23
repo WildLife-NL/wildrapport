@@ -39,8 +39,6 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
-import 'package:wildrapport/screens/living_lab1_screen.dart';
-import 'package:wildrapport/screens/living_lab2_screen.dart';
 import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/map_screen.dart';
@@ -48,6 +46,7 @@ import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/screens/zuid_map_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -154,7 +153,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LocationScreen(),
+      home: const ZuidMapScreen(),
     );
   }
 }
