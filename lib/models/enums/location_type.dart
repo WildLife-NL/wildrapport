@@ -1,14 +1,17 @@
 enum LocationType {
   current,
-  map,
+  npZuidKennemerland,
+  grensparkKempenbroek,
   unknown;
 
   String get displayText {
     switch (this) {
       case LocationType.current:
         return 'Huidige locatie';
-      case LocationType.map:
-        return 'Kies op de kaart';
+      case LocationType.npZuidKennemerland:
+        return 'Nationaal Park Zuid-Kennemerland';
+      case LocationType.grensparkKempenbroek:
+        return 'Grenspark Kempen~Broek';
       case LocationType.unknown:
         return 'Onbekend';
     }
@@ -18,12 +21,15 @@ enum LocationType {
     switch (this) {
       case LocationType.current:
         return 'circle_icon:my_location';
-      case LocationType.map:
-        return 'circle_icon:place';
+      case LocationType.npZuidKennemerland:
+        return 'circle_icon:park';
+      case LocationType.grensparkKempenbroek:
+        return 'circle_icon:park';
       case LocationType.unknown:
-        return 'circle_icon:close';  // Changed to close icon
+        return 'circle_icon:close';
     }
   }
 }
+
 
 

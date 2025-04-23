@@ -51,11 +51,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _mapState = LocationMapManager();
     _mapProvider = context.read<MapProvider>();
     
-    if (!_mapProvider.isInitialized) {
-      _mapProvider.initialize();
-    }
-    // Start with immediate location check
-    _quickLocationCheck();
+    // Schedule initialization for after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_mapProvider.isInitialized) {
+        _mapProvider.initialize();
+      }
+      // Start with immediate location check
+      _quickLocationCheck();
+    });
   }
 
   Future<void> _quickLocationCheck() async {
@@ -500,6 +503,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     return null;
   }
 }
+
 
 
 

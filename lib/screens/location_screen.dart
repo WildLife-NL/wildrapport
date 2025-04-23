@@ -16,6 +16,7 @@ import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
+import 'package:wildrapport/widgets/maps/living_lab1_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -41,7 +42,9 @@ class _LocationScreenState extends State<LocationScreen> {
   Future<void> _initializeMap() async {
     final mapProvider = context.read<MapProvider>();
     if (!mapProvider.isInitialized) {
-      mapProvider.initialize();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        mapProvider.initialize();
+      });
       
       final position = await _locationService.determinePosition();
       if (position != null && _locationService.isLocationInNetherlands(
@@ -86,12 +89,19 @@ class _LocationScreenState extends State<LocationScreen> {
       _selectedLocation = location;
     });
     
-    // Check if "Kies op de kaart" is selected
-    if (location == LocationType.map.displayText) {
+    // Handle navigation to appropriate screen based on selection
+    if (location == LocationType.grensparkKempenbroek.displayText) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const MapScreen(),
+          builder: (context) => const LivingLab1Map(),
+        ),
+      );
+    } else if (location == LocationType.npZuidKennemerland.displayText) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LivingLab1Map(),
         ),
       );
     }
@@ -349,6 +359,8 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
 
 
 
