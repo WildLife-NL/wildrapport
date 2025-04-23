@@ -78,18 +78,32 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
 
   @override
   Future<Position?> determinePosition() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return null;
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        return null;
+      }
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return null;
+        }
+      }
 
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.deniedForever) {
+        return null;
+      }
+
+      // Try to get a quick fix first
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.reduced,
+        timeLimit: const Duration(seconds: 5)
+      ).catchError((_) => null);
+      
+    } catch (e) {
       return null;
     }
-
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
 
   @override

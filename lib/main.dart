@@ -36,6 +36,7 @@ import 'package:wildrapport/managers/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/location_screen.dart';
@@ -110,6 +111,7 @@ void main() async {
         Provider<PermissionInterface>(
           create: (_) => permissionManager,
         ),
+        ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
       child: MyApp(initialScreen: initialScreen),
     ),
@@ -150,7 +152,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MapScreen(),
+      home: const LocationScreen(),
     );
   }
 }

@@ -31,14 +31,15 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
 
       // Add the "Unknown" option with no image
       _cachedAnimals!.add(AnimalModel(
-        animalImagePath: null,  // No image path for unknown
+        animalImagePath: null,
         animalName: 'Onbekend',
       ));
       
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
-      debugPrint('Error fetching animals: $e');
-      throw Exception('Failed to load animals: $e');
+      debugPrint('[AnimalManager] Error fetching animals: $e');
+      // Return empty list instead of throwing to prevent UI crashes
+      return [];
     }
   }
 
@@ -95,6 +96,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
 
 
 

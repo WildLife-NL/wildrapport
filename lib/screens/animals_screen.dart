@@ -77,6 +77,11 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       });
 
       final animals = await _animalManager.getAnimals();
+      
+      if (animals.isEmpty) {
+        throw Exception('No animals found');
+      }
+      
       debugPrint('[AnimalsScreen] Successfully loaded ${animals.length} animals');
       
       if (mounted) {
@@ -85,14 +90,11 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
           _isLoading = false;
         });
       }
-    } catch (e, stackTrace) {
-      debugPrint('[AnimalsScreen] ERROR: Failed to load animals');
-      debugPrint('[AnimalsScreen] Error details: $e');
-      debugPrint('[AnimalsScreen] Stack trace: $stackTrace');
-      
+    } catch (e) {
+      debugPrint('[AnimalsScreen] Error loading animals: $e');
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = 'Kon geen dieren laden. Controleer je internetverbinding.';
           _isLoading = false;
         });
       }
@@ -182,6 +184,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     );
   }
 }
+
 
 
 

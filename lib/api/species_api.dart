@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/api/api_client.dart';
@@ -12,21 +13,21 @@ class SpeciesApi implements SpeciesApiInterface{
 
   @override
   Future<List<Species>> getAllSpecies() async {
-    http.Response response = await client.get(
+    try {
+      final response = await client.get(
         'species/',
         authenticated: true,
       );
 
-      List<dynamic>? json;
-
       if (response.statusCode == HttpStatus.ok) {
-        json = jsonDecode(response.body);
-        List<Species> species =
-        (json as List).map((e) => Species.fromJson(e)).toList();
-        return species;
-    } 
-    else {
-      throw Exception(json ?? "Failed to get all species");
+        final json = jsonDecode(response.body) as List;
+        return json.map((e) => Species.fromJson(e)).toList();
+      } 
+      
+      throw Exception('API Error: ${response.statusCode} - ${response.body}');
+    } catch (e) {
+      debugPrint('[SpeciesApi] Error fetching species: $e');
+      throw Exception('Failed to fetch species: $e');
     }
   }
 
@@ -45,6 +46,8 @@ class SpeciesApi implements SpeciesApiInterface{
       return species;
     } 
     else {
+      debugPrint('[SpeciesApi] Response status: ${response.statusCode}');
+      debugPrint('[SpeciesApi] Response body: ${response.body}');
       throw Exception(json ?? "Failed to get species");
     }
   }
@@ -55,3 +58,4 @@ class SpeciesApi implements SpeciesApiInterface{
     throw UnimplementedError();
   }
 }
+

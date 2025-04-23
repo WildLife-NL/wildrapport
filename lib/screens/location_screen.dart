@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/screens/map_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -21,16 +25,38 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  late final LocationServiceInterface _locationService;
+  
+  @override
+  void initState() {
+    super.initState();
+    _locationService = LocationMapManager();
+    // Use addPostFrameCallback to schedule the initialization after the build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeMap();
+    });
+  }
+
+  Future<void> _initializeMap() async {
+    final mapProvider = context.read<MapProvider>();
+    if (!mapProvider.isInitialized) {
+      mapProvider.initialize();
+      
+      final position = await _locationService.determinePosition();
+      if (position != null && _locationService.isLocationInNetherlands(
+        position.latitude,
+        position.longitude,
+      )) {
+        final address = await _locationService.getAddressFromPosition(position);
+        mapProvider.updatePosition(position, address);
+      }
+    }
+  }
+
   bool _isExpanded = false;
   bool _isDateTimeExpanded = false;
   String _selectedLocation = LocationType.current.displayText;
   String _selectedDateTime = DateTimeType.current.displayText;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLocationPermission();
-  }
 
   Future<void> _checkLocationPermission() async {
     final permissionManager = context.read<PermissionInterface>();
@@ -58,6 +84,16 @@ class _LocationScreenState extends State<LocationScreen> {
     setState(() {
       _selectedLocation = location;
     });
+    
+    // Check if "Kies op de kaart" is selected
+    if (location == LocationType.map.displayText) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MapScreen(),
+        ),
+      );
+    }
   }
 
   void _toggleDateTimeExpanded() {
@@ -329,5 +365,8 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
 
 
