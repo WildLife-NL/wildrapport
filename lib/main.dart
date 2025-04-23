@@ -46,7 +46,7 @@ import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
-import 'package:wildrapport/screens/zuid_map_screen.dart';
+import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -153,7 +153,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const ZuidMapScreen(),
+      home: const LocationScreen(),
     );
   }
 }

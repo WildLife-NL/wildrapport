@@ -118,8 +118,27 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
 
   String _placemarkToString(List<Placemark> placemarks) {
     if (placemarks.isEmpty) return 'Address not found';
+    
     final place = placemarks.first;
-    return '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}';
+    final List<String> addressParts = [];
+    
+    if (place.street?.isNotEmpty ?? false) {
+      addressParts.add(place.street!);
+    }
+    
+    if (place.subLocality?.isNotEmpty ?? false) {
+      addressParts.add(place.subLocality!);
+    }
+    
+    if (place.locality?.isNotEmpty ?? false) {
+      addressParts.add(place.locality!);
+    }
+    
+    if (place.postalCode?.isNotEmpty ?? false) {
+      addressParts.add(place.postalCode!);
+    }
+    
+    return addressParts.join(', ');
   }
 
   @override

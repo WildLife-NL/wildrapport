@@ -16,34 +16,37 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 
-class ZuidMapScreen extends StatefulWidget {
-  const ZuidMapScreen({super.key});
+class LivingLabMapScreen extends StatefulWidget {
+  final String labName;
+  final LatLng labCenter;
+  final double boundaryOffset; // Distance from center in degrees
+  final LocationMapManager? locationService; // For testing
+  final LocationMapManager? mapService;      // For testing
+  
+  const LivingLabMapScreen({
+    super.key,
+    required this.labName,
+    required this.labCenter,
+    this.boundaryOffset = 0.018, // Default value based on original implementation
+    this.locationService,
+    this.mapService,
+  });
 
   @override
-  State<ZuidMapScreen> createState() => _ZuidMapScreenState();
+  State<LivingLabMapScreen> createState() => _LivingLabMapScreenState();
 }
 
-class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateMixin {
+class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProviderStateMixin {
   static const String _standardTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String _satelliteTileUrl = 
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   
-  // Living Lab coordinates and boundaries
-  static const LatLng labCenter = LatLng(52.4114, 4.5733);
-  
-  // Calculate bounds
-  static const double minLat = 52.4114 - 0.018;
-  static const double maxLat = 52.4114 + 0.018;
-  static const double minLng = 4.5733 - 0.028;
-  static const double maxLng = 4.5733 + 0.028;
-
-  final List<LatLng> squareBoundary = [
-    LatLng(52.4114 + 0.018, 4.5733 - 0.028),
-    LatLng(52.4114 + 0.018, 4.5733 + 0.028),
-    LatLng(52.4114 - 0.018, 4.5733 + 0.028),
-    LatLng(52.4114 - 0.018, 4.5733 - 0.028),
-    LatLng(52.4114 + 0.018, 4.5733 - 0.028),
-  ];
+  // Calculate bounds based on widget parameters
+  late final double minLat;
+  late final double maxLat;
+  late final double minLng;
+  late final double maxLng;
+  late final List<LatLng> squareBoundary;
 
   late final LocationMapManager _locationService;
   late final LocationMapManager _mapService;
@@ -61,8 +64,9 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _locationService = LocationMapManager();
-    _mapService = LocationMapManager();
+    _initializeBoundaries();
+    _locationService = widget.locationService ?? LocationMapManager();
+    _mapService = widget.mapService ?? LocationMapManager();
     _mapState = LocationMapManager();
     _mapProvider = context.read<MapProvider>();
     
@@ -74,11 +78,28 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
     });
   }
 
+  void _initializeBoundaries() {
+    // Initialize the boundary coordinates
+    minLat = widget.labCenter.latitude - widget.boundaryOffset;
+    maxLat = widget.labCenter.latitude + widget.boundaryOffset;
+    minLng = widget.labCenter.longitude - (widget.boundaryOffset * 1.556); // Adjust for longitude scaling
+    maxLng = widget.labCenter.longitude + (widget.boundaryOffset * 1.556);
+
+    // Initialize the square boundary
+    squareBoundary = [
+      LatLng(maxLat, minLng),
+      LatLng(maxLat, maxLng),
+      LatLng(minLat, maxLng),
+      LatLng(minLat, minLng),
+      LatLng(maxLat, minLng), // Close the polygon
+    ];
+  }
+
   void _initializeMapView() {
     if (_mapProvider.mapController.camera != null) {
       _mapState.animateToLocation(
         mapController: _mapProvider.mapController,
-        targetLocation: labCenter,
+        targetLocation: widget.labCenter,
         targetZoom: 15,
         vsync: this,
       );
@@ -94,14 +115,15 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
     
     if (_isDisposed || !mounted) return;
 
-    setState(() {
-      _isLoading = false;
-      if (lastPosition != null) {
-        print('Setting current position from last known position');
+    if (lastPosition != null) {
+      print('Setting current position from last known position');
+      setState(() {
+        _isLoading = false;
         _currentPosition = lastPosition;
-      }
-    });
+      });
+    }
 
+    // Always try to get fresh location
     _initLocation();
   }
 
@@ -134,6 +156,9 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
 
   Future<void> _handleUserLocation(Position position, {bool animate = true}) async {
     print('Handling user location: ${position.latitude}, ${position.longitude}');
+    print('Checking bounds:');
+    print('Latitude: ${position.latitude}, Valid range: $minLat to $maxLat');
+    print('Longitude: ${position.longitude}, Valid range: $minLng to $maxLng');
     
     bool isInBounds = position.latitude >= minLat && 
         position.latitude <= maxLat && 
@@ -150,6 +175,7 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
     });
 
     if (isInBounds) {
+      print('Location is in bounds - updating map and fetching address');
       if (animate) {
         _mapState.animateToLocation(
           mapController: _mapProvider.mapController,
@@ -159,13 +185,16 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
         );
       }
       await _updateAddress(position);
-    } else if (animate) {
-      _mapState.animateToLocation(
-        mapController: _mapProvider.mapController,
-        targetLocation: labCenter,
-        targetZoom: 15,
-        vsync: this,
-      );
+    } else {
+      print('Location is out of bounds - centering on lab center');
+      if (animate) {
+        _mapState.animateToLocation(
+          mapController: _mapProvider.mapController,
+          targetLocation: widget.labCenter,
+          targetZoom: 15,
+          vsync: this,
+        );
+      }
     }
   }
 
@@ -263,7 +292,7 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
                   options: MapOptions(
                     minZoom: 14,
                     maxZoom: 18,
-                    initialCenter: labCenter,
+                    initialCenter: widget.labCenter,
                     initialZoom: 15,
                     interactionOptions: const InteractionOptions(
                       flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
@@ -548,38 +577,5 @@ class _ZuidMapScreenState extends State<ZuidMapScreen> with TickerProviderStateM
     return null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

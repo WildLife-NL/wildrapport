@@ -12,12 +12,13 @@ import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/map_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
-import 'package:wildrapport/widgets/maps/living_lab1_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
+import 'package:latlong2/latlong.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -89,19 +90,38 @@ class _LocationScreenState extends State<LocationScreen> {
       _selectedLocation = location;
     });
     
-    // Handle navigation to appropriate screen based on selection
-    if (location == LocationType.grensparkKempenbroek.displayText) {
+    if (location == LocationType.npZuidKennemerland.displayText) {
+      // Coordinates for National Park Zuid-Kennemerland
+      const LatLng zuidCenter = LatLng(52.3874, 4.5753);
+      
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const LivingLab1Map(),
+          builder: (context) => MapScreen(
+            title: 'Nationaal Park Zuid-Kennemerland',
+            mapWidget: LivingLabMapScreen(
+              labName: 'Nationaal Park Zuid-Kennemerland',
+              labCenter: zuidCenter,
+              boundaryOffset: 0.018,
+            ),
+          ),
         ),
       );
-    } else if (location == LocationType.npZuidKennemerland.displayText) {
+    } else if (location == LocationType.grensparkKempenbroek.displayText) {
+      // Coordinates for Grenspark from LivingLab2Map
+      const LatLng grensparkCenter = LatLng(51.1950, 5.7230);
+      
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const LivingLab1Map(),
+          builder: (context) => MapScreen(
+            title: 'Grenspark Kempen-Broek',
+            mapWidget: LivingLabMapScreen(
+              labName: 'Grenspark Kempen-Broek',
+              labCenter: grensparkCenter,
+              boundaryOffset: 0.045, // Using the larger boundary from LivingLab2Map
+            ),
+          ),
         ),
       );
     }
@@ -359,6 +379,10 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
+
 
 
 

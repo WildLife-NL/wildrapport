@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class LocationDisplay extends StatelessWidget {
   final VoidCallback? onLocationIconTap;
@@ -13,10 +14,10 @@ class LocationDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity, // Makes container take full screen width
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end, // Align items to bottom
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           GestureDetector(
             onTap: () {
@@ -33,9 +34,9 @@ class LocationDisplay extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded( // Make the card take remaining width
+          Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 5.0), // Moves card 5px higher
+              padding: const EdgeInsets.only(bottom: 10.0), // Increased bottom padding
               child: Container(
                 height: 60,
                 decoration: BoxDecoration(
@@ -49,16 +50,23 @@ class LocationDisplay extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      locationText,
-                      style: const TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16,
-                      ),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    top: 12.0, // Increased top padding
+                    bottom: 16.0, // Increased bottom padding
+                  ),
+                  child: AutoSizeText(
+                    locationText,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 16,
                     ),
+                    maxLines: 2,
+                    minFontSize: 12,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -69,6 +77,11 @@ class LocationDisplay extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
 
 
 

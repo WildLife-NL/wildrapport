@@ -9,9 +9,9 @@ enum LocationType {
       case LocationType.current:
         return 'Huidige locatie';
       case LocationType.npZuidKennemerland:
-        return 'Nationaal Park Zuid-Kennemerland';
+        return 'Zuid-Kennemerland';
       case LocationType.grensparkKempenbroek:
-        return 'Grenspark Kempen~Broek';
+        return 'Grenspark KempenBroek';
       case LocationType.unknown:
         return 'Onbekend';
     }
