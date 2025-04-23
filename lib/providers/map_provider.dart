@@ -5,28 +5,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 
-class MapProvider with ChangeNotifier {
-  MapController? _mapController;
-  bool _isInitialized = false;
-  Position? currentPosition;
+class MapProvider extends ChangeNotifier {
   Position? selectedPosition;
-  String currentAddress = "Loading...";
-  String selectedAddress = "";
-  
-  MapController get mapController {
-    _mapController ??= MapController();
-    return _mapController!;
-  }
+  String selectedAddress = '';
+  Position? currentPosition;
+  String currentAddress = '';
+  late final MapController _mapController;
+  bool isInitialized = false;
 
-  bool get isInitialized => _isInitialized;
-
-  Position? get displayPosition => selectedPosition ?? currentPosition;
-  String get displayAddress => selectedPosition != null ? selectedAddress : currentAddress;
+  MapController get mapController => _mapController;
 
   void initialize() {
-    if (!_isInitialized) {
+    if (!isInitialized) {
       _mapController = MapController();
-      _isInitialized = true;
+      isInitialized = true;
       notifyListeners();
     }
   }
@@ -34,6 +26,13 @@ class MapProvider with ChangeNotifier {
   void updatePosition(Position position, String address) {
     currentPosition = position;
     currentAddress = address;
+    
+    // If no location is selected, use current position as selected
+    if (selectedPosition == null) {
+      selectedPosition = position;
+      selectedAddress = address;
+    }
+    
     notifyListeners();
   }
 
@@ -48,10 +47,5 @@ class MapProvider with ChangeNotifier {
     selectedAddress = "";
     notifyListeners();
   }
-
-  @override
-  void dispose() {
-    _mapController?.dispose();
-    super.dispose();
-  }
 }
+

@@ -29,38 +29,96 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   late final LocationServiceInterface _locationService;
-  
+  String _selectedLocation = LocationType.current.displayText;
+  late final MapProvider _mapProvider;
+
   @override
   void initState() {
     super.initState();
     _locationService = LocationMapManager();
-    // Use addPostFrameCallback to schedule the initialization after the build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeMap();
-    });
+    _mapProvider = context.read<MapProvider>();
+    _initializeMap();
+    _updateSelectedLocation();
+  }
+
+  void _updateSelectedLocation() {
+    if (_mapProvider.selectedPosition != null) {
+      final selectedPoint = LatLng(
+        _mapProvider.selectedPosition!.latitude,
+        _mapProvider.selectedPosition!.longitude,
+      );
+
+      // Define boundaries for each living lab
+      const double zuidKennemerlandTolerance = 0.018; // matches boundaryOffset
+      const double grensparkTolerance = 0.045; // matches boundaryOffset
+
+      // Check Zuid-Kennemerland boundaries
+      if (_isWithinBoundary(
+        selectedPoint,
+        const LatLng(52.3874, 4.5753), // zuidCenter
+        zuidKennemerlandTolerance,
+      )) {
+        setState(() {
+          _selectedLocation = LocationType.npZuidKennemerland.displayText;
+        });
+      }
+      // Check Grenspark boundaries
+      else if (_isWithinBoundary(
+        selectedPoint,
+        const LatLng(51.1950, 5.7230), // grensparkCenter
+        grensparkTolerance,
+      )) {
+        setState(() {
+          _selectedLocation = LocationType.grensparkKempenbroek.displayText;
+        });
+      }
+      // If outside both areas, set to current location
+      else {
+        setState(() {
+          _selectedLocation = LocationType.current.displayText;
+        });
+      }
+    } else {
+      setState(() {
+        _selectedLocation = LocationType.current.displayText;
+      });
+    }
+  }
+
+  bool _isWithinBoundary(LatLng point, LatLng center, double tolerance) {
+    return (point.latitude >= center.latitude - tolerance &&
+            point.latitude <= center.latitude + tolerance) &&
+           (point.longitude >= center.longitude - tolerance &&
+            point.longitude <= center.longitude + tolerance);
   }
 
   Future<void> _initializeMap() async {
-    final mapProvider = context.read<MapProvider>();
-    if (!mapProvider.isInitialized) {
+    if (!_mapProvider.isInitialized) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        mapProvider.initialize();
+        _mapProvider.initialize();
       });
-      
+    }
+
+    // If there's a selected position, use it instead of getting current position
+    if (_mapProvider.selectedPosition != null) {
+      _mapProvider.updatePosition(
+        _mapProvider.selectedPosition!,
+        _mapProvider.selectedAddress,
+      );
+    } else {
       final position = await _locationService.determinePosition();
       if (position != null && _locationService.isLocationInNetherlands(
         position.latitude,
         position.longitude,
       )) {
         final address = await _locationService.getAddressFromPosition(position);
-        mapProvider.updatePosition(position, address);
+        _mapProvider.updatePosition(position, address);
       }
     }
   }
 
   bool _isExpanded = false;
   bool _isDateTimeExpanded = false;
-  String _selectedLocation = LocationType.current.displayText;
   String _selectedDateTime = DateTimeType.current.displayText;
 
   Future<void> _checkLocationPermission() async {
@@ -208,7 +266,7 @@ class _LocationScreenState extends State<LocationScreen> {
                               const LocationMapPreview(),
                               LocationDisplay(
                                 onLocationIconTap: _handleLocationIconTap,
-                                locationText: context.watch<MapProvider>().displayAddress,
+                                locationText: context.watch<MapProvider>().selectedAddress,
                               ),
                             ],
                           ),
@@ -379,6 +437,10 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
+
 
 
 
