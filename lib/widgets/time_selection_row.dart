@@ -129,17 +129,20 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   }
 
   Widget _buildTimeSelector(DateTime? time, bool enabled) {
+    final now = DateTime.now();
+    final placeholder = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    
     return _buildDateTimeField(
       label: 'Tijd',
       value: time != null 
           ? _formatTime(time)
-          : '--:--',
+          : placeholder,
       icon: Icons.access_time,
       onTap: enabled ? () => _showTimePicker(context) : null,
-      onTextTap: enabled ? () => _enableTimeTextInput() : null,
       enabled: enabled,
       controller: _timeController,
       focusNode: _timeFocusNode,
+      placeholder: placeholder,
     );
   }
 
@@ -152,20 +155,21 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   }
 
   void _showTimePicker(BuildContext context) async {
-    final TimeOfDay? picked = await showDialog<TimeOfDay>(  // Changed from showTimePicker to showDialog
+    final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
-      builder: (BuildContext context) => CustomTimePickerDialog(  // Renamed to avoid conflict with Flutter's TimePickerDialog
+      builder: (BuildContext context) => CustomTimePickerDialog(
         initialTime: _selectedTime != null 
             ? TimeOfDay.fromDateTime(_selectedTime!)
             : TimeOfDay.now(),
+        selectedDate: _selectedDate ?? DateTime.now(),  // Add this parameter
       ),
     );
     
     if (picked != null) {
       final DateTime selectedDateTime = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
+        _selectedDate?.year ?? DateTime.now().year,
+        _selectedDate?.month ?? DateTime.now().month,
+        _selectedDate?.day ?? DateTime.now().day,
         picked.hour,
         picked.minute,
       );
@@ -192,11 +196,12 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final DateTime now = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _selectedDate ?? now,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      lastDate: now,  // Changed from DateTime(2100) to now
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
@@ -284,31 +289,26 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     required String value,
     required IconData icon,
     VoidCallback? onTap,
-    VoidCallback? onTextTap,
     required bool enabled,
     TextEditingController? controller,
     FocusNode? focusNode,
+    String? placeholder,
   }) {
     return Expanded(
-      child: Container(
-        height: 70,
-        decoration: _buildDateTimeFieldDecoration(enabled),
-        child: Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: onTextTap ?? onTap,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 70,
+          decoration: _buildDateTimeFieldDecoration(enabled),
+          child: Row(
+            children: [
+              Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0),
-                  child: controller != null && enabled
-                      ? _buildTimeTextField(label, controller, focusNode!)
-                      : _buildDateTimeFieldLabels(label, value),
+                  child: _buildDateTimeFieldLabels(label, value),
                 ),
               ),
-            ),
-            GestureDetector(
-              onTap: onTap,
-              child: Padding(
+              Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Icon(
                   icon,
@@ -316,14 +316,14 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                   size: 24,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTimeTextField(String label, TextEditingController controller, FocusNode focusNode) {
+  Widget _buildDateTimeFieldLabels(String label, String value) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,52 +337,16 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
           ),
         ),
         const SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: TextInputType.datetime,
+        Text(
+          value,
           style: TextStyle(
             color: AppColors.brown,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
-            isDense: true,
-          ),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
-            LengthLimitingTextInputFormatter(5),
-          ],
-          onChanged: _handleTimeInput,
         ),
       ],
     );
-  }
-
-  void _handleTimeInput(String value) {
-    if (value.length == 5) {
-      final parts = value.split(':');
-      if (parts.length == 2) {
-        final hours = int.tryParse(parts[0]);
-        final minutes = int.tryParse(parts[1]);
-        
-        if (hours != null && minutes != null && 
-            hours >= 0 && hours < 24 && 
-            minutes >= 0 && minutes < 60) {
-          final selectedDateTime = DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-            hours,
-            minutes,
-          );
-          setState(() => _selectedTime = selectedDateTime);
-          widget.onTimeSelected?.call(selectedDateTime);
-        }
-      }
-    }
   }
 
   BoxDecoration _buildDateTimeFieldDecoration(bool enabled) {
@@ -399,54 +363,6 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
           offset: const Offset(0, 2),
           blurRadius: 4,
           spreadRadius: 0,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateTimeFieldContent(
-    String label,
-    String value,
-    IconData icon,
-    bool enabled,
-  ) {
-    return Row(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: _buildDateTimeFieldLabels(label, value),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Icon(
-            icon,
-            color: AppColors.brown.withOpacity(enabled ? 0.8 : 0.4),
-            size: 24,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateTimeFieldLabels(String label, String value) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFittedText(
-          label,
-          color: AppColors.brown.withOpacity(0.6),
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-        const SizedBox(height: 4),
-        _buildFittedText(
-          value,
-          color: AppColors.brown,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
         ),
       ],
     );
@@ -472,6 +388,11 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 }
+
+
+
+
+
 
 
 

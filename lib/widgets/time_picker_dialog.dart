@@ -1,13 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:flutter/services.dart';
 
 class CustomTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;
+  final DateTime selectedDate;  // Add this parameter
 
   const CustomTimePickerDialog({
     super.key,
     required this.initialTime,
+    required this.selectedDate,  // Add this parameter
   });
 
   @override
@@ -18,17 +22,91 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   late int _selectedHour;
   late int _selectedMinute;
   final TextEditingController _timeController = TextEditingController();
+  late TimeOfDay _currentTime;
+  bool _isEditing = false;
+  String? _errorMessage;  // Add this line to track error state
 
   @override
   void initState() {
     super.initState();
-    _selectedHour = widget.initialTime.hour;
-    _selectedMinute = widget.initialTime.minute;
+    _currentTime = TimeOfDay.now();
+    
+    _selectedHour = _currentTime.hour;
+    _selectedMinute = _currentTime.minute;
+    
     _updateTimeDisplay();
+  }
+
+  bool _isValidTime(int hour, int minute) {
+    // Only check for future time if the selected date is today
+    if (_isToday(widget.selectedDate)) {
+      if (hour > _currentTime.hour) return false;
+      if (hour == _currentTime.hour && minute > _currentTime.minute) return false;
+    }
+    return true;
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year && 
+           date.month == now.month && 
+           date.day == now.day;
   }
 
   void _updateTimeDisplay() {
     _timeController.text = '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
+  }
+
+  void _handleTimeInput(String value) {
+    // Remove any non-digit characters
+    String digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
+    
+    if (digitsOnly.length >= 2) {
+      // Insert colon after first two digits
+      String hours = digitsOnly.substring(0, 2);
+      String minutes = digitsOnly.length > 2 ? digitsOnly.substring(2, min(4, digitsOnly.length)) : '';
+      String formattedTime = '$hours:$minutes';
+      
+      // Update the text field without triggering onChanged
+      _timeController.value = TextEditingValue(
+        text: formattedTime,
+        selection: TextSelection.collapsed(offset: formattedTime.length),
+      );
+
+      // If we have a complete time (4 digits)
+      if (digitsOnly.length >= 4) {
+        final hours = int.tryParse(digitsOnly.substring(0, 2));
+        final minutes = int.tryParse(digitsOnly.substring(2, 4));
+        
+        if (hours != null && minutes != null && 
+            hours >= 0 && hours < 24 && 
+            minutes >= 0 && minutes < 60) {
+          
+          // Check if the entered time is valid (not in the future)
+          if (_isValidTime(hours, minutes)) {
+            setState(() {
+              _selectedHour = hours;
+              _selectedMinute = minutes;
+              _errorMessage = null;  // Clear error message on valid input
+            });
+          } else {
+            setState(() {
+              _errorMessage = 'Tijd kan niet in de toekomst liggen';
+              _updateTimeDisplay();
+            });
+          }
+        }
+      }
+    } else {
+      // For the first two digits, just update the controller
+      _timeController.value = TextEditingValue(
+        text: digitsOnly,
+        selection: TextSelection.collapsed(offset: digitsOnly.length),
+      );
+      setState(() {
+        _errorMessage = null;  // Clear error when starting new input
+      });
+    }
   }
 
   @override
@@ -68,74 +146,78 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   }
 
   Widget _buildCurrentTimeDisplay() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      decoration: BoxDecoration(
-        color: AppColors.brown.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextField(
-        controller: _timeController,
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        style: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: AppColors.brown,
-        ),
-        decoration: const InputDecoration(
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-          isDense: true,
-        ),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
-          LengthLimitingTextInputFormatter(5),
-        ],
-        onTap: () {
-          String currentText = _timeController.text;
-          _timeController.text = "__:__";
-          _timeController.selection = const TextSelection(
-            baseOffset: 0,
-            extentOffset: 0,
-          );
-        },
-        onChanged: (value) {
-          String numbers = value.replaceAll(RegExp(r'[^0-9]'), '');
-          String formattedTime = "__:__";
-          
-          if (numbers.isNotEmpty) {
-            List<String> chars = formattedTime.split('');
-            for (int i = 0; i < numbers.length && i < 4; i++) {
-              if (i < 2) {
-                chars[i] = numbers[i];
-              } else {
-                chars[i + 1] = numbers[i];
-              }
-            }
-            formattedTime = chars.join();
-          }
-          
-          _timeController.value = TextEditingValue(
-            text: formattedTime,
-            selection: TextSelection.collapsed(offset: numbers.length + (numbers.length > 2 ? 1 : 0)),
-          );
-          
-          // Only update the actual time values when we have a complete input
-          if (numbers.length == 4) {
-            int hours = int.parse(numbers.substring(0, 2));
-            int minutes = int.parse(numbers.substring(2));
-            
-            if (hours >= 24) hours = 23;
-            if (minutes >= 60) minutes = 59;
-            
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
             setState(() {
-              _selectedHour = hours;
-              _selectedMinute = minutes;
+              _isEditing = true;
+              _errorMessage = null;  // Clear error when starting to edit
+              _timeController.clear();
             });
-          }
-        },
-      ),
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            decoration: BoxDecoration(
+              color: AppColors.brown.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: _errorMessage != null 
+                  ? Border.all(color: Colors.red, width: 1.0)
+                  : null,
+            ),
+            child: _isEditing
+                ? TextField(
+                    controller: _timeController,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: _errorMessage != null ? Colors.red : AppColors.brown,
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    onChanged: _handleTimeInput,
+                    onSubmitted: (_) {
+                      setState(() {
+                        _isEditing = false;
+                        if (_timeController.text.isEmpty) {
+                          _updateTimeDisplay();
+                          _errorMessage = null;
+                        }
+                      });
+                    },
+                    autofocus: true,
+                  )
+                : Text(
+                    '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: _errorMessage != null ? Colors.red : AppColors.brown,
+                    ),
+                  ),
+          ),
+        ),
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              _errorMessage!,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -152,9 +234,19 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         children: [
           _buildWheel(
             value: _selectedHour,
-            maxValue: 23,
-            onChanged: (value) => setState(() => _selectedHour = value),
+            maxValue: _currentTime.hour,
+            onChanged: (value) {
+              setState(() {
+                _selectedHour = value;
+                // Adjust minutes if necessary
+                if (value == _currentTime.hour && _selectedMinute > _currentTime.minute) {
+                  _selectedMinute = _currentTime.minute;
+                }
+                _updateTimeDisplay();
+              });
+            },
             label: 'uur',
+            initialScrollIndex: _selectedHour,
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -169,10 +261,20 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           ),
           _buildWheel(
             value: _selectedMinute,
-            maxValue: 59,
-            onChanged: (value) => setState(() => _selectedMinute = value),
-            step: 5,
+            maxValue: _selectedHour == _currentTime.hour ? 
+              _currentTime.minute : 59,
+            onChanged: (value) {
+              if (_selectedHour == _currentTime.hour && value > _currentTime.minute) {
+                return;
+              }
+              setState(() {
+                _selectedMinute = value;
+                _updateTimeDisplay();
+              });
+            },
+            step: 1, // Changed from 5 to 1
             label: 'min',
+            initialScrollIndex: _selectedMinute,
           ),
         ],
       ),
@@ -185,6 +287,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     required Function(int) onChanged,
     int step = 1,
     required String label,
+    required int initialScrollIndex,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -194,9 +297,17 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           height: 120,
           child: ListWheelScrollView.useDelegate(
             itemExtent: 40,
-            perspective: 0.005,
-            diameterRatio: 1.2,
-            physics: const FixedExtentScrollPhysics(),
+            perspective: 0.003,
+            diameterRatio: 1.8,
+            physics: const FixedExtentScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            overAndUnderCenterOpacity: 0.7,
+            magnification: 1.2,
+            useMagnifier: true,
+            controller: FixedExtentScrollController(
+              initialItem: initialScrollIndex,
+            ),
             onSelectedItemChanged: (index) => onChanged(index * step),
             childDelegate: ListWheelChildBuilderDelegate(
               childCount: (maxValue ~/ step) + 1,
@@ -204,14 +315,17 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 final number = index * step;
                 final isSelected = number == value;
                 return Center(
-                  child: Text(
-                    number.toString().padLeft(2, '0'),
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
                     style: TextStyle(
                       fontSize: isSelected ? 20 : 16,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       color: isSelected 
                           ? AppColors.brown 
                           : AppColors.brown.withOpacity(0.5),
+                    ),
+                    child: Text(
+                      number.toString().padLeft(2, '0'),
                     ),
                   ),
                 );
@@ -261,6 +375,17 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
