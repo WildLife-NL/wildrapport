@@ -129,20 +129,16 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   }
 
   Widget _buildTimeSelector(DateTime? time, bool enabled) {
-    final now = DateTime.now();
-    final placeholder = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    
     return _buildDateTimeField(
       label: 'Tijd',
       value: time != null 
           ? _formatTime(time)
-          : placeholder,
+          : '--:--',  // Changed to show dashes when time is null (Onbekend)
       icon: Icons.access_time,
       onTap: enabled ? () => _showTimePicker(context) : null,
       enabled: enabled,
       controller: _timeController,
       focusNode: _timeFocusNode,
-      placeholder: placeholder,
     );
   }
 
@@ -336,21 +332,68 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         onTap: onTap,
         child: Container(
           height: 70,
-          decoration: _buildDateTimeFieldDecoration(enabled),
+          decoration: BoxDecoration(
+            color: enabled ? AppColors.offWhite : AppColors.offWhite.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: enabled 
+                  ? AppColors.brown.withOpacity(0.15)
+                  : AppColors.brown.withOpacity(0.05),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: enabled
+                    ? Colors.black.withOpacity(0.08)
+                    : Colors.black.withOpacity(0.04),
+                offset: const Offset(0, 2),
+                blurRadius: 6,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
           child: Row(
             children: [
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0),
-                  child: _buildDateTimeFieldLabels(label, value),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: AppColors.brown.withOpacity(0.6),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        value,
+                        style: TextStyle(
+                          color: enabled 
+                              ? AppColors.brown 
+                              : AppColors.brown.withOpacity(0.7),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
+              Container(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Icon(
                   icon,
-                  color: AppColors.brown.withOpacity(enabled ? 0.8 : 0.4),
-                  size: 24,
+                  color: enabled
+                      ? AppColors.brown.withOpacity(0.7)
+                      : AppColors.brown.withOpacity(0.4),
+                  size: 22,
                 ),
               ),
             ],
@@ -425,6 +468,8 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 }
+
+
 
 
 
