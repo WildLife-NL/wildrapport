@@ -16,11 +16,51 @@ class MapProvider with ChangeNotifier {
   
   bool get isLoading => _isLoading;
   bool get isInitialized => _mapController != null;
-  MapController get mapController => _mapController ?? MapController();
+  MapController get mapController {
+    if (_mapController == null) {
+      debugPrint('[MapProvider] Warning: Accessing uninitialized map controller, creating new instance');
+      _mapController = MapController();
+    }
+    return _mapController!;
+  }
+
+  Future<void> initialize() async {
+    if (_mapController != null) {
+      debugPrint('[MapProvider] Map controller already initialized, skipping');
+      return;
+    }
+
+    try {
+      debugPrint('[MapProvider] Starting map controller initialization');
+      _isLoading = true;
+      notifyListeners();
+
+      _mapController = MapController();
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      debugPrint('[MapProvider] Map controller initialized successfully');
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[MapProvider] Error initializing map controller: $e');
+      _isLoading = false;
+      notifyListeners();
+      throw Exception('Failed to initialize map controller: $e');
+    }
+  }
 
   void setMapController(MapController controller) {
+    debugPrint('[MapProvider] Setting new map controller');
+    _mapController?.dispose();
     _mapController = controller;
     notifyListeners();
+  }
+
+  void dispose() {
+    debugPrint('[MapProvider] Disposing map controller');
+    _mapController?.dispose();
+    _mapController = null;
+    super.dispose();
   }
 
   void setLoading(bool loading) {
@@ -57,6 +97,9 @@ class MapProvider with ChangeNotifier {
     setLoading(false);
   }
 }
+
+
+
 
 
 

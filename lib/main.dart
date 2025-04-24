@@ -156,7 +156,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LocationScreen(),
+      home: const OverzichtScreen(),
     );
   }
 }

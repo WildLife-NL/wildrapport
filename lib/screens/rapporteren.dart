@@ -7,6 +7,7 @@ import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
@@ -40,8 +41,10 @@ class _RapporterenState extends State<Rapporteren> {
 
     switch (reportType) {
       case 'animalSightingen':
+        debugPrint('[Rapporteren] Animal sighting selected, initializing map');
         selectedReportType = ReportType.waarneming;
         nextScreen = const AnimalConditionScreen();
+        _initializeMapInBackground();
         break;
       case 'Gewasschade':
         selectedReportType = ReportType.gewasschade;
@@ -63,6 +66,24 @@ class _RapporterenState extends State<Rapporteren> {
 
     // Navigate to the next screen
     navigationManager.pushReplacementForward(context, nextScreen);
+  }
+
+  void _initializeMapInBackground() {
+    if (!mounted) return;
+    
+    final mapProvider = context.read<MapProvider>();
+    debugPrint('[Rapporteren] Current map initialization status: ${mapProvider.isInitialized}');
+    
+    if (!mapProvider.isInitialized) {
+      debugPrint('[Rapporteren] Starting background map initialization');
+      mapProvider.initialize().then((_) {
+        debugPrint('[Rapporteren] Background map initialization completed');
+      }).catchError((error) {
+        debugPrint('[Rapporteren] Error in background map initialization: $error');
+      });
+    } else {
+      debugPrint('[Rapporteren] Map already initialized, skipping');
+    }
   }
 
   void _handleBackNavigation(BuildContext context) {
@@ -143,6 +164,8 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
+
 
 
 

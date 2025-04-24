@@ -61,19 +61,20 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    debugPrint('[LivingLabMapScreen] Initializing screen');
     _initializeServices();
     _initializeBoundaries();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MapProvider>().setMapController(_mapController);
       _quickLocationCheck();
     });
   }
 
   void _initializeServices() {
+    debugPrint('[LivingLabMapScreen] Initializing services');
     _locationService = widget.locationService ?? LocationMapManager();
     _mapService = widget.mapService ?? LocationMapManager();
     _mapProvider = context.read<MapProvider>();
+    debugPrint('[LivingLabMapScreen] Map controller initialized: ${_mapProvider.isInitialized}');
   }
 
   void _initializeBoundaries() {
@@ -92,8 +93,12 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   }
 
   void _initializeMapView() {
+    debugPrint('[LivingLabMapScreen] Initializing map view');
     if (_mapProvider.mapController.camera != null) {
+      debugPrint('[LivingLabMapScreen] Moving map to lab center');
       _mapProvider.mapController.move(widget.labCenter, 15);
+    } else {
+      debugPrint('[LivingLabMapScreen] Warning: Map camera not ready');
     }
   }
 
@@ -138,6 +143,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   @override
   void dispose() {
+    debugPrint('[LivingLabMapScreen] Disposing screen');
     _isDisposed = true;
     _mapController.dispose();
     super.dispose();
@@ -254,7 +260,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       body: SafeArea(
         child: Consumer<MapProvider>(
           builder: (context, mapProvider, child) {
+            debugPrint('[LivingLabMapScreen] Building map widget, initialized: ${mapProvider.isInitialized}');
             if (!mapProvider.isInitialized) {
+              debugPrint('[LivingLabMapScreen] Showing loading indicator');
               return const Center(child: CircularProgressIndicator());
             }
 
@@ -274,7 +282,10 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                       if (hasGesture) _constrainMap();
                     },
                     onTap: _handleTap,
-                    onMapReady: _initializeMapView,
+                    onMapReady: () {
+                      debugPrint('[LivingLabMapScreen] Map is ready');
+                      _initializeMapView();
+                    },
                   ),
                   children: [
                     TileLayer(
@@ -542,3 +553,4 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
