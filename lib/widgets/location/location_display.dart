@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:lottie/lottie.dart';
 
 class LocationDisplay extends StatelessWidget {
   final VoidCallback? onLocationIconTap;
   final String locationText;
+  final bool isLoading;
 
   const LocationDisplay({
     super.key,
     this.onLocationIconTap,
     this.locationText = 'Huidige locatie wordt geladen...',
+    this.isLoading = false,
   });
 
   @override
@@ -36,7 +39,7 @@ class LocationDisplay extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 10.0), // Increased bottom padding
+              padding: const EdgeInsets.only(bottom: 10.0),
               child: Container(
                 height: 60,
                 decoration: BoxDecoration(
@@ -51,23 +54,34 @@ class LocationDisplay extends StatelessWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    top: 12.0, // Increased top padding
-                    bottom: 16.0, // Increased bottom padding
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
                   ),
-                  child: AutoSizeText(
-                    locationText,
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 16,
-                    ),
-                    maxLines: 2,
-                    minFontSize: 12,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: isLoading
+                      ? Center(
+                          child: SizedBox(
+                            height: 36,
+                            child: Lottie.asset(
+                              'assets/loaders/loading_paw.json',
+                              fit: BoxFit.contain,
+                              repeat: true,
+                              animate: true,
+                              frameRate: FrameRate(60),
+                            ),
+                          ),
+                        )
+                      : AutoSizeText(
+                          locationText,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 16,
+                          ),
+                          maxLines: 2,
+                          minFontSize: 12,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                 ),
               ),
             ),
@@ -77,6 +91,7 @@ class LocationDisplay extends StatelessWidget {
     );
   }
 }
+
 
 
 

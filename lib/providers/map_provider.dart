@@ -5,13 +5,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 
-class MapProvider extends ChangeNotifier {
+class MapProvider with ChangeNotifier {
   Position? selectedPosition;
   String selectedAddress = '';
   Position? currentPosition;
   String currentAddress = '';
   late final MapController _mapController;
   bool isInitialized = false;
+  bool _isLoading = false;
+  
+  bool get isLoading => _isLoading;
 
   MapController get mapController => _mapController;
 
@@ -23,7 +26,12 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  void updatePosition(Position position, String address) {
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  Future<void> updatePosition(Position position, String address) async {
     currentPosition = position;
     currentAddress = address;
     
@@ -33,6 +41,7 @@ class MapProvider extends ChangeNotifier {
       selectedAddress = address;
     }
     
+    setLoading(false);
     notifyListeners();
   }
 
@@ -42,10 +51,12 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearSelectedLocation() {
+  Future<void> clearSelectedLocation() async {
+    setLoading(true);
     selectedPosition = null;
-    selectedAddress = "";
+    selectedAddress = '';
     notifyListeners();
   }
 }
+
 

@@ -19,6 +19,7 @@ import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:lottie/lottie.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -105,6 +106,14 @@ class _LocationScreenState extends State<LocationScreen> {
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
+      // Move map to selected position
+      _mapProvider.mapController.move(
+        LatLng(
+          _mapProvider.selectedPosition!.latitude,
+          _mapProvider.selectedPosition!.longitude,
+        ),
+        15,
+      );
     } else {
       final position = await _locationService.determinePosition();
       if (position != null && _locationService.isLocationInNetherlands(
@@ -113,6 +122,11 @@ class _LocationScreenState extends State<LocationScreen> {
       )) {
         final address = await _locationService.getAddressFromPosition(position);
         _mapProvider.updatePosition(position, address);
+        // Move map to current position
+        _mapProvider.mapController.move(
+          LatLng(position.latitude, position.longitude),
+          15,
+        );
       }
     }
   }
@@ -143,12 +157,24 @@ class _LocationScreenState extends State<LocationScreen> {
     });
   }
 
-  void _handleLocationSelection(String location) {
+  void _handleLocationSelection(String location) async {
     setState(() {
       _selectedLocation = location;
+      _isExpanded = false;  // Close dropdown after selection
     });
     
-    if (location == LocationType.npZuidKennemerland.displayText) {
+    if (location == LocationType.current.displayText) {
+      final mapProvider = context.read<MapProvider>();
+      mapProvider.setLoading(true);  // Start loading state
+      
+      // Clear the selected position first
+      await mapProvider.clearSelectedLocation();
+      
+      // Then initialize map which will get current location
+      await _initializeMap();
+      
+      // Loading state will be set to false in updatePosition
+    } else if (location == LocationType.npZuidKennemerland.displayText) {
       // Coordinates for National Park Zuid-Kennemerland
       const LatLng zuidCenter = LatLng(52.3874, 4.5753);
       
@@ -243,7 +269,7 @@ class _LocationScreenState extends State<LocationScreen> {
                           type: DropdownType.location,
                           selectedValue: _selectedLocation,
                           isExpanded: _isExpanded,
-                          onExpandChanged: (_) => _toggleExpanded(),
+                          onExpandChanged: (value) => setState(() => _isExpanded = value),
                           onOptionSelected: _handleLocationSelection,
                           context: context,
                         ),
@@ -267,6 +293,7 @@ class _LocationScreenState extends State<LocationScreen> {
                               LocationDisplay(
                                 onLocationIconTap: _handleLocationIconTap,
                                 locationText: context.watch<MapProvider>().selectedAddress,
+                                isLoading: context.watch<MapProvider>().selectedAddress.isEmpty,
                               ),
                             ],
                           ),
@@ -437,6 +464,14 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
 
 
 
