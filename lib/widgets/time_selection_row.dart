@@ -213,12 +213,49 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     final isSelected = _selectedOption == label;
     
     return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 2), // Reduced horizontal margin
-        decoration: _buildCheckboxDecoration(isSelected),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: _buildCheckboxContent(label, isSelected),
+      child: GestureDetector(  // Add GestureDetector here
+        onTap: () => _handleSelection(label),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: _buildCheckboxDecoration(isSelected),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: Checkbox(
+                    value: isSelected,
+                    onChanged: (_) => _handleSelection(label),
+                    activeColor: AppColors.brown,
+                    checkColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    side: BorderSide(
+                      color: AppColors.brown,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: AppColors.brown,
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -388,6 +425,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 }
+
 
 
 
