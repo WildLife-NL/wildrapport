@@ -51,13 +51,13 @@ class MapProvider with ChangeNotifier {
   Future<void> clearSelectedLocation() async {
     setLoading(true);
     selectedPosition = null;
-    selectedAddress = LocationType.unknown.displayText;  // Set to unknown instead of empty string
-    currentPosition = null;  // Also clear current position
-    currentAddress = LocationType.unknown.displayText;  // Also set current address to unknown
+    selectedAddress = LocationType.unknown.displayText;
+    // Don't clear current position/address
     notifyListeners();
     setLoading(false);
   }
 }
+
 
 
 
