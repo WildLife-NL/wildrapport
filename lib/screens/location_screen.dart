@@ -239,6 +239,35 @@ class _LocationScreenState extends State<LocationScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 20),
+                        // Add Location header
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Selecteer locatie',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.brown,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                width: 160,
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  color: AppColors.brown.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                         // Location dropdown
                         dropdownInterface.buildDropdown(
                           type: DropdownType.location,
@@ -276,15 +305,34 @@ class _LocationScreenState extends State<LocationScreen> {
                         ),
                         const SizedBox(height: 24),
                         // Date & Time section header
-                        Text(
-                          'Datum en tijd',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.brown,
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Datum en tijd',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.brown,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                width: 130,  // Increased from 120 to 140 for a bit more length
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  color: AppColors.brown.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),  // Adjusted spacing after the header
                         TimeSelectionRow(
                           onOptionSelected: (selectedOption) {
                             debugPrint('Selected time option: $selectedOption');
@@ -317,6 +365,10 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
+
 
 
 

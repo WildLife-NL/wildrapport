@@ -22,14 +22,15 @@ enum LocationType {
       case LocationType.current:
         return 'circle_icon:my_location';
       case LocationType.npZuidKennemerland:
-        return 'circle_icon:park';
+        return 'circle_icon:forest';
       case LocationType.grensparkKempenbroek:
-        return 'circle_icon:park';
+        return 'circle_icon:nature';
       case LocationType.unknown:
         return 'circle_icon:close';
     }
   }
 }
+
 
 
 
