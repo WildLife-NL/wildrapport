@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:lottie/lottie.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/models/enums/location_type.dart';
 
 class LocationDisplay extends StatelessWidget {
   final VoidCallback onLocationIconTap;
@@ -19,7 +20,7 @@ class LocationDisplay extends StatelessWidget {
 
   String get _displayText {
     if (isLoading) return '';
-    
+    if (locationText == LocationType.unknown.displayText) return 'Geen locatie geselecteerd';
     if (position == null) return locationText;
     
     return '$locationText\n${position!.latitude.toStringAsFixed(6)}, ${position!.longitude.toStringAsFixed(6)}';
@@ -83,6 +84,7 @@ class LocationDisplay extends StatelessWidget {
     );
   }
 }
+
 
 
 

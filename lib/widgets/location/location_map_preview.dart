@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as flutter_map;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:lottie/lottie.dart';
 
@@ -12,6 +13,39 @@ class LocationMapPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
+        // Show placeholder for unknown location
+        if (mapProvider.selectedAddress == LocationType.unknown.displayText) {
+          return Container(
+            height: 150,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.location_off,
+                    size: 40,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Geen locatie geselecteerd',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
         // Show loading animation when either position is null OR address is empty
         if (mapProvider.currentPosition == null || mapProvider.selectedAddress.isEmpty) {
           return Container(
@@ -84,5 +118,6 @@ class LocationMapPreview extends StatelessWidget {
     );
   }
 }
+
 
 

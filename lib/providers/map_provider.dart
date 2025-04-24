@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
+import 'package:wildrapport/models/enums/location_type.dart';
 
 class MapProvider with ChangeNotifier {
   Position? selectedPosition;
@@ -35,8 +36,8 @@ class MapProvider with ChangeNotifier {
     currentPosition = position;
     currentAddress = address;
     
-    // If no location is selected, use current position as selected
-    if (selectedPosition == null) {
+    // Only update selected position if it's not explicitly set to unknown
+    if (selectedAddress != LocationType.unknown.displayText) {
       selectedPosition = position;
       selectedAddress = address;
     }
@@ -54,9 +55,13 @@ class MapProvider with ChangeNotifier {
   Future<void> clearSelectedLocation() async {
     setLoading(true);
     selectedPosition = null;
-    selectedAddress = '';
+    selectedAddress = LocationType.unknown.displayText;  // Set to unknown instead of empty string
+    currentPosition = null;  // Also clear current position
+    currentAddress = LocationType.unknown.displayText;  // Also set current address to unknown
     notifyListeners();
+    setLoading(false);
   }
 }
+
 
 

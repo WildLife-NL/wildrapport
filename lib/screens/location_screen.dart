@@ -101,13 +101,12 @@ class _LocationScreenState extends State<LocationScreen> {
       });
     }
 
-    // If there's a selected position, use it instead of getting current position
+    // If there's a selected position, use it and don't fetch current location
     if (_mapProvider.selectedPosition != null) {
       _mapProvider.updatePosition(
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-      // Move map to selected position
       _mapProvider.mapController.move(
         LatLng(
           _mapProvider.selectedPosition!.latitude,
@@ -115,20 +114,21 @@ class _LocationScreenState extends State<LocationScreen> {
         ),
         15,
       );
-    } else {
-      final position = await _locationService.determinePosition();
-      if (position != null && _locationService.isLocationInNetherlands(
-        position.latitude,
-        position.longitude,
-      )) {
-        final address = await _locationService.getAddressFromPosition(position);
-        _mapProvider.updatePosition(position, address);
-        // Move map to current position
-        _mapProvider.mapController.move(
-          LatLng(position.latitude, position.longitude),
-          15,
-        );
-      }
+      return; // Early return to prevent current location fetch
+    }
+
+    // Only fetch current location if no location is selected
+    final position = await _locationService.determinePosition();
+    if (position != null && _locationService.isLocationInNetherlands(
+      position.latitude,
+      position.longitude,
+    )) {
+      final address = await _locationService.getAddressFromPosition(position);
+      _mapProvider.updatePosition(position, address);
+      _mapProvider.mapController.move(
+        LatLng(position.latitude, position.longitude),
+        15,
+      );
     }
   }
 
@@ -162,6 +162,14 @@ class _LocationScreenState extends State<LocationScreen> {
       _isExpanded = false;  // Close dropdown after selection
     });
     
+    if (location == LocationType.unknown.displayText) {
+      final mapProvider = context.read<MapProvider>();
+      mapProvider.clearSelectedLocation();
+      mapProvider.currentPosition = null;
+      mapProvider.currentAddress = LocationType.unknown.displayText;
+      return;
+    }
+    
     if (location == LocationType.current.displayText) {
       final mapProvider = context.read<MapProvider>();
       mapProvider.setLoading(true);  // Start loading state
@@ -171,12 +179,12 @@ class _LocationScreenState extends State<LocationScreen> {
       
       // Then initialize map which will get current location
       await _initializeMap();
-      
-      // Loading state will be set to false in updatePosition
     } else if (location == LocationType.npZuidKennemerland.displayText) {
-      // Coordinates for National Park Zuid-Kennemerland
-      const LatLng zuidCenter = LatLng(52.3874, 4.5753);
+      // Clear current location data before navigating
+      _mapProvider.currentPosition = null;
+      _mapProvider.currentAddress = '';
       
+      const LatLng zuidCenter = LatLng(52.3874, 4.5753);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -191,9 +199,11 @@ class _LocationScreenState extends State<LocationScreen> {
         ),
       );
     } else if (location == LocationType.grensparkKempenbroek.displayText) {
-      // Coordinates for Grenspark from LivingLab2Map
-      const LatLng grensparkCenter = LatLng(51.1950, 5.7230);
+      // Clear current location data before navigating
+      _mapProvider.currentPosition = null;
+      _mapProvider.currentAddress = '';
       
+      const LatLng grensparkCenter = LatLng(51.1950, 5.7230);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -202,7 +212,7 @@ class _LocationScreenState extends State<LocationScreen> {
             mapWidget: LivingLabMapScreen(
               labName: 'Grenspark Kempen-Broek',
               labCenter: grensparkCenter,
-              boundaryOffset: 0.045, // Using the larger boundary from LivingLab2Map
+              boundaryOffset: 0.045,
             ),
           ),
         ),
@@ -365,6 +375,9 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
 
 
 
