@@ -8,6 +8,8 @@ class LocationDataCard extends StatelessWidget {
   final String? houseNumber;
   final bool isLoading;
   final bool isCurrentLocation;
+  final double? latitude;
+  final double? longitude;
 
   const LocationDataCard({
     super.key,
@@ -16,6 +18,8 @@ class LocationDataCard extends StatelessWidget {
     this.houseNumber,
     this.isLoading = false,
     this.isCurrentLocation = true,
+    this.latitude,
+    this.longitude,
   });
 
   String get _fullAddress {
@@ -25,6 +29,9 @@ class LocationDataCard extends StatelessWidget {
     }
     if (cityName != null) {
       parts.add(cityName!);
+    }
+    if (latitude != null && longitude != null) {
+      parts.add('(${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)})');
     }
     return parts.join(', ');
   }
@@ -116,6 +123,14 @@ class LocationDataCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                     ],
+                    if (latitude != null && longitude != null)
+                      Text(
+                        '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: locationColor,
+                        ),
+                      ),
                     Row(
                       children: [
                         if (cityName != null)
@@ -187,6 +202,7 @@ class LocationDataCard extends StatelessWidget {
     );
   }
 }
+
 
 
 

@@ -330,6 +330,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
                       : _getLocationHouseNumber(_currentAddress),
                     isLoading: _isLoading,
                     isCurrentLocation: _markedLocation == null,
+                    latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
+                    longitude: _markedLocation?.longitude ?? _currentPosition?.longitude,
                   ),
                 ),
 
@@ -566,6 +568,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
     return null;
   }
 }
+
 
 
 

@@ -294,6 +294,7 @@ class _LocationScreenState extends State<LocationScreen> {
                                 onLocationIconTap: _handleLocationIconTap,
                                 locationText: context.watch<MapProvider>().selectedAddress,
                                 isLoading: context.watch<MapProvider>().selectedAddress.isEmpty,
+                                position: context.watch<MapProvider>().selectedPosition ?? context.watch<MapProvider>().currentPosition,
                               ),
                             ],
                           ),
@@ -464,6 +465,7 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
 
 
 
