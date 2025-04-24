@@ -109,21 +109,17 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
   Future<void> _quickLocationCheck() async {
     if (_isDisposed) return;
     
-    print('Quick location check started');
-    final lastPosition = await Geolocator.getLastKnownPosition();
-    print('Last known position: $lastPosition');
+    setState(() => _isLoading = true);
     
+    // Get last known position immediately
+    final lastPosition = await Geolocator.getLastKnownPosition();
     if (_isDisposed || !mounted) return;
 
     if (lastPosition != null) {
-      print('Setting current position from last known position');
-      setState(() {
-        _isLoading = false;
-        _currentPosition = lastPosition;
-      });
+      await _handleUserLocation(lastPosition, animate: false);
     }
 
-    // Always try to get fresh location
+    // Get fresh location in background
     _initLocation();
   }
 
@@ -155,27 +151,22 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
   }
 
   Future<void> _handleUserLocation(Position position, {bool animate = true}) async {
-    print('Handling user location: ${position.latitude}, ${position.longitude}');
-    print('Checking bounds:');
-    print('Latitude: ${position.latitude}, Valid range: $minLat to $maxLat');
-    print('Longitude: ${position.longitude}, Valid range: $minLng to $maxLng');
-    
+    if (_isDisposed) return;
+
     bool isInBounds = position.latitude >= minLat && 
         position.latitude <= maxLat && 
         position.longitude >= minLng && 
         position.longitude <= maxLng;
-    
-    print('Is location in bounds? $isInBounds');
 
     setState(() {
-      _currentPosition = position;  // Always store the position
+      _isLoading = false;
+      _currentPosition = position;
       _markedLocation = null;
       _markedAddress = "";
       _currentAddress = isInBounds ? "Fetching address..." : 'Buiten het onderzoeksgebied';
     });
 
     if (isInBounds) {
-      print('Location is in bounds - updating map and fetching address');
       if (animate) {
         _mapState.animateToLocation(
           mapController: _mapProvider.mapController,
@@ -184,17 +175,15 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
           vsync: this,
         );
       }
-      await _updateAddress(position);
-    } else {
-      print('Location is out of bounds - centering on lab center');
-      if (animate) {
-        _mapState.animateToLocation(
-          mapController: _mapProvider.mapController,
-          targetLocation: widget.labCenter,
-          targetZoom: 15,
-          vsync: this,
-        );
-      }
+      // Get address in background
+      _updateAddress(position);
+    } else if (animate) {
+      _mapState.animateToLocation(
+        mapController: _mapProvider.mapController,
+        targetLocation: widget.labCenter,
+        targetZoom: 15,
+        vsync: this,
+      );
     }
   }
 
@@ -577,5 +566,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
     return null;
   }
 }
+
+
 
 
