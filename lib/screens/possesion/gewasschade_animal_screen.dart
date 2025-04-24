@@ -72,7 +72,7 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
     // TODO: Implement gewasschade specific animal selection logic
     debugPrint('[GewasschadeAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
-    debugPrint('[GewasschadeAnimalScreen] Selected animal ID: ');
+    debugPrint('[GewasschadeAnimalScreen] Selected animal ID: cf83db9d-dab7-4542-bc00-08c87d1da68d');
     Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -83,14 +83,15 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
 
 void _buildReportTest(){
     final provider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    provider.setSuspectedAnimal("cf83db9d-dab7-4542-bc00-08c87d1da68d");
     final report = PossesionDamageReport(
       possesion: Possesion(possesionName: provider.impactedCrop),
       impactedAreaType: provider.impactedAreaType,
       impactedArea: double.tryParse(provider.impactedArea) ?? 0,
       currentImpactDamages: provider.currentDamage.toString(),
       estimatedTotalDamages: provider.expectedDamage.toString(),
-      decription: provider.description,
-      suspectedAnimalID: provider.suspectedAnimalID,
+      description: provider.description,
+      suspectedSpeciesID: provider.suspectedSpeciesID,
       systemDateTime: DateTime.now(),
     );
 
@@ -100,8 +101,8 @@ void _buildReportTest(){
     debugPrint("impactedArea: ${report.impactedArea}");
     debugPrint("currentImpactDamages: ${report.currentImpactDamages}%");
     debugPrint("estimatedTotalDamages: ${report.estimatedTotalDamages}%");
-    debugPrint("description: ${report.decription}");
-    debugPrint("sustpectedAnimalID: ${report.suspectedAnimalID}");
+    debugPrint("description: ${report.description}");
+    debugPrint("sustpectedAnimalID: ${report.suspectedSpeciesID}");
     debugPrint("systemDataTime: ${report.systemDateTime}");
     debugPrint("");
   }

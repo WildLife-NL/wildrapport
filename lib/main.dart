@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/api/answer_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/api/interaction_api.dart';
 import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
@@ -58,13 +60,15 @@ void main() async {
   
   final authApi = AuthApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
-  
+  final interactionApi = InteractionApi(apiClient);
+
   final questionnaireAPI = QuestionaireApi(apiClient);
   final answerAPI = AnswerApi(apiClient);    
 
   final loginManager = LoginManager(authApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
+  final possesionManager = PossesionManager(interactionApi);
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
   final answerManager = AnswerManager(answerAPI);
@@ -89,12 +93,13 @@ void main() async {
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
+        Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),
         Provider<FilterInterface>.value(value: filterManager),
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
-        Provider<PossesionInterface>.value(value: PossesionManager()),
+        Provider<PossesionInterface>.value(value: possesionManager),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
@@ -153,7 +158,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LocationScreen(),
+      home: const Rapporteren(),
     );
   }
 }
