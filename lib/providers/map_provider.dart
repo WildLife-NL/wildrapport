@@ -11,20 +11,16 @@ class MapProvider with ChangeNotifier {
   String selectedAddress = '';
   Position? currentPosition;
   String currentAddress = '';
-  late final MapController _mapController;
-  bool isInitialized = false;
+  MapController? _mapController;
   bool _isLoading = false;
   
   bool get isLoading => _isLoading;
+  bool get isInitialized => _mapController != null;
+  MapController get mapController => _mapController ?? MapController();
 
-  MapController get mapController => _mapController;
-
-  void initialize() {
-    if (!isInitialized) {
-      _mapController = MapController();
-      isInitialized = true;
-      notifyListeners();
-    }
+  void setMapController(MapController controller) {
+    _mapController = controller;
+    notifyListeners();
   }
 
   void setLoading(bool loading) {
@@ -62,6 +58,9 @@ class MapProvider with ChangeNotifier {
     setLoading(false);
   }
 }
+
+
+
 
 
 

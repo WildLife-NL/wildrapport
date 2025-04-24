@@ -61,19 +61,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
   bool _isDisposed = false;
   bool _isSatelliteView = false;
 
+  late final MapController _mapController;
+
   @override
   void initState() {
     super.initState();
-    _initializeBoundaries();
-    _locationService = widget.locationService ?? LocationMapManager();
-    _mapService = widget.mapService ?? LocationMapManager();
-    _mapState = LocationMapManager();
-    _mapProvider = context.read<MapProvider>();
-    
+    _mapController = MapController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_mapProvider.isInitialized) {
-        _mapProvider.initialize();
-      }
+      context.read<MapProvider>().setMapController(_mapController);
       _quickLocationCheck();
     });
   }
@@ -146,7 +141,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
 
   @override
   void dispose() {
-    _isDisposed = true;
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -568,6 +563,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> with TickerProv
     return null;
   }
 }
+
 
 
 

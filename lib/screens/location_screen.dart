@@ -95,40 +95,69 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Future<void> _initializeMap() async {
-    if (!_mapProvider.isInitialized) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _mapProvider.initialize();
-      });
-    }
-
+    if (!mounted) return;
+    
     // If there's a selected position, use it and don't fetch current location
     if (_mapProvider.selectedPosition != null) {
       _mapProvider.updatePosition(
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-      _mapProvider.mapController.move(
-        LatLng(
-          _mapProvider.selectedPosition!.latitude,
-          _mapProvider.selectedPosition!.longitude,
-        ),
-        15,
-      );
-      return; // Early return to prevent current location fetch
+      
+      // Wait for map controller to be ready
+      while (mounted && 
+             (!_mapProvider.isInitialized || 
+              _mapProvider.mapController.camera == null)) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+      
+      if (!mounted) return;
+      
+      try {
+        _mapProvider.mapController.move(
+          LatLng(
+            _mapProvider.selectedPosition!.latitude,
+            _mapProvider.selectedPosition!.longitude,
+          ),
+          15,
+        );
+      } catch (e) {
+        debugPrint('Error moving map: $e');
+      }
+      return;
     }
 
     // Only fetch current location if no location is selected
     final position = await _locationService.determinePosition();
-    if (position != null && _locationService.isLocationInNetherlands(
-      position.latitude,
-      position.longitude,
-    )) {
+    if (!mounted) return;
+    
+    if (position != null && 
+        _locationService.isLocationInNetherlands(
+          position.latitude,
+          position.longitude,
+        )) {
       final address = await _locationService.getAddressFromPosition(position);
+      if (!mounted) return;
+      
       _mapProvider.updatePosition(position, address);
-      _mapProvider.mapController.move(
-        LatLng(position.latitude, position.longitude),
-        15,
-      );
+      
+      // Wait for map controller to be ready
+      while (mounted && 
+             (!_mapProvider.isInitialized || 
+              _mapProvider.mapController.camera == null)) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+      
+      if (!mounted) return;
+      
+      try {
+        _mapProvider.mapController.move(
+          LatLng(position.latitude, position.longitude),
+          15,
+        );
+      } catch (e) {
+        debugPrint('Error moving map: $e');
+      }
     }
   }
 
@@ -375,6 +404,9 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
 
 
 

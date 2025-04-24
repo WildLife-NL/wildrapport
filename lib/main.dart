@@ -85,6 +85,9 @@ void main() async {
       providers: [
           ChangeNotifierProvider<AppStateProvider>(create: (_) => AppStateProvider()),
           ChangeNotifierProvider<PossesionDamageFormProvider>(create: (_) => PossesionDamageFormProvider()),
+          ChangeNotifierProvider<MapProvider>(
+            create: (_) => MapProvider(),
+          ),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
