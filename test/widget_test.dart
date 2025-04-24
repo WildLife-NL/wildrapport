@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wildrapport/main.dart';
-import 'package:wildrapport/screens/zuid_map_screen.dart';
+import 'package:wildrapport/screens/login_screen.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp(initialScreen: ZuidMapScreen()));
+    await tester.pumpWidget(const MyApp(initialScreen: LoginScreen()));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
