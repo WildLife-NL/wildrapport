@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 
-class LocationDisplay extends StatelessWidget {
+class LocationDisplay extends StatefulWidget {
   final VoidCallback onLocationIconTap;
   final String locationText;
   final bool isLoading;
@@ -27,6 +27,28 @@ class LocationDisplay extends StatelessWidget {
   }
 
   @override
+  State<LocationDisplay> createState() => _LocationDisplayState();
+}
+
+class _LocationDisplayState extends State<LocationDisplay> with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -43,7 +65,7 @@ class LocationDisplay extends StatelessWidget {
           horizontal: 16.0,
           vertical: 12.0,
         ),
-        child: isLoading
+        child: widget.isLoading
             ? Center(
                 child: SizedBox(
                   height: 36,
@@ -53,13 +75,18 @@ class LocationDisplay extends StatelessWidget {
                     repeat: true,
                     animate: true,
                     frameRate: FrameRate(60),
+                    controller: _animationController,
+                    onLoaded: (composition) {
+                      _animationController.duration = composition.duration ~/ 2;
+                      _animationController.repeat();
+                    },
                   ),
                 ),
               )
             : Row(
                 children: [
                   GestureDetector(
-                    onTap: onLocationIconTap,
+                    onTap: widget.onLocationIconTap,
                     child: Image.asset(
                       'assets/location/location_icon.png',
                       width: 24,
@@ -69,7 +96,7 @@ class LocationDisplay extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      _displayText,
+                      widget._displayText,
                       style: const TextStyle(
                         color: Colors.black54,
                         fontSize: 14,
@@ -84,6 +111,8 @@ class LocationDisplay extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

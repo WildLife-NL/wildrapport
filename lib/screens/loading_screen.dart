@@ -15,8 +15,24 @@ class LoadingScreen extends StatefulWidget {
   State<LoadingScreen> createState() => _LoadingScreenState();
 }
 
-class _LoadingScreenState extends State<LoadingScreen> {
+class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProviderStateMixin {
   bool _initialized = false;
+  late final AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000), // Adjust this to control speed
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -57,6 +73,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
                 repeat: true,
                 animate: true,
                 frameRate: FrameRate(60),
+                controller: _animationController,
+                onLoaded: (composition) {
+                  _animationController.duration = composition.duration ~/ 2; // Makes it 2x faster
+                  _animationController.repeat();
+                },
               ),
             ),
           ],
@@ -65,6 +86,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
     );
   }
 }
+
+
+
 
 
 
