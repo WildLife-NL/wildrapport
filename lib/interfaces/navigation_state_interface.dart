@@ -18,5 +18,9 @@ abstract class NavigationStateInterface {
 
   /// Replaces current screen with previous screen
   void pushReplacementBack(BuildContext context, Widget screen);
+
+  /// Pushes a new screen onto the navigation stack
+  void pushForward(BuildContext context, Widget screen);
 }
+
 

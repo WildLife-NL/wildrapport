@@ -145,7 +145,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   void dispose() {
     debugPrint('[LivingLabMapScreen] Disposing screen');
     _isDisposed = true;
-    _mapController.dispose();
+    // Remove map controller disposal from here
     super.dispose();
   }
 
@@ -553,5 +553,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
 
 

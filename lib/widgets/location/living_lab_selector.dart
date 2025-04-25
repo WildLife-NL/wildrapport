@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/screens/map_screen.dart';
+import 'package:provider/provider.dart';
 
 class LivingLabSelector extends StatefulWidget {
   final String currentLabName;
@@ -29,6 +31,10 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
     final labData = labName == 'Nationaal Park Zuid-Kennemerland'
         ? (center: const LatLng(52.3874, 4.5753), offset: 0.018)
         : (center: const LatLng(51.1950, 5.7230), offset: 0.045);
+
+    // Remove the disposal call here
+    // final mapProvider = Provider.of<MapProvider>(context, listen: false);
+    // mapProvider.dispose();  <- Remove this line
 
     Navigator.pushReplacement(
       context,
@@ -161,3 +167,5 @@ Widget _buildLabOption(String labName) {
     );
   }
 }
+
+

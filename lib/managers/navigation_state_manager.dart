@@ -21,7 +21,6 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void resetToHome(BuildContext context) {
-    // First, navigate to new screen and clear the navigation stack
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (context) => const Rapporteren(),
@@ -29,7 +28,6 @@ class NavigationStateManager implements NavigationStateInterface {
       (route) => false,
     );
 
-    // Then, clear all state after navigation is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       clearApplicationState(context);
     });
@@ -37,11 +35,9 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void clearApplicationState(BuildContext context) {
-    // Clear animal-specific state
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     animalSightingManager.clearCurrentanimalSighting();
 
-    // Clear global app state
     final appStateProvider = context.read<AppStateProvider>();
     appStateProvider.resetApplicationState(context);
   }
@@ -56,7 +52,7 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void pushReplacementForward(BuildContext context, Widget screen) {
-    dispose(); // Clean up before navigation
+    dispose();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => screen,
@@ -66,12 +62,22 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void pushReplacementBack(BuildContext context, Widget screen) {
-    dispose(); // Clean up before navigation
+    dispose();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => screen,
       ),
     );
   }
+
+  @override
+  void pushForward(BuildContext context, Widget screen) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => screen,
+      ),
+    );
+  }
 }
+
 
