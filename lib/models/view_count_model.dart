@@ -1,3 +1,5 @@
+import 'package:wildrapport/models/enums/animal_age.dart';
+
 class ViewCountModel {
   int pasGeborenAmount;
   int onvolwassenAmount;
@@ -10,6 +12,13 @@ class ViewCountModel {
     this.volwassenAmount = 0,
     this.unknownAmount = 0,
   });
+
+  AnimalAge getAge() {
+    if (pasGeborenAmount > 0) return AnimalAge.pasGeboren;
+    if (onvolwassenAmount > 0) return AnimalAge.onvolwassen;
+    if (volwassenAmount > 0) return AnimalAge.volwassen;
+    return AnimalAge.onbekend;
+  }
 
   Map<String, dynamic> toJson() => {
     'pasGeborenAmount': pasGeborenAmount,

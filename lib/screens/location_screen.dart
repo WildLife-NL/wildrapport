@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/managers/location_screen_manager.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -43,9 +45,9 @@ class _LocationScreenState extends State<LocationScreen> {
           onBackPressed: () => context
               .read<NavigationStateInterface>()
               .pushReplacementBack(context, const Rapporteren()),
-          onNextPressed: () {
-            // Handle next action
-          },
+          onNextPressed: () => context
+              .read<LocationScreenInterface>()
+              .handleNextPressed(context),
           showNextButton: true,
           showBackButton: true,
         ),
@@ -53,4 +55,8 @@ class _LocationScreenState extends State<LocationScreen> {
     );
   }
 }
+
+
+
+
 

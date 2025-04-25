@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
@@ -517,8 +518,59 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     _notifyListeners();
     return _currentanimalSighting!;
   }
-}
 
+  @override
+  AnimalSightingModel updateDateTimeModel(DateTimeModel dateTimeModel) {
+    // Create a new sighting if none exists
+    if (_currentanimalSighting == null) {
+      _currentanimalSighting = createanimalSighting();
+    }
+
+    final oldJson = _currentanimalSighting?.toJson();
+    debugPrint('[AnimalSightingManager] Updating datetime model. Old state: $oldJson');
+    debugPrint('[AnimalSightingManager] New datetime model: ${dateTimeModel.toJson()}');
+    
+    _currentanimalSighting = AnimalSightingModel(
+      animals: _currentanimalSighting?.animals ?? [],
+      animalSelected: _currentanimalSighting?.animalSelected,
+      category: _currentanimalSighting?.category,
+      description: _currentanimalSighting?.description,
+      locations: _currentanimalSighting?.locations,
+      dateTime: dateTimeModel,
+      images: _currentanimalSighting?.images,
+    );
+
+    debugPrint('[AnimalSightingManager] New state: ${_currentanimalSighting?.toJson()}');
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
+  
+  @override
+  AnimalSightingModel updateDateTime(DateTime dateTime) {
+    // Create a new sighting if none exists
+    if (_currentanimalSighting == null) {
+      _currentanimalSighting = createanimalSighting();
+    }
+
+    final oldJson = _currentanimalSighting?.toJson();
+    debugPrint('[AnimalSightingManager] Updating datetime. Old state: $oldJson');
+    debugPrint('[AnimalSightingManager] New datetime: $dateTime');
+    
+    _currentanimalSighting = AnimalSightingModel(
+      animals: _currentanimalSighting?.animals ?? [],
+      animalSelected: _currentanimalSighting?.animalSelected,
+      category: _currentanimalSighting?.category,
+      description: _currentanimalSighting?.description,
+      locations: _currentanimalSighting?.locations,
+      dateTime: DateTimeModel(dateTime: dateTime, isUnknown: false),
+      images: _currentanimalSighting?.images,
+    );
+
+    debugPrint('[AnimalSightingManager] New state: ${_currentanimalSighting?.toJson()}');
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
+}
 
 
 

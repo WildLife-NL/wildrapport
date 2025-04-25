@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 abstract class LocationScreenInterface {
-  // State getters
+  // Existing state getters
   bool get isLocationDropdownExpanded;
   bool get isDateTimeDropdownExpanded;
   String get selectedLocation;
   String get selectedDateTime;
   String get currentLocationText;
+
+  // Add the new method
+  Future<void> handleNextPressed(BuildContext context);
 }

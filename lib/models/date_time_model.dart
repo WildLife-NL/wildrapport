@@ -1,23 +1,23 @@
 class DateTimeModel {
-  final DateTime? date;
-  final DateTime? time;
+  final DateTime? dateTime;
   final bool isUnknown;
 
   DateTimeModel({
-    this.date,
-    this.time,
+    this.dateTime,
     this.isUnknown = false,
   });
 
-  Map<String, dynamic> toJson() => {
-    'date': date?.toIso8601String(),
-    'time': time?.toIso8601String(),
-    'isUnknown': isUnknown,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'dateTime': dateTime?.toIso8601String(),
+      'isUnknown': isUnknown,
+    };
+  }
 
-  factory DateTimeModel.fromJson(Map<String, dynamic> json) => DateTimeModel(
-    date: json['date'] != null ? DateTime.parse(json['date']) : null,
-    time: json['time'] != null ? DateTime.parse(json['time']) : null,
-    isUnknown: json['isUnknown'] ?? false,
-  );
+  factory DateTimeModel.fromJson(Map<String, dynamic> json) {
+    return DateTimeModel(
+      dateTime: json['dateTime'] != null ? DateTime.parse(json['dateTime']) : null,
+      isUnknown: json['isUnknown'] ?? false,
+    );
+  }
 }
