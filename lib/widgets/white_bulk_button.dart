@@ -9,6 +9,12 @@ class WhiteBulkButton extends StatelessWidget {
   final Widget? rightWidget;
   final VoidCallback? onPressed;
   final double height;
+  final double? width;  // Add width parameter
+  final bool showIcon;
+  final TextStyle? textStyle;
+  final double? fontSize;
+  final FontWeight? fontWeight;
+  final TextAlign textAlign;
 
   const WhiteBulkButton({
     super.key,
@@ -17,13 +23,37 @@ class WhiteBulkButton extends StatelessWidget {
     this.rightWidget,
     this.onPressed,
     this.height = 120,
+    this.width,    // Add width parameter
+    this.showIcon = true,
+    this.textStyle,
+    this.fontSize,
+    this.fontWeight,
+    this.textAlign = TextAlign.center,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Base style from theme
+    final baseStyle = AppTextTheme.textTheme.titleLarge?.copyWith(
+      shadows: [
+        Shadow(
+          color: Colors.black.withOpacity(0.25),
+          offset: const Offset(0, 2),
+          blurRadius: 4,
+        ),
+      ],
+    );
+
+    // Combine styles in order of precedence
+    final effectiveStyle = baseStyle?.copyWith(
+      fontSize: fontSize ?? textStyle?.fontSize ?? baseStyle.fontSize,
+      fontWeight: fontWeight ?? textStyle?.fontWeight ?? baseStyle?.fontWeight,
+      color: textStyle?.color ?? baseStyle?.color,
+    ).merge(textStyle);
+
     return Container(
       height: height,
-      width: double.infinity,
+      width: width ?? double.infinity,  // Use width parameter if provided
       decoration: BoxDecoration(
         color: AppColors.offWhite,
         borderRadius: BorderRadius.circular(25),
@@ -49,29 +79,26 @@ class WhiteBulkButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (leftWidget != null) leftWidget! else const SizedBox(),
-                Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: AppTextTheme.textTheme.titleLarge?.copyWith(
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.25),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
+                Expanded(
+                  child: Text(
+                    text,
+                    textAlign: textAlign,
+                    style: effectiveStyle,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (rightWidget != null)
                   rightWidget!
-                else 
+                else if (showIcon)
                   CircleIconContainer(
                     icon: Icons.arrow_forward_ios,
                     iconColor: AppColors.brown,
-                    size: 48, // Increased from 38
-                    iconSize: 28, // Increased from 20
+                    size: 48,
+                    iconSize: 28,
                     backgroundColor: AppColors.offWhite,
-                  ),
+                  )
+                else
+                  const SizedBox(),
               ],
             ),
           ),
@@ -80,6 +107,9 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
+
+
 
 
 

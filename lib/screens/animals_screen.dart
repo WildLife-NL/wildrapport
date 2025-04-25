@@ -6,9 +6,9 @@ import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
-import 'package:wildrapport/screens/animal_gender_screen.dart';
+import 'package:wildrapport/screens/animal_condition_screen.dart';
+import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/screens/report_decision_screen.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
@@ -134,7 +134,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     
     _navigationManager.pushReplacementForward(
       context,
-      ReportDecisionScreen(),
+      const AnimalCountingScreen(), // Changed from AnimalConditionScreen to AnimalCountingScreen
     );
   }
 
@@ -187,6 +187,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     );
   }
 }
+
 
 
 

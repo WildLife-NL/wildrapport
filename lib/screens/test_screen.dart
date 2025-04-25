@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/counter_widget.dart';
+import 'package:wildrapport/widgets/animal_counting.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class TestScreen extends StatelessWidget {
@@ -19,20 +18,19 @@ class TestScreen extends StatelessWidget {
           onRightIconPressed: () {/* Handle menu */},
         ),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimalCounter(
-              name: "Wolf",
-              onCountChanged: (name, count) {},
-            ),
+            AnimalCounting(),
           ],
         ),
       ),
     );
   }
 }
+
+
 
 
 

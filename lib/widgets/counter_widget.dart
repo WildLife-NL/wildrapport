@@ -3,11 +3,13 @@ import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalCounter extends StatefulWidget {
   final String name;
+  final double height;
   final Function(String name, int count)? onCountChanged;
 
   const AnimalCounter({
     Key? key,
     required this.name,
+    this.height = 49, // Added height parameter with default value
     this.onCountChanged,
   }) : super(key: key);
 
@@ -63,8 +65,8 @@ class _AnimalCounterState extends State<AnimalCounter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 146,
-      height: 36,
+      width: 230,
+      height: widget.height,
       decoration: BoxDecoration(
         color: AppColors.offWhite,
         borderRadius: BorderRadius.circular(15),
@@ -79,7 +81,15 @@ class _AnimalCounterState extends State<AnimalCounter> {
       ),
       child: Row(
         children: [
-          _buildButton("−", _decrement),
+          Padding(
+            padding: const EdgeInsets.only(left: 6.0),
+            child: _buildButton("−", _decrement),
+          ),
+          Container(
+            height: widget.height - 20, // Adjust height of divider
+            width: 1,
+            color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+          ),
           Expanded(
             child: GestureDetector(
               onTap: () {
@@ -89,49 +99,67 @@ class _AnimalCounterState extends State<AnimalCounter> {
               },
               child: Container(
                 color: Colors.transparent,
-                child: Center(
-                  child: _isEditing
-                      ? TextField(
-                          controller: _controller,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 20, // Increased from 16
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.25),
-                                offset: const Offset(0, 2),
-                                blurRadius: 4,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: _isEditing
+                          ? TextField(
+                              controller: _controller,
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          onSubmitted: _handleTextSubmitted,
-                          autofocus: true,
-                        )
-                      : Text(
-                          '$_count',
-                          style: TextStyle(
-                            fontSize: 20, // Increased from 16
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.25),
-                                offset: const Offset(0, 2),
-                                blurRadius: 4,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
                               ),
-                            ],
-                          ),
-                        ),
+                              onSubmitted: _handleTextSubmitted,
+                              autofocus: true,
+                            )
+                          : Text(
+                              '$_count',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+                    Container(
+                      height: 1,
+                      width: 40, // Width of the underline
+                      color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          _buildButton("+", _increment),
+          Container(
+            height: widget.height - 20, // Adjust height of divider
+            width: 1,
+            color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 6.0),
+            child: _buildButton("+", _increment),
+          ),
         ],
       ),
     );
@@ -141,25 +169,22 @@ class _AnimalCounterState extends State<AnimalCounter> {
     final bool isMinus = symbol == "−";
     return SizedBox(
       width: 44,  // Same width for both buttons
-      height: 36,
+      height: widget.height - 13, // Adjust height based on parent container
       child: Material(
-        color: AppColors.brown,
-        borderRadius: BorderRadius.circular(15),
-        elevation: 4, // Added elevation for shadow
-        shadowColor: Colors.black.withOpacity(0.25), // Matching shadow color
+        color: Colors.transparent, // Remove brown background
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(15),
-          splashColor: Colors.white.withOpacity(0.3),
-          highlightColor: Colors.white.withOpacity(0.1),
+          splashColor: AppColors.brown.withOpacity(0.3),
+          highlightColor: AppColors.brown.withOpacity(0.1),
           child: Center(
             child: Text(
               symbol,
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: isMinus ? 2.0 : 0,  // Add letter spacing only for minus sign
+                color: AppColors.brown, // Change text color to brown
+                fontSize: 24,
+                fontWeight: FontWeight.w400,
+                letterSpacing: isMinus ? 2.0 : 0,
+                height: 1,
                 shadows: [
                   Shadow(
                     color: Colors.black.withOpacity(0.25),
@@ -175,6 +200,13 @@ class _AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
+
+
+
+
+
+
 
 
 
