@@ -47,15 +47,16 @@ class _RapporterenState extends State<Rapporteren> {
         _initializeMapInBackground();
         break;
       case 'Gewasschade':
+        debugPrint('[Rapporteren] Gewasschade selected, initializing map');
         selectedReportType = ReportType.gewasschade;
-        nextScreen = ChangeNotifierProvider(
-          create: (_) => PossesionDamageModel(),
-          child: PossesionDamagesScreen(),
-        );
+        nextScreen = PossesionDamagesScreen();
+        _initializeMapInBackground();
         break;
       case 'Diergezondheid':
+        debugPrint('[Rapporteren] Diergezondheid selected, initializing map');
         selectedReportType = ReportType.verkeersongeval;
         nextScreen = AnimalsScreen(appBarTitle: reportType);
+        _initializeMapInBackground();
         break;
       default:
         throw Exception('Unknown report type: $reportType');
