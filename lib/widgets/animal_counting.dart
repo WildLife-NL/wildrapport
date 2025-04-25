@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/counter_widget.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -56,6 +58,24 @@ class _AnimalCountingState extends State<AnimalCounting> {
       default:
         return AnimalGender.onbekend;
     }
+  }
+
+  // Add this method to check if a gender is already in use
+  bool _isGenderInUse(String gender) {
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
+    
+    final animalGender = _convertStringToAnimalGender(gender);
+    
+    return currentSighting?.animals?.any(
+      (animal) => animal.gender == animalGender
+    ) ?? false;
+  }
+
+  // Add this method to check if all genders are in use
+  bool _areAllGendersInUse() {
+    // Check all possible genders except 'Onbekend' (Unknown) which can be used multiple times
+    return _isGenderInUse('Mannelijk') && _isGenderInUse('Vrouwelijk');
   }
 
   @override
@@ -131,7 +151,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
       animalSightingManager.updateAnimal(updatedAnimal);
       
-      // Log the entire sighting after update in a single message
       final updatedSighting = animalSightingManager.getCurrentanimalSighting();
       debugPrint('[AnimalCounting] Added to list successfully:\n${updatedSighting?.toJson()}');
 
@@ -143,10 +162,16 @@ class _AnimalCountingState extends State<AnimalCounting> {
         selectedGender = null;
         _counterKey.currentState?.reset();
       });
-    }
 
-    // Remove this separate log since we combined it above
-    // debugPrint('[AnimalCounting] Validation successful, adding to list');
+      // Check if all genders are in use and navigate if true
+      if (_areAllGendersInUse()) {
+        final navigationManager = context.read<NavigationStateInterface>();
+        navigationManager.pushReplacementForward(
+          context,
+          const AnimalListOverviewScreen(),
+        );
+      }
+    }
   }
 
   void _handleAgeSelection(String age) {
@@ -179,6 +204,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   @override
   Widget build(BuildContext context) {
+    // Add this to make the widget rebuild when the animal sighting changes
+    context.watch<AnimalSightingReportingInterface>();
+    
     return LayoutBuilder(
       builder: (context, constraints) {
         return Column(
@@ -320,6 +348,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
   }
 
   Widget _buildGenderButton(String text, {IconData? icon, Color? tintColor}) {
+    // If gender is already in use, don't show the button
+    if (_isGenderInUse(text)) {
+      return const SizedBox.shrink(); // Returns an empty widget
+    }
+
     final bool isSelected = text == selectedGender;
     
     Widget? leftWidget;
@@ -347,6 +380,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 }
+
+
 
 
 

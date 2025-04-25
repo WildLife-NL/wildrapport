@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_counting.dart';
@@ -16,6 +17,8 @@ class AnimalCountingScreen extends StatefulWidget {
 }
 
 class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
+  bool _hasAddedItems = false;
+
   void _handleBackNavigation(BuildContext context) {
     final navigationManager = context.read<NavigationStateInterface>();
     navigationManager.pushReplacementBack(
@@ -32,7 +35,9 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
-      setState(() {}); // Refresh the UI to show updated list
+      setState(() {
+        _hasAddedItems = true;
+      });
     }
   }
 
@@ -71,11 +76,16 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () => _handleBackNavigation(context),
         onNextPressed: () {
-          debugPrint('[AnimalCountingScreen] Next button pressed');
+          final navigationManager = context.read<NavigationStateInterface>();
+          navigationManager.pushReplacementForward(
+            context,
+            const AnimalListOverviewScreen(),
+          );
         },
-        showNextButton: false,
+        showNextButton: _hasAddedItems,
       ),
     );
   }
 }
+
 
