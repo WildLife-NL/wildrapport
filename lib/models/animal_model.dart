@@ -3,6 +3,7 @@ import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 
 class AnimalModel {
+  final String? animalId;
   final String? animalImagePath;
   final String animalName;
   final ViewCountModel viewCount;
@@ -10,6 +11,7 @@ class AnimalModel {
   final AnimalGender? gender;
 
   AnimalModel({
+    this.animalId,
     this.animalImagePath,
     required this.animalName,
     ViewCountModel? viewCount,
@@ -17,6 +19,7 @@ class AnimalModel {
     this.gender,
   }) : viewCount = viewCount ?? ViewCountModel();
 }
+
 
 
 

@@ -30,6 +30,7 @@ class AnimalSightingModel {
   Map<String, dynamic> toJson() {
     return {
       'animals': animals?.map((animal) => {
+        'animalId': animal.animalId,
         'animalImagePath': animal.animalImagePath,
         'animalName': animal.animalName,
         'viewCount': animal.viewCount.toJson(),
@@ -37,6 +38,7 @@ class AnimalSightingModel {
         'gender': animal.gender?.toString(),
       }).toList(),
       'animalSelected': animalSelected != null ? {
+        'animalId': animalSelected!.animalId,
         'animalImagePath': animalSelected!.animalImagePath,
         'animalName': animalSelected!.animalName,
         'viewCount': animalSelected!.viewCount?.toJson(),
@@ -55,6 +57,7 @@ class AnimalSightingModel {
     animals: json['animals'] != null 
       ? List<AnimalModel>.from(
           json['animals'].map((x) => AnimalModel(
+            animalId: x['animalId'],
             animalImagePath: x['animalImagePath'],
             animalName: x['animalName'],
             viewCount: x['viewCount'] != null 
@@ -93,6 +96,7 @@ class AnimalSightingModel {
       : null,
   );
 }
+
 
 
 

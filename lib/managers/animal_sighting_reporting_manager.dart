@@ -70,6 +70,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     
     // Preserve the condition from the current animalSighting if it exists
     final updatedAnimal = AnimalModel(
+      animalId: selectedAnimal.animalId,  // Add this line to preserve the ID
       animalImagePath: selectedAnimal.animalImagePath,
       animalName: selectedAnimal.animalName,
       condition: _currentanimalSighting?.animalSelected?.condition ?? selectedAnimal.condition,
@@ -104,6 +105,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     final currentAnimal = _currentanimalSighting!.animalSelected;
     
     final updatedAnimal = AnimalModel(
+      animalId: currentAnimal?.animalId,  // Add this line to preserve the ID
       animalImagePath: currentAnimal?.animalImagePath,
       animalName: currentAnimal?.animalName ?? '',
       condition: condition,
@@ -137,19 +139,18 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       throw StateError('No current animalSighting found');
     }
 
-    final oldJson = _currentanimalSighting!.toJson();
-    
     final currentAnimal = _currentanimalSighting!.animalSelected;
     if (currentAnimal == null) {
       throw StateError('No animal found in current animalSighting');
     }
 
     final updatedAnimal = AnimalModel(
+      animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
       condition: currentAnimal.condition,
       gender: gender,
-      viewCount: currentAnimal.viewCount ?? ViewCountModel(),
+      viewCount: currentAnimal.viewCount,
     );
 
     _currentanimalSighting = AnimalSightingModel(
@@ -172,14 +173,13 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       throw StateError('No current animalSighting found');
     }
 
-    final oldJson = _currentanimalSighting!.toJson();
-    
     final currentAnimal = _currentanimalSighting!.animalSelected;
     if (currentAnimal == null) {
       throw StateError('No animal found in current animalSighting');
     }
 
     final updatedAnimal = AnimalModel(
+      animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
       condition: currentAnimal.condition,
@@ -196,7 +196,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
-    
+
     _notifyListeners();
     return _currentanimalSighting!;
   }
@@ -207,14 +207,13 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       throw StateError('No current animalSighting found');
     }
 
-    final oldJson = _currentanimalSighting!.toJson();
-    
     final currentAnimal = _currentanimalSighting!.animalSelected;
     if (currentAnimal == null) {
       throw StateError('No animal found in current animalSighting');
     }
 
     final updatedAnimal = AnimalModel(
+      animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
       condition: currentAnimal.condition,
@@ -231,7 +230,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
-    
+
     _notifyListeners();
     return _currentanimalSighting!;
   }
@@ -269,11 +268,22 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
 
     final oldJson = _currentanimalSighting!.toJson();
     final currentAnimals = List<AnimalModel>.from(_currentanimalSighting!.animals ?? []);
-    currentAnimals.add(_currentanimalSighting!.animalSelected!);
+    
+    // Ensure we preserve the ID when adding to the list
+    final animalToAdd = AnimalModel(
+      animalId: _currentanimalSighting!.animalSelected!.animalId,  // Preserve ID
+      animalImagePath: _currentanimalSighting!.animalSelected!.animalImagePath,
+      animalName: _currentanimalSighting!.animalSelected!.animalName,
+      condition: _currentanimalSighting!.animalSelected!.condition,
+      gender: _currentanimalSighting!.animalSelected!.gender,
+      viewCount: _currentanimalSighting!.animalSelected!.viewCount,
+    );
+    
+    currentAnimals.add(animalToAdd);
 
     _currentanimalSighting = AnimalSightingModel(
       animals: currentAnimals,
-      animalSelected: clearSelected ? null : _currentanimalSighting!.animalSelected, // Only clear if specified
+      animalSelected: clearSelected ? null : _currentanimalSighting!.animalSelected,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
       location: _currentanimalSighting!.location,
@@ -354,6 +364,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     AnimalManagerInterface animalManager,
   ) {
     debugPrint('[AnimalSightingManager] Processing animal selection: ${selectedAnimal.animalName}');
+    debugPrint('[AnimalSightingManager] Processing animal ID: ${selectedAnimal.animalId}');
     final processedAnimal = animalManager.handleAnimalSelection(selectedAnimal);
     return updateSelectedAnimal(processedAnimal);
   }
@@ -440,6 +451,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     if (animalIndex != -1) {
       final currentAnimal = updatedAnimals[animalIndex];
       updatedAnimals[animalIndex] = AnimalModel(
+        animalId: currentAnimal.animalId,  // Preserve ID
         animalImagePath: currentAnimal.animalImagePath,
         animalName: currentAnimal.animalName,
         condition: condition ?? currentAnimal.condition,
@@ -462,6 +474,10 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     return _currentanimalSighting!;
   }
 }
+
+
+
+
 
 
 
