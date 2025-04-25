@@ -40,6 +40,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/location_screen.dart';

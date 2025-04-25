@@ -15,6 +15,7 @@ class WhiteBulkButton extends StatelessWidget {
   final double? fontSize;
   final FontWeight? fontWeight;
   final TextAlign textAlign;
+  final Color? backgroundColor;  // Add this line
 
   const WhiteBulkButton({
     super.key,
@@ -29,6 +30,7 @@ class WhiteBulkButton extends StatelessWidget {
     this.fontSize,
     this.fontWeight,
     this.textAlign = TextAlign.center,
+    this.backgroundColor,  // Add this line
   });
 
   @override
@@ -55,7 +57,7 @@ class WhiteBulkButton extends StatelessWidget {
       height: height,
       width: width ?? double.infinity,  // Use width parameter if provided
       decoration: BoxDecoration(
-        color: AppColors.offWhite,
+        color: backgroundColor ?? AppColors.offWhite,  // Modify this line
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
@@ -95,7 +97,7 @@ class WhiteBulkButton extends StatelessWidget {
                     iconColor: AppColors.brown,
                     size: 48,
                     iconSize: 28,
-                    backgroundColor: AppColors.offWhite,
+                    backgroundColor: backgroundColor ?? AppColors.offWhite,  // Add this line
                   )
                 else
                   const SizedBox(),
@@ -107,6 +109,7 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
+
 
 
 

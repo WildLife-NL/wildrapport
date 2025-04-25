@@ -5,6 +5,7 @@ import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart'
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
@@ -282,122 +283,25 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
     
-    Widget content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildEditButton(),
-        const SizedBox(height: 16),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.offWhite,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Table(
-                    border: TableBorder.all(
-                      color: AppColors.brown.withOpacity(0.2), // Changed to brown color
-                      width: 1,
-                      borderRadius: BorderRadius.circular(25), // Changed to 25px
-                    ),
-                    columnWidths: {
-                      0: const FlexColumnWidth(2.0),
-                      for (var i = 0; i < usedGenders.length; i++)
-                        i + 1: const FlexColumnWidth(0.8),
-                    },
-                    children: [
-                      TableRow(
-                        decoration: BoxDecoration(
-                          color: AppColors.brown.withOpacity(0.1),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(25), // Changed to 25px
-                            topRight: Radius.circular(25), // Changed to 25px
-                          ),
-                        ),
-                        children: [
-                          const TableCell(
-                            verticalAlignment: TableCellVerticalAlignment.middle,
-                            child: SizedBox(
-                              height: 50.0,  // Added fixed height for the header
-                              child: Padding(
-                                padding: EdgeInsets.all(5.0),
-                                child: Center(
-                                  child: Text(
-                                    'Leeftijdscategorie',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          ...usedGenders.map((gender) => TableCell(
-                            verticalAlignment: TableCellVerticalAlignment.middle,
-                            child: SizedBox(
-                              height: 50.0,  // Added fixed height for the header
-                              child: Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(5.0),
-                                  child: Image.asset(
-                                    _getGenderIconPath(gender),
-                                    height: 32,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )),
-                        ],
-                      ),
-                      ...List.generate(4, (index) => _buildDataRow(index + 1, usedGenders, context)),
-                    ],
-                  ),
-                ),
-                if (currentSighting?.description != null || _isEditing) ...[
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Reduced from 16.0
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Opmerkingen',
-                        style: TextStyle(
-                          color: AppColors.brown,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Reduced from 16.0
-                    child: Container(
-                      width: double.infinity,
-                      height: 150, // Reduced from 200 to 150
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildEditButton(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       decoration: BoxDecoration(
                         color: AppColors.offWhite,
                         borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: AppColors.brown.withOpacity(0.3), // Darker border (0.2 -> 0.3)
-                          width: 1,
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -406,52 +310,81 @@ class _AnimalListTableState extends State<AnimalListTable> {
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: _isEditing
-                            ? Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: TextField(
-                                  controller: _opmerkingController,
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Voer opmerkingen in...',
-                                  ),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              )
-                            : SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    currentSighting?.description ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      child: Table(
+                        border: TableBorder.all(
+                          color: AppColors.brown.withOpacity(0.2),
+                          width: 1,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        columnWidths: {
+                          0: const FlexColumnWidth(2.0),
+                          for (var i = 0; i < usedGenders.length; i++)
+                            i + 1: const FlexColumnWidth(0.8),
+                        },
+                        children: [
+                          _buildHeaderRow(usedGenders),
+                          ...List.generate(4, (index) => _buildDataRow(index + 1, usedGenders, context)),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ],
+                    if (currentSighting.description != null || _isEditing) ...[
+                      const SizedBox(height: 16),
+                      _buildDescriptionSection(currentSighting),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildHeaderRow(List<AnimalGender> usedGenders) {
+    return TableRow(
+      decoration: BoxDecoration(
+        color: AppColors.brown.withOpacity(0.1),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+      ),
+      children: [
+        const TableCell(
+          verticalAlignment: TableCellVerticalAlignment.middle,
+          child: SizedBox(
+            height: 50.0,
+            child: Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Center(
+                child: Text(
+                  'Leeftijdscategorie',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ),
         ),
+        ...usedGenders.map((gender) => _buildHeaderCell(gender)),
       ],
     );
+  }
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: content,
+  Widget _buildHeaderCell(AnimalGender gender) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: SizedBox(
+        height: 50.0,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(5.0),
+            child: Image.asset(
+              _getGenderIconPath(gender),
+              height: 32,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -565,6 +498,88 @@ class _AnimalListTableState extends State<AnimalListTable> {
     );
   }
 
+  Widget _buildDescriptionSection(AnimalSightingModel currentSighting) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Opmerkingen',
+            style: TextStyle(
+              color: AppColors.brown,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildDescriptionContainer(currentSighting),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionContainer(AnimalSightingModel currentSighting) {
+    return Container(
+      width: double.infinity,
+      height: 150, // Reduced from 200 to 150
+      decoration: BoxDecoration(
+        color: AppColors.offWhite,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color: AppColors.brown.withOpacity(0.3), // Darker border (0.2 -> 0.3)
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: _isEditing
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _opmerkingController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Voer opmerkingen in...',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+              )
+            : SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    currentSighting.description ?? '',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -574,6 +589,10 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
+
+
 
 
 
