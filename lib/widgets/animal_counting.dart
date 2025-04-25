@@ -30,6 +30,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedAge;
   String? selectedGender;
   int currentCount = 0;
+  final GlobalKey<AnimalCounterState> _counterKey = GlobalKey<AnimalCounterState>();
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
     switch (ageString) {
@@ -140,7 +141,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
       setState(() {
         selectedAge = null;
         selectedGender = null;
-        currentCount = 0;
+        _counterKey.currentState?.reset();
       });
     }
 
@@ -244,6 +245,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
                   _buildHeader('Aantal'),
                   const SizedBox(height: 8),
                   AnimalCounter(
+                    key: _counterKey,
                     name: "Example",
                     height: 49,
                     onCountChanged: _handleCountChanged,
@@ -345,12 +347,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 }
-
-
-
-
-
-
 
 
 

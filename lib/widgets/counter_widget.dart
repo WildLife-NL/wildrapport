@@ -9,15 +9,15 @@ class AnimalCounter extends StatefulWidget {
   const AnimalCounter({
     Key? key,
     required this.name,
-    this.height = 49, // Added height parameter with default value
+    this.height = 49,
     this.onCountChanged,
   }) : super(key: key);
 
   @override
-  _AnimalCounterState createState() => _AnimalCounterState();
+  AnimalCounterState createState() => AnimalCounterState();
 }
 
-class _AnimalCounterState extends State<AnimalCounter> {
+class AnimalCounterState extends State<AnimalCounter> {
   int _count = 0;
   final TextEditingController _controller = TextEditingController();
   bool _isEditing = false;
@@ -209,6 +209,7 @@ class _AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
 
 
 
