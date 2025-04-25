@@ -124,6 +124,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
+    debugPrint('[AnimalsScreen] Selected animal: ${selectedAnimal.animalName}');
+    debugPrint('[AnimalsScreen] Selected animal ID: ${selectedAnimal.animalId}');
+    
     final updatedSighting = _animalSightingManager.processAnimalSelection(
       selectedAnimal,
       _animalManager,
@@ -184,6 +187,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     );
   }
 }
+
 
 
 

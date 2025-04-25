@@ -25,12 +25,14 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
 
       final species = await _speciesApi.getAllSpecies();
       _cachedAnimals = species.map((s) => AnimalModel(
+        animalId: s.id,  // Added animalId from species
         animalImagePath: 'assets/wolf.png',
         animalName: s.commonName,
       )).toList();
 
       // Add the "Unknown" option with no image
       _cachedAnimals!.add(AnimalModel(
+        animalId: 'unknown',  // Added default ID for unknown
         animalImagePath: null,
         animalName: 'Onbekend',
       ));
@@ -38,7 +40,6 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
       debugPrint('[AnimalManager] Error fetching animals: $e');
-      // Return empty list instead of throwing to prevent UI crashes
       return [];
     }
   }
@@ -96,6 +97,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
 
 
 
