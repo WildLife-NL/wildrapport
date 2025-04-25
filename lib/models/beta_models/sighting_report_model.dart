@@ -33,18 +33,10 @@ class SightingReport implements Reportable, CommonReportFields{
   Map<String, dynamic> toJson() {
     List<dynamic>? listAnimals;
     listAnimals = List<dynamic>.from(animals.map((x) => x.toJson()));
-    dynamic jsonUserSelectedLocation = userSelectedLocation!.toJson();
-    dynamic jsonSystemLocation = systemLocation!.toJson();
 
     return {
       "sightingReportID": sightingReportID,
-      "description": description,
-      "suspectedSpeciesID": suspectedSpeciesID,
-      "userSelectedLocation": jsonUserSelectedLocation,
-      "systemLocation": jsonSystemLocation,
-      "userSelectedDateTime": userSelectedDateTime!.toIso8601String(),
-      "systemDateTime": systemDateTime.toIso8601String(),
-      "animals": listAnimals,
+      "involvedAnimals": listAnimals,
     };
   }
   factory SightingReport.fromJson(Map<String, dynamic> json) => SightingReport(
