@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
@@ -82,13 +83,13 @@ class _AnimalListTableState extends State<AnimalListTable> {
             
             // Initialize counts for each age/gender combination
             _tempCounts['${AnimalAge.pasGeboren.name}_${animal.gender!.name}'] = 
-                animal.viewCount.pasGeborenAmount;
+                animal.viewCount?.pasGeborenAmount ?? 0;
             _tempCounts['${AnimalAge.onvolwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount.onvolwassenAmount;
+                animal.viewCount?.onvolwassenAmount ?? 0;
             _tempCounts['${AnimalAge.volwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount.volwassenAmount;
+                animal.viewCount?.volwassenAmount ?? 0;
             _tempCounts['${AnimalAge.onbekend.name}_${animal.gender!.name}'] = 
-                animal.viewCount.unknownAmount;
+                animal.viewCount?.unknownAmount ?? 0;
           }
         }
         debugPrint('Entering edit mode. Initialized temp counts: $_tempCounts');
@@ -119,24 +120,24 @@ class _AnimalListTableState extends State<AnimalListTable> {
         // Create new ViewCountModel with updated values
         final viewCount = ViewCountModel(
           pasGeborenAmount: _tempCounts['${AnimalAge.pasGeboren.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.pasGeborenAmount,
+              animal.viewCount?.pasGeborenAmount ?? 0,
           onvolwassenAmount: _tempCounts['${AnimalAge.onvolwassen.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.onvolwassenAmount,
+              animal.viewCount?.onvolwassenAmount ?? 0,
           volwassenAmount: _tempCounts['${AnimalAge.volwassen.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.volwassenAmount,
+              animal.viewCount?.volwassenAmount ?? 0,
           unknownAmount: _tempCounts['${AnimalAge.onbekend.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.unknownAmount,
+              animal.viewCount?.unknownAmount ?? 0,
         );
 
         debugPrint('New view counts for ${animal.animalName}: ${viewCount.toJson()}');
         
         // Create updated animal with new view count
         final updatedAnimal = AnimalModel(
-          animalImagePath: animal.animalName,
+          animalId: animal.animalId,
+          animalImagePath: animal.animalImagePath,
           animalName: animal.animalName,
+          genderViewCounts: [AnimalGenderViewCount(gender: animal.gender!, viewCount: viewCount)],
           condition: animal.condition,
-          gender: animal.gender!,
-          viewCount: viewCount,
         );
         
         // Update the animal in the manager
@@ -233,13 +234,13 @@ class _AnimalListTableState extends State<AnimalListTable> {
     for (var animal in animalsWithGender) {
       switch (age) {
         case AnimalAge.pasGeboren:
-          totalCount += animal.viewCount.pasGeborenAmount;
+          totalCount += animal.viewCount?.pasGeborenAmount ?? 0;
         case AnimalAge.onvolwassen:
-          totalCount += animal.viewCount.onvolwassenAmount;
+          totalCount += animal.viewCount?.onvolwassenAmount ?? 0;
         case AnimalAge.volwassen:
-          totalCount += animal.viewCount.volwassenAmount;
+          totalCount += animal.viewCount?.volwassenAmount ?? 0;
         case AnimalAge.onbekend:
-          totalCount += animal.viewCount.unknownAmount;
+          totalCount += animal.viewCount?.unknownAmount ?? 0;
       }
     }
     
@@ -589,6 +590,8 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
 
 
 

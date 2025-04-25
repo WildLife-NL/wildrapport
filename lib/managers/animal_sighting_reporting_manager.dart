@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_model.dart';
@@ -73,9 +74,8 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalId: selectedAnimal.animalId,  // Add this line to preserve the ID
       animalImagePath: selectedAnimal.animalImagePath,
       animalName: selectedAnimal.animalName,
+      genderViewCounts: selectedAnimal.genderViewCounts,
       condition: _currentanimalSighting?.animalSelected?.condition ?? selectedAnimal.condition,
-      gender: selectedAnimal.gender,
-      viewCount: selectedAnimal.viewCount,
     );
     
     _currentanimalSighting = AnimalSightingModel(
@@ -97,22 +97,28 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
 
   @override
   AnimalSightingModel updateCondition(AnimalCondition condition) {
-    if (_currentanimalSighting == null) {
-      _currentanimalSighting = createanimalSighting();
-    }
+    // Create a new sighting if none exists
+    _currentanimalSighting ??= createanimalSighting();
 
-    final oldJson = _currentanimalSighting!.toJson();
-    final currentAnimal = _currentanimalSighting!.animalSelected;
-    
-    final updatedAnimal = AnimalModel(
-      animalId: currentAnimal?.animalId,  // Add this line to preserve the ID
-      animalImagePath: currentAnimal?.animalImagePath,
-      animalName: currentAnimal?.animalName ?? '',
+    // Get the current animal or create a new empty one
+    final currentAnimal = _currentanimalSighting!.animalSelected ?? AnimalModel(
+      animalId: null,
+      animalImagePath: null,
+      animalName: '',
+      genderViewCounts: [],
       condition: condition,
-      gender: currentAnimal?.gender,
-      viewCount: currentAnimal?.viewCount,
+    );
+    
+    // Create updated animal with new condition
+    final updatedAnimal = AnimalModel(
+      animalId: currentAnimal.animalId,
+      animalImagePath: currentAnimal.animalImagePath,
+      animalName: currentAnimal.animalName,
+      genderViewCounts: currentAnimal.genderViewCounts,
+      condition: condition,
     );
 
+    // Update the current sighting with the new animal
     _currentanimalSighting = AnimalSightingModel(
       animals: _currentanimalSighting?.animals ?? [],
       animalSelected: updatedAnimal,
@@ -148,9 +154,8 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
+      genderViewCounts: [AnimalGenderViewCount(gender: gender, viewCount: ViewCountModel())],
       condition: currentAnimal.condition,
-      gender: gender,
-      viewCount: currentAnimal.viewCount,
     );
 
     _currentanimalSighting = AnimalSightingModel(
@@ -182,9 +187,8 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
+      genderViewCounts: currentAnimal.genderViewCounts,
       condition: currentAnimal.condition,
-      gender: currentAnimal.gender,
-      viewCount: currentAnimal.viewCount,
     );
 
     _currentanimalSighting = AnimalSightingModel(
@@ -216,9 +220,9 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalId: currentAnimal.animalId,  // Preserve ID
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
+      genderViewCounts: currentAnimal.genderViewCounts,
       condition: currentAnimal.condition,
-      gender: currentAnimal.gender,
-      viewCount: viewCount,
+
     );
 
     _currentanimalSighting = AnimalSightingModel(
@@ -274,9 +278,8 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalId: _currentanimalSighting!.animalSelected!.animalId,  // Preserve ID
       animalImagePath: _currentanimalSighting!.animalSelected!.animalImagePath,
       animalName: _currentanimalSighting!.animalSelected!.animalName,
+      genderViewCounts: _currentanimalSighting!.animalSelected!.genderViewCounts,
       condition: _currentanimalSighting!.animalSelected!.condition,
-      gender: _currentanimalSighting!.animalSelected!.gender,
-      viewCount: _currentanimalSighting!.animalSelected!.viewCount,
     );
     
     currentAnimals.add(animalToAdd);
@@ -399,19 +402,23 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
   @override
   AnimalSightingModel updateAnimal(AnimalModel updatedAnimal) {
     if (_currentanimalSighting == null) {
-      throw StateError('No current animalSighting found');
+      _currentanimalSighting = createanimalSighting();
     }
 
-    final oldJson = _currentanimalSighting!.toJson();
+    final List<AnimalModel> updatedAnimals = List.from(_currentanimalSighting!.animals ?? []);
     
-    // Find and update the animal in the list
-    final updatedAnimals = List<AnimalModel>.from(_currentanimalSighting!.animals ?? []);
-    final animalIndex = updatedAnimals.indexWhere(
-      (animal) => animal.animalName == updatedAnimal.animalName && animal.gender == updatedAnimal.gender
+    // Find if animal with same name and gender exists
+    final existingIndex = updatedAnimals.indexWhere((animal) => 
+      animal.animalName == updatedAnimal.animalName && 
+      animal.gender == updatedAnimal.gender
     );
-    
-    if (animalIndex != -1) {
-      updatedAnimals[animalIndex] = updatedAnimal;
+
+    if (existingIndex != -1) {
+      // Update existing animal
+      updatedAnimals[existingIndex] = updatedAnimal;
+    } else {
+      // Add new animal
+      updatedAnimals.add(updatedAnimal);
     }
 
     _currentanimalSighting = AnimalSightingModel(
@@ -423,10 +430,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
-    
-    debugPrint('[animalSightingManager] Updating animal. Previous state: $oldJson');
-    debugPrint('[animalSightingManager] New state: ${_currentanimalSighting!.toJson()}');
-    
+
     _notifyListeners();
     return _currentanimalSighting!;
   }
@@ -454,9 +458,11 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
         animalId: currentAnimal.animalId,  // Preserve ID
         animalImagePath: currentAnimal.animalImagePath,
         animalName: currentAnimal.animalName,
+        genderViewCounts: viewCount != null 
+            ? [AnimalGenderViewCount(gender: currentAnimal.gender ?? AnimalGender.onbekend, viewCount: viewCount)]
+            : currentAnimal.genderViewCounts,
         condition: condition ?? currentAnimal.condition,
-        gender: currentAnimal.gender,
-        viewCount: viewCount ?? currentAnimal.viewCount,
+    
       );
     }
 
@@ -474,33 +480,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     return _currentanimalSighting!;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

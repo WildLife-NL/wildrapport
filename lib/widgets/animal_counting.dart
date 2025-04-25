@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/animal_gender_view_count_model.dart';
+import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/widgets/counter_widget.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -26,31 +31,54 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedGender;
   int currentCount = 0;
 
+  AnimalAge _convertStringToAnimalAge(String ageString) {
+    switch (ageString) {
+      case "<6 maanden":
+        return AnimalAge.pasGeboren;
+      case "Onvolwassen":
+        return AnimalAge.onvolwassen;
+      case "Volwassen":
+        return AnimalAge.volwassen;
+      case "Onbekend":
+      default:
+        return AnimalAge.onbekend;
+    }
+  }
+
+  AnimalGender _convertStringToAnimalGender(String genderString) {
+    switch (genderString) {
+      case "Mannelijk":
+        return AnimalGender.mannelijk;
+      case "Vrouwelijk":
+        return AnimalGender.vrouwelijk;
+      case "Onbekend":
+      default:
+        return AnimalGender.onbekend;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _logCurrentAnimalSighting();
-  }
-
-  void _logCurrentAnimalSighting() {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = animalSightingManager.getCurrentanimalSighting();
-    
-    debugPrint('[AnimalCounting] Current animal sighting:');
-    debugPrint('[AnimalCounting] Selected animal: ${currentSighting?.animalSelected?.animalName}');
-    debugPrint('[AnimalCounting] Animal ID: ${currentSighting?.animalSelected?.animalId}');
-    debugPrint('[AnimalCounting] Category: ${currentSighting?.category}');
-    debugPrint('[AnimalCounting] Description: ${currentSighting?.description}');
-    debugPrint('[AnimalCounting] Location: ${currentSighting?.location?.toJson()}');
-    debugPrint('[AnimalCounting] DateTime: ${currentSighting?.dateTime?.toJson()}');
-    debugPrint('[AnimalCounting] Full state: ${currentSighting?.toJson()}');
+    // Remove log from initState
   }
 
   void _handleCountChanged(String name, int count) {
     setState(() {
       currentCount = count;
     });
-    debugPrint('[AnimalCounting] Count changed to: $count');
+    
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final viewCount = ViewCountModel(
+      pasGeborenAmount: selectedAge == "<6 maanden" ? count : 0,
+      onvolwassenAmount: selectedAge == "Onvolwassen" ? count : 0,
+      volwassenAmount: selectedAge == "Volwassen" ? count : 0,
+      unknownAmount: selectedAge == "Onbekend" ? count : 0,
+    );
+    
+    animalSightingManager.updateViewCount(viewCount);
+    // Remove or comment out this log since it's redundant
+    // debugPrint('[AnimalCounting] Count changed to: $count');
   }
 
   void _validateAndAddToList(BuildContext context) {
@@ -78,34 +106,74 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    debugPrint('[AnimalCounting] Validation successful, adding to list');
-    widget.onAddToList?.call();
-    _logCurrentAnimalSighting();
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
+    
+    if (currentSighting?.animalSelected != null) {
+      final updatedAnimal = AnimalModel(
+        animalId: currentSighting!.animalSelected!.animalId,
+        animalImagePath: currentSighting.animalSelected!.animalImagePath,
+        animalName: currentSighting.animalSelected!.animalName,
+        genderViewCounts: [
+          AnimalGenderViewCount(
+            gender: _convertStringToAnimalGender(selectedGender!),
+            viewCount: ViewCountModel(
+              pasGeborenAmount: selectedAge == "<6 maanden" ? currentCount : 0,
+              onvolwassenAmount: selectedAge == "Onvolwassen" ? currentCount : 0,
+              volwassenAmount: selectedAge == "Volwassen" ? currentCount : 0,
+              unknownAmount: selectedAge == "Onbekend" ? currentCount : 0,
+            ),
+          ),
+        ],
+        condition: currentSighting.animalSelected!.condition,
+      );
+
+      animalSightingManager.updateAnimal(updatedAnimal);
+      
+      // Log the entire sighting after update in a single message
+      final updatedSighting = animalSightingManager.getCurrentanimalSighting();
+      debugPrint('[AnimalCounting] Added to list successfully:\n${updatedSighting?.toJson()}');
+
+      widget.onAddToList?.call();
+      
+      // Reset selections after adding to list
+      setState(() {
+        selectedAge = null;
+        selectedGender = null;
+        currentCount = 0;
+      });
+    }
+
+    // Remove this separate log since we combined it above
+    // debugPrint('[AnimalCounting] Validation successful, adding to list');
   }
 
   void _handleAgeSelection(String age) {
     debugPrint('[AnimalCounting] Selected age: $age');
     setState(() {
       if (selectedAge == age) {
-        selectedAge = null; // Deselect if already selected
+        selectedAge = null;
       } else {
         selectedAge = age;
+        final animalAge = _convertStringToAnimalAge(age);
+        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+        animalSightingManager.updateAge(animalAge);
       }
     });
-    widget.onAgeSelected?.call(age);
-    _logCurrentAnimalSighting();
   }
 
   void _handleGenderSelection(String gender) {
     debugPrint('[AnimalCounting] Selected gender: $gender');
     setState(() {
       if (selectedGender == gender) {
-        selectedGender = null; // Deselect if already selected
+        selectedGender = null;
       } else {
         selectedGender = gender;
+        final animalGender = _convertStringToAnimalGender(gender);
+        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+        animalSightingManager.handleGenderSelection(animalGender);
       }
     });
-    _logCurrentAnimalSighting();
   }
 
   @override
@@ -277,26 +345,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -22,6 +22,15 @@ class _AnimalCounterState extends State<AnimalCounter> {
   final TextEditingController _controller = TextEditingController();
   bool _isEditing = false;
 
+  // Add this method to reset the counter
+  void reset() {
+    setState(() {
+      _count = 0;
+      _controller.text = '0';
+    });
+    widget.onCountChanged?.call(widget.name, _count);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -200,6 +209,8 @@ class _AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
+
 
 
 
