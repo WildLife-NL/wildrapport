@@ -60,7 +60,12 @@ class AppStateProvider with ChangeNotifier {
         estimatedTotalDamages: '0',
         systemDateTime: DateTime.now(),
       ),
-      ReportType.verkeersongeval => AccidentReport(),
+      ReportType.verkeersongeval => AccidentReport(
+        damages: '0',
+        systemDateTime: DateTime.now(),
+        intensity: '0',
+        urgency: '0',
+      ),
     };
     
     _activeReports['currentReport'] = report;
@@ -92,6 +97,7 @@ class AppStateProvider with ChangeNotifier {
     super.dispose();
   }
 }
+
 
 
 
