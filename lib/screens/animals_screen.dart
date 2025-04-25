@@ -6,9 +6,9 @@ import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
-import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/category_screen.dart';
+import 'package:wildrapport/widgets/animal_counting.dart';
 import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:lottie/lottie.dart';
@@ -43,31 +43,13 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     debugPrint('[AnimalsScreen] Initializing screen');
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 2), // Set a default duration
     );
-    
-    // Move these to didChangeDependencies
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeManagers();
-    });
-  }
-
-  void _initializeManagers() {
-    if (!mounted) return;
     _animalManager = context.read<AnimalManagerInterface>();
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
     _navigationManager = context.read<NavigationStateInterface>();
     _animalManager.addListener(_handleStateChange);
     _validateAndLoad();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Only initialize if not already done
-    if (!_isLoading && _animals == null) {
-      _initializeManagers();
-    }
   }
 
   void _validateAndLoad() {
@@ -87,9 +69,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   Future<void> _loadAnimals() async {
-    if (!mounted) return;
     debugPrint('[AnimalsScreen] Starting to load animals');
-    
     try {
       setState(() {
         _isLoading = true;
@@ -97,31 +77,31 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       });
 
       final animals = await _animalManager.getAnimals();
-      
-      if (!mounted) return;
-
-      if (animals.isEmpty) {
-        throw Exception('No animals found');
-      }
-      
       debugPrint('[AnimalsScreen] Successfully loaded ${animals.length} animals');
       
-      setState(() {
-        _animals = animals;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      debugPrint('[AnimalsScreen] Error loading animals: $e');
-      setState(() {
-        _error = 'Kon geen dieren laden. Controleer je internetverbinding.';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _animals = animals;
+          _isLoading = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      debugPrint('[AnimalsScreen] ERROR: Failed to load animals');
+      debugPrint('[AnimalsScreen] Error details: $e');
+      debugPrint('[AnimalsScreen] Stack trace: $stackTrace');
+      
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   void dispose() {
+    debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
     _animationController.dispose();
     _animalManager.removeListener(_handleStateChange);
@@ -129,8 +109,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   void _handleStateChange() {
-    if (!mounted) return;
-    _loadAnimals();
+    if (mounted) {
+      _loadAnimals();
+    }
   }
 
   void _toggleExpanded() {
@@ -141,20 +122,15 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
-    debugPrint('[AnimalsScreen] Selected animal: ${selectedAnimal.animalName}');
-    debugPrint('[AnimalsScreen] Selected animal ID: ${selectedAnimal.animalId}');
-    
     final updatedSighting = _animalSightingManager.processAnimalSelection(
       selectedAnimal,
       _animalManager,
     );
     
-    if (mounted) {  // Add mounted check
-      _navigationManager.pushReplacementForward(
-        context,
-        const AnimalCountingScreen(),
-      );
-    }
+    _navigationManager.pushReplacementForward(
+      context,
+      AnimalCountingScreen(),
+    );
   }
 
   void _handleBackNavigation() {
@@ -171,44 +147,65 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     final dropdownInterface = context.read<DropdownInterface>();
     
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: CustomAppBar(
-          leftIcon: Icons.arrow_back_ios,
-          centerText: widget.appBarTitle,
-          rightIcon: Icons.menu,
-          onLeftIconPressed: _handleBackNavigation,
-          onRightIconPressed: () {/* Handle menu */},
-        ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: dropdownInterface.buildDropdown(
-              type: DropdownType.filter,
-              selectedValue: _animalManager.getSelectedFilter(),
-              isExpanded: _isExpanded,
-              onExpandChanged: (_) => _toggleExpanded(),
-              onOptionSelected: _animalManager.updateFilter,
-              context: context,
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomAppBar(
+              leftIcon: Icons.arrow_back_ios,
+              centerText: widget.appBarTitle,
+              rightIcon: Icons.menu,
+              onLeftIconPressed: _handleBackNavigation,
+              onRightIconPressed: () {/* Handle menu */},
             ),
-          ),
-          Expanded(
-            child: ScrollableAnimalGrid(
-              animals: _animals,
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: dropdownInterface.buildDropdown(
+                type: DropdownType.filter,
+                selectedValue: _animalManager.getSelectedFilter(),
+                isExpanded: _isExpanded,
+                onExpandChanged: (_) => _toggleExpanded(),
+                onOptionSelected: _animalManager.updateFilter,
+                context: context,
+              ),
+            ),
+            ScrollableAnimalGrid(
+              animals: _animals,  // Pass directly without the ?? []
               isLoading: _isLoading,
               error: _error,
               scrollController: _scrollController,
               onAnimalSelected: _handleAnimalSelection,
               onRetry: _loadAnimals,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

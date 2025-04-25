@@ -61,7 +61,6 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
                       onAddToList: () => _handleAddToList(context),
                     ),
                     const SizedBox(height: 20),
-                    const AnimalListTable(),
                   ],
                 ),
               ),
