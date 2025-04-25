@@ -4,14 +4,14 @@ import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/models/image_list_model.dart';
 import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/models/animal_gender_view_count_model.dart'; // <--- Make sure you import this!
+import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 
 class AnimalSightingModel {
   final List<AnimalModel>? animals;
   final AnimalModel? animalSelected;
   final AnimalCategory? category;
   final String? description;
-  final LocationModel? location;
+  final List<LocationModel>? locations; // Changed to List
   final DateTimeModel? dateTime;
   final ImageListModel? images;
 
@@ -19,7 +19,7 @@ class AnimalSightingModel {
     this.animals,
     this.category,
     this.description,
-    this.location,
+    this.locations, // Updated parameter name
     this.dateTime,
     this.images,
     this.animalSelected,
@@ -45,7 +45,7 @@ class AnimalSightingModel {
           : null,
       'category': category?.toString(),
       'description': description,
-      'location': location?.toJson(),
+      'locations': locations?.map((loc) => loc.toJson()).toList(), // Updated to handle list
       'dateTime': dateTime?.toJson(),
       'images': images?.toJson(),
     };
@@ -99,10 +99,15 @@ class AnimalSightingModel {
               )
             : null,
         description: json['description'],
-        location: json['location'] != null ? LocationModel.fromJson(json['location']) : null,
+        locations: json['locations'] != null // Updated to handle list of locations
+            ? List<LocationModel>.from(
+                json['locations'].map((x) => LocationModel.fromJson(x)),
+              )
+            : null,
         dateTime: json['dateTime'] != null ? DateTimeModel.fromJson(json['dateTime']) : null,
         images: json['images'] != null ? ImageListModel.fromJson(json['images']) : null,
       );
 }
+
 
 

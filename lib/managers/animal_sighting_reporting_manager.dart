@@ -9,6 +9,7 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 
 class AnimalSightingReportingManager implements AnimalSightingReportingInterface {
@@ -57,7 +58,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: null,
       category: null,
       description: null,
-      location: null,
+      locations: [],  // Initialize as empty list
       dateTime: null,
       images: null,
     );
@@ -83,7 +84,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: updatedAnimal,  // Use the updated animal that preserves the condition
       category: _currentanimalSighting?.category,
       description: _currentanimalSighting?.description,
-      location: _currentanimalSighting?.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting?.dateTime,
       images: _currentanimalSighting?.images,
     );
@@ -124,7 +125,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: updatedAnimal,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -163,7 +164,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: updatedAnimal,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -196,7 +197,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: updatedAnimal,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -230,7 +231,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: updatedAnimal,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -252,7 +253,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: _currentanimalSighting!.animalSelected,  // Add this line to preserve the selected animal and its condition
       category: category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -289,7 +290,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: clearSelected ? null : _currentanimalSighting!.animalSelected,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -311,7 +312,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: _currentanimalSighting!.animalSelected,
       category: _currentanimalSighting!.category,
       description: description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -426,7 +427,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: _currentanimalSighting!.animalSelected,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -471,7 +472,7 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       animalSelected: _currentanimalSighting!.animalSelected,
       category: _currentanimalSighting!.category,
       description: description ?? _currentanimalSighting!.description,
-      location: _currentanimalSighting!.location,
+      locations: _currentanimalSighting?.locations,  // Preserve the locations
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
@@ -479,7 +480,45 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     _notifyListeners();
     return _currentanimalSighting!;
   }
+
+  @override
+  AnimalSightingModel updateLocation(LocationModel location) {
+    List<LocationModel> updatedLocations = List.from(_currentanimalSighting?.locations ?? []);
+    updatedLocations.add(location);
+
+    _currentanimalSighting = AnimalSightingModel(
+      animals: _currentanimalSighting?.animals ?? [],
+      animalSelected: _currentanimalSighting?.animalSelected,
+      category: _currentanimalSighting?.category,
+      description: _currentanimalSighting?.description,
+      locations: updatedLocations,  // Use the updated list
+      dateTime: _currentanimalSighting?.dateTime,
+      images: _currentanimalSighting?.images,
+    );
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
+
+  // Add method to remove location if needed
+  @override
+  AnimalSightingModel removeLocation(LocationModel location) {
+    List<LocationModel> updatedLocations = List.from(_currentanimalSighting?.locations ?? []);
+    updatedLocations.removeWhere((loc) => loc.source == location.source);  // Assuming LocationModel has an id
+
+    _currentanimalSighting = AnimalSightingModel(
+      animals: _currentanimalSighting?.animals ?? [],
+      animalSelected: _currentanimalSighting?.animalSelected,
+      category: _currentanimalSighting?.category,
+      description: _currentanimalSighting?.description,
+      locations: updatedLocations,
+      dateTime: _currentanimalSighting?.dateTime,
+      images: _currentanimalSighting?.images,
+    );
+    _notifyListeners();
+    return _currentanimalSighting!;
+  }
 }
+
 
 
 

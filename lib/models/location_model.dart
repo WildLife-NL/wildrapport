@@ -3,16 +3,16 @@
 import 'package:wildrapport/models/enums/location_source.dart';
 
 class LocationModel {
-  final double? coordinate1;
-  final double? coordinate2;
+  final double? latitude;
+  final double? longitude;
   final String? cityName;
   final String? streetName;
   final String? houseNumber;
   final LocationSource source;
 
   LocationModel({
-    this.coordinate1,
-    this.coordinate2,
+    this.latitude,
+    this.longitude,
     this.cityName,
     this.streetName,
     this.houseNumber,
@@ -20,8 +20,8 @@ class LocationModel {
   });
 
   Map<String, dynamic> toJson() => {
-    'coordinate1': coordinate1,
-    'coordinate2': coordinate2,
+    'latitude': latitude,
+    'longitude': longitude,
     'cityName': cityName,
     'streetName': streetName,
     'houseNumber': houseNumber,
@@ -29,8 +29,8 @@ class LocationModel {
   };
 
   factory LocationModel.fromJson(Map<String, dynamic> json) => LocationModel(
-    coordinate1: json['coordinate1'],
-    coordinate2: json['coordinate2'],
+    latitude: json['latitude'],
+    longitude: json['longitude'],
     cityName: json['cityName'],
     streetName: json['streetName'],
     houseNumber: json['houseNumber'],
@@ -38,5 +38,36 @@ class LocationModel {
       (e) => e.toString() == json['source'],
       orElse: () => LocationSource.unknown,
     ),
+  );
+
+  // Factory constructors for current and selected locations
+  factory LocationModel.currentLocation({
+    required double latitude,
+    required double longitude,
+    String? cityName,
+    String? streetName,
+    String? houseNumber,
+  }) => LocationModel(
+    latitude: latitude,
+    longitude: longitude,
+    cityName: cityName,
+    streetName: streetName,
+    houseNumber: houseNumber,
+    source: LocationSource.system,
+  );
+
+  factory LocationModel.selectedLocation({
+    required double latitude,
+    required double longitude,
+    String? cityName,
+    String? streetName,
+    String? houseNumber,
+  }) => LocationModel(
+    latitude: latitude,
+    longitude: longitude,
+    cityName: cityName,
+    streetName: streetName,
+    houseNumber: houseNumber,
+    source: LocationSource.manual,
   );
 }
