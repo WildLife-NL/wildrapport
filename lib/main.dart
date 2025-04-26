@@ -145,33 +145,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'WildRapport',
-      theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.lightMintGreen,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.darkGreen,
-          surface: AppColors.lightMintGreen,
-        ),
-        textTheme: AppTextTheme.textTheme,
-        fontFamily: 'Arimo',
-        snackBarTheme: const SnackBarThemeData(
-          backgroundColor: AppColors.brown300,
-          behavior: SnackBarBehavior.floating,
-          contentTextStyle: TextStyle(
-            color: Colors.black,
-            fontFamily: 'Arimo',
+    return _MediaQueryWrapper(
+      child: MaterialApp(
+        title: 'WildRapport',
+        theme: ThemeData(
+          scaffoldBackgroundColor: AppColors.lightMintGreen,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.darkGreen,
+            surface: AppColors.lightMintGreen,
+          ),
+          textTheme: AppTextTheme.textTheme,
+          fontFamily: 'Arimo',
+          snackBarTheme: const SnackBarThemeData(
+            backgroundColor: AppColors.brown300,
+            behavior: SnackBarBehavior.floating,
+            contentTextStyle: TextStyle(
+              color: Colors.black,
+              fontFamily: 'Arimo',
+            ),
           ),
         ),
+        builder: (context, child) {
+          return MediaQuery(
+            // Preserve the original MediaQuery settings
+            data: MediaQuery.of(context).copyWith(
+              // Allow text scaling but with reasonable limits
+              textScaler: TextScaler.linear(
+                MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.4),
+              ),
+            ),
+            child: child!,
+          );
+        },
+        home: const OverzichtScreen(),
       ),
-      home: const Rapporteren(),
     );
   }
 }
 
 
 // Separate widget for MediaQuery modifications
-// ignore: unused_element
 class _MediaQueryWrapper extends StatelessWidget {
   final Widget child;
 
@@ -179,9 +192,18 @@ class _MediaQueryWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    final screenSize = MediaQuery.of(context).size;
+    
+    // Calculate base text scale based on screen width
+    final baseTextScale = (screenSize.width / 375).clamp(0.8, 1.2);
+    
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        textScaler: TextScaler.linear(1.0),
+        // Combine device text scale with our responsive scale
+        textScaler: TextScaler.linear(
+          baseTextScale * MediaQuery.of(context).textScaleFactor,
+        ),
         viewInsets: MediaQuery.of(context).viewInsets.copyWith(
           bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,
         ),
