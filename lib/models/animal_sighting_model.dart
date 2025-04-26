@@ -25,6 +25,26 @@ class AnimalSightingModel {
     this.animalSelected,
   });
 
+  AnimalSightingModel copyWith({
+    List<AnimalModel>? animals,
+    AnimalModel? animalSelected,
+    AnimalCategory? category,
+    String? description,
+    List<LocationModel>? locations,
+    DateTimeModel? dateTime,
+    ImageListModel? images,
+  }) {
+    return AnimalSightingModel(
+      animals: animals ?? this.animals,
+      animalSelected: animalSelected ?? this.animalSelected,
+      category: category ?? this.category,
+      description: description ?? this.description,
+      locations: locations ?? this.locations,
+      dateTime: dateTime ?? this.dateTime,
+      images: images ?? this.images,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'animals': animals?.map((animal) => {
@@ -34,18 +54,9 @@ class AnimalSightingModel {
             'condition': animal.condition?.toString(),
             'genderViewCounts': animal.genderViewCounts.map((gvc) => gvc.toJson()).toList(),
           }).toList(),
-      'animalSelected': animalSelected != null
-          ? {
-              'animalId': animalSelected!.animalId,
-              'animalImagePath': animalSelected!.animalImagePath,
-              'animalName': animalSelected!.animalName,
-              'condition': animalSelected!.condition?.toString(),
-              'genderViewCounts': animalSelected!.genderViewCounts.map((gvc) => gvc.toJson()).toList(),
-            }
-          : null,
       'category': category?.toString(),
       'description': description,
-      'locations': locations?.map((loc) => loc.toJson()).toList(), // Updated to handle list
+      'locations': locations?.map((loc) => loc.toJson()).toList(),
       'dateTime': dateTime?.toJson(),
       'images': images?.toJson(),
     };
@@ -108,6 +119,8 @@ class AnimalSightingModel {
         images: json['images'] != null ? ImageListModel.fromJson(json['images']) : null,
       );
 }
+
+
 
 
 

@@ -172,13 +172,17 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     
-    // Get unique genders from all animals in the list, filtering out null values
-    final usedGenders = currentSighting?.animals
-        ?.map((animal) => animal.gender)
-        .whereType<AnimalGender>() // This will filter out null values
-        .toSet() ?? {};
+    if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
+      return [];
+    }
 
-    return usedGenders.toList();
+    // Get the first animal since all animals should have the same gender counts
+    final animal = currentSighting.animals![0];
+    
+    // Extract all genders from genderViewCounts
+    return animal.genderViewCounts
+        .map((gvc) => gvc.gender)
+        .toList();
   }
 
   String _getGenderIconPath(AnimalGender gender) {
@@ -224,27 +228,30 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     
-    // Get all animals of the specified gender
-    final animalsWithGender = currentSighting?.animals
-        ?.where((animal) => animal.gender == gender)
-        .toList() ?? [];
-
-    // Sum up the counts for the specified age
-    int totalCount = 0;
-    for (var animal in animalsWithGender) {
-      switch (age) {
-        case AnimalAge.pasGeboren:
-          totalCount += animal.viewCount?.pasGeborenAmount ?? 0;
-        case AnimalAge.onvolwassen:
-          totalCount += animal.viewCount?.onvolwassenAmount ?? 0;
-        case AnimalAge.volwassen:
-          totalCount += animal.viewCount?.volwassenAmount ?? 0;
-        case AnimalAge.onbekend:
-          totalCount += animal.viewCount?.unknownAmount ?? 0;
-      }
+    if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
+      return 0;
     }
+
+    // Get the first animal since all animals in the list should have the same counts
+    final animal = currentSighting.animals![0];
     
-    return totalCount;
+    // Find the gender view count for the specified gender
+    final genderViewCount = animal.genderViewCounts.firstWhere(
+      (gvc) => gvc.gender == gender,
+      orElse: () => AnimalGenderViewCount(gender: gender, viewCount: ViewCountModel()),
+    );
+
+    // Return the count for the specified age
+    switch (age) {
+      case AnimalAge.pasGeboren:
+        return genderViewCount.viewCount.pasGeborenAmount;
+      case AnimalAge.onvolwassen:
+        return genderViewCount.viewCount.onvolwassenAmount;
+      case AnimalAge.volwassen:
+        return genderViewCount.viewCount.volwassenAmount;
+      case AnimalAge.onbekend:
+        return genderViewCount.viewCount.unknownAmount;
+    }
   }
 
   // Get or create controller for a specific cell
@@ -590,6 +597,8 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
 
 
 

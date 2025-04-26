@@ -152,25 +152,40 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       throw StateError('No animal found in current animalSighting');
     }
 
+    // Find the existing animal in the list with this gender
+    final existingAnimal = _currentanimalSighting!.animals?.firstWhere(
+      (a) => a.genderViewCounts.any((gvc) => gvc.gender == gender),
+      orElse: () => AnimalModel(
+        animalId: currentAnimal.animalId,
+        animalImagePath: currentAnimal.animalImagePath,
+        animalName: currentAnimal.animalName,
+        genderViewCounts: [],
+        condition: currentAnimal.condition,
+      ),
+    );
+
+    // If we found an existing animal with this gender, use its view counts
+    final genderViewCounts = existingAnimal?.genderViewCounts ?? 
+      [AnimalGenderViewCount(gender: gender, viewCount: ViewCountModel())];
+
     final updatedAnimal = AnimalModel(
-      animalId: currentAnimal.animalId,  // Preserve ID
+      animalId: currentAnimal.animalId,
       animalImagePath: currentAnimal.animalImagePath,
       animalName: currentAnimal.animalName,
-      genderViewCounts: [AnimalGenderViewCount(gender: gender, viewCount: ViewCountModel())],
+      genderViewCounts: genderViewCounts,
       condition: currentAnimal.condition,
     );
 
     _currentanimalSighting = AnimalSightingModel(
-      animals: _currentanimalSighting?.animals ?? [],
+      animals: _currentanimalSighting!.animals,
       animalSelected: updatedAnimal,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      locations: _currentanimalSighting?.locations,  // Preserve the locations
+      locations: _currentanimalSighting!.locations,
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
-    
-    _notifyListeners();
+
     return _currentanimalSighting!;
   }
 
@@ -368,8 +383,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     AnimalModel selectedAnimal,
     AnimalManagerInterface animalManager,
   ) {
-    debugPrint('[AnimalSightingManager] Processing animal selection: ${selectedAnimal.animalName}');
-    debugPrint('[AnimalSightingManager] Processing animal ID: ${selectedAnimal.animalId}');
     final processedAnimal = animalManager.handleAnimalSelection(selectedAnimal);
     return updateSelectedAnimal(processedAnimal);
   }
@@ -380,59 +393,53 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     final resetLog = '\x1B[0m';
     
     debugPrint('${orangeLog}[AnimalSightingManager] Handling gender selection: $selectedGender$resetLog');
-    
+
     try {
-      if (_currentanimalSighting == null) {
-        debugPrint('${orangeLog}[AnimalSightingManager] ERROR: No current animalSighting found$resetLog');
-        return false;
-      }
-
-      if (_currentanimalSighting!.animalSelected == null) {
-        debugPrint('${orangeLog}[AnimalSightingManager] ERROR: No animal selected in current sighting$resetLog');
-        return false;
-      }
-
       updateGender(selectedGender);
-      debugPrint('${orangeLog}[AnimalSightingManager] Successfully updated gender$resetLog');
+      debugPrint('[AnimalSightingManager] Successfully updated gender');
       return true;
     } catch (e) {
-      debugPrint('${orangeLog}[AnimalSightingManager] Error updating gender: $e$resetLog');
+      debugPrint('[AnimalSightingManager] Failed to update gender: $e');
       return false;
     }
   }
 
   @override
-  AnimalSightingModel updateAnimal(AnimalModel updatedAnimal) {
+  AnimalSightingModel updateAnimal(AnimalModel animalToUpdate) {
     if (_currentanimalSighting == null) {
-      _currentanimalSighting = createanimalSighting();
+      throw StateError('No current animalSighting found');
     }
 
-    final List<AnimalModel> updatedAnimals = List.from(_currentanimalSighting!.animals ?? []);
-    
-    // Find if animal with same name and gender exists
-    final existingIndex = updatedAnimals.indexWhere((animal) => 
-      animal.animalName == updatedAnimal.animalName && 
-      animal.gender == updatedAnimal.gender
+    debugPrint('[AnimalSightingManager] Updating animal with new data...');
+    debugPrint('[AnimalSightingManager] Animal to update: {animalId: ${animalToUpdate.animalId}, animalName: ${animalToUpdate.animalName}, condition: ${animalToUpdate.condition}}');
+
+    List<AnimalModel> updatedAnimals = List.from(_currentanimalSighting!.animals ?? []);
+
+    // Try to find if this animalId already exists
+    final existingAnimalIndex = updatedAnimals.indexWhere(
+      (a) => a.animalId == animalToUpdate.animalId
     );
 
-    if (existingIndex != -1) {
-      // Update existing animal
-      updatedAnimals[existingIndex] = updatedAnimal;
+    if (existingAnimalIndex != -1) {
+      debugPrint('[AnimalSightingManager] Updating existing animal at index: $existingAnimalIndex');
+      debugPrint('[AnimalSightingManager] Old animal data: {animalId: ${updatedAnimals[existingAnimalIndex].animalId}, animalName: ${updatedAnimals[existingAnimalIndex].animalName}, condition: ${updatedAnimals[existingAnimalIndex].condition}}');
+      updatedAnimals[existingAnimalIndex] = animalToUpdate;
     } else {
-      // Add new animal
-      updatedAnimals.add(updatedAnimal);
+      debugPrint('[AnimalSightingManager] Adding new animal to the list');
+      updatedAnimals.add(animalToUpdate);
     }
 
     _currentanimalSighting = AnimalSightingModel(
       animals: updatedAnimals,
-      animalSelected: _currentanimalSighting!.animalSelected,
+      animalSelected: animalToUpdate,
       category: _currentanimalSighting!.category,
       description: _currentanimalSighting!.description,
-      locations: _currentanimalSighting?.locations,  // Preserve the locations
+      locations: _currentanimalSighting?.locations,
       dateTime: _currentanimalSighting!.dateTime,
       images: _currentanimalSighting!.images,
     );
 
+    debugPrint('[AnimalSightingManager] Updated sighting state: ${_currentanimalSighting!.toJson()}');
     _notifyListeners();
     return _currentanimalSighting!;
   }
@@ -571,6 +578,24 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     return _currentanimalSighting!;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

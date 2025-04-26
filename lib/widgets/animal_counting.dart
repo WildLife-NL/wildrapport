@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
-import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/counter_widget.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/count_bar.dart';
 import 'package:wildrapport/widgets/validation_overlay.dart';
 
 class AnimalCounting extends StatefulWidget {
@@ -60,50 +57,18 @@ class _AnimalCountingState extends State<AnimalCounting> {
     }
   }
 
-  // Add this method to check if a gender is already in use
-  bool _isGenderInUse(String gender) {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = animalSightingManager.getCurrentanimalSighting();
-    
-    final animalGender = _convertStringToAnimalGender(gender);
-    
-    return currentSighting?.animals?.any(
-      (animal) => animal.gender == animalGender
-    ) ?? false;
-  }
-
-  // Add this method to check if all genders are in use
-  bool _areAllGendersInUse() {
-    // Check all possible genders except 'Onbekend' (Unknown) which can be used multiple times
-    return _isGenderInUse('Mannelijk') && _isGenderInUse('Vrouwelijk');
-  }
-
   @override
   void initState() {
     super.initState();
-    // Remove log from initState
   }
 
   void _handleCountChanged(String name, int count) {
     setState(() {
       currentCount = count;
     });
-    
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final viewCount = ViewCountModel(
-      pasGeborenAmount: selectedAge == "<6 maanden" ? count : 0,
-      onvolwassenAmount: selectedAge == "Onvolwassen" ? count : 0,
-      volwassenAmount: selectedAge == "Volwassen" ? count : 0,
-      unknownAmount: selectedAge == "Onbekend" ? count : 0,
-    );
-    
-    animalSightingManager.updateViewCount(viewCount);
-    // Remove or comment out this log since it's redundant
-    // debugPrint('[AnimalCounting] Count changed to: $count');
   }
 
   void _validateAndAddToList(BuildContext context) {
-    debugPrint('[AnimalCounting] Validating before adding to list');
     List<String> errors = [];
 
     if (selectedAge == null) {
@@ -119,7 +84,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
     }
 
     if (errors.isNotEmpty) {
-      debugPrint('[AnimalCounting] Validation failed: ${errors.join(", ")}');
       showDialog(
         context: context,
         builder: (context) => ValidationOverlay(messages: errors),
@@ -129,82 +93,84 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
-    
-    if (currentSighting?.animalSelected != null) {
-      final updatedAnimal = AnimalModel(
-        animalId: currentSighting!.animalSelected!.animalId,
-        animalImagePath: currentSighting.animalSelected!.animalImagePath,
-        animalName: currentSighting.animalSelected!.animalName,
-        genderViewCounts: [
-          AnimalGenderViewCount(
-            gender: _convertStringToAnimalGender(selectedGender!),
-            viewCount: ViewCountModel(
-              pasGeborenAmount: selectedAge == "<6 maanden" ? currentCount : 0,
-              onvolwassenAmount: selectedAge == "Onvolwassen" ? currentCount : 0,
-              volwassenAmount: selectedAge == "Volwassen" ? currentCount : 0,
-              unknownAmount: selectedAge == "Onbekend" ? currentCount : 0,
-            ),
-          ),
-        ],
-        condition: currentSighting.animalSelected!.condition,
+    final currentAnimal = currentSighting?.animalSelected;
+
+    if (currentAnimal == null) return;
+
+    final selectedAnimalGender = _convertStringToAnimalGender(selectedGender!);
+    final selectedAnimalAge = _convertStringToAnimalAge(selectedAge!);
+
+    List<AnimalGenderViewCount> updatedGenderViewCounts = List.from(currentAnimal.genderViewCounts);
+
+    final genderIndex = updatedGenderViewCounts.indexWhere((gvc) => gvc.gender == selectedAnimalGender);
+
+    if (genderIndex != -1) {
+      final existingGVC = updatedGenderViewCounts[genderIndex];
+      final viewCount = existingGVC.viewCount;
+
+      final updatedViewCount = ViewCountModel(
+        pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : viewCount.pasGeborenAmount,
+        onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : viewCount.onvolwassenAmount,
+        volwassenAmount: selectedAnimalAge == AnimalAge.volwassen ? currentCount : viewCount.volwassenAmount,
+        unknownAmount: selectedAnimalAge == AnimalAge.onbekend ? currentCount : viewCount.unknownAmount,
       );
 
-      animalSightingManager.updateAnimal(updatedAnimal);
-      
-      final updatedSighting = animalSightingManager.getCurrentanimalSighting();
-      debugPrint('[AnimalCounting] Added to list successfully:\n${updatedSighting?.toJson()}');
+      updatedGenderViewCounts[genderIndex] = AnimalGenderViewCount(
+        gender: selectedAnimalGender,
+        viewCount: updatedViewCount,
+      );
+    } else {
+      final newViewCount = ViewCountModel(
+        pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : 0,
+        onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : 0,
+        volwassenAmount: selectedAnimalAge == AnimalAge.volwassen ? currentCount : 0,
+        unknownAmount: selectedAnimalAge == AnimalAge.onbekend ? currentCount : 0,
+      );
 
-      widget.onAddToList?.call();
-      
-      // Reset selections after adding to list
-      setState(() {
-        selectedAge = null;
-        selectedGender = null;
-        _counterKey.currentState?.reset();
-      });
-
-      // Check if all genders are in use and navigate if true
-      if (_areAllGendersInUse()) {
-        final navigationManager = context.read<NavigationStateInterface>();
-        navigationManager.pushReplacementForward(
-          context,
-          const AnimalListOverviewScreen(),
-        );
-      }
+      updatedGenderViewCounts.add(
+        AnimalGenderViewCount(
+          gender: selectedAnimalGender,
+          viewCount: newViewCount,
+        ),
+      );
     }
+
+    final updatedAnimal = AnimalModel(
+      animalId: currentAnimal.animalId,
+      animalImagePath: currentAnimal.animalImagePath,
+      animalName: currentAnimal.animalName,
+      genderViewCounts: updatedGenderViewCounts,
+      condition: currentAnimal.condition,
+    );
+
+    animalSightingManager.updateAnimal(updatedAnimal);
+    (_counterKey.currentState as AnimalCounterState).reset();
+
+    widget.onAddToList?.call();
   }
 
   void _handleAgeSelection(String age) {
-    debugPrint('[AnimalCounting] Selected age: $age');
     setState(() {
       if (selectedAge == age) {
         selectedAge = null;
       } else {
         selectedAge = age;
-        final animalAge = _convertStringToAnimalAge(age);
-        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-        animalSightingManager.updateAge(animalAge);
       }
     });
   }
 
   void _handleGenderSelection(String gender) {
-    debugPrint('[AnimalCounting] Selected gender: $gender');
     setState(() {
       if (selectedGender == gender) {
         selectedGender = null;
       } else {
         selectedGender = gender;
-        final animalGender = _convertStringToAnimalGender(gender);
-        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-        animalSightingManager.handleGenderSelection(animalGender);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Add this to make the widget rebuild when the animal sighting changes
     context.watch<AnimalSightingReportingInterface>();
     
     return LayoutBuilder(
@@ -213,7 +179,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24), // Added horizontal padding
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,16 +189,13 @@ class _AnimalCountingState extends State<AnimalCounting> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _buildHeader('Leeftijd'),
-                          _buildAgeButton(
-                            "Onbekend",
-                            icon: Icons.cancel_outlined,
-                          ),
-                          const SizedBox(height: 8),
                           _buildAgeButton("<6 maanden"),
                           const SizedBox(height: 8),
                           _buildAgeButton("Onvolwassen"),
                           const SizedBox(height: 8),
                           _buildAgeButton("Volwassen"),
+                          const SizedBox(height: 8),
+                          _buildAgeButton("Onbekend"),
                         ],
                       ),
                     ),
@@ -242,22 +205,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _buildHeader('Geslacht'),
-                          _buildGenderButton(
-                            "Onbekend",
-                            icon: Icons.cancel_outlined,
-                          ),
+                          _buildGenderButton("Mannelijk"),
                           const SizedBox(height: 8),
-                          _buildGenderButton(
-                            "Mannelijk",
-                            icon: Icons.male,
-                            tintColor: AppColors.brown,
-                          ),
+                          _buildGenderButton("Vrouwelijk"),
                           const SizedBox(height: 8),
-                          _buildGenderButton(
-                            "Vrouwelijk",
-                            icon: Icons.female,
-                            tintColor: AppColors.brown,
-                          ),
+                          _buildGenderButton("Onbekend"),
                         ],
                       ),
                     ),
@@ -266,9 +218,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 24, right: 24, top: 24), // Updated padding
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildHeader('Aantal'),
                   const SizedBox(height: 8),
@@ -299,7 +250,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   Widget _buildHeader(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 22.0),
+      padding: const EdgeInsets.only(bottom: 22),
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -319,69 +270,81 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  Widget _buildAgeButton(String text, {IconData? icon, Color? tintColor}) {
+  Widget _buildAgeButton(String text) {
     final bool isSelected = text == selectedAge;
-    
-    Widget? leftWidget;
-    if (icon != null) {
-      leftWidget = Padding(
-        padding: const EdgeInsets.only(right: 14),
-        child: Icon(
-          icon,
-          size: 36,
-          color: tintColor ?? AppColors.brown,
-        ),
-      );
-    }
+    final bool disable = selectedGender != null && _isAgeAlreadyAdded(selectedGender!, text);
+
+    if (disable) return const SizedBox.shrink();
 
     return WhiteBulkButton(
       text: text,
       height: 64.5,
-      showIcon: false,
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      textAlign: icon != null ? TextAlign.left : TextAlign.center,
-      leftWidget: leftWidget,
+      textAlign: TextAlign.center,
+      showIcon: false,
       backgroundColor: isSelected ? AppColors.lightGreen : null,
       onPressed: () => _handleAgeSelection(text),
     );
   }
 
-  Widget _buildGenderButton(String text, {IconData? icon, Color? tintColor}) {
-    // If gender is already in use, don't show the button
-    if (_isGenderInUse(text)) {
-      return const SizedBox.shrink(); // Returns an empty widget
-    }
-
+  Widget _buildGenderButton(String text) {
     final bool isSelected = text == selectedGender;
-    
-    Widget? leftWidget;
-    if (icon != null) {
-      leftWidget = Padding(
-        padding: const EdgeInsets.only(right: 14),
-        child: Icon(
-          icon,
-          size: 36,
-          color: tintColor ?? AppColors.brown,
-        ),
-      );
-    }
+    final bool disable = _areAllAgesFilledForGender(text);
+
+    if (disable) return const SizedBox.shrink();
 
     return WhiteBulkButton(
       text: text,
       height: 64.5,
-      showIcon: false,
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      textAlign: icon != null ? TextAlign.left : TextAlign.center,
-      leftWidget: leftWidget,
+      textAlign: TextAlign.center,
+      showIcon: false,
       backgroundColor: isSelected ? AppColors.lightGreen : null,
       onPressed: () => _handleGenderSelection(text),
     );
   }
+
+  bool _isAgeAlreadyAdded(String genderText, String ageText) {
+    final manager = context.read<AnimalSightingReportingInterface>();
+    final sighting = manager.getCurrentanimalSighting();
+    final selectedGender = _convertStringToAnimalGender(genderText);
+    final selectedAge = _convertStringToAnimalAge(ageText);
+
+    final genderVC = sighting?.animalSelected?.genderViewCounts.firstWhere(
+      (gvc) => gvc.gender == selectedGender,
+      orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
+    );
+
+    switch (selectedAge) {
+      case AnimalAge.pasGeboren:
+        return (genderVC?.viewCount.pasGeborenAmount ?? 0) > 0;
+      case AnimalAge.onvolwassen:
+        return (genderVC?.viewCount.onvolwassenAmount ?? 0) > 0;
+      case AnimalAge.volwassen:
+        return (genderVC?.viewCount.volwassenAmount ?? 0) > 0;
+      case AnimalAge.onbekend:
+        return (genderVC?.viewCount.unknownAmount ?? 0) > 0;
+    }
+  }
+
+  bool _areAllAgesFilledForGender(String genderText) {
+    final manager = context.read<AnimalSightingReportingInterface>();
+    final sighting = manager.getCurrentanimalSighting();
+    final selectedGender = _convertStringToAnimalGender(genderText);
+
+    final genderVC = sighting?.animalSelected?.genderViewCounts.firstWhere(
+      (gvc) => gvc.gender == selectedGender,
+      orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
+    );
+
+    if (genderVC == null) return false;
+
+    return (genderVC.viewCount.pasGeborenAmount > 0) &&
+           (genderVC.viewCount.onvolwassenAmount > 0) &&
+           (genderVC.viewCount.volwassenAmount > 0) &&
+           (genderVC.viewCount.unknownAmount > 0);
+  }
 }
-
-
-
-
 
