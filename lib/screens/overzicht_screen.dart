@@ -11,75 +11,97 @@ class OverzichtScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigationManager = context.read<NavigationStateInterface>();
+    final screenSize = MediaQuery.of(context).size;
+
+    // Dynamic sizes
+final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
+    final double welcomeFontSize = (screenSize.width * 0.045).clamp(14.0, 24.0);
+    final double usernameFontSize = (screenSize.width * 0.06).clamp(18.0, 28.0);
+    final double buttonHeight = (screenSize.height * 0.18).clamp(100.0, 160.0);
+    final double buttonWidth = (screenSize.width * 0.8).clamp(250.0, 400.0);
+    final double spacing = (screenSize.height * 0.02).clamp(8.0, 24.0);
+    final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
+    final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);
 
     return Scaffold(
-      body: Column(
-        children: [
-          const TopContainer(
-            userName: 'John Doe',
-            height: 285.0,
-            welcomeFontSize: 20.0,
-            usernameFontSize: 24.0,
-          ),
-          const SizedBox(height: 24),
-          ActionButtons(
-            buttons: [
-              (
-                text: 'RapportenKaart',
-                icon: Icons.map,
-                imagePath: null,
-                onPressed: () {
-                  // Handle RapportenKaart action
-                },
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              (
-                text: 'Rapporteren',
-                icon: Icons.edit_note,
-                imagePath: null,
-                onPressed: () {
-                  navigationManager.pushReplacementForward(
-                    context,
-                    const Rapporteren(),
-                  );
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top green banner (full width, no safe area)
+                  TopContainer(
+                    userName: 'John Doe',
+                    height: topContainerHeight,
+                    welcomeFontSize: welcomeFontSize,
+                    usernameFontSize: usernameFontSize,
+                  ),
+                  
+                  // Safe content
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: spacing / 2,
+                        horizontal: spacing,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            SizedBox(height: spacing),
+                            ActionButtons(
+                              buttons: [
+                                (
+                                  text: 'RapportenKaart',
+                                  icon: Icons.map,
+                                  imagePath: null,
+                                  onPressed: () {
+                                    // Handle RapportenKaart action
+                                  },
+                                ),
+                                (
+                                  text: 'Rapporteren',
+                                  icon: Icons.edit_note,
+                                  imagePath: null,
+                                  onPressed: () {
+                                    navigationManager.pushReplacementForward(
+                                      context,
+                                      const Rapporteren(),
+                                    );
+                                  },
+                                ),
+                                (
+                                  text: 'Mijn Rapporten',
+                                  icon: Icons.description,
+                                  imagePath: null,
+                                  onPressed: () {
+                                    // Handle Mijn Rapporten action
+                                  },
+                                ),
+                              ],
+                              iconSize: iconSize,
+                              verticalPadding: spacing / 2,
+                              horizontalPadding: spacing,
+                              buttonSpacing: spacing / 2,
+                              buttonHeight: buttonHeight,
+                              buttonFontSize: buttonFontSize,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              (
-                text: 'Mijn Rapporten',
-                icon: Icons.description,
-                imagePath: null,
-                onPressed: () {
-                  // Handle Mijn Rapporten action
-                },
-              ),
-            ],
-            iconSize: 64,
-            verticalPadding: 0,
-            horizontalPadding: MediaQuery.of(context).size.width * 0.05,
-            buttonSpacing: 16,
-            buttonHeight: 140,
-          ),
-        ],
+            ),
+          );
+        },
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -4,7 +4,9 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
@@ -81,13 +83,13 @@ class _AnimalListTableState extends State<AnimalListTable> {
             
             // Initialize counts for each age/gender combination
             _tempCounts['${AnimalAge.pasGeboren.name}_${animal.gender!.name}'] = 
-                animal.viewCount.pasGeborenAmount;
+                animal.viewCount?.pasGeborenAmount ?? 0;
             _tempCounts['${AnimalAge.onvolwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount.onvolwassenAmount;
+                animal.viewCount?.onvolwassenAmount ?? 0;
             _tempCounts['${AnimalAge.volwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount.volwassenAmount;
+                animal.viewCount?.volwassenAmount ?? 0;
             _tempCounts['${AnimalAge.onbekend.name}_${animal.gender!.name}'] = 
-                animal.viewCount.unknownAmount;
+                animal.viewCount?.unknownAmount ?? 0;
           }
         }
         debugPrint('Entering edit mode. Initialized temp counts: $_tempCounts');
@@ -118,24 +120,24 @@ class _AnimalListTableState extends State<AnimalListTable> {
         // Create new ViewCountModel with updated values
         final viewCount = ViewCountModel(
           pasGeborenAmount: _tempCounts['${AnimalAge.pasGeboren.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.pasGeborenAmount,
+              animal.viewCount?.pasGeborenAmount ?? 0,
           onvolwassenAmount: _tempCounts['${AnimalAge.onvolwassen.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.onvolwassenAmount,
+              animal.viewCount?.onvolwassenAmount ?? 0,
           volwassenAmount: _tempCounts['${AnimalAge.volwassen.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.volwassenAmount,
+              animal.viewCount?.volwassenAmount ?? 0,
           unknownAmount: _tempCounts['${AnimalAge.onbekend.name}_${animal.gender!.name}'] ?? 
-              animal.viewCount.unknownAmount,
+              animal.viewCount?.unknownAmount ?? 0,
         );
 
         debugPrint('New view counts for ${animal.animalName}: ${viewCount.toJson()}');
         
         // Create updated animal with new view count
         final updatedAnimal = AnimalModel(
-          animalImagePath: animal.animalName,
+          animalId: animal.animalId,
+          animalImagePath: animal.animalImagePath,
           animalName: animal.animalName,
+          genderViewCounts: [AnimalGenderViewCount(gender: animal.gender!, viewCount: viewCount)],
           condition: animal.condition,
-          gender: animal.gender!,
-          viewCount: viewCount,
         );
         
         // Update the animal in the manager
@@ -170,13 +172,17 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     
-    // Get unique genders from all animals in the list, filtering out null values
-    final usedGenders = currentSighting?.animals
-        ?.map((animal) => animal.gender)
-        .whereType<AnimalGender>() // This will filter out null values
-        .toSet() ?? {};
+    if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
+      return [];
+    }
 
-    return usedGenders.toList();
+    // Get the first animal since all animals should have the same gender counts
+    final animal = currentSighting.animals![0];
+    
+    // Extract all genders from genderViewCounts
+    return animal.genderViewCounts
+        .map((gvc) => gvc.gender)
+        .toList();
   }
 
   String _getGenderIconPath(AnimalGender gender) {
@@ -222,27 +228,30 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     
-    // Get all animals of the specified gender
-    final animalsWithGender = currentSighting?.animals
-        ?.where((animal) => animal.gender == gender)
-        .toList() ?? [];
-
-    // Sum up the counts for the specified age
-    int totalCount = 0;
-    for (var animal in animalsWithGender) {
-      switch (age) {
-        case AnimalAge.pasGeboren:
-          totalCount += animal.viewCount.pasGeborenAmount;
-        case AnimalAge.onvolwassen:
-          totalCount += animal.viewCount.onvolwassenAmount;
-        case AnimalAge.volwassen:
-          totalCount += animal.viewCount.volwassenAmount;
-        case AnimalAge.onbekend:
-          totalCount += animal.viewCount.unknownAmount;
-      }
+    if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
+      return 0;
     }
+
+    // Get the first animal since all animals in the list should have the same counts
+    final animal = currentSighting.animals![0];
     
-    return totalCount;
+    // Find the gender view count for the specified gender
+    final genderViewCount = animal.genderViewCounts.firstWhere(
+      (gvc) => gvc.gender == gender,
+      orElse: () => AnimalGenderViewCount(gender: gender, viewCount: ViewCountModel()),
+    );
+
+    // Return the count for the specified age
+    switch (age) {
+      case AnimalAge.pasGeboren:
+        return genderViewCount.viewCount.pasGeborenAmount;
+      case AnimalAge.onvolwassen:
+        return genderViewCount.viewCount.onvolwassenAmount;
+      case AnimalAge.volwassen:
+        return genderViewCount.viewCount.volwassenAmount;
+      case AnimalAge.onbekend:
+        return genderViewCount.viewCount.unknownAmount;
+    }
   }
 
   // Get or create controller for a specific cell
@@ -282,122 +291,25 @@ class _AnimalListTableState extends State<AnimalListTable> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
     
-    Widget content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildEditButton(),
-        const SizedBox(height: 16),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.offWhite,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Table(
-                    border: TableBorder.all(
-                      color: AppColors.brown.withOpacity(0.2), // Changed to brown color
-                      width: 1,
-                      borderRadius: BorderRadius.circular(25), // Changed to 25px
-                    ),
-                    columnWidths: {
-                      0: const FlexColumnWidth(2.0),
-                      for (var i = 0; i < usedGenders.length; i++)
-                        i + 1: const FlexColumnWidth(0.8),
-                    },
-                    children: [
-                      TableRow(
-                        decoration: BoxDecoration(
-                          color: AppColors.brown.withOpacity(0.1),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(25), // Changed to 25px
-                            topRight: Radius.circular(25), // Changed to 25px
-                          ),
-                        ),
-                        children: [
-                          const TableCell(
-                            verticalAlignment: TableCellVerticalAlignment.middle,
-                            child: SizedBox(
-                              height: 50.0,  // Added fixed height for the header
-                              child: Padding(
-                                padding: EdgeInsets.all(5.0),
-                                child: Center(
-                                  child: Text(
-                                    'Leeftijdscategorie',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          ...usedGenders.map((gender) => TableCell(
-                            verticalAlignment: TableCellVerticalAlignment.middle,
-                            child: SizedBox(
-                              height: 50.0,  // Added fixed height for the header
-                              child: Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(5.0),
-                                  child: Image.asset(
-                                    _getGenderIconPath(gender),
-                                    height: 32,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )),
-                        ],
-                      ),
-                      ...List.generate(4, (index) => _buildDataRow(index + 1, usedGenders, context)),
-                    ],
-                  ),
-                ),
-                if (currentSighting?.description != null || _isEditing) ...[
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Reduced from 16.0
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Opmerkingen',
-                        style: TextStyle(
-                          color: AppColors.brown,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Reduced from 16.0
-                    child: Container(
-                      width: double.infinity,
-                      height: 150, // Reduced from 200 to 150
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildEditButton(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       decoration: BoxDecoration(
                         color: AppColors.offWhite,
                         borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: AppColors.brown.withOpacity(0.3), // Darker border (0.2 -> 0.3)
-                          width: 1,
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -406,52 +318,81 @@ class _AnimalListTableState extends State<AnimalListTable> {
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: _isEditing
-                            ? Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: TextField(
-                                  controller: _opmerkingController,
-                                  maxLines: null,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Voer opmerkingen in...',
-                                  ),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              )
-                            : SingleChildScrollView(
-                                physics: const BouncingScrollPhysics(),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    currentSighting?.description ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      child: Table(
+                        border: TableBorder.all(
+                          color: AppColors.brown.withOpacity(0.2),
+                          width: 1,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        columnWidths: {
+                          0: const FlexColumnWidth(2.0),
+                          for (var i = 0; i < usedGenders.length; i++)
+                            i + 1: const FlexColumnWidth(0.8),
+                        },
+                        children: [
+                          _buildHeaderRow(usedGenders),
+                          ...List.generate(4, (index) => _buildDataRow(index + 1, usedGenders, context)),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ],
+                    if (currentSighting.description != null || _isEditing) ...[
+                      const SizedBox(height: 16),
+                      _buildDescriptionSection(currentSighting),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildHeaderRow(List<AnimalGender> usedGenders) {
+    return TableRow(
+      decoration: BoxDecoration(
+        color: AppColors.brown.withOpacity(0.1),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+      ),
+      children: [
+        const TableCell(
+          verticalAlignment: TableCellVerticalAlignment.middle,
+          child: SizedBox(
+            height: 50.0,
+            child: Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Center(
+                child: Text(
+                  'Leeftijdscategorie',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ),
         ),
+        ...usedGenders.map((gender) => _buildHeaderCell(gender)),
       ],
     );
+  }
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: content,
+  Widget _buildHeaderCell(AnimalGender gender) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: SizedBox(
+        height: 50.0,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(5.0),
+            child: Image.asset(
+              _getGenderIconPath(gender),
+              height: 32,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -565,6 +506,88 @@ class _AnimalListTableState extends State<AnimalListTable> {
     );
   }
 
+  Widget _buildDescriptionSection(AnimalSightingModel currentSighting) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Opmerkingen',
+            style: TextStyle(
+              color: AppColors.brown,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildDescriptionContainer(currentSighting),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionContainer(AnimalSightingModel currentSighting) {
+    return Container(
+      width: double.infinity,
+      height: 150, // Reduced from 200 to 150
+      decoration: BoxDecoration(
+        color: AppColors.offWhite,
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color: AppColors.brown.withOpacity(0.3), // Darker border (0.2 -> 0.3)
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: _isEditing
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _opmerkingController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Voer opmerkingen in...',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+              )
+            : SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    currentSighting.description ?? '',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -574,6 +597,14 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
+
+
+
+
+
+
 
 
 

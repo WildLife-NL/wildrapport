@@ -1,0 +1,37 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+
+class InvisibleMapPreloader extends StatelessWidget {
+  const InvisibleMapPreloader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapController = context.read<MapProvider>().mapController;
+
+    return Opacity(
+      opacity: 0,
+      child: SizedBox(
+        width: 1,
+        height: 1,
+        child: FlutterMap(
+          mapController: mapController,
+          options: MapOptions(
+            center: const LatLng(52.0, 5.0), // Can be any default NL position
+            zoom: 5,
+            interactiveFlags: InteractiveFlag.none,
+          ),
+          children: const [],
+        ),
+      ),
+    );
+  }
+}

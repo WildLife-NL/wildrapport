@@ -28,6 +28,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
         animalId: s.id,  // Added animalId from species
         animalImagePath: 'assets/wolf.png',
         animalName: s.commonName,
+        genderViewCounts: [], // Initialize with empty list
       )).toList();
 
       // Add the "Unknown" option with no image
@@ -35,6 +36,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
         animalId: 'unknown',  // Added default ID for unknown
         animalImagePath: null,
         animalName: 'Onbekend',
+        genderViewCounts: [], // Initialize with empty list
       ));
       
       return _getFilteredAnimals(_cachedAnimals!);
@@ -97,6 +99,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
+
 
 
 

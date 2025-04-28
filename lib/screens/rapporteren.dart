@@ -14,6 +14,7 @@ import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/report_button.dart';
 
 class Rapporteren extends StatefulWidget {
@@ -32,7 +33,7 @@ class _RapporterenState extends State<Rapporteren> {
     setState(() {
       selectedCategory = reportType;
     });
-    
+
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
     
@@ -65,8 +66,8 @@ class _RapporterenState extends State<Rapporteren> {
     // Initialize the report in the app state
     appStateProvider.initializeReport(selectedReportType);
 
-    // Navigate to the next screen
-    navigationManager.pushReplacementForward(context, nextScreen);
+    // Use push instead of pushReplacement
+    navigationManager.pushForward(context, nextScreen);
   }
 
   void _initializeMapInBackground() {
@@ -76,6 +77,12 @@ class _RapporterenState extends State<Rapporteren> {
     debugPrint('[Rapporteren] Current map initialization status: ${mapProvider.isInitialized}');
     
     if (!mapProvider.isInitialized) {
+      try{
+        const InvisibleMapPreloader();
+        debugPrint('[Rapporteren] Invisible map preloader initialized');
+      }catch(e){
+        debugPrint('[Rapporteren] Error preloading invisible map'+" "+e.toString());
+      }
       debugPrint('[Rapporteren] Starting background map initialization');
       mapProvider.initialize().then((_) {
         debugPrint('[Rapporteren] Background map initialization completed');
@@ -165,6 +172,9 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
+
+
 
 
 

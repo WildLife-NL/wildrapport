@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 
 abstract class AnimalSightingReportingInterface {
@@ -73,7 +75,22 @@ abstract class AnimalSightingReportingInterface {
 
   /// Updates an existing animal in the animals list
   AnimalSightingModel updateAnimal(AnimalModel updatedAnimal);
+
+  /// Updates the location in the animalSighting
+  AnimalSightingModel updateLocation(LocationModel location);
+
+  /// Removes a location from the animalSighting
+  AnimalSightingModel removeLocation(LocationModel location);
+
+  /// Updates the dateTime in the animalSighting
+  AnimalSightingModel updateDateTime(DateTime dateTime);
+
+  /// Updates the dateTime model in the animalSighting
+  AnimalSightingModel updateDateTimeModel(DateTimeModel dateTimeModel);
 }
+
+
+
 
 
 

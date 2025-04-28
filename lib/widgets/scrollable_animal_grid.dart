@@ -22,7 +22,7 @@ class ScrollableAnimalGrid extends StatelessWidget {
   });
 
   Widget _buildContent() {
-    if (isLoading || animals == null) {
+    if (isLoading) {
       return Center(
         child: SizedBox(
           width: 200,
@@ -56,7 +56,7 @@ class ScrollableAnimalGrid extends StatelessWidget {
       );
     }
 
-    if (animals!.isEmpty) {
+    if (animals == null || animals!.isEmpty) {
       return const Center(
         child: Text('Geen dieren gevonden'),
       );
@@ -81,4 +81,5 @@ class ScrollableAnimalGrid extends StatelessWidget {
     );
   }
 }
+
 

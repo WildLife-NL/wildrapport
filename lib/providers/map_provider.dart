@@ -13,6 +13,7 @@ class MapProvider with ChangeNotifier {
   String currentAddress = '';
   MapController? _mapController;
   bool _isLoading = false;
+  bool _isDisposed = false;
   
   bool get isLoading => _isLoading;
   bool get isInitialized => _mapController != null;
@@ -51,16 +52,21 @@ class MapProvider with ChangeNotifier {
 
   void setMapController(MapController controller) {
     debugPrint('[MapProvider] Setting new map controller');
-    _mapController?.dispose();
+    if (_mapController != null && _mapController != controller) {
+      _mapController?.dispose();
+    }
     _mapController = controller;
     notifyListeners();
   }
 
   void dispose() {
-    debugPrint('[MapProvider] Disposing map controller');
-    _mapController?.dispose();
-    _mapController = null;
-    super.dispose();
+    if (!_isDisposed) {
+      _isDisposed = true;
+      debugPrint('[MapProvider] Disposing map controller');
+      _mapController?.dispose();
+      _mapController = null;
+      super.dispose();
+    }
   }
 
   void setLoading(bool loading) {
@@ -97,6 +103,7 @@ class MapProvider with ChangeNotifier {
     setLoading(false);
   }
 }
+
 
 
 

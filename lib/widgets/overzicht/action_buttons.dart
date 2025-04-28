@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/widgets/brown_button.dart';
-import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
+import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
@@ -12,6 +11,7 @@ class ActionButtons extends StatelessWidget {
   final bool useCircleIcons;
   final double iconSize;
   final double buttonHeight;
+  final double? buttonFontSize;
   final Map<int, Color> customIconColors;
   final Set<int> useCircleIconsForIndices;
 
@@ -24,15 +24,18 @@ class ActionButtons extends StatelessWidget {
     this.useCircleIcons = true,
     this.iconSize = 48,
     this.buttonHeight = 160,
+    this.buttonFontSize,
     this.customIconColors = const {},
     this.useCircleIconsForIndices = const {},
   });
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding ?? MediaQuery.of(context).size.width * 0.05,
+        horizontal: horizontalPadding ?? 8, // <-- Only small margin on left/right
         vertical: verticalPadding ?? 0,
       ),
       child: Column(
@@ -41,6 +44,7 @@ class ActionButtons extends StatelessWidget {
           for (var button in buttons) ...[
             SizedBox(
               height: buttonHeight,
+              width: double.infinity, // <-- Force button to be as wide as possible
               child: _buildButton(
                 text: button.text,
                 icon: button.icon,
@@ -63,12 +67,12 @@ class ActionButtons extends StatelessWidget {
     VoidCallback? onPressed,
   }) {
     Widget? leftWidget;
-    
-    if (icon != null) {
-      final int buttonIndex = buttons.indexWhere((b) => b.text == text);
-      final Color iconColor = customIconColors[buttonIndex] ?? AppColors.brown;
-      final bool useCircle = useCircleIconsForIndices.contains(buttonIndex);
 
+    final int buttonIndex = buttons.indexWhere((b) => b.text == text);
+    final Color iconColor = customIconColors[buttonIndex] ?? AppColors.brown;
+    final bool useCircle = useCircleIconsForIndices.contains(buttonIndex);
+
+    if (icon != null) {
       leftWidget = useCircle
           ? CircleIconContainer(
               icon: icon,
@@ -105,19 +109,9 @@ class ActionButtons extends StatelessWidget {
         ],
       ),
       onPressed: onPressed,
+      height: buttonHeight,
+      fontSize: buttonFontSize,
+      // No width passed here - WhiteBulkButton defaults to full width
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
