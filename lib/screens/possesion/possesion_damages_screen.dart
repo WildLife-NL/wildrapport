@@ -14,37 +14,72 @@ class PossesionDamagesScreen extends StatefulWidget{
   State<PossesionDamagesScreen> createState() => _PossesionDamageScreenState();
 }
 
-class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
+class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
   late final PossesionInterface _possesionManager;
   late List<dynamic> possesionDamagesWidgetList;
   late int currentIndex;
   late int maxIndex;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _possesionManager = context.read<PossesionInterface>();
     _loadPossesionWidgets();
     currentIndex = 0;
     maxIndex = possesionDamagesWidgetList.length - 1;
-
   }
+
+  // Method to check if all required fields are filled
+  bool validateForm() {
+    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    formProvider.resetErrors();
+
+    bool isValid = true;
+
+    // Check if each required field is filled
+    if (formProvider.impactedCrop.isEmpty) {
+      isValid = false;
+      // Optionally set a flag to highlight this field
+      formProvider.setErrorState('impactedCrop', true);
+    }
+    if (formProvider.impactedAreaType.isEmpty) {
+      isValid = false;
+      formProvider.setErrorState('impactedAreaType', true);
+    }
+    if (formProvider.impactedArea.isEmpty) {
+      isValid = false;
+      formProvider.setErrorState('impactedArea', true);
+    }
+
+    return isValid;
+  }
+
   void nextScreen() {
-    if (currentIndex < maxIndex){
+    if (validateForm()) {
+      debugPrint("Form is valid!");
+      if (currentIndex < maxIndex) {
+        setState(() {
+          currentIndex++;
+        });
+      }
+    } else {
+      // Handle invalid form state, display error messages, or highlight fields
+      debugPrint("Form is not valid!!!");
       setState(() {
-        currentIndex++;
+        // Optionally trigger state changes to show inline errors
       });
     }
-  } 
+  }
 
-  void previousScreen(){
-    if (currentIndex > 0){
+  void previousScreen() {
+    if (currentIndex > 0) {
       setState(() {
         currentIndex--;
       });
     }
-  } 
-  void _loadPossesionWidgets(){
+  }
+
+  void _loadPossesionWidgets() {
     final widgetList = _possesionManager.buildPossesionWidgetList();
     setState(() {
       possesionDamagesWidgetList = widgetList;
@@ -52,7 +87,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     final provider = Provider.of<PossesionDamageFormProvider>(context);
     return Scaffold(
       body: SafeArea(
@@ -71,7 +106,9 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
                   ),
                 );
               },
-              onRightIconPressed: () {/* Handle menu */},
+              onRightIconPressed: () {
+                // Handle menu
+              },
             ),
             Expanded(child: possesionDamagesWidgetList[currentIndex]),
             CustomBottomAppBar(
@@ -79,10 +116,10 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
               onBackPressed: previousScreen,
               showNextButton: currentIndex < 1,
               showBackButton: currentIndex > 0,
-        ),
-        const InvisibleMapPreloader(),
+            ),
+            const InvisibleMapPreloader(),
           ],
-        )
+        ),
       ),
     );
   }

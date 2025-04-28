@@ -9,6 +9,9 @@ class PossesionDamageFormProvider extends ChangeNotifier {
   String description = '';
   String? suspectedSpeciesID;
   final greenLog = '\x1B[32m';
+  bool hasErrorImpactedCrop = false;
+  bool hasErrorImpactedAreaType = false;
+  bool hasErrorImpactedArea = false;
 
   void setImpactedCrop(String value){
     impactedCrop = value;
@@ -44,7 +47,16 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     suspectedSpeciesID = value;
     notifyListeners();
   }
-
+  void setErrorState(String field, bool hasError) {
+    if (field == 'impactedCrop') {
+      hasErrorImpactedCrop = hasError;
+    } else if (field == 'impactedAreaType') {
+      hasErrorImpactedAreaType = hasError;
+    } else if (field == 'impactedArea') {
+      hasErrorImpactedArea = hasError;
+    }
+    notifyListeners();
+  }
   void clearStateOfValues(){
     debugPrint("$greenLog[PossesionDamageReportProvider]: Clearing Values!");
     impactedCrop = '';
@@ -53,6 +65,15 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     impactedAreaType = '';
     impactedArea = '';
     description = '';
+    hasErrorImpactedCrop = false;
+    hasErrorImpactedAreaType = false;
+    hasErrorImpactedArea = false;
+    notifyListeners();
+  }
+    void resetErrors() {
+    hasErrorImpactedCrop = false;
+    hasErrorImpactedAreaType = false;
+    hasErrorImpactedArea = false;
     notifyListeners();
   }
 }

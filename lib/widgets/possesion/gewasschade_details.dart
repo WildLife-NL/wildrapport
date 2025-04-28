@@ -15,6 +15,15 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   final TextEditingController _responseController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    
+    // Initialize the controller with the value from the provider
+    _responseController.text = formProvider.impactedArea;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final formProvider = Provider.of<PossesionDamageFormProvider>(context);
 
@@ -36,7 +45,9 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           containerHeight: 50,
           containerWidth: 400,
           startingValue: "mais",
+          defaultValue: "Kies Gewas",
           hasDropdownSideDescription: false,
+          hasError: formProvider.hasErrorImpactedCrop,
         ),
         const SizedBox(height: 10),
         PossesionDropdown(
@@ -45,30 +56,40 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           dropdownItems: [
             {'text': 'ha', 'value': 'hectare'},
             {'text': 'm2', 'value': 'vierkante meters'},
-            {'text': '%', 'value': 'percentage'},
           ],
-          startingValue: "hectare",
+          startingValue: "vierkante meters",
+          defaultValue: "Type",
           hasDropdownSideDescription: true,
           dropdownSideDescriptionText: "Getroffen Gebied",
+          hasError: formProvider.hasErrorImpactedAreaType,
         ),
           
         const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: TextField(
-            controller: _responseController,
-            onChanged: (value) => formProvider.setImpactedArea(value),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white,
-              hintText: 'hoe groot',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+       Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: TextField(
+          controller: _responseController,
+          onChanged: (value) {
+            formProvider.setImpactedArea(value);  // Update provider state
+          },
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'hoe groot',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide(
+                color: formProvider.hasErrorImpactedArea ? Colors.red : Colors.grey,  // Red border on error
+                width: 4,
               ),
             ),
-            style: const TextStyle(fontSize: 18, color: AppColors.brown),
+            // Error text when the field is empty
+            errorText: formProvider.hasErrorImpactedArea ? 'This field is required' : null,
           ),
+          style: const TextStyle(fontSize: 18, color: AppColors.brown),
         ),
+      ),
         const SizedBox(height: 30),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

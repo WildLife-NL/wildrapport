@@ -3,5 +3,6 @@ enum DropdownType {
   login,
   location,
   dateTime,  // Add datetime type
+  selection,
 }
 
