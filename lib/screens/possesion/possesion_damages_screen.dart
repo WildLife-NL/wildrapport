@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_model.dart';
-import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 
 class PossesionDamagesScreen extends StatefulWidget{
   const PossesionDamagesScreen({super.key});
@@ -82,6 +80,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen>{
               showNextButton: currentIndex < 1,
               showBackButton: currentIndex > 0,
         ),
+        const InvisibleMapPreloader(),
           ],
         )
       ),

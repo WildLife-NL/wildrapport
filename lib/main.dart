@@ -53,6 +53,15 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/screens/test_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 
+Future<Widget> getHomepageBasedOnLoginStatus() async {
+  String? token = await _getToken();
+  if (token != null) {
+    return OverzichtScreen();
+  } else {
+    return LoginScreen();
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -177,7 +186,22 @@ class MyApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: const OverzichtScreen(),
+        home: FutureBuilder<Widget>(
+          future: getHomepageBasedOnLoginStatus(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            } else if (snapshot.hasError) {
+              return Scaffold(
+                body: Center(child: Text('Something went wrong')),
+              );
+            } else {
+              return snapshot.data!;
+            }
+          },
+        ),
       ),
     );
   }
