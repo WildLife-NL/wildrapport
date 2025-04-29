@@ -84,7 +84,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     }
     
     final locationManager = context.read<LocationScreenInterface>();
-    final locationInfo = locationManager.getLocationAndDateTime(context);
+    final locationInfo = await locationManager.getLocationAndDateTime(context);
     
     debugPrint("\n${blueLog}[PossesionLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
     debugPrint("${blueLog}[PossesionLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
@@ -165,6 +165,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     super.dispose();
   }
 }
+
 
 
 

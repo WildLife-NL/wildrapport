@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
+import 'package:wildrapport/interfaces/map/location_service_interface.dart';
+import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 class LocationScreenManager implements LocationScreenInterface {
   // Private state variables
   bool _isLocationDropdownExpanded = false;
@@ -29,22 +33,68 @@ class LocationScreenManager implements LocationScreenInterface {
   String get currentLocationText => _currentLocationText;
 
   Future<void> handleNextPressed(BuildContext context) async {
-    final locationInfo = getLocationAndDateTime(context);
+    final locationInfo = await getLocationAndDateTime(context);
     return Future.value();
   }
 
   @override
-  Map<String, dynamic> getLocationAndDateTime(BuildContext context) {
+  Future<Map<String, dynamic>> getLocationAndDateTime(BuildContext context) async {
     final mapProvider = context.read<MapProvider>();
+    final appState = context.read<AppStateProvider>();
+    final LocationServiceInterface locationService = LocationMapManager();
     
-    // Get current GPS location
-    final currentGpsLocation = mapProvider.currentPosition != null 
-        ? {
-            'latitude': mapProvider.currentPosition!.latitude,
-            'longitude': mapProvider.currentPosition!.longitude,
-            'address': mapProvider.currentAddress,
-          }
-        : null;
+    Position? currentPosition;
+    Map<String, dynamic>? currentGpsLocation;
+
+    // Debug cache status
+    debugPrint('\x1B[36m[LocationScreenManager] 📍 Location Source Check:');
+    debugPrint('Cache valid: ${appState.isLocationCacheValid}');
+    debugPrint('Cached position exists: ${appState.cachedPosition != null}');
+    debugPrint('Cached address exists: ${appState.cachedAddress != null}');
+    if (appState.cachedPosition != null) {
+      debugPrint('Cached coordinates: ${appState.cachedPosition?.latitude}, ${appState.cachedPosition?.longitude}');
+    }
+    debugPrint('Last cache update: ${appState.lastLocationUpdate}\x1B[0m');
+
+    // Try to use cached location first
+    if (appState.isLocationCacheValid) {
+      debugPrint('\x1B[32m[LocationScreenManager] ✅ Using CACHED location');
+      currentPosition = appState.cachedPosition;
+      currentGpsLocation = currentPosition != null 
+          ? {
+              'latitude': currentPosition.latitude,
+              'longitude': currentPosition.longitude,
+              'address': appState.cachedAddress,
+            }
+          : null;
+      debugPrint('Cached location data: $currentGpsLocation\x1B[0m');
+    } else {
+      debugPrint('\x1B[33m[LocationScreenManager] 🔄 Cache invalid/expired, using GPS');
+      // If cache is invalid or empty, get new location and update cache
+      currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 5),
+      ).catchError((error) {
+        debugPrint('\x1B[31m[LocationScreenManager] ❌ GPS Error: $error\x1B[0m');
+        return null;
+      });
+
+      if (currentPosition != null) {
+        debugPrint('\x1B[32m[LocationScreenManager] ✅ New GPS location obtained:');
+        debugPrint('Coordinates: ${currentPosition.latitude}, ${currentPosition.longitude}\x1B[0m');
+        
+        final address = await locationService.getAddressFromPosition(currentPosition);
+        currentGpsLocation = {
+          'latitude': currentPosition.latitude,
+          'longitude': currentPosition.longitude,
+          'address': address,
+        };
+        
+        debugPrint('\x1B[32m[LocationScreenManager] 🔄 Updating location cache\x1B[0m');
+        // Update cache in background
+        appState.updateLocationCache();
+      }
+    }
 
     // Get user selected location
     final selectedLocation = mapProvider.selectedPosition != null 
@@ -58,7 +108,7 @@ class LocationScreenManager implements LocationScreenInterface {
     // Get date time information
     final dateTimeInfo = _getDateTimeInfo();
 
-    return {
+    final result = {
       'currentGpsLocation': currentGpsLocation,
       'selectedLocation': selectedLocation,
       'dateTime': dateTimeInfo,
@@ -66,6 +116,12 @@ class LocationScreenManager implements LocationScreenInterface {
           mapProvider.selectedAddress == LocationType.unknown.displayText,
       'isDateTimeUnknown': _selectedDateTime == DateTimeType.unknown.displayText,
     };
+
+    debugPrint('\x1B[36m[LocationScreenManager] 📍 Final location data:');
+    debugPrint('Current GPS: ${result['currentGpsLocation']}');
+    debugPrint('Selected: ${result['selectedLocation']}\x1B[0m');
+
+    return result;
   }
 
   Map<String, dynamic> _getDateTimeInfo() {
@@ -87,9 +143,8 @@ class LocationScreenManager implements LocationScreenInterface {
     };
   }
 
-  // Example usage method
-  void printLocationAndDateTime(BuildContext context) {
-    final info = getLocationAndDateTime(context);
+  Future<void> printLocationAndDateTime(BuildContext context) async {
+    final info = await getLocationAndDateTime(context);
     
     debugPrint('\x1B[32m[LocationScreen] Location and DateTime Info:');
     debugPrint('Current GPS: ${info['currentGpsLocation']}');
@@ -99,6 +154,18 @@ class LocationScreenManager implements LocationScreenInterface {
     debugPrint('Is DateTime Unknown: ${info['isDateTimeUnknown']}\x1B[0m');
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

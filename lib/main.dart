@@ -55,6 +55,14 @@ Future<Widget> getHomepageBasedOnLoginStatus() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  final appStateProvider = AppStateProvider();
+  
+  // Initial location cache update
+  await appStateProvider.updateLocationCache();
+  
+  // Start periodic updates
+  appStateProvider.startLocationUpdates();
+
   await dotenv.load(fileName: ".env");
   
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
@@ -91,7 +99,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-          ChangeNotifierProvider<AppStateProvider>(create: (_) => AppStateProvider()),
+          ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
           ChangeNotifierProvider<PossesionDamageFormProvider>.value(value: possesionDamageFormProvider),          
           ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
         Provider<AppConfig>.value(value: appConfig),
