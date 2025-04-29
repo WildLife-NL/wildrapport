@@ -40,18 +40,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/screens/animal_counting_screen.dart';
-import 'package:wildrapport/screens/animal_list_overview_screen.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
-import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
-import 'package:wildrapport/screens/map_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
-import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
-import 'package:wildrapport/screens/test_screen.dart';
-import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
@@ -80,7 +70,9 @@ void main() async {
   final loginManager = LoginManager(authApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
-  final possesionManager = PossesionManager(interactionApi);
+  final possesionDamageFormProvider = PossesionDamageFormProvider();
+  final mapProvider = MapProvider();
+  final possesionManager = PossesionManager(interactionApi, possesionDamageFormProvider, mapProvider);
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
   final answerManager = AnswerManager(answerAPI);
@@ -100,10 +92,8 @@ void main() async {
     MultiProvider(
       providers: [
           ChangeNotifierProvider<AppStateProvider>(create: (_) => AppStateProvider()),
-          ChangeNotifierProvider<PossesionDamageFormProvider>(create: (_) => PossesionDamageFormProvider()),
-          ChangeNotifierProvider<MapProvider>(
-            create: (_) => MapProvider(),
-          ),
+          ChangeNotifierProvider<PossesionDamageFormProvider>.value(value: possesionDamageFormProvider),          
+          ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
@@ -236,5 +226,3 @@ class _MediaQueryWrapper extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/widgets/possesion/possesion_dropdown.dart';
 
@@ -13,10 +14,12 @@ class GewasschadeDetails extends StatefulWidget {
 
 class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   final TextEditingController _responseController = TextEditingController();
+  late final PossesionInterface _possesionManager;
 
   @override
   void initState() {
     super.initState();
+    _possesionManager = context.read<PossesionInterface>();
     final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
     
     // Initialize the controller with the value from the provider
@@ -31,7 +34,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PossesionDropdown(
-          onChanged: (value) => formProvider.setImpactedCrop(value), 
+          onChanged: (value) => _possesionManager.updateImpactedCrop(value), 
           getSelectedValue: formProvider.impactedCrop,
           dropdownItems: [
             {'text': 'Mais', 'value': 'mais'},
@@ -51,7 +54,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         ),
         const SizedBox(height: 10),
         PossesionDropdown(
-          onChanged: (value) => formProvider.setImpactedAreaType(value), 
+          onChanged: (value) => _possesionManager.updateImpactedAreaType(value), 
           getSelectedValue: formProvider.impactedAreaType,
           dropdownItems: [
             {'text': 'ha', 'value': 'hectare'},
@@ -70,7 +73,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         child: TextField(
           controller: _responseController,
           onChanged: (value) {
-            formProvider.setImpactedArea(value);  // Update provider state
+            _possesionManager.updateImpactedArea(value);  // Update provider state
           },
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
@@ -102,7 +105,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Slider(
             value: formProvider.currentDamage,
-            onChanged: (value) => formProvider.setCurrentDamage(value),
+            onChanged: (value) => _possesionManager.updateCurrentDamage(value),
             min: 0,
             max: 100,
             divisions: 100,
@@ -121,7 +124,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Slider(
             value: formProvider.expectedDamage,
-            onChanged: (value) => formProvider.setExpectedDamage(value),
+            onChanged: (value) => _possesionManager.updateExpectedDamage(value),
             min: 0,
             max: 100,
             divisions: 100,
@@ -133,7 +136,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: TextField(
-            onChanged: (val) => formProvider.setDescription(val),
+            onChanged: (val) => _possesionManager.updateDescription(val),
             maxLines: 5, 
             decoration: InputDecoration(
               filled: true,

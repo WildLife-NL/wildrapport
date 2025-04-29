@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
 class PossesionDamageFormProvider extends ChangeNotifier {
   String impactedCrop = '';
@@ -12,6 +13,8 @@ class PossesionDamageFormProvider extends ChangeNotifier {
   bool hasErrorImpactedCrop = false;
   bool hasErrorImpactedAreaType = false;
   bool hasErrorImpactedArea = false;
+  ReportLocation? systemLocation;
+  ReportLocation? userLocation;
 
   void setImpactedCrop(String value){
     impactedCrop = value;
@@ -47,6 +50,15 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     suspectedSpeciesID = value;
     notifyListeners();
   }
+  void setSystemLocation(ReportLocation value){
+    systemLocation = value;
+    notifyListeners();
+  }
+  void setUserLocation(ReportLocation value){
+    userLocation = value;
+    notifyListeners();
+  }
+
   void setErrorState(String field, bool hasError) {
     if (field == 'impactedCrop') {
       hasErrorImpactedCrop = hasError;

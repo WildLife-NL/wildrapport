@@ -46,76 +46,6 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     });
   }
 
-  PossesionDamageReport buildReportTesting() {
-    debugPrint("✅ buildReportTesting called");
-    try {
-      // Log provider state
-      debugPrint("📍 MapProvider state: selectedPosition=${mapProvider.selectedPosition}, currentPosition=${mapProvider.currentPosition}");
-      debugPrint("📋 PossesionProvider state: "
-          "impactedCrop=${possesionProvider.impactedCrop}, "
-          "impactedAreaType=${possesionProvider.impactedAreaType}, "
-          "impactedArea=${possesionProvider.impactedArea}, "
-          "currentDamage=${possesionProvider.currentDamage}, "
-          "expectedDamage=${possesionProvider.expectedDamage}, "
-          "description=${possesionProvider.description}, "
-          "suspectedSpeciesID=${possesionProvider.suspectedSpeciesID}");
-
-      // Validate positions
-      if (mapProvider.selectedPosition == null || mapProvider.currentPosition == null) {
-        debugPrint("❗ One or both positions are null: "
-            "selectedPosition=${mapProvider.selectedPosition}, "
-            "currentPosition=${mapProvider.currentPosition}");
-      }
-
-      // Use actual positions if available, fallback to defaults
-      final systemReportLocation = ReportLocation(
-        latitude: mapProvider.currentPosition?.latitude ?? 20,
-        longtitude: mapProvider.currentPosition?.longitude ?? 20, // Fixed typo: longtitude -> longitude
-      );
-      final userReportLocation = ReportLocation(
-        latitude: mapProvider.selectedPosition?.latitude ?? 20,
-        longtitude: mapProvider.selectedPosition?.longitude ?? 20,
-      );
-
-      // Validate possesionProvider inputs
-      if (possesionProvider.impactedCrop.isEmpty) {
-        throw Exception("Impacted crop is empty");
-      }
-      if (possesionProvider.impactedArea.isEmpty) {
-        throw Exception("Impacted area is empty");
-      }
-      final impactedArea = double.tryParse(possesionProvider.impactedArea);
-      if (impactedArea == null) {
-        throw Exception("Invalid impacted area: ${possesionProvider.impactedArea}");
-      }
-
-      final report = PossesionDamageReport(
-        possesion: Possesion(
-          possesionID: "3c6c44fc-06da-4530-ab27-3974e6090d7d",
-          possesionName: possesionProvider.impactedCrop,
-          category: "gewassen",
-        ),
-        impactedAreaType: possesionProvider.impactedAreaType,
-        impactedArea: impactedArea,
-        currentImpactDamages: possesionProvider.currentDamage.toString(),
-        estimatedTotalDamages: possesionProvider.expectedDamage.toString(),
-        description: possesionProvider.description,
-        suspectedSpeciesID: possesionProvider.suspectedSpeciesID,
-        userSelectedDateTime: DateTime.now(),
-        systemDateTime: DateTime.now(),
-        systemLocation: systemReportLocation,
-        userSelectedLocation: userReportLocation,
-      );
-
-      debugPrint("✅ Report created: $report");
-      return report;
-    } catch (e, stackTrace) {
-      debugPrint("❌ Exception in buildReportTesting: $e");
-      debugPrint("🔍 Stack trace: $stackTrace");
-      rethrow;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return PermissionGate(
@@ -147,9 +77,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
           onNextPressed: () async {
             debugPrint("🚀 Next button pressed, attempting to build and post report");
             try {
-              final report = buildReportTesting();
-              debugPrint("✅ Report built successfully: $report");
-              await _possesionManager.postInteraction(report);
+              await _possesionManager.postInteraction();
               debugPrint("✅ Report posted successfully");
               // Navigate to the next screen or show success
               ScaffoldMessenger.of(context).showSnackBar(
