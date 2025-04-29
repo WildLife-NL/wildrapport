@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
@@ -107,10 +108,17 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   // Update this method to avoid setState during build
   Future<void> _quickLocationCheck() async {
     if (_isDisposed) return;
-
-    // Don't call setState here as it might trigger during build
     _isLoading = true;
 
+    // Try cached location first
+    final appState = context.read<AppStateProvider>();
+    if (appState.isLocationCacheValid && appState.cachedPosition != null) {
+      debugPrint('\x1B[36m[LivingLabMapScreen] Using cached location data\x1B[0m');
+      await _handleUserLocation(appState.cachedPosition!, animate: false);
+      return;
+    }
+
+    // Fall back to last known position
     final lastPosition = await Geolocator.getLastKnownPosition();
     if (_isDisposed || !mounted) return;
 
@@ -185,6 +193,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   Future<void> _initLocation() async {
     if (_isDisposed) return;
+
+    // Try to use cached location first
+    final appState = context.read<AppStateProvider>();
+    if (appState.isLocationCacheValid && appState.cachedPosition != null) {
+      debugPrint('[LivingLabMapScreen] Using cached location for initialization');
+      await _handleUserLocation(appState.cachedPosition!, animate: false);
+      return;
+    }
 
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -587,6 +603,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
+
 
 
 

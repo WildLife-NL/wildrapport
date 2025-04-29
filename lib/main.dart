@@ -40,15 +40,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
   if (token != null) {
-    return OverzichtScreen();
+    return Rapporteren();
   } else {
-    return LoginScreen();
+    return LocationScreen();
   }
 }
 
