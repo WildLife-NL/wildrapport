@@ -16,6 +16,7 @@ class LocationScreenManager implements LocationScreenInterface {
   String _selectedLocation = LocationType.current.displayText;
   String _selectedDateTime = DateTimeType.current.displayText;
   String _currentLocationText = 'Huidige locatie wordt geladen...';
+  DateTime? _customDateTime;
 
   @override
   bool get isLocationDropdownExpanded => _isLocationDropdownExpanded;
@@ -106,7 +107,18 @@ class LocationScreenManager implements LocationScreenInterface {
         : null;
 
     // Get date time information
-    final dateTimeInfo = _getDateTimeInfo();
+    final dateTimeInfo = {
+      'dateTime': _selectedDateTime == DateTimeType.current.displayText
+          ? DateTime.now().toIso8601String()
+          : _selectedDateTime == DateTimeType.unknown.displayText
+              ? null
+              : _customDateTime?.toIso8601String(),
+      'type': _selectedDateTime == DateTimeType.current.displayText
+          ? 'current'
+          : _selectedDateTime == DateTimeType.unknown.displayText
+              ? 'unknown'
+              : 'custom',
+    };
 
     final result = {
       'currentGpsLocation': currentGpsLocation,
@@ -119,7 +131,8 @@ class LocationScreenManager implements LocationScreenInterface {
 
     debugPrint('\x1B[36m[LocationScreenManager] 📍 Final location data:');
     debugPrint('Current GPS: ${result['currentGpsLocation']}');
-    debugPrint('Selected: ${result['selectedLocation']}\x1B[0m');
+    debugPrint('Selected: ${result['selectedLocation']}');
+    debugPrint('DateTime: ${result['dateTime']}\x1B[0m');
 
     return result;
   }
@@ -153,7 +166,47 @@ class LocationScreenManager implements LocationScreenInterface {
     debugPrint('Is Location Unknown: ${info['isLocationUnknown']}');
     debugPrint('Is DateTime Unknown: ${info['isDateTimeUnknown']}\x1B[0m');
   }
+
+  void updateDateTime(String option, {DateTime? date, DateTime? time}) {
+    _selectedDateTime = option;
+    
+    if (option == DateTimeType.current.displayText) {
+      _customDateTime = null;
+    } else if (option == DateTimeType.unknown.displayText) {
+      _customDateTime = null;
+    } else if (date != null || time != null) {
+      // Combine date and time if both are provided
+      final currentCustom = _customDateTime ?? DateTime.now();
+      if (date != null && time != null) {
+        _customDateTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
+      } else if (date != null) {
+        _customDateTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          currentCustom.hour,
+          currentCustom.minute,
+        );
+      } else if (time != null) {
+        _customDateTime = DateTime(
+          currentCustom.year,
+          currentCustom.month,
+          currentCustom.day,
+          time.hour,
+          time.minute,
+        );
+      }
+    }
+  }
 }
+
+
 
 
 

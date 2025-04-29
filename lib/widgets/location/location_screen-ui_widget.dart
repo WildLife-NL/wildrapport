@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
@@ -6,8 +7,10 @@ import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/location_screen_manager.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/map_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
@@ -96,34 +99,31 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   Future<void> _initializeMap() async {
     if (!mounted) return;
 
+    // Handle case where location is already selected
     if (_mapProvider.selectedPosition != null) {
       _mapProvider.updatePosition(
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-
-      while (mounted &&
-          (!_mapProvider.isInitialized ||
-              _mapProvider.mapController.camera == null)) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-
-      if (!mounted) return;
-
-      try {
-        _mapProvider.mapController.move(
-          LatLng(
-            _mapProvider.selectedPosition!.latitude,
-            _mapProvider.selectedPosition!.longitude,
-          ),
-          15,
-        );
-      } catch (e) {
-        debugPrint('Error moving map: $e');
-      }
+      _updateMapView(_mapProvider.selectedPosition!);
       return;
     }
 
+    // Try to use cached location first
+    final appState = context.read<AppStateProvider>();
+    if (appState.isLocationCacheValid && appState.cachedPosition != null) {
+      debugPrint('[LocationScreenUIWidget] Using cached location data');
+      final position = appState.cachedPosition!;
+      final address = appState.cachedAddress ?? '';
+      
+      if (_locationService.isLocationInNetherlands(position.latitude, position.longitude)) {
+        _mapProvider.updatePosition(position, address);
+        _updateMapView(position);
+        return;
+      }
+    }
+
+    // Fall back to getting new location if cache is invalid or outside NL
     final position = await _locationService.determinePosition();
     if (!mounted) return;
 
@@ -136,23 +136,27 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       if (!mounted) return;
 
       _mapProvider.updatePosition(position, address);
+      _updateMapView(position);
+    }
+  }
 
-      while (mounted &&
-          (!_mapProvider.isInitialized ||
-              _mapProvider.mapController.camera == null)) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
+  // Helper method to update map view
+  Future<void> _updateMapView(Position position) async {
+    while (mounted &&
+        (!_mapProvider.isInitialized ||
+            _mapProvider.mapController.camera == null)) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      try {
-        _mapProvider.mapController.move(
-          LatLng(position.latitude, position.longitude),
-          15,
-        );
-      } catch (e) {
-        debugPrint('Error moving map: $e');
-      }
+    try {
+      _mapProvider.mapController.move(
+        LatLng(position.latitude, position.longitude),
+        15,
+      );
+    } catch (e) {
+      debugPrint('Error moving map: $e');
     }
   }
 
@@ -331,13 +335,28 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             const SizedBox(height: 20),
             TimeSelectionRow(
               onOptionSelected: (selectedOption) {
-                debugPrint('Selected time option: $selectedOption');
+                final locationManager = context.read<LocationScreenInterface>();
+                if (locationManager is LocationScreenManager) {
+                  locationManager.updateDateTime(selectedOption);
+                }
               },
               onDateSelected: (date) {
-                debugPrint('Selected date: $date');
+                final locationManager = context.read<LocationScreenInterface>();
+                if (locationManager is LocationScreenManager) {
+                  locationManager.updateDateTime(
+                    DateTimeType.custom.displayText,
+                    date: date,
+                  );
+                }
               },
               onTimeSelected: (time) {
-                debugPrint('Selected time: $time');
+                final locationManager = context.read<LocationScreenInterface>();
+                if (locationManager is LocationScreenManager) {
+                  locationManager.updateDateTime(
+                    DateTimeType.custom.displayText,
+                    time: time,
+                  );
+                }
               },
             ),
             const SizedBox(height: 20),
