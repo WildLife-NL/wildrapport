@@ -9,63 +9,12 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_list_table.dart';
-import 'package:wildrapport/screens/login_overlay.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 
-class AnimalListOverviewScreen extends StatefulWidget {
-  const AnimalListOverviewScreen({super.key});
 
-  @override
-  State<AnimalListOverviewScreen> createState() => _AnimalListOverviewScreenState();
-}
-
-class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
-  late final AppStateProvider _appStateProvider;
-  late final AnimalSightingReportingInterface _animalSightingManager;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize providers in initState to avoid rebuild issues
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
-      _animalSightingManager = Provider.of<AnimalSightingReportingInterface>(context, listen: false);
-    });
-  }
-
-  void _handleConfirmedNavigation(BuildContext context) {
-    try {
-      final navigationManager = context.read<NavigationStateInterface>();
-      navigationManager.resetToHome(context);
-    } catch (e) {
-      debugPrint('Error during navigation: $e');
-    }
-  }
-
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Waarneming annuleren?'),
-          content: const Text('Weet je zeker dat je deze waarneming wilt annuleren?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Nee'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _handleConfirmedNavigation(context);
-              },
-              child: const Text('Ja'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+class AnimalListOverviewScreen extends StatelessWidget {
+   AnimalListOverviewScreen({super.key});
+  
+  final _animalListTableKey = GlobalKey<AnimalListTableState>();
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +30,13 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Waarneming',
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => _showConfirmationDialog(context),
+              onLeftIconPressed: () {
+                final navigationManager = context.read<NavigationStateInterface>();
+                navigationManager.pushReplacementBack(
+                  context,
+                  const Rapporteren(),
+                );
+              },
               onRightIconPressed: () {
                 debugPrint('[AnimalListOverviewScreen] Menu button pressed');
               },
@@ -108,8 +63,8 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Expanded(
-                      child: AnimalListTable(),
+                    Expanded(
+                      child: AnimalListTable(key: _animalListTableKey),
                     ),
                   ],
                 ),
@@ -119,44 +74,31 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () => _showConfirmationDialog(context),
+        onBackPressed: () {
+          final navigationManager = context.read<NavigationStateInterface>();
+          navigationManager.pushReplacementBack(
+            context,
+            const Rapporteren(),
+          );
+        },
         onNextPressed: () async {
-          debugPrint('[AnimalListOverviewScreen] Next button pressed');
+          // Save any pending changes before navigation
+          _animalListTableKey.currentState?.saveChanges();
+          
           final permissionManager = context.read<PermissionInterface>();
           final navigationManager = context.read<NavigationStateInterface>();
+          final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+
+          // Get the description from AnimalListTable
+          final description = _animalListTableKey.currentState?.getDescription() ?? '';
+          animalSightingManager.updateDescription(description);
           
-          // Check if location permission is already granted
+          final currentSighting = animalSightingManager.getCurrentanimalSighting();
+          debugPrint('[AnimalListOverviewScreen] Current animal sighting state: ${currentSighting?.toJson()}');
+
           final hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
           debugPrint('[AnimalListOverviewScreen] Location permission status: $hasPermission');
-          
-          if (!hasPermission) {
-            debugPrint('[AnimalListOverviewScreen] Requesting location permission');
-            // Request permission if not granted
-            final permissionGranted = await permissionManager.requestPermission(
-              context,
-              PermissionType.location,
-              showRationale: true, // Explicitly show rationale
-            );
-            
-            debugPrint('[AnimalListOverviewScreen] Permission request result: $permissionGranted');
-            
-            if (!permissionGranted) {
-              debugPrint('[AnimalListOverviewScreen] Permission denied, showing error');
-              // If permission denied, show error message and stay on current screen
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Locatie toegang is nodig om door te gaan'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-              return;
-            }
-          }
 
-          // Navigate to LocationScreen if permission is granted
-          debugPrint('[AnimalListOverviewScreen] Navigating to LocationScreen');
           if (context.mounted) {
             navigationManager.pushReplacementForward(
               context,
@@ -170,6 +112,17 @@ class _AnimalListOverviewScreenState extends State<AnimalListOverviewScreen> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

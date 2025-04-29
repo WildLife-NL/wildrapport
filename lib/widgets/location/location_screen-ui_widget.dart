@@ -18,6 +18,7 @@ import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
 import 'package:wildrapport/widgets/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:async';
 
 class LocationScreenUIWidget extends StatefulWidget {
   const LocationScreenUIWidget({super.key});
@@ -27,6 +28,7 @@ class LocationScreenUIWidget extends StatefulWidget {
 }
 
 class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
+  Timer? _mapUpdateDebouncer;
   late final LocationServiceInterface _locationService;
   String _selectedLocation = LocationType.current.displayText;
   late final MapProvider _mapProvider;

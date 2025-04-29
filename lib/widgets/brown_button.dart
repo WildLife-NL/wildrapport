@@ -134,20 +134,25 @@ class BrownButton extends StatelessWidget {
       case 'close':
         return Icons.close;
       case 'schedule':
-        return Icons.schedule;  // Added for current time
+        return Icons.schedule;
       case 'calendar_today':
-        return Icons.calendar_today;  // Added for custom date/time
+        return Icons.calendar_today;
       case 'help':
-        return Icons.help;  // Added for unknown
+        return Icons.help;
       case 'forest':
         return Icons.forest;
       case 'nature':
         return Icons.nature;
+      case 'edit':
+        return Icons.edit;
+      case 'done':
+        return Icons.done;
       default:
         return Icons.error;
     }
   }
 }
+
 
 
 

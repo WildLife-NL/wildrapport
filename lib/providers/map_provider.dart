@@ -66,11 +66,19 @@ class MapProvider extends ChangeNotifier {
   }
 
   void setLoading(bool loading) {
+    if (_isDisposed) return;
     _isLoading = loading;
-    notifyListeners();
+    // Notify on next frame
+    Future.microtask(() {
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> updatePosition(Position position, String address) async {
+    if (_isDisposed) return;
+    
     currentPosition = position;
     currentAddress = address;
     
@@ -80,8 +88,13 @@ class MapProvider extends ChangeNotifier {
       selectedAddress = address;
     }
     
-    setLoading(false);
-    notifyListeners();
+    // Batch state updates
+    Future.microtask(() {
+      if (!_isDisposed) {
+        setLoading(false);
+        notifyListeners();
+      }
+    });
   }
 
   void setSelectedLocation(Position position, String address) {
@@ -115,6 +128,7 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
 
 
 

@@ -16,18 +16,22 @@ import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class AnimalListTable extends StatefulWidget {
-  const AnimalListTable({Key? key}) : super(key: key);
+  const AnimalListTable({super.key});
 
   @override
-  State<AnimalListTable> createState() => _AnimalListTableState();
+  AnimalListTableState createState() => AnimalListTableState();
 }
 
-class _AnimalListTableState extends State<AnimalListTable> {
+class AnimalListTableState extends State<AnimalListTable> {
   late final AnimalSightingReportingInterface _animalSightingManager;
   bool _isEditing = false;
   final TextEditingController _opmerkingController = TextEditingController();
   final Map<String, int> _tempCounts = {};
   final Map<String, TextEditingController> _controllers = {};
+
+  String getDescription() {
+    return _opmerkingController.text;
+  }
 
   @override
   void initState() {
@@ -68,36 +72,19 @@ class _AnimalListTableState extends State<AnimalListTable> {
   void _toggleEditMode() {
     setState(() {
       _isEditing = !_isEditing;
-      if (_isEditing) {
-        // When entering edit mode, initialize temp counts with current values
-        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-        final currentSighting = animalSightingManager.getCurrentanimalSighting();
-        
+      if (!_isEditing) {
+        // Only update the UI state when exiting edit mode
+        // Don't save to the manager here
         _tempCounts.clear();
         _controllers.clear();
-
-        // Pre-populate temporary counts with current values
-        if (currentSighting?.animals != null) {
-          for (var animal in currentSighting!.animals!) {
-            if (animal.gender == null) continue;
-            
-            // Initialize counts for each age/gender combination
-            _tempCounts['${AnimalAge.pasGeboren.name}_${animal.gender!.name}'] = 
-                animal.viewCount?.pasGeborenAmount ?? 0;
-            _tempCounts['${AnimalAge.onvolwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount?.onvolwassenAmount ?? 0;
-            _tempCounts['${AnimalAge.volwassen.name}_${animal.gender!.name}'] = 
-                animal.viewCount?.volwassenAmount ?? 0;
-            _tempCounts['${AnimalAge.onbekend.name}_${animal.gender!.name}'] = 
-                animal.viewCount?.unknownAmount ?? 0;
-          }
-        }
-        debugPrint('Entering edit mode. Initialized temp counts: $_tempCounts');
-      } else {
-        // When exiting edit mode, save all changes
-        _saveChanges();
       }
     });
+  }
+
+  void saveChanges() {
+    if (_isEditing) {
+      _saveChanges();
+    }
   }
 
   void _saveChanges() {
@@ -277,19 +264,9 @@ class _AnimalListTableState extends State<AnimalListTable> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch for changes in the animal sighting state
-    final currentSighting = context.watch<AnimalSightingReportingInterface>().getCurrentanimalSighting();
-
-    // Handle null state gracefully
-    if (currentSighting == null) {
-      return const Center(
-        child: Text('No active sighting'),
-      );
-    }
-
+    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
     final usedGenders = _getUsedGenders(context);
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardOpen = keyboardHeight > 0;
     
     return Center(
       child: ConstrainedBox(
@@ -297,14 +274,16 @@ class _AnimalListTableState extends State<AnimalListTable> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildEditButton(),
-            const SizedBox(height: 16),
             Expanded(
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: _buildEditButton(),
+                    ),
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
                       decoration: BoxDecoration(
@@ -335,10 +314,8 @@ class _AnimalListTableState extends State<AnimalListTable> {
                         ],
                       ),
                     ),
-                    if (currentSighting.description != null || _isEditing) ...[
-                      const SizedBox(height: 16),
-                      _buildDescriptionSection(currentSighting),
-                    ],
+                    const SizedBox(height: 16),
+                    _buildDescriptionSection(currentSighting!),
                   ],
                 ),
               ),
@@ -497,9 +474,7 @@ class _AnimalListTableState extends State<AnimalListTable> {
       child: BrownButton(
         model: ButtonModelFactory.createStandardButton(
           text: _isEditing ? 'Opslaan' : 'Bewerken',
-          leftIconPath: _isEditing 
-              ? 'circle_icon:save'
-              : 'circle_icon:edit',
+          leftIconPath: _isEditing ? 'circle_icon:done' : 'circle_icon:edit',
         ),
         onPressed: _toggleEditMode,
       ),
@@ -528,62 +503,44 @@ class _AnimalListTableState extends State<AnimalListTable> {
             ),
           ),
           const SizedBox(height: 8),
-          _buildDescriptionContainer(currentSighting),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDescriptionContainer(AnimalSightingModel currentSighting) {
-    return Container(
-      width: double.infinity,
-      height: 150, // Reduced from 200 to 150
-      decoration: BoxDecoration(
-        color: AppColors.offWhite,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: AppColors.brown.withOpacity(0.3), // Darker border (0.2 -> 0.3)
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(25),
-        child: _isEditing
-            ? Padding(
+          Container(
+            width: double.infinity,
+            height: 150,
+            decoration: BoxDecoration(
+              color: AppColors.offWhite,
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: AppColors.brown.withOpacity(0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25),
+              child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _opmerkingController,
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Voer opmerkingen in...',
+                    hintText: 'typ hier...',
                   ),
                   style: const TextStyle(
                     fontSize: 16,
                     height: 1.5,
                   ),
                 ),
-              )
-            : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    currentSighting.description ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
               ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -597,26 +554,6 @@ class _AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
