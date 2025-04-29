@@ -1,11 +1,10 @@
-
 import 'package:wildrapport/models/animal_sighting_model.dart';
 
 class AnimalSightingConvertor {
   /// Converts an AnimalSightingModel to the format required by the API
   static Map<String, dynamic> toApiFormat(AnimalSightingModel report) {
     final List<Map<String, dynamic>> allInvolvedAnimals = [];
-    
+
     for (final animal in report.animals ?? []) {
       allInvolvedAnimals.addAll(transformInvolvedAnimals(animal));
     }
@@ -31,100 +30,56 @@ class AnimalSightingConvertor {
         "longitude": userLocation.longitude,
       },
       "reportOfSighting": {
-        "sightingReportID": null,
         "involvedAnimals": allInvolvedAnimals
       },
-      "suspectedSpeciesID": report.animalSelected?.animalId,
+      "speciesID": report.animalSelected?.animalId, // Make sure this is not null when sending
       "typeID": 1
     };
   }
 
-  static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
-    final List<Map<String, dynamic>> involvedAnimals = [];
+static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
+  final List<Map<String, dynamic>> involvedAnimals = [];
 
-    final condition = animal.condition.toString().split('.').last;
-    final mappedCondition = mapCondition(condition);
-    final animalId = animal.animalId;
-    final animalName = animal.animalName;
+  final condition = animal.condition.toString().split('.').last;
+  final mappedCondition = mapCondition(condition);
 
-    for (final genderView in animal.genderViewCounts) {
-      final genderString = genderView.gender.toString().split('.').last;
-      final gender = mapGender(genderString);
-      final viewCount = genderView.viewCount;
+  for (final genderView in animal.genderViewCounts) {
+    final genderString = genderView.gender.toString().split('.').last;
+    final sex = mapSex(genderString);
+    final viewCount = genderView.viewCount;
 
-      // Handle pasGeboren
-      if (viewCount.pasGeborenAmount > 0) {
-        for (int i = 0; i < viewCount.pasGeborenAmount; i++) {
-          involvedAnimals.add({
-            "animalID": animalId,
-            "animalName": animalName,
-            "animalGender": gender,
-            "animalAge": mapAge('pasGeborenAmount'),
-            "animalCondition": mappedCondition,
-            "intensity": null,
-            "urgency": null
-          });
-        }
-      }
+    void addEntries(int amount, String ageKey) {
+      final age = mapAge(ageKey);
+      final lifeStage = mapLifeStage(age);
 
-      // Handle onvolwassen
-      if (viewCount.onvolwassenAmount > 0) {
-        for (int i = 0; i < viewCount.onvolwassenAmount; i++) {
-          involvedAnimals.add({
-            "animalID": animalId,
-            "animalName": animalName,
-            "animalGender": gender,
-            "animalAge": mapAge('onvolwassenAmount'),
-            "animalCondition": mappedCondition,
-            "intensity": null,
-            "urgency": null
-          });
-        }
-      }
-
-      // Handle volwassen
-      if (viewCount.volwassenAmount > 0) {
-        for (int i = 0; i < viewCount.volwassenAmount; i++) {
-          involvedAnimals.add({
-            "animalID": animalId,
-            "animalName": animalName,
-            "animalGender": gender,
-            "animalAge": mapAge('volwassenAmount'),
-            "animalCondition": mappedCondition,
-            "intensity": null,
-            "urgency": null
-          });
-        }
-      }
-
-      // Handle unknown
-      if (viewCount.unknownAmount > 0) {
-        for (int i = 0; i < viewCount.unknownAmount; i++) {
-          involvedAnimals.add({
-            "animalID": animalId,
-            "animalName": animalName,
-            "animalGender": gender,
-            "animalAge": mapAge('unknownAmount'),
-            "animalCondition": mappedCondition,
-            "intensity": null,
-            "urgency": null
-          });
-        }
+      for (int i = 0; i < amount; i++) {
+        involvedAnimals.add({
+          "condition": mappedCondition,
+          "lifeStage": lifeStage,
+          "sex": sex
+        });
       }
     }
 
-    return involvedAnimals;
+    addEntries(viewCount.pasGeborenAmount, 'pasGeborenAmount');
+    addEntries(viewCount.onvolwassenAmount, 'onvolwassenAmount');
+    addEntries(viewCount.volwassenAmount, 'volwassenAmount');
+    addEntries(viewCount.unknownAmount, 'unknownAmount');
   }
 
-  static String mapGender(String genderEnum) {
+  return involvedAnimals;
+}
+
+
+  static String mapSex(String genderEnum) {
     switch (genderEnum) {
       case 'vrouwelijk':
-        return 'Vrouwelijk';
+        return 'female';
       case 'mannelijk':
-        return 'Mannelijk';
+        return 'male';
       case 'onbekend':
       default:
-        return 'Onbekend';
+        return 'unknown';
     }
   }
 
@@ -142,24 +97,30 @@ class AnimalSightingConvertor {
     }
   }
 
-  static String mapCondition(String conditionEnum) {
-    switch (conditionEnum) {
+  static String mapCondition(String condition) {
+    switch (condition.toLowerCase()) {
       case 'gezond':
-        return 'Gezond';
-      case 'gewond':
-        return 'Gewond';
+        return 'healthy';
+      case 'ziek':
+        return 'impaired'; // Confirm this matches your API docs
       case 'dood':
-        return 'Dood';
+        return 'dead';
       default:
-        return 'Onbekend';
+        return 'other';
     }
+  }
+
+static String mapLifeStage(String age) {
+  switch (age.toLowerCase()) {
+    case 'pasgeboren':
+      return 'infant';      // newborn
+    case 'onvolwassen':
+      return 'adolescent';  // NOT "juvenile" -> API wants "adolescent"
+    case 'volwassen':
+      return 'adult';       // adult
+    default:
+      return 'unknown';     // if undefined
   }
 }
 
-
-
-
-
-
-
-
+}

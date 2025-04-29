@@ -112,7 +112,7 @@ class LocationScreenManager implements LocationScreenInterface {
           ? DateTime.now().toIso8601String()
           : _selectedDateTime == DateTimeType.unknown.displayText
               ? null
-              : _customDateTime?.toIso8601String(),
+              : _customDateTime?.toIso8601String(),  // This can be null if _customDateTime wasn't set
       'type': _selectedDateTime == DateTimeType.current.displayText
           ? 'current'
           : _selectedDateTime == DateTimeType.unknown.displayText
@@ -205,6 +205,7 @@ class LocationScreenManager implements LocationScreenInterface {
     }
   }
 }
+
 
 
 

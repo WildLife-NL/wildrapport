@@ -107,7 +107,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-      _updateMapView(_mapProvider.selectedPosition!);
+      // Schedule map update for next frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateMapView(_mapProvider.selectedPosition!);
+      });
       return;
     }
 
@@ -144,22 +147,27 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
   // Helper method to update map view
   Future<void> _updateMapView(Position position) async {
-    while (mounted &&
-        (!_mapProvider.isInitialized ||
-            _mapProvider.mapController.camera == null)) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
+    // Schedule the map update for after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
 
-    if (!mounted) return;
+      while (mounted &&
+          (!_mapProvider.isInitialized ||
+              _mapProvider.mapController.camera == null)) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
 
-    try {
-      _mapProvider.mapController.move(
-        LatLng(position.latitude, position.longitude),
-        15,
-      );
-    } catch (e) {
-      debugPrint('Error moving map: $e');
-    }
+      if (!mounted) return;
+
+      try {
+        _mapProvider.mapController.move(
+          LatLng(position.latitude, position.longitude),
+          15,
+        );
+      } catch (e) {
+        debugPrint('Error moving map: $e');
+      }
+    });
   }
 
   void _toggleExpanded() {

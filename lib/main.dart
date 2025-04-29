@@ -50,7 +50,7 @@ Future<Widget> getHomepageBasedOnLoginStatus() async {
   if (token != null) {
     return Rapporteren();
   } else {
-    return LocationScreen();
+    return LoginScreen();
   }
 }
 
