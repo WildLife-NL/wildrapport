@@ -182,9 +182,38 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
     if (location == LocationType.current.displayText) {
       mapProvider.setLoading(true);
-      mapProvider.selectedPosition = null;
-      mapProvider.selectedAddress = '';
-      _initializeMap();
+      
+      // Try to use cached location first
+      final appState = context.read<AppStateProvider>();
+      if (appState.isLocationCacheValid && appState.cachedPosition != null) {
+        debugPrint('[LocationScreenUIWidget] Using cached location data');
+        final position = appState.cachedPosition!;
+        final address = appState.cachedAddress ?? '';
+        
+        if (_locationService.isLocationInNetherlands(position.latitude, position.longitude)) {
+          await mapProvider.resetToCurrentLocation(position, address);
+          _updateMapView(position);
+          return;
+        }
+      }
+
+      // Fall back to getting new location if cache is invalid or outside NL
+      final position = await _locationService.determinePosition();
+      if (!mounted) return;
+
+      if (position != null &&
+          _locationService.isLocationInNetherlands(
+            position.latitude,
+            position.longitude,
+          )) {
+        final address = await _locationService.getAddressFromPosition(position);
+        if (!mounted) return;
+
+        await mapProvider.resetToCurrentLocation(position, address);
+        _updateMapView(position);
+      } else {
+        mapProvider.setLoading(false);
+      }
     } else if (location == LocationType.npZuidKennemerland.displayText) {
       _navigateToLivingLab(
         'Nationaal Park Zuid-Kennemerland',

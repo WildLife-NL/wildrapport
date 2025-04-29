@@ -6,7 +6,7 @@ import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 
-class MapProvider with ChangeNotifier {
+class MapProvider extends ChangeNotifier {
   Position? selectedPosition;
   String selectedAddress = '';
   Position? currentPosition;
@@ -98,7 +98,24 @@ class MapProvider with ChangeNotifier {
     notifyListeners();
     setLoading(false);
   }
+
+  Future<void> resetToCurrentLocation(Position position, String address) async {
+    setLoading(true);
+    // Clear selected location first
+    selectedPosition = null;
+    selectedAddress = '';
+    // Small delay to ensure UI updates
+    await Future.delayed(const Duration(milliseconds: 50));
+    // Set new position
+    selectedPosition = position;
+    selectedAddress = address;
+    currentPosition = position;
+    currentAddress = address;
+    setLoading(false);
+    notifyListeners();
+  }
 }
+
 
 
 
