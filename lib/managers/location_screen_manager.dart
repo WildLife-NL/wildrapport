@@ -33,6 +33,7 @@ class LocationScreenManager implements LocationScreenInterface {
     return Future.value();
   }
 
+  @override
   Map<String, dynamic> getLocationAndDateTime(BuildContext context) {
     final mapProvider = context.read<MapProvider>();
     

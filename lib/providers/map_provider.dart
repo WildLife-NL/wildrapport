@@ -59,14 +59,10 @@ class MapProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  @override
   void dispose() {
-    if (!_isDisposed) {
-      _isDisposed = true;
-      debugPrint('[MapProvider] Disposing map controller');
-      _mapController?.dispose();
-      _mapController = null;
-      super.dispose();
-    }
+    // Do nothing - we want to keep the map controller alive
+    // super.dispose(); // Don't call super.dispose()
   }
 
   void setLoading(bool loading) {
@@ -103,6 +99,8 @@ class MapProvider with ChangeNotifier {
     setLoading(false);
   }
 }
+
+
 
 
 

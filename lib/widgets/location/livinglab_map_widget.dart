@@ -7,6 +7,7 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/location_screen.dart';
+import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
@@ -17,6 +18,7 @@ class LivingLabMapScreen extends StatefulWidget {
   final double boundaryOffset;
   final LocationMapManager? locationService; // For testing
   final LocationMapManager? mapService; // For testing
+  final bool isFromPossession; // Add this parameter
 
   const LivingLabMapScreen({
     super.key,
@@ -25,6 +27,7 @@ class LivingLabMapScreen extends StatefulWidget {
     this.boundaryOffset = 0.018,
     this.locationService,
     this.mapService,
+    this.isFromPossession = false, // Default to false
   });
 
   @override
@@ -64,9 +67,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     debugPrint('[LivingLabMapScreen] Initializing screen');
     _initializeServices();
     _initializeBoundaries();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _quickLocationCheck();
-    });
+    // Move this to initState directly instead of using post-frame callback
+    _quickLocationCheck();
   }
 
   void _initializeServices() {
@@ -102,10 +104,12 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     }
   }
 
+  // Update this method to avoid setState during build
   Future<void> _quickLocationCheck() async {
     if (_isDisposed) return;
 
-    setState(() => _isLoading = true);
+    // Don't call setState here as it might trigger during build
+    _isLoading = true;
 
     final lastPosition = await Geolocator.getLastKnownPosition();
     if (_isDisposed || !mounted) return;
@@ -143,9 +147,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   @override
   void dispose() {
-    debugPrint('[LivingLabMapScreen] Disposing screen');
-    _isDisposed = true;
-    // Remove map controller disposal from here
+    // Remove disposal logic
+    // _mapProvider.dispose(); // Remove this line
     super.dispose();
   }
 
@@ -238,19 +241,30 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         point.latitude <= maxLat &&
         point.longitude >= minLng &&
         point.longitude <= maxLng) {
+      
+      final tempPoint = point;
       if (mounted) {
         setState(() {
-          _markedLocation = point;
+          _markedLocation = tempPoint;
           _markedAddress = 'Fetching address...';
         });
       }
 
-      final address = await _mapService.getAddressFromLatLng(point);
-      if (_isDisposed || !mounted) return;
+      try {
+        final address = await _mapService.getAddressFromLatLng(point);
+        if (_isDisposed || !mounted) return;
 
-      setState(() {
-        _markedAddress = address;
-      });
+        setState(() {
+          _markedAddress = address;
+        });
+      } catch (e) {
+        debugPrint('Error fetching address: $e');
+        if (mounted) {
+          setState(() {
+            _markedAddress = 'Address unavailable';
+          });
+        }
+      }
     }
   }
 
@@ -361,9 +375,20 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                 _buildNavButton(
                   icon: Icons.arrow_back,
                   label: 'Terug',
-                  onPressed: () => context
-                      .read<NavigationStateInterface>()
-                      .pushReplacementBack(context, const LocationScreen()),
+                  onPressed: () {
+                    final navigationManager = context.read<NavigationStateInterface>();
+                    if (widget.isFromPossession) {
+                      navigationManager.pushReplacementBack(
+                        context, 
+                        const PossesionLocationScreen(),
+                      );
+                    } else {
+                      navigationManager.pushReplacementBack(
+                        context, 
+                        const LocationScreen(),
+                      );
+                    }
+                  },
                 ),
                 _buildNavButton(
                   icon: _isSatelliteView ? Icons.map : Icons.satellite,
@@ -400,10 +425,19 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                           context
                               .read<MapProvider>()
                               .setSelectedLocation(position, _markedAddress);
-                          context
-                              .read<NavigationStateInterface>()
-                              .pushReplacementBack(
-                                  context, const LocationScreen());
+                          
+                          final navigationManager = context.read<NavigationStateInterface>();
+                          if (widget.isFromPossession) {
+                            navigationManager.pushReplacementBack(
+                              context, 
+                              const PossesionLocationScreen(),
+                            );
+                          } else {
+                            navigationManager.pushReplacementBack(
+                              context, 
+                              const LocationScreen(),
+                            );
+                          }
                         }
                       : null,
                   isEnabled: _markedLocation != null,
@@ -553,6 +587,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

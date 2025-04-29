@@ -211,6 +211,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             labName: labName,
             labCenter: center,
             boundaryOffset: offset,
+            isFromPossession: true, // Set based on context
           ),
         ),
       ),

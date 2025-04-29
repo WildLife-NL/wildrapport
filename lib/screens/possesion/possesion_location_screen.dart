@@ -36,17 +36,88 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   @override
   void initState() {
     super.initState();
-    // Defer initialization to avoid setState during build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 initState called\x1B[0m");
+    _initializeScreen();  // Remove the post-frame callback
+  }
+
+  Future<void> _initializeScreen() async {
+    if (!mounted) return;
+    
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Initializing screen\x1B[0m");
+    
+    try {
       _possesionManager = context.read<PossesionInterface>();
       possesionProvider = context.read<PossesionDamageFormProvider>();
       mapProvider = context.read<MapProvider>();
-      await mapProvider.initialize();
-      setState(() {
-        _isInitialized = true;
-      });
-    });
+      
+      if (!mapProvider.isInitialized) {
+        debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Initializing map provider\x1B[0m");
+        await mapProvider.initialize();
+      } else {
+        debugPrint("${greenLog}[PossesionLocationScreen] ✅ Map provider already initialized\x1B[0m");
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+        debugPrint("${greenLog}[PossesionLocationScreen] ✅ Screen initialized successfully\x1B[0m");
+      }
+    } catch (e) {
+      debugPrint("${redLog}[PossesionLocationScreen] ❌ Error initializing screen: $e\x1B[0m");
+    }
+  }
+
+  void _handleNextPressed() async {
+    debugPrint("${purpleLog}[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🔍 Is screen initialized: $_isInitialized\x1B[0m");
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🗺️ MapProvider initialized: ${mapProvider.isInitialized}\x1B[0m");
+    
+    // Force reinitialize map provider if needed
+    if (!_isInitialized) {
+      debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Attempting to reinitialize screen\x1B[0m");
+      await _initializeScreen();
+      if (!_isInitialized) {
+        debugPrint("${redLog}[PossesionLocationScreen] ❌ Failed to initialize map\x1B[0m");
+        return;
+      }
+    }
+    
+    final locationManager = context.read<LocationScreenInterface>();
+    final locationInfo = locationManager.getLocationAndDateTime(context);
+    
+    debugPrint("\n${blueLog}[PossesionLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
+    debugPrint("${blueLog}[PossesionLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
+    debugPrint("${blueLog}[PossesionLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
+
+    if (locationInfo['selectedLocation'] == null) {
+      debugPrint("${redLog}[PossesionLocationScreen] ⚠️ No selected location found\x1B[0m");
+      return;
+    }
+
+    // Update locations in possesion manager
+    if (locationInfo['selectedLocation'] != null) {
+      final selectedLocation = locationInfo['selectedLocation'];
+      final reportLocation = ReportLocation(
+        latitude: selectedLocation['latitude'],
+        longtitude: selectedLocation['longitude'],
+      );
+      _possesionManager.updateUserLocation(reportLocation);
+      debugPrint("${greenLog}[PossesionLocationScreen] ✅ Updated user location\x1B[0m");
+    }
+
+    if (locationInfo['currentGpsLocation'] != null) {
+      final currentLocation = locationInfo['currentGpsLocation'];
+      final systemLocation = ReportLocation(
+        latitude: currentLocation['latitude'],
+        longtitude: currentLocation['longitude'],
+      );
+      _possesionManager.updateSystemLocation(systemLocation);
+      debugPrint("${greenLog}[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
+    }
+
+    // Navigate to next screen or handle completion
+    // Add your navigation logic here
   }
 
   @override
@@ -78,38 +149,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
               .read<NavigationStateInterface>()
               .pushReplacementBack(context, const Rapporteren()),
           onNextPressed: () {
-            debugPrint("${purpleLog}[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
-            
-            final locationManager = context.read<LocationScreenInterface>();
-            final locationInfo = locationManager.getLocationAndDateTime(context);
-            
-            // Comprehensive logging of all location and datetime information
-            debugPrint("${blueLog}[PossesionLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
-            debugPrint("${blueLog}[PossesionLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
-            debugPrint("${blueLog}[PossesionLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
-            debugPrint("${blueLog}[PossesionLocationScreen] DateTime Info: ${locationInfo['dateTime']}\x1B[0m");
-            debugPrint("${blueLog}[PossesionLocationScreen] Is Location Unknown: ${locationInfo['isLocationUnknown']}\x1B[0m");
-            debugPrint("${blueLog}[PossesionLocationScreen] Is DateTime Unknown: ${locationInfo['isDateTimeUnknown']}\x1B[0m");
-            
-            if (locationInfo['isLocationUnknown'] || locationInfo['isDateTimeUnknown']) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Please select a valid location and time")),
-              );
-              return;
-            }
-
-            _possesionManager.postInteraction().then((_) {
-              debugPrint("${greenLog}[PossesionLocationScreen] ✅ Report posted successfully\x1B[0m");
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Report submitted successfully")),
-              );
-            }).catchError((e, stackTrace) {
-              debugPrint("${redLog}[PossesionLocationScreen] ❌ Error in onNextPressed: $e\x1B[0m");
-              debugPrint("${redLog}[PossesionLocationScreen] 🔍 Stack trace: $stackTrace\x1B[0m");
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Failed to submit report: $e")),
-              );
-            });
+            debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Next button pressed in build\x1B[0m");
+            _handleNextPressed();
           },
           showNextButton: true,
           showBackButton: true,
@@ -117,7 +158,22 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    // Remove any map-related disposal
+    super.dispose();
+  }
 }
+
+
+
+
+
+
+
+
+
 
 
 
