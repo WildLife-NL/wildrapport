@@ -70,19 +70,6 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
     });
   }
 
-  void _handleAnimalSelection(AnimalModel selectedAnimal) {
-    debugPrint('[GewasschadeAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
-    debugPrint('[GewasschadeAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}');
-    _possesionDamageFormProvider.setSuspectedAnimal(selectedAnimal.animalId!);
-
-    Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PossesionLocationScreen(),
-                  ),
-                );
-  }
-
   @override
   Widget build(BuildContext context) {
     final dropdownInterface = context.read<DropdownInterface>();

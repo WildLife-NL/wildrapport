@@ -101,9 +101,16 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
           color: const Color(0xFF6C452D),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: widget.hasError ? Colors.red : Colors.grey, // Red border on error
+            color: widget.hasError ? Colors.red : Colors.grey,
             width: 2.0,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20), // Ensure you know the padding
         child: Row(
@@ -172,6 +179,13 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
         decoration: BoxDecoration(
           color: const Color(0xFF6C452D),
           borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: Text(

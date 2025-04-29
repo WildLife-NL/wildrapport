@@ -68,32 +68,45 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         ),
           
         const SizedBox(height: 10),
-       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: TextField(
-          controller: _responseController,
-          onChanged: (value) {
-            _possesionManager.updateImpactedArea(value);  // Update provider state
-          },
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'hoe groot',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(
-                color: formProvider.hasErrorImpactedArea ? Colors.red : Colors.grey,  // Red border on error
-                width: 4,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: _responseController,
+              onChanged: (value) {
+                _possesionManager.updateImpactedArea(value);
+              },
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'hoe groot',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide(
+                    color: formProvider.hasErrorImpactedArea ? Colors.red : Colors.grey,
+                    width: 4,
+                  ),
+                ),
+                errorText: formProvider.hasErrorImpactedArea ? 'This field is required' : null,
+              ),
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.brown,
               ),
             ),
-            // Error text when the field is empty
-            errorText: formProvider.hasErrorImpactedArea ? 'This field is required' : null,
           ),
-          style: const TextStyle(fontSize: 18, color: AppColors.brown),
         ),
-      ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 25),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Text(
@@ -103,6 +116,18 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                offset: Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
           child: Slider(
             value: formProvider.currentDamage,
             onChanged: (value) => _possesionManager.updateCurrentDamage(value),
@@ -113,6 +138,8 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
             activeColor: AppColors.brown,
           ),
         ),
+      ),
+      const SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Text(
@@ -122,6 +149,18 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
           child: Slider(
             value: formProvider.expectedDamage,
             onChanged: (value) => _possesionManager.updateExpectedDamage(value),
@@ -132,9 +171,20 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
             activeColor: AppColors.brown,
           ),
         ),
+      ),
         const SizedBox(height: 30),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                offset: const Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
           child: TextField(
             onChanged: (val) => _possesionManager.updateDescription(val),
             maxLines: 5, 
@@ -149,7 +199,8 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
             style: const TextStyle(fontSize: 18, color: AppColors.brown),
           ),
         ),
-      ],
+      ),
+    ],
     );
   }
 }
