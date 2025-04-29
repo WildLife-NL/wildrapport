@@ -57,36 +57,26 @@ class AnimalConditionScreen extends StatelessWidget {
               },
             ),
 
-            // 🟢 Selection UI
-            SelectionButtonGroup(
-              buttons: AnimalSightingReportingInterface.conditionButtons,
-              onStatusSelected: (status) => _handleStatusSelection(context, status),
-              title: 'Selecteer dier Conditie',
-            ),
+            Expanded(  // Wrap content in Expanded
+              child: Column(
+                children: [
+                  // 🟢 Selection UI
+                  SelectionButtonGroup(
+                    buttons: AnimalSightingReportingInterface.conditionButtons,
+                    onStatusSelected: (status) => _handleStatusSelection(context, status),
+                    title: 'Selecteer dier Conditie',
+                  ),
 
-            // 🟡 Invisible Map Preloader (this ensures no map crash later)
-            const InvisibleMapPreloader(),
+                  // 🟡 Invisible Map Preloader
+                  const InvisibleMapPreloader(),
+                ],
+              ),
+            ),
           ],
         ),
-      ),
-
-      // 🔵 Bottom bar with just a back button
-      bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () {
-          final navigationManager = context.read<NavigationStateInterface>();
-          navigationManager.resetToHome(context);
-        },
-        onNextPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Selecteer eerst een conditie'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        },
-        showNextButton: false,
       ),
     );
   }
 }
+
 

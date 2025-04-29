@@ -43,11 +43,19 @@ class SightingReport implements Reportable, CommonReportFields{
       sightingReportID: json["sightingReportID"],
       description: json["description"],
       suspectedSpeciesID: json["suspectedSpeciesID"],
-      userSelectedLocation: json["userSelectedLocation"] = ReportLocation.fromJson(json["userSelectedLocation"]),
-      systemLocation: json["systemLocation"] = ReportLocation.fromJson(json["systemLocation"]),
-      userSelectedDateTime: json["userSelectedDateTime"],
-      systemDateTime: json["systemDateTime"],
-      animals: json["animals"] = List<SightedAnimal>.from(
-        json["animals"].map((x) => SightedAnimal.fromJson(x))),
+      userSelectedLocation: json["userSelectedLocation"] != null 
+          ? ReportLocation.fromJson(json["userSelectedLocation"])
+          : null,
+      systemLocation: json["systemLocation"] != null 
+          ? ReportLocation.fromJson(json["systemLocation"])
+          : null,
+      userSelectedDateTime: json["userSelectedDateTime"] != null 
+          ? DateTime.parse(json["userSelectedDateTime"])
+          : null,
+      systemDateTime: DateTime.parse(json["systemDateTime"]),
+      animals: json["animals"] != null 
+          ? List<SightedAnimal>.from(
+              json["animals"].map((x) => SightedAnimal.fromJson(x)))
+          : [],
     );
 }

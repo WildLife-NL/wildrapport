@@ -1,37 +1,23 @@
-class SightedAnimal{
-  final String? animalID;
-  final String animalName;
-  final String animalGender;
-  final String animalAge;
-  final String animalCondition;
-  final String? intensity;
-  final String? urgency;
+class SightedAnimal {
+  final String condition;
+  final String lifeStage;
+  final String sex;
 
   SightedAnimal({
-    this.animalID,
-    required this.animalName,
-    required this.animalGender,
-    required this.animalAge,
-    required this.animalCondition,
-    this.intensity,
-    this.urgency,
+    required this.condition,
+    required this.lifeStage,
+    required this.sex,
   });
-    Map<String, dynamic> toJson() => {
-    'animalID': animalID,
-    'animalName': animalName,
-    'animalGender': animalGender,
-    'animalAge': animalAge,
-    'animalCondition': animalCondition,
-    'intensity': intensity,
-    'urgency': urgency,
-  };
-    factory SightedAnimal.fromJson(Map<String, dynamic> json) => SightedAnimal(
-      animalID: json['animalID'],
-      animalName: json['animalName'],
-      animalGender: json['animalGender'],
-      animalAge: json['animalAge'],
-      animalCondition: json['animalCondition'],
-      intensity: json['intensity'],
-      urgency: json['urgency'],
-    );
+
+  Map<String, dynamic> toJson() => {
+        'condition': condition,
+        'lifeStage': lifeStage,
+        'sex': sex,
+      };
+
+  factory SightedAnimal.fromJson(Map<String, dynamic> json) => SightedAnimal(
+        condition: json['condition'],
+        lifeStage: json['lifeStage'],
+        sex: json['sex'],
+      );
 }

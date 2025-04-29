@@ -258,27 +258,32 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
 
   @override
   AnimalSightingModel updateCategory(AnimalCategory category) {
-    if (_currentanimalSighting == null) {
+    // Get current state
+    final currentSighting = getCurrentanimalSighting();
+    if (currentSighting == null) {
       throw StateError('No current animalSighting found');
     }
 
-    final oldJson = _currentanimalSighting!.toJson();
-    
-    _currentanimalSighting = AnimalSightingModel(
-      animals: _currentanimalSighting!.animals,
-      animalSelected: _currentanimalSighting!.animalSelected,  // Add this line to preserve the selected animal and its condition
+    final oldJson = currentSighting.toJson();
+    debugPrint('[AnimalSightingManager] Updating category. Previous state: $oldJson');
+
+    // Create new state with updated category while preserving other fields
+    final updatedSighting = AnimalSightingModel(
+      animals: currentSighting.animals,
+      animalSelected: currentSighting.animalSelected,
       category: category,
-      description: _currentanimalSighting!.description,
-      locations: _currentanimalSighting?.locations,  // Preserve the locations
-      dateTime: _currentanimalSighting!.dateTime,
-      images: _currentanimalSighting!.images,
+      description: currentSighting.description,
+      locations: currentSighting.locations,
+      dateTime: currentSighting.dateTime,
+      images: currentSighting.images,
     );
-    
-    debugPrint('[animalSightingManager] Updating category. Previous state: $oldJson');
-    debugPrint('[animalSightingManager] New state: ${_currentanimalSighting!.toJson()}');
+
+    // Save updated state
+    _currentanimalSighting = updatedSighting;
+    debugPrint('[AnimalSightingManager] New state: ${updatedSighting.toJson()}');
     
     _notifyListeners();
-    return _currentanimalSighting!;
+    return updatedSighting;
   }
 
   @override
@@ -452,41 +457,44 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     AnimalCondition? condition,
     String? description,
   }) {
-    if (_currentanimalSighting == null) {
+    final currentSighting = getCurrentanimalSighting();
+    if (currentSighting == null) {
       throw StateError('No current animalSighting found');
     }
 
-    final updatedAnimals = List<AnimalModel>.from(_currentanimalSighting!.animals ?? []);
+    final updatedAnimals = List<AnimalModel>.from(currentSighting.animals ?? []);
     final animalIndex = updatedAnimals.indexWhere(
-      (animal) => animal.animalName == animalName && animal.gender == gender
+      (animal) => animal.animalName == animalName && 
+                  animal.genderViewCounts.any((gvc) => gvc.gender == gender)
     );
 
     if (animalIndex != -1) {
       final currentAnimal = updatedAnimals[animalIndex];
       updatedAnimals[animalIndex] = AnimalModel(
-        animalId: currentAnimal.animalId,  // Preserve ID
+        animalId: currentAnimal.animalId,
         animalImagePath: currentAnimal.animalImagePath,
         animalName: currentAnimal.animalName,
         genderViewCounts: viewCount != null 
-            ? [AnimalGenderViewCount(gender: currentAnimal.gender ?? AnimalGender.onbekend, viewCount: viewCount)]
+            ? [AnimalGenderViewCount(gender: gender, viewCount: viewCount)]
             : currentAnimal.genderViewCounts,
         condition: condition ?? currentAnimal.condition,
-    
       );
     }
 
-    _currentanimalSighting = AnimalSightingModel(
+    final updatedSighting = AnimalSightingModel(
       animals: updatedAnimals,
-      animalSelected: _currentanimalSighting!.animalSelected,
-      category: _currentanimalSighting!.category,
-      description: description ?? _currentanimalSighting!.description,
-      locations: _currentanimalSighting?.locations,  // Preserve the locations
-      dateTime: _currentanimalSighting!.dateTime,
-      images: _currentanimalSighting!.images,
+      animalSelected: currentSighting.animalSelected,
+      category: currentSighting.category,
+      description: description ?? currentSighting.description ?? '',  // Ensure description is preserved and defaulted
+      locations: currentSighting.locations ?? [],
+      dateTime: currentSighting.dateTime,
+      images: currentSighting.images,
     );
 
+    _currentanimalSighting = updatedSighting;
+    debugPrint('[AnimalSightingManager] Updated sighting with description: ${updatedSighting.description}');
     _notifyListeners();
-    return _currentanimalSighting!;
+    return updatedSighting;
   }
 
   @override
@@ -578,6 +586,9 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     return _currentanimalSighting!;
   }
 }
+
+
+
 
 
 

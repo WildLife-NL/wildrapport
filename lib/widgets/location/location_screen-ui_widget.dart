@@ -18,6 +18,7 @@ import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
 import 'package:wildrapport/widgets/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:async';
 
 class LocationScreenUIWidget extends StatefulWidget {
   const LocationScreenUIWidget({super.key});
@@ -27,6 +28,7 @@ class LocationScreenUIWidget extends StatefulWidget {
 }
 
 class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
+  Timer? _mapUpdateDebouncer;
   late final LocationServiceInterface _locationService;
   String _selectedLocation = LocationType.current.displayText;
   late final MapProvider _mapProvider;
@@ -105,7 +107,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-      _updateMapView(_mapProvider.selectedPosition!);
+      // Schedule map update for next frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateMapView(_mapProvider.selectedPosition!);
+      });
       return;
     }
 
@@ -142,22 +147,27 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
   // Helper method to update map view
   Future<void> _updateMapView(Position position) async {
-    while (mounted &&
-        (!_mapProvider.isInitialized ||
-            _mapProvider.mapController.camera == null)) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
+    // Schedule the map update for after the build phase
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
 
-    if (!mounted) return;
+      while (mounted &&
+          (!_mapProvider.isInitialized ||
+              _mapProvider.mapController.camera == null)) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
 
-    try {
-      _mapProvider.mapController.move(
-        LatLng(position.latitude, position.longitude),
-        15,
-      );
-    } catch (e) {
-      debugPrint('Error moving map: $e');
-    }
+      if (!mounted) return;
+
+      try {
+        _mapProvider.mapController.move(
+          LatLng(position.latitude, position.longitude),
+          15,
+        );
+      } catch (e) {
+        debugPrint('Error moving map: $e');
+      }
+    });
   }
 
   void _toggleExpanded() {
@@ -235,6 +245,11 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
 
+    // Get the current route to determine if we're in possession flow
+    final currentRoute = ModalRoute.of(context);
+    final isFromPossession = currentRoute?.settings.name == '/possession_location' || 
+                           currentRoute?.settings.name?.contains('possession') == true;
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -244,7 +259,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             labName: labName,
             labCenter: center,
             boundaryOffset: offset,
-            isFromPossession: true, // Set based on context
+            isFromPossession: isFromPossession,
           ),
         ),
       ),

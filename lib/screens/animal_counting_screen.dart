@@ -94,7 +94,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
           final navigationManager = context.read<NavigationStateInterface>();
           navigationManager.pushReplacementForward(
             context,
-            const AnimalListOverviewScreen(),
+            AnimalListOverviewScreen(),  // Removed 'const'
           );
         },
         showNextButton: _hasAddedItems,
@@ -102,6 +102,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     );
   }
 }
+
 
 
 

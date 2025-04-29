@@ -68,17 +68,16 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   }
 
   void _handleNextPressed() async {
-    final navigationManager = context.read<NavigationStateInterface>();
-    debugPrint("$purpleLog[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
-    debugPrint("$yellowLog[PossesionLocationScreen] 🔍 Is screen initialized: $_isInitialized\x1B[0m");
-    debugPrint("$yellowLog[PossesionLocationScreen] 🗺️ MapProvider initialized: ${mapProvider.isInitialized}\x1B[0m");
+    debugPrint("${purpleLog}[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🔍 Is screen initialized: $_isInitialized\x1B[0m");
+    debugPrint("${yellowLog}[PossesionLocationScreen] 🗺️ MapProvider initialized: ${mapProvider.isInitialized}\x1B[0m");
     
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
-      debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Attempting to reinitialize screen\x1B[0m");
+      debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Attempting to reinitialize screen\x1B[0m");
       await _initializeScreen();
       if (!_isInitialized) {
-        debugPrint("$redLog[PossesionLocationScreen] ❌ Failed to initialize map\x1B[0m");
+        debugPrint("${redLog}[PossesionLocationScreen] ❌ Failed to initialize map\x1B[0m");
         return;
       }
     }
