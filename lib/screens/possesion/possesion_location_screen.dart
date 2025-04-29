@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
@@ -26,6 +27,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
+  final blueLog = '\x1B[34m';
+  final purpleLog = '\x1B[35m';
   late final PossesionDamageFormProvider possesionProvider;
   late final MapProvider mapProvider;
   bool _isInitialized = false;
@@ -74,24 +77,39 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
           onBackPressed: () => context
               .read<NavigationStateInterface>()
               .pushReplacementBack(context, const Rapporteren()),
-          onNextPressed: () async {
-            debugPrint("🚀 Next button pressed, attempting to build and post report");
-            try {
-              await _possesionManager.postInteraction();
-              debugPrint("✅ Report posted successfully");
-              // Navigate to the next screen or show success
+          onNextPressed: () {
+            debugPrint("${purpleLog}[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
+            
+            final locationManager = context.read<LocationScreenInterface>();
+            final locationInfo = locationManager.getLocationAndDateTime(context);
+            
+            // Comprehensive logging of all location and datetime information
+            debugPrint("${blueLog}[PossesionLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
+            debugPrint("${blueLog}[PossesionLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
+            debugPrint("${blueLog}[PossesionLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
+            debugPrint("${blueLog}[PossesionLocationScreen] DateTime Info: ${locationInfo['dateTime']}\x1B[0m");
+            debugPrint("${blueLog}[PossesionLocationScreen] Is Location Unknown: ${locationInfo['isLocationUnknown']}\x1B[0m");
+            debugPrint("${blueLog}[PossesionLocationScreen] Is DateTime Unknown: ${locationInfo['isDateTimeUnknown']}\x1B[0m");
+            
+            if (locationInfo['isLocationUnknown'] || locationInfo['isDateTimeUnknown']) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Please select a valid location and time")),
+              );
+              return;
+            }
+
+            _possesionManager.postInteraction().then((_) {
+              debugPrint("${greenLog}[PossesionLocationScreen] ✅ Report posted successfully\x1B[0m");
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Report submitted successfully")),
               );
-              // Example navigation
-              // context.read<NavigationStateInterface>().push(context, NextScreen());
-            } catch (e, stackTrace) {
-              debugPrint("❌ Error in onNextPressed: $e");
-              debugPrint("🔍 Stack trace: $stackTrace");
+            }).catchError((e, stackTrace) {
+              debugPrint("${redLog}[PossesionLocationScreen] ❌ Error in onNextPressed: $e\x1B[0m");
+              debugPrint("${redLog}[PossesionLocationScreen] 🔍 Stack trace: $stackTrace\x1B[0m");
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Failed to submit report: $e")),
               );
-            }
+            });
           },
           showNextButton: true,
           showBackButton: true,
@@ -100,3 +118,10 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     );
   }
 }
+
+
+
+
+
+
+

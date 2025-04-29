@@ -7,6 +7,7 @@ abstract class LocationScreenInterface {
   String get selectedLocation;
   String get selectedDateTime;
   String get currentLocationText;
+  Map<String, dynamic> getLocationAndDateTime(BuildContext context);
 
   // Add the new method
   Future<void> handleNextPressed(BuildContext context);
