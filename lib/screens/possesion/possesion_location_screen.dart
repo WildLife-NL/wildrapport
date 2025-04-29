@@ -32,6 +32,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   late final MapProvider mapProvider;
   bool _isInitialized = false;
 
+  NavigationStateInterface get navigationManager => context.read<NavigationStateInterface>();
+
   @override
   void initState() {
     super.initState();
@@ -68,16 +70,12 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   }
 
   void _handleNextPressed() async {
-    debugPrint("${purpleLog}[PossesionLocationScreen] ⚡ Next button callback triggered\x1B[0m");
-    debugPrint("${yellowLog}[PossesionLocationScreen] 🔍 Is screen initialized: $_isInitialized\x1B[0m");
-    debugPrint("${yellowLog}[PossesionLocationScreen] 🗺️ MapProvider initialized: ${mapProvider.isInitialized}\x1B[0m");
+
     
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
-      debugPrint("${yellowLog}[PossesionLocationScreen] 🔄 Attempting to reinitialize screen\x1B[0m");
       await _initializeScreen();
       if (!_isInitialized) {
-        debugPrint("${redLog}[PossesionLocationScreen] ❌ Failed to initialize map\x1B[0m");
         return;
       }
     }
@@ -169,3 +167,4 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     super.dispose();
   }
 }
+
