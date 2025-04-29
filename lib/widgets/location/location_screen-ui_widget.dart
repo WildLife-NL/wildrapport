@@ -237,6 +237,11 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
 
+    // Get the current route to determine if we're in possession flow
+    final currentRoute = ModalRoute.of(context);
+    final isFromPossession = currentRoute?.settings.name == '/possession_location' || 
+                           currentRoute?.settings.name?.contains('possession') == true;
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -246,7 +251,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             labName: labName,
             labCenter: center,
             boundaryOffset: offset,
-            isFromPossession: true, // Set based on context
+            isFromPossession: isFromPossession,
           ),
         ),
       ),

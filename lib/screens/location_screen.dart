@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/models/enums/location_source.dart';
+import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -37,59 +39,93 @@ class LocationScreen extends StatelessWidget {
         onBackPressed: () => context
             .read<NavigationStateInterface>()
             .pushReplacementBack(context, const Rapporteren()),
-        onNextPressed: () {
-          // Get the current animal sighting from provider
+        onNextPressed: () async {
           final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-          final currentSighting = animalSightingManager.getCurrentanimalSighting();
+          final locationManager = context.read<LocationScreenInterface>();
           
-          // Check if location is set
-          if (currentSighting?.locations == null || currentSighting!.locations!.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Selecteer eerst een locatie'),
-                backgroundColor: Colors.red,
-              ),
-            );
-            return;
-          }
-
           try {
-            // Convert to API format
-            final apiFormat = AnimalSightingConvertor.toApiFormat(currentSighting!);
+            debugPrint('\x1B[35m[LocationScreen] Starting location update process\x1B[0m');
             
-            // Pretty print the API format in pink
-            final pinkLog = '\x1B[95m';
-            final resetLog = '\x1B[0m';
+            // Get location and datetime information once
+            final locationInfo = await locationManager.getLocationAndDateTime(context);
             
-            debugPrint('$pinkLog[LocationScreen] Converting to API format:$resetLog');
-            debugPrint('$pinkLog{$resetLog');
-            apiFormat.forEach((key, value) {
-              if (value is Map) {
-                debugPrint('$pinkLog  "$key": {$resetLog');
-                (value as Map).forEach((k, v) {
-                  debugPrint('$pinkLog    "$k": $v,$resetLog');
-                });
-                debugPrint('$pinkLog  },$resetLog');
-              } else if (value is List) {
-                debugPrint('$pinkLog  "$key": [$resetLog');
-                for (var item in value) {
-                  debugPrint('$pinkLog    $item,$resetLog');
-                }
-                debugPrint('$pinkLog  ],$resetLog');
-              } else {
-                debugPrint('$pinkLog  "$key": $value,$resetLog');
-              }
-            });
-            debugPrint('$pinkLog}$resetLog');
+            if (locationInfo['selectedLocation'] == null) {
+              debugPrint('\x1B[31m[LocationScreen] No location selected\x1B[0m');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Selecteer eerst een locatie'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
 
-            // Continue with the original next pressed handler
+            final currentSighting = animalSightingManager.getCurrentanimalSighting();
+            if (currentSighting == null) {
+              throw StateError('No active animal sighting found');
+            }
+
+            debugPrint('\x1B[35m[LocationScreen] Updating locations in animal sighting model\x1B[0m');
+
+            // Update locations
+            if (locationInfo['currentGpsLocation'] != null) {
+              final systemLocation = LocationModel(
+                latitude: locationInfo['currentGpsLocation']['latitude'],
+                longitude: locationInfo['currentGpsLocation']['longitude'],
+                source: LocationSource.system,
+              );
+              animalSightingManager.updateLocation(systemLocation);
+              debugPrint('\x1B[35m[LocationScreen] Updated system location: ${systemLocation.latitude}, ${systemLocation.longitude}\x1B[0m');
+            }
+
+            if (locationInfo['selectedLocation'] != null) {
+              final userLocation = LocationModel(
+                latitude: locationInfo['selectedLocation']['latitude'],
+                longitude: locationInfo['selectedLocation']['longitude'],
+                source: LocationSource.manual,
+              );
+              animalSightingManager.updateLocation(userLocation);
+              debugPrint('\x1B[35m[LocationScreen] Updated user location: ${userLocation.latitude}, ${userLocation.longitude}\x1B[0m');
+            }
+
+            // Update datetime
+            if (locationInfo['dateTimeInfo'] != null) {
+              final dateTimeStr = locationInfo['dateTimeInfo']['dateTime'];
+              if (dateTimeStr != null) {
+                final dateTime = DateTime.parse(dateTimeStr);
+                animalSightingManager.updateDateTime(dateTime);
+                debugPrint('\x1B[35m[LocationScreen] Updated datetime: $dateTime\x1B[0m');
+              }
+            }
+
+            // Convert to API format
+            final updatedSighting = animalSightingManager.getCurrentanimalSighting();
+            final apiFormat = AnimalSightingConvertor.toApiFormat(updatedSighting!);
+
+            debugPrint('\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m');
+            debugPrint('\x1B[35m- Description: ${apiFormat['description']}\x1B[0m');
+            debugPrint('\x1B[35m- Location: ${apiFormat['location']}\x1B[0m');
+            debugPrint('\x1B[35m- Moment: ${apiFormat['moment']}\x1B[0m');
+            debugPrint('\x1B[35m- Place: ${apiFormat['place']}\x1B[0m');
+            
+            final reportOfSighting = apiFormat['reportOfSighting'] as Map<String, dynamic>;
+            debugPrint('\x1B[35m- Report ID: ${reportOfSighting['sightingReportID']}\x1B[0m');
+            
+            final involvedAnimals = reportOfSighting['involvedAnimals'] as List;
+            debugPrint('\x1B[35m- Number of involved animals: ${involvedAnimals.length}\x1B[0m');
+            
+            for (var i = 0; i < involvedAnimals.length; i++) {
+              debugPrint('\x1B[35m  Animal $i: ${involvedAnimals[i]}\x1B[0m');
+            }
+
+            // Navigate to next screen
             context
-                .read<LocationScreenInterface>()
-                .handleNextPressed(context);
-          } catch (e) {
-            final pinkLog = '\x1B[95m';
-            final resetLog = '\x1B[0m';
-            debugPrint('$pinkLog[LocationScreen] Error: $e$resetLog');
+                .read<NavigationStateInterface>()
+                .pushReplacementBack(context, const Rapporteren());
+            
+          } catch (e, stackTrace) {
+            debugPrint('\x1B[31m[LocationScreen] Error: $e\x1B[0m');
+            debugPrint('\x1B[31m[LocationScreen] Stack trace: $stackTrace\x1B[0m');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Er is een fout opgetreden: $e'),

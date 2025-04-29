@@ -444,11 +444,13 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                           
                           final navigationManager = context.read<NavigationStateInterface>();
                           if (widget.isFromPossession) {
+                            debugPrint('[LivingLabMapScreen] Navigating back to PossesionLocationScreen');
                             navigationManager.pushReplacementBack(
                               context, 
                               const PossesionLocationScreen(),
                             );
                           } else {
+                            debugPrint('[LivingLabMapScreen] Navigating back to LocationScreen');
                             navigationManager.pushReplacementBack(
                               context, 
                               const LocationScreen(),
@@ -603,6 +605,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
 
 
 
