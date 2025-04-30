@@ -12,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 
 
 class AppStateProvider with ChangeNotifier {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final Map<String, Map<String, dynamic>> _screenStates = {};
   final Map<String, dynamic> _activeReports = {};
   ReportType? _currentReportType;
@@ -147,6 +148,7 @@ class AppStateProvider with ChangeNotifier {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
   }
 }
+
 
 
 

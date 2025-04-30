@@ -21,6 +21,7 @@ dependencies:
   geocoding: ^2.1.1
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
+  sensors_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:

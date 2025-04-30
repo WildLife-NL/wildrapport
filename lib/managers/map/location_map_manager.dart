@@ -8,10 +8,10 @@ import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 
 class LocationMapManager implements LocationServiceInterface, MapServiceInterface, MapStateInterface {
-  static const double minLat = 51.2;
-  static const double maxLat = 52.0;
-  static const double minLng = 4.9;
-  static const double maxLng = 5.9;
+  static const double minLat = 50.75;  // Southern Netherlands border
+  static const double maxLat = 53.55;  // Northern Netherlands border
+  static const double minLng = 3.35;   // Western Netherlands border
+  static const double maxLng = 7.25; 
   
   static const LatLng denBoschCenter = LatLng(51.6988, 5.3041);
   static const String standardTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
