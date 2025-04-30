@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wildrapport/api/auth_api.dart';
+import 'package:wildrapport/api/profile_api.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
@@ -28,7 +29,7 @@ class VerificationCodeInput extends StatefulWidget {
 class _VerificationCodeInputState extends State<VerificationCodeInput> with SingleTickerProviderStateMixin {
   final List<TextEditingController> controllers = List.generate(6, (index) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
-  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient));
+  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient), ProfileApi(AppConfig.shared.apiClient));
   late final AnimationController _animationController;
   bool isLoading = false;
   bool isError = false;

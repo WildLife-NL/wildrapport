@@ -5,6 +5,7 @@ import 'package:wildrapport/api/answer_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
 import 'package:wildrapport/api/interaction_api.dart';
+import 'package:wildrapport/api/profile_api.dart';
 import 'package:wildrapport/api/questionaire_api.dart';
 import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
@@ -67,13 +68,14 @@ void main() async {
   final appConfig = AppConfig(apiClient);
   
   final authApi = AuthApi(apiClient);
+  final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
   final interactionApi = InteractionApi(apiClient);
 
   final questionnaireAPI = QuestionaireApi(apiClient);
   final answerAPI = AnswerApi(apiClient);    
 
-  final loginManager = LoginManager(authApi);
+  final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
   final possesionDamageFormProvider = PossesionDamageFormProvider();

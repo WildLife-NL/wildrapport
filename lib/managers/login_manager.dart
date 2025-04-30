@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/config/app_config.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/api/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/api_models/user.dart';
@@ -9,12 +8,13 @@ import 'package:wildrapport/exceptions/validation_exception.dart';
 
 class LoginManager implements LoginInterface {
   final AuthApiInterface authApi;
+  final ProfileApiInterface profileApi;
   final List<VoidCallback> _listeners = [];
   bool _showVerification = false;
   bool _isError = false;
   String _errorMessage = '';
 
-  LoginManager(this.authApi);
+  LoginManager(this.authApi, this.profileApi);
   
   // Email validation regex
   static final _emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
@@ -84,7 +84,9 @@ class LoginManager implements LoginInterface {
   @override
   Future<User> verifyCode(String email, String code) async {
     try {
-      return await authApi.authorize(email, code);
+      User response = await authApi.authorize(email, code);
+      await profileApi.setProfileDataInDeviceStorage();
+      return response;
     } catch (e) {
       throw Exception("Unhandled Unauthorized Exception");
     }

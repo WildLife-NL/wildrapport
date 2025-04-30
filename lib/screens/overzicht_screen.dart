@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 
-class OverzichtScreen extends StatelessWidget {
+class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
+
+  @override
+  State<OverzichtScreen> createState() => _OverzichtScreenState();
+}
+
+class _OverzichtScreenState extends State<OverzichtScreen> {
+  String userName = "Joe Doe";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString("userName") ?? "Joe Doe";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final navigationManager = context.read<NavigationStateInterface>();
     final screenSize = MediaQuery.of(context).size;
 
-    // Dynamic sizes
-final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
+    final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
     final double welcomeFontSize = (screenSize.width * 0.045).clamp(14.0, 24.0);
     final double usernameFontSize = (screenSize.width * 0.06).clamp(18.0, 28.0);
     final double buttonHeight = (screenSize.height * 0.18).clamp(100.0, 160.0);
@@ -28,21 +48,16 @@ final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top green banner (full width, no safe area)
                   TopContainer(
-                    userName: 'John Doe',
+                    userName: userName,
                     height: topContainerHeight,
                     welcomeFontSize: welcomeFontSize,
                     usernameFontSize: usernameFontSize,
                   ),
-                  
-                  // Safe content
                   SafeArea(
                     top: false,
                     child: Padding(
@@ -60,9 +75,7 @@ final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
                                   text: 'RapportenKaart',
                                   icon: Icons.map,
                                   imagePath: null,
-                                  onPressed: () {
-                                    // Handle RapportenKaart action
-                                  },
+                                  onPressed: () {},
                                 ),
                                 (
                                   text: 'Rapporteren',
@@ -79,9 +92,7 @@ final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
                                   text: 'Mijn Rapporten',
                                   icon: Icons.description,
                                   imagePath: null,
-                                  onPressed: () {
-                                    // Handle Mijn Rapporten action
-                                  },
+                                  onPressed: () {},
                                 ),
                               ],
                               iconSize: iconSize,
