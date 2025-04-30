@@ -33,12 +33,19 @@ class PossesionManager implements PossesionInterface {
   Future<Questionnaire> postInteraction() async {
     final interaction = Interaction(
       interactionType: InteractionType.gewasschade,
-      userID: "4790e81a-dbfb-4316-9d85-8275de240f01",
+      userID: "4790e81a-dbfb-4316-9d85-8275de240f01", //Temp because we don't safe user date yet
       report: buildPossionReport(),
     );
     final questionnaire = await interactionAPI.sendInteraction(interaction);
     debugPrint("$greenLog${questionnaire.name}");
     debugPrint("$greenLog${questionnaire.questions![0].description}");
+
+    //Clearing the provider of it's value
+    //In the future need to implement caching for when out of range of internet
+    //And only clearing after succesfull cache, then submit all reports after reconnect
+    //Probably in a seperate function that doesn't return a questionnaire to the frontend
+    formProvider.clearStateOfValues(); 
+
     return questionnaire;
   }
 

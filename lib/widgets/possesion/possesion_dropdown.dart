@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class PossesionDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final String getSelectedValue;
+  final String getSelectedText;
   final List<Map<String, String>> dropdownItems;
   final double? containerWidth;
   final double? containerHeight;
@@ -16,6 +17,7 @@ class PossesionDropdown extends StatefulWidget {
     super.key,
     this.onChanged,
     required this.getSelectedValue,
+    required this.getSelectedText,
     required this.dropdownItems,
     this.containerWidth,
     this.containerHeight,
@@ -33,6 +35,7 @@ class PossesionDropdown extends StatefulWidget {
 class _PossesionDropdownState extends State<PossesionDropdown> {
   bool isExpanded = false;
   late String selectedValue;
+  late String selectedText;
   OverlayEntry? overlayEntry;
   final GlobalKey _buttonKey = GlobalKey();
 
@@ -40,6 +43,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
   void initState() {
     super.initState();
     selectedValue = widget.getSelectedValue.isNotEmpty ? widget.getSelectedValue : widget.defaultValue;
+    selectedText = widget.getSelectedText.isNotEmpty ? widget.getSelectedText : widget.defaultValue; 
   }
 
   @override
@@ -50,35 +54,42 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          widget.hasDropdownSideDescription
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(widget.dropdownSideDescriptionText ?? ''),
-                    const SizedBox(width: 10),
-                    buildMainButton(),
-                  ],
-                )
-              : buildMainButton(),
-          if (widget.hasError)
-            Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                'This field is required',
-                style: TextStyle(color: Colors.red, fontSize: 12),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        widget.hasDropdownSideDescription
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(widget.dropdownSideDescriptionText ?? ''),
+                  const SizedBox(width: 10),
+                  buildMainButton(),
+                ],
+              )
+            : buildMainButton(),
+        const SizedBox(height: 4), // small space between dropdown and error text
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          child: SizedBox(
+            height: 16, // always reserve space for 1 line of error text
+            child: widget.hasError
+                ? const Text(
+                    'This field is required',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  )
+                : const SizedBox.shrink(), // invisible when no error
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget buildMainButton() {
     return GestureDetector(
@@ -100,10 +111,9 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
         decoration: BoxDecoration(
           color: const Color(0xFF6C452D),
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: widget.hasError ? Colors.red : Colors.grey,
-            width: 2.0,
-          ),
+          border: widget.hasError
+              ? Border.all(color: Colors.red, width: 2.0)
+              : Border.all(color: Colors.transparent, width: 0),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.25),
@@ -112,13 +122,15 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
             ),
           ],
         ),
+
+
         padding: const EdgeInsets.symmetric(horizontal: 20), // Ensure you know the padding
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Icon(Icons.agriculture, color: Color(0xFF6C452D)),
             Text(
-              selectedValue,
+              selectedText,
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
             Icon(
@@ -167,6 +179,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
       onTap: () {
         setState(() {
           selectedValue = item['value']!;
+          selectedText = item['text']!;
           isExpanded = false;
         });
         widget.onChanged?.call(item['text']!);
