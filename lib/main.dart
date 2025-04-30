@@ -58,13 +58,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   final appStateProvider = AppStateProvider();
+  final prefs = await SharedPreferences.getInstance();
+  final permissionManager = PermissionManager(prefs);
   
-  // Initial location cache update
-  await appStateProvider.updateLocationCache();
-  
-  // Start periodic updates
-  appStateProvider.startLocationUpdates();
-
   await dotenv.load(fileName: ".env");
   
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
@@ -91,13 +87,12 @@ void main() async {
   
   final locationScreenManager = LocationScreenManager();
   
-  final prefs = await SharedPreferences.getInstance();
-  final permissionManager = PermissionManager(prefs);
 
   // Check for existing token
   final String? token = await prefs.getString('bearer_token');
   final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
 
+  // Start the app
   runApp(
     MultiProvider(
       providers: [
@@ -134,7 +129,32 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
-      child: MyApp(initialScreen: initialScreen),
+      child: MyApp(
+        initialScreen: initialScreen,
+        onAppStart: () async {
+          // Check if we already have permission
+          bool hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
+          
+          if (!hasPermission) {
+            // Get the context after the app has started
+            final context = appStateProvider.navigatorKey.currentContext;
+            if (context != null) {
+              hasPermission = await permissionManager.requestPermission(
+                context,
+                PermissionType.location,
+                showRationale: true,
+              );
+            }
+          }
+
+          if (hasPermission) {
+            await appStateProvider.updateLocationCache();
+            appStateProvider.startLocationUpdates();
+          } else {
+            debugPrint('\x1B[31m[Main] Location permission denied\x1B[0m');
+          }
+        },
+      ),
     ),
   );
 }
@@ -149,13 +169,26 @@ Future<String?> _getToken() async {
 
 class MyApp extends StatelessWidget {
   final Widget initialScreen;
+  final Future<void> Function() onAppStart;
   
-  const MyApp({super.key, required this.initialScreen});
+  const MyApp({
+    super.key, 
+    required this.initialScreen,
+    required this.onAppStart,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final appStateProvider = context.read<AppStateProvider>();
+    
+    // Call onAppStart after the app has been built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onAppStart();
+    });
+    
     return _MediaQueryWrapper(
       child: MaterialApp(
+        navigatorKey: appStateProvider.navigatorKey,
         title: 'WildRapport',
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.lightMintGreen,
@@ -176,9 +209,7 @@ class MyApp extends StatelessWidget {
         ),
         builder: (context, child) {
           return MediaQuery(
-            // Preserve the original MediaQuery settings
             data: MediaQuery.of(context).copyWith(
-              // Allow text scaling but with reasonable limits
               textScaler: TextScaler.linear(
                 MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.4),
               ),
@@ -190,11 +221,11 @@ class MyApp extends StatelessWidget {
           future: getHomepageBasedOnLoginStatus(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Scaffold(
+              return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               );
             } else if (snapshot.hasError) {
-              return Scaffold(
+              return const Scaffold(
                 body: Center(child: Text('Something went wrong')),
               );
             } else {
