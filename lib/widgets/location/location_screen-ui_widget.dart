@@ -245,21 +245,24 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
 
-    // Get the current route to determine if we're in possession flow
+    // Check if we're in the possession flow by checking the navigation stack
     final currentRoute = ModalRoute.of(context);
-    final isFromPossession = currentRoute?.settings.name == '/possession_location' || 
-                           currentRoute?.settings.name?.contains('possession') == true;
+    final isFromPossession = currentRoute?.settings.name?.contains('possesion') ?? 
+                            Navigator.of(context).widget.pages.any((route) => 
+                              route.name?.contains('possesion') ?? false);
+                              
+    debugPrint('[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession');
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => MapScreen(
+        builder: (_) => MapScreen(
           title: labName,
           mapWidget: LivingLabMapScreen(
             labName: labName,
             labCenter: center,
             boundaryOffset: offset,
-            isFromPossession: isFromPossession,
+            isFromPossession: isFromPossession,  // Pass the correct flag
           ),
         ),
       ),

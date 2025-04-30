@@ -38,7 +38,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   void initState() {
     super.initState();
     debugPrint("$yellowLog[PossesionLocationScreen] 🔄 initState called\x1B[0m");
-    _initializeScreen();  // Remove the post-frame callback
+    _initializeScreen();
   }
 
   Future<void> _initializeScreen() async {
@@ -70,7 +70,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   }
 
   void _handleNextPressed() async {
-
+    debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Next button pressed\x1B[0m");
     
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
@@ -112,14 +112,15 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       _possesionManager.updateSystemLocation(systemLocation);
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
-    Questionnaire questionnaire = await _possesionManager.postInteraction();
 
-    navigationManager.pushReplacementForward(
-                    context,
-                    const QuestionnaireScreen(),
-                  );
-    // Navigate to next screen or handle completion
-    // Add your navigation logic here
+    Questionnaire questionnaire = await _possesionManager.postInteraction();
+    
+    if (mounted) {
+      navigationManager.pushReplacementForward(
+        context,
+        const QuestionnaireScreen(),
+      );
+    }
   }
 
   @override
@@ -133,9 +134,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
                 leftIcon: Icons.arrow_back_ios,
                 centerText: 'Locatie',
                 rightIcon: Icons.menu,
-                onLeftIconPressed: () => context
-                    .read<NavigationStateInterface>()
-                    .pushReplacementBack(context, const Rapporteren()),
+                onLeftIconPressed: () => navigationManager.pushReplacementBack(context, const Rapporteren()),
                 onRightIconPressed: () {/* Handle menu */},
               ),
               Expanded(
@@ -147,13 +146,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
           ),
         ),
         bottomNavigationBar: CustomBottomAppBar(
-          onBackPressed: () => context
-              .read<NavigationStateInterface>()
-              .pushReplacementBack(context, const Rapporteren()),
-          onNextPressed: () {
-            debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Next button pressed in build\x1B[0m");
-            _handleNextPressed();
-          },
+          onBackPressed: () => navigationManager.pushReplacementBack(context, const Rapporteren()),
+          onNextPressed: _handleNextPressed,
           showNextButton: true,
           showBackButton: true,
         ),
@@ -167,4 +161,5 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     super.dispose();
   }
 }
+
 
