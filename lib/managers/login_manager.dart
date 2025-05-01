@@ -68,6 +68,7 @@ class LoginManager implements LoginInterface {
 
   @override
   Future<bool> sendLoginCode(String email) async {
+    // Validate email first
     final validationError = validateEmail(email);
     if (validationError != null) {
       throw ValidationException(validationError);
@@ -83,11 +84,11 @@ class LoginManager implements LoginInterface {
 
   @override
   Future<User> verifyCode(String email, String code) async {
-    try {
-      User response = await authApi.authorize(email, code);
-      await profileApi.setProfileDataInDeviceStorage();
-      return response;
-    } catch (e) {
+    try{
+      return authApi.authorize(email, code);
+    }
+    catch(e){
+      //TODO: Handle exception
       throw Exception("Unhandled Unauthorized Exception");
     }
   }
@@ -99,9 +100,18 @@ class LoginManager implements LoginInterface {
   }
 
   @override
-  Future<bool> resendCode(String email) {
-    // TODO: implement resendCode
-    throw UnimplementedError();
+  Future<bool> resendCode(String email) async {
+    final validationError = validateEmail(email);
+    if (validationError != null) {
+      throw ValidationException(validationError);
+    }
+
+    try {
+      await authApi.authenticate("Wild Rapport", email.trim());
+      return true;
+    } catch (e) {
+      throw Exception("Resend code failed: $e");
+    }
   }
 
   @override
@@ -139,30 +149,5 @@ class LoginManager implements LoginInterface {
   void _notifyListeners() {
     for (final listener in _listeners) {
       listener();
-  Future<bool> sendLoginCode(String email) async {
-    // Validate email first
-    final validationError = validateEmail(email);
-    if (validationError != null) {
-      throw ValidationException(validationError);
-    }
-
-    try {
-      await authApi.authenticate("Wild Rapport", email.trim());
-      return true;
-    } catch (e) {
-      throw Exception("Login failed: $e");
-    }
-  }
-
-  @override
-  Future<User> verifyCode(String email, String code) async {
-    try{
-      return authApi.authorize(email, code);
-    }
-    catch(e){
-      //TODO: Handle exception
-      throw Exception("Unhandled Unauthorized Exception");
-    }
-  }
-}
   }}
+}

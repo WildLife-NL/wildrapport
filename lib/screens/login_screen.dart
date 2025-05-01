@@ -8,6 +8,8 @@ import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/widgets/validation_overlay.dart';
+import 'package:wildrapport/widgets/error_overlay.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +47,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() {
     debugPrint('Login button pressed');
+    
+    // Validate email first
+    final validationError = _loginManager.validateEmail(emailController.text);
+    if (validationError != null) {
+      showDialog(
+        context: context,
+        builder: (context) => ErrorOverlay(
+          messages: [validationError],
+        ),
+      );
+      return;
+    }
+    
     // Immediately show verification screen
     setState(() {
       isError = false;
@@ -57,19 +72,50 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!response) {
         setState(() {
           showVerification = false;
-          isError = true;
-          errorMessage = 'Login mislukt';
-          debugPrint("Login Failed");
         });
+        // Show error in overlay
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => ErrorOverlay(
+              messages: ['Login mislukt. Probeer het later opnieuw.'],
+            ),
+          );
+        }
       } else {
         debugPrint("Verification Code Sent To Email!");
       }
     }).catchError((e) {
       setState(() {
         showVerification = false;
-        isError = true;
-        errorMessage = e.toString();
       });
+      
+      // Show user-friendly error message
+      String userFriendlyMessage = 'Er is een fout opgetreden. Probeer het later opnieuw.';
+      
+      // Log the actual error for debugging
+      debugPrint('Login error: $e');
+      
+      // Check for specific error types
+      if (e.toString().contains('SocketException') || 
+          e.toString().contains('Connection refused') ||
+          e.toString().contains('Network is unreachable')) {
+        userFriendlyMessage = 'Geen internetverbinding. Controleer uw netwerk en probeer het opnieuw.';
+      } else if (e.toString().contains('timed out')) {
+        userFriendlyMessage = 'De server reageert niet. Probeer het later opnieuw.';
+      } else if (e.toString().contains('Unauthorized') || e.toString().contains('401')) {
+        userFriendlyMessage = 'Ongeldige inloggegevens. Controleer uw e-mailadres en probeer het opnieuw.';
+      }
+      
+      // Show error in overlay
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => ErrorOverlay(
+            messages: [userFriendlyMessage],
+          ),
+        );
+      }
     });
   }
 
@@ -168,19 +214,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                         Container(
                           decoration: BoxDecoration(
-                            color: isError 
-                              ? Colors.red.shade50.withOpacity(0.9) 
-                              : AppColors.offWhite,
+                            color: AppColors.offWhite, // Always use normal color
                             borderRadius: BorderRadius.circular(25),
-                            border: isError ? Border.all(
-                              color: Colors.red.shade300,
-                              width: 1.0,
-                            ) : null,
                             boxShadow: [
                               BoxShadow(
-                                color: isError 
-                                  ? Colors.red.withOpacity(0.1) 
-                                  : Colors.black.withOpacity(0.25),
+                                color: Colors.black.withOpacity(0.25),
                                 spreadRadius: 0,
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
@@ -189,21 +227,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: TextField(
                             controller: emailController,
-                            onChanged: (value) {
-                              if (isError) {
-                                setState(() {
-                                  isError = false;
-                                  errorMessage = '';
-                                });
-                              }
-                            },
                             decoration: InputDecoration(
                               hintText: 'voorbeeld@gmail.com',
-                              hintStyle: TextStyle(
-                                color: isError 
-                                  ? Colors.red.shade200
-                                  : Colors.grey,
-                              ),
+                              hintStyle: TextStyle(color: Colors.grey),
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
@@ -253,7 +279,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
 
 
