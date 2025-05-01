@@ -7,6 +7,8 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/widgets/counter_widget.dart';
+import 'package:wildrapport/widgets/error_overlay.dart';
+import 'package:wildrapport/widgets/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/validation_overlay.dart';
@@ -86,7 +88,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
     if (errors.isNotEmpty) {
       showDialog(
         context: context,
-        builder: (context) => ValidationOverlay(messages: errors),
+        builder: (context) => ErrorOverlay(messages: errors),
       );
       return;
     }
@@ -147,6 +149,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
     (_counterKey.currentState as AnimalCounterState).reset();
 
     widget.onAddToList?.call();
+    
+    // Show success snackbar
+    SnackBarWithProgress.show(
+      context: context,
+      message: 'Dier toegevoegd aan de lijst',
+    );
   }
 
   void _handleAgeSelection(String age) {
@@ -347,4 +355,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
            (genderVC.viewCount.unknownAmount > 0);
   }
 }
+
+
 
