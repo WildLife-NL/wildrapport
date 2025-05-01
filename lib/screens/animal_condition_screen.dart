@@ -3,17 +3,29 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/screens/category_screen.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart'; // ✅ import preloader
 import 'package:wildrapport/widgets/selection_button_group.dart';
 
-class AnimalConditionScreen extends StatelessWidget {
+class AnimalConditionScreen extends StatefulWidget {
   const AnimalConditionScreen({super.key});
+
+  @override
+  State<AnimalConditionScreen> createState() => _AnimalConditionScreenState();
+}
+
+class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
+  bool isLoading = false;
 
   void _handleStatusSelection(BuildContext context, String status) {
     final greenLog = '\x1B[32m';
     final resetLog = '\x1B[0m';
+
+    setState(() {
+      isLoading = true;
+    });
 
     debugPrint('${greenLog}[AnimalConditionScreen] Handling status selection: $status$resetLog');
 
@@ -28,6 +40,9 @@ class AnimalConditionScreen extends StatelessWidget {
       // Use push instead of pushReplacement
       navigationManager.pushForward(context, const CategoryScreen());
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       debugPrint('${greenLog}[AnimalConditionScreen] Error updating condition: $e$resetLog');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -41,42 +56,51 @@ class AnimalConditionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
-              centerText: 'Dier Conditie',
-              rightIcon: Icons.menu,
-              onLeftIconPressed: () {
-                final navigationManager = context.read<NavigationStateInterface>();
-                navigationManager.resetToHome(context);
-              },
-              onRightIconPressed: () {
-                debugPrint('[AnimalConditionScreen] Menu button pressed');
-              },
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                CustomAppBar(
+                  leftIcon: Icons.arrow_back_ios,
+                  centerText: "Selecteer dier Conditie",
+                  rightIcon: Icons.menu,
+                  onLeftIconPressed: () {
+                    // Handle back navigation
+                  },
+                  onRightIconPressed: () {
+                    // Handle menu
+                  },
+                ),
+                SelectionButtonGroup(
+                  buttons: AnimalSightingReportingInterface.conditionButtons,
+                  onStatusSelected: (status) => _handleStatusSelection(context, status),
+                  title: 'Selecteer dier Conditie',
+                ),
+              ],
             ),
-
-            Expanded(  // Wrap content in Expanded
-              child: Column(
-                children: [
-                  // 🟢 Selection UI
-                  SelectionButtonGroup(
-                    buttons: AnimalSightingReportingInterface.conditionButtons,
-                    onStatusSelected: (status) => _handleStatusSelection(context, status),
-                    title: 'Selecteer dier Conditie',
-                  ),
-
-                  // 🟡 Invisible Map Preloader
-                  const InvisibleMapPreloader(),
-                ],
-              ),
+          ),
+          const InvisibleMapPreloader(), // Add map preloader widget
+          if (isLoading) // Use a properly defined variable
+            const Center(
+              child: CircularProgressIndicator(),
             ),
-          ],
-        ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomAppBar(
+        onBackPressed: () {
+          // Handle back navigation
+          final navigationManager = context.read<NavigationStateInterface>();
+          navigationManager.pushReplacementBack(context, const OverzichtScreen()); // Adjust destination as needed
+        },
+        onNextPressed: () {},
+        showNextButton: false,
       ),
     );
   }
 }
+
+
+
 
 

@@ -241,7 +241,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   }
 
   void _navigateToLivingLab(String labName, LatLng center, double offset) {
-    final mapProvider = context.read<MapProvider>();
+    final mapProvider = context.read<MapProvider>();  
     mapProvider.setLoading(true);
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
