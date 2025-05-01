@@ -6,7 +6,7 @@ class PossesionDamageFormProvider extends ChangeNotifier {
   double currentDamage = 0;
   double expectedDamage = 0;
   String impactedAreaType = '';
-  String impactedArea = '';
+  double? impactedArea;
   String description = '';
   String? suspectedSpeciesID;
   final greenLog = '\x1B[32m';
@@ -36,7 +36,7 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setImpactedArea(String value) {
+  void setImpactedArea(double value) {
     impactedArea = value;
     notifyListeners();
   }
@@ -75,7 +75,7 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     currentDamage = 0;
     expectedDamage = 0;
     impactedAreaType = '';
-    impactedArea = '';
+    impactedArea = null;
     description = '';
     hasErrorImpactedCrop = false;
     hasErrorImpactedAreaType = false;

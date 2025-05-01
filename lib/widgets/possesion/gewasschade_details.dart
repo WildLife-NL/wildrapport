@@ -24,7 +24,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
     final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
 
     // Initialize the controller with the value from the provider
-    _responseController.text = formProvider.impactedArea;
+    _responseController.text = formProvider.impactedArea?.toString() ?? '';
   }
 
   String capitalize(String s) {
@@ -59,6 +59,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           defaultValue: "Kies Gewas",
           hasDropdownSideDescription: false,
           hasError: formProvider.hasErrorImpactedCrop,
+          useIcons: true,
         ),
         const SizedBox(height: 10),
         PossesionDropdown(
@@ -74,6 +75,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           hasDropdownSideDescription: true,
           dropdownSideDescriptionText: "Getroffen Gebied",
           hasError: formProvider.hasErrorImpactedAreaType,
+          useIcons: false,
         ),
           
         const SizedBox(height: 10),
@@ -95,7 +97,14 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
                 child: TextField(
                   controller: _responseController,
                   onChanged: (value) {
-                    _possesionManager.updateImpactedArea(value);
+                    try {
+                      final parsed = double.parse(value);
+                      _possesionManager.updateImpactedArea(parsed);
+                    } catch (e, stackTrace) {
+                      debugPrint('Invalid input for double: $value');
+                      debugPrint('$e\n$stackTrace');
+                      // Optionally, notify formProvider of the error
+                    }
                   },
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(

@@ -48,7 +48,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
       isValid = false;
       formProvider.setErrorState('impactedAreaType', true);
     }
-    if (formProvider.impactedArea.isEmpty) {
+    if (formProvider.impactedArea == 0) {
       isValid = false;
       formProvider.setErrorState('impactedArea', true);
     }

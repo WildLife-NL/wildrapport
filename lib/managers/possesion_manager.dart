@@ -20,6 +20,8 @@ class PossesionManager implements PossesionInterface {
   PossesionManager(this.interactionAPI, this.formProvider, this.mapProvider);
 
   final greenLog = '\x1B[32m';
+  final redLog = '\x1B[31m';
+  final yellowLog = '\x1B[93m';
 
   @override
   List<dynamic> buildPossesionWidgetList() {
@@ -78,8 +80,25 @@ class PossesionManager implements PossesionInterface {
   }
 
   @override
-  void updateImpactedArea(String value) {
-    formProvider.setImpactedArea(value);
+  void updateImpactedArea(double value) {
+    try {
+      if(formProvider.impactedAreaType == "hectare"){
+        debugPrint("$greenLog impactArea selected is Hectare");
+        formProvider.setImpactedArea(value * 10000);
+      }
+      else if(formProvider.impactedAreaType == "vierkante meters"){
+        debugPrint("$greenLog impactArea selected is Vierkante Meters");
+        formProvider.setImpactedArea(value);
+      }
+      else{
+        throw Exception("$redLog Impacted Area Type Isn't Valid!");
+      }
+    } catch(e, stackTrace){
+      debugPrint("$redLog Something went wrong:");
+      debugPrint("$redLog Message: ${e.toString()}");
+      debugPrint("$redLog Stacktrace: $stackTrace");
+
+    }
   }
 
   @override
@@ -96,7 +115,10 @@ class PossesionManager implements PossesionInterface {
   void updateSuspectedAnimal(String value) {
     formProvider.setSuspectedAnimal(value);
   }
-
+  //we only use vierkante meters and unit, unit as in number of sheep in the future
+  String getCorrectImpactArea(){
+    return "vierkante meters";
+  }
   @override
   PossesionDamageReport buildPossionReport() {
     debugPrint("✅ buildReportTesting called");
@@ -105,7 +127,7 @@ class PossesionManager implements PossesionInterface {
       debugPrint("📍 MapProvider state: selectedPosition=${mapProvider.selectedPosition}, currentPosition=${mapProvider.currentPosition}");
       debugPrint("📋 formProvider state: "
           "impactedCrop=${formProvider.impactedCrop}, "
-          "impactedAreaType=${formProvider.impactedAreaType}, "
+          "impactedAreaType=$getCorrectImpactArea()"
           "impactedArea=${formProvider.impactedArea}, "
           "currentDamage=${formProvider.currentDamage}, "
           "expectedDamage=${formProvider.expectedDamage}, "
@@ -133,10 +155,10 @@ class PossesionManager implements PossesionInterface {
       if (formProvider.impactedCrop.isEmpty) {
         throw Exception("Impacted crop is empty");
       }
-      if (formProvider.impactedArea.isEmpty) {
+      if (formProvider.impactedArea == 0) {
         throw Exception("Impacted area is empty");
       }
-      final impactedArea = double.tryParse(formProvider.impactedArea);
+      final impactedArea = formProvider.impactedArea;
       if (impactedArea == null) {
         throw Exception("Invalid impacted area: ${formProvider.impactedArea}");
       }

@@ -9,7 +9,7 @@ abstract class PossesionInterface{
   void updateCurrentDamage(double value);
   void updateExpectedDamage(double value);
   void updateImpactedAreaType(String value);
-  void updateImpactedArea(String value);
+  void updateImpactedArea(double value);
   void updateDescription(String value);
   void updateSuspectedAnimal(String value);
   void updateSystemLocation(ReportLocation value);

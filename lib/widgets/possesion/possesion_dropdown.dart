@@ -13,6 +13,7 @@ class PossesionDropdown extends StatefulWidget {
   final String? dropdownSideDescriptionText;
   final String defaultValue;
   final bool hasError; // Add this property to check for error state
+  final bool useIcons;
 
   const PossesionDropdown({
     super.key,
@@ -27,6 +28,7 @@ class PossesionDropdown extends StatefulWidget {
     this.dropdownSideDescriptionText,
     required this.defaultValue,
     required this.hasError, // Pass error state from provider
+    required this.useIcons,
   });
 
   @override
@@ -183,36 +185,37 @@ Widget build(BuildContext context) {
 
     overlay.insert(overlayEntry!);
   }
-    Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedValue = item['value']!;
-          selectedText = item['text']!;
-          isExpanded = false;
-        });
-        widget.onChanged?.call(item['text']!);
-        overlayEntry?.remove();
-      },
-      child: Container(
-        width: buttonWidth,
-        height: widget.containerHeight ?? 50,
-        margin: const EdgeInsets.only(top: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF6C452D),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              offset: const Offset(0, 2),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
+Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        selectedValue = item['value']!;
+        selectedText = item['text']!;
+        isExpanded = false;
+      });
+      widget.onChanged?.call(item['text']!);
+      overlayEntry?.remove();
+    },
+    child: Container(
+      width: buttonWidth,
+      height: widget.containerHeight ?? 50,
+      margin: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF6C452D),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (widget.useIcons)
             Align(
               alignment: Alignment.centerLeft,
               child: SvgPicture.asset(
@@ -222,17 +225,16 @@ Widget build(BuildContext context) {
                 colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
               ),
             ),
-            Center(
-              child: Text(
-                item['text']!,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
+          Center(
+            child: Text(
+              item['text']!,
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+              textAlign: TextAlign.center,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
+    ),
+  );
+}
 }
