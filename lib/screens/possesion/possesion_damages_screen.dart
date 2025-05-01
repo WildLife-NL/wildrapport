@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
@@ -89,6 +91,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<PossesionDamageFormProvider>(context);
+    final navigationManager = context.read<NavigationStateInterface>();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -99,11 +102,9 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
                 provider.clearStateOfValues();
-                Navigator.push(
+                navigationManager.pushReplacementForward(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const OverzichtScreen(),
-                  ),
+                  const Rapporteren(),
                 );
               },
               onRightIconPressed: () {

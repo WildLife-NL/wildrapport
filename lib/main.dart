@@ -49,7 +49,7 @@ import 'package:wildrapport/screens/rapporteren.dart';
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
   if (token != null) {
-    return Rapporteren();
+    return OverzichtScreen();
   } else {
     return LoginScreen();
   }
