@@ -22,6 +22,7 @@ dependencies:
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
   sensors_plus: ^6.1.1
+  flutter_svg: ^2.0.7
 
 dev_dependencies:
   flutter_test:
@@ -71,7 +72,17 @@ flutter:
     - assets/icons/gender/male_gender.png
     - assets/icons/gender/unknown_gender.png
     - assets/icons/possesion/impacted_area_type.png
+    - assets/icons/possesion/gewassen/apple.svg
+    - assets/icons/possesion/gewassen/corn.svg
+    - assets/icons/possesion/gewassen/grass.svg
+    - assets/icons/possesion/gewassen/radish_2.svg
+    - assets/icons/possesion/gewassen/tomato.svg
+    - assets/icons/possesion/gewassen/tulip_2.svg
+    - assets/icons/possesion/gewassen/wheat.svg
+
     - assets/location/location_icon.png
+
+
     - .env
 
     

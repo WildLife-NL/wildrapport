@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class PossesionDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
@@ -38,6 +39,15 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
   late String selectedText;
   OverlayEntry? overlayEntry;
   final GlobalKey _buttonKey = GlobalKey();
+  final List<String> gewassIconList = [
+    "assets/icons/possesion/gewassen/corn.svg",
+    "assets/icons/possesion/gewassen/radish_2.svg",
+    "assets/icons/possesion/gewassen/wheat.svg",
+    "assets/icons/possesion/gewassen/tulip_2.svg",
+    "assets/icons/possesion/gewassen/grass.svg",
+    "assets/icons/possesion/gewassen/apple.svg",
+    "assets/icons/possesion/gewassen/tomato.svg",
+  ];
 
   @override
   void initState() {
@@ -160,9 +170,10 @@ Widget build(BuildContext context) {
           child: Material(
             color: Colors.transparent,
             child: Column(
-              children: widget.dropdownItems.map((item) {
-                // Use the actual width of the button for the dropdown
-                return buildDropdownItem(item, buttonWidth);
+              children: widget.dropdownItems.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<String, String> item = entry.value;
+                return buildDropdownItem(item, buttonWidth, index);
               }).toList(),
             ),
           ),
@@ -172,9 +183,7 @@ Widget build(BuildContext context) {
 
     overlay.insert(overlayEntry!);
   }
-
-  Widget buildDropdownItem(Map<String, String> item, double buttonWidth) {
-    // Use the button's width for the dropdown items
+    Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -183,10 +192,10 @@ Widget build(BuildContext context) {
           isExpanded = false;
         });
         widget.onChanged?.call(item['text']!);
-        overlayEntry?.remove(); // Remove the dropdown after selection
+        overlayEntry?.remove();
       },
       child: Container(
-        width: buttonWidth, // Use the same width as the button
+        width: buttonWidth,
         height: widget.containerHeight ?? 50,
         margin: const EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
@@ -200,12 +209,30 @@ Widget build(BuildContext context) {
             ),
           ],
         ),
-        alignment: Alignment.center,
-        child: Text(
-          item['text']!,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SvgPicture.asset(
+                gewassIconList[index],
+                height: 20,
+                width: 20,
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              ),
+            ),
+            Center(
+              child: Text(
+                item['text']!,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
 }
