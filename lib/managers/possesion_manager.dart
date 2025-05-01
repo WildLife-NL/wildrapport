@@ -91,7 +91,7 @@ class PossesionManager implements PossesionInterface {
         formProvider.setImpactedArea(value);
       }
       else{
-        throw Exception("$redLog Impacted Area Type Isn't Valid!");
+        throw Exception("$redLog Impacted Area Type of: ${formProvider.impactedAreaType} Isn't Valid!");
       }
     } catch(e, stackTrace){
       debugPrint("$redLog Something went wrong:");
@@ -124,7 +124,7 @@ class PossesionManager implements PossesionInterface {
     debugPrint("✅ buildReportTesting called");
     try {
       // Log provider state
-      debugPrint("📍 MapProvider state: selectedPosition=${mapProvider.selectedPosition}, currentPosition=${mapProvider.currentPosition}");
+      debugPrint("📍 formProvider location state: selectedPosition=${formProvider.userLocation}, currentPosition=${formProvider.systemLocation}");
       debugPrint("📋 formProvider state: "
           "impactedCrop=${formProvider.impactedCrop}, "
           "impactedAreaType=$getCorrectImpactArea()"
@@ -135,21 +135,15 @@ class PossesionManager implements PossesionInterface {
           "suspectedSpeciesID=${formProvider.suspectedSpeciesID}");
 
       // Validate positions
-      if (mapProvider.selectedPosition == null || mapProvider.currentPosition == null) {
+      if (formProvider.userLocation == null || formProvider.systemLocation == null) {
         debugPrint("❗ One or both positions are null: "
-            "selectedPosition=${mapProvider.selectedPosition}, "
-            "currentPosition=${mapProvider.currentPosition}");
+            "selectedPosition=${formProvider.userLocation}, "
+            "currentPosition=${formProvider.systemLocation}");
       }
 
       // Use actual positions if available, fallback to defaults
-      final systemReportLocation = ReportLocation(
-        latitude: mapProvider.currentPosition?.latitude ?? 20,
-        longtitude: mapProvider.currentPosition?.longitude ?? 20, // Fixed typo: longtitude -> longitude
-      );
-      final userReportLocation = ReportLocation(
-        latitude: mapProvider.selectedPosition?.latitude ?? 20,
-        longtitude: mapProvider.selectedPosition?.longitude ?? 20,
-      );
+      final systemReportLocation = formProvider.systemLocation ?? ReportLocation(latitude: 20.0, longtitude: 20.0);
+      final userReportLocation = formProvider.userLocation ?? ReportLocation(latitude: 20.0, longtitude: 20.0);
 
       // Validate formProvider inputs
       if (formProvider.impactedCrop.isEmpty) {

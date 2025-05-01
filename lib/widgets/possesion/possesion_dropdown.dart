@@ -193,7 +193,7 @@ Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index
         selectedText = item['text']!;
         isExpanded = false;
       });
-      widget.onChanged?.call(item['text']!);
+      widget.onChanged?.call(item['value']!);
       overlayEntry?.remove();
     },
     child: Container(
