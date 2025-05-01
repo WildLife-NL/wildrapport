@@ -80,6 +80,10 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       }
     }
     
+    // Reset map provider state
+    final mapProvider = context.read<MapProvider>();
+   
+    
     final locationManager = context.read<LocationScreenInterface>();
     final locationInfo = await locationManager.getLocationAndDateTime(context);
     
@@ -112,7 +116,6 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       _possesionManager.updateSystemLocation(systemLocation);
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
-
     Questionnaire questionnaire = await _possesionManager.postInteraction();
     
     if (mounted) {
@@ -121,6 +124,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
         const QuestionnaireScreen(),
       );
     }
+       mapProvider.resetState();
+
   }
 
   @override
@@ -161,5 +166,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     super.dispose();
   }
 }
+
+
 
 

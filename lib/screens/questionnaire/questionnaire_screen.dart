@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
-  const QuestionnaireScreen({super.key});
+  final Questionnaire? questionnaire;
+  
+  const QuestionnaireScreen({Key? key, this.questionnaire}) : super(key: key);
 
   @override
   State<QuestionnaireScreen> createState() => _QuestionnaireScreenState();
@@ -44,14 +47,16 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    //Get Questionnaires, currently unused
-    final questionnaire = await _questionnaireManager.getQuestionnaire();
-    
-    // Building the questionnaire list, based on the types of questions
-    final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayout(
-      nextScreen,
-      previousScreen,
-    );
+    final questionnaireScreens = widget.questionnaire != null
+        ? await _questionnaireManager.buildQuestionnaireLayoutFromExisting(
+            widget.questionnaire!,
+            nextScreen,
+            previousScreen,
+          )
+        : await _questionnaireManager.buildQuestionnaireLayout(
+            nextScreen,
+            previousScreen,
+          );
 
     setState(() {
       questionnaireScreensList = questionnaireScreens;
@@ -88,3 +93,4 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     );
   }
 }
+

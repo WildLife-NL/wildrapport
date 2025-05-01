@@ -127,7 +127,18 @@ class MapProvider extends ChangeNotifier {
     setLoading(false);
     notifyListeners();
   }
+
+  Future<void> resetState() async {
+    setLoading(true);
+    selectedPosition = null;
+    selectedAddress = '';
+    currentPosition = null;
+    currentAddress = '';
+    notifyListeners();
+    setLoading(false);
+  }
 }
+
 
 
 

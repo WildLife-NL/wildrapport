@@ -102,6 +102,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   Future<void> _initializeMap() async {
     if (!mounted) return;
 
+    // Reset state variables
+    _selectedLocation = LocationType.current.displayText;
+    _isExpanded = false;
+
     // Handle case where location is already selected
     if (_mapProvider.selectedPosition != null) {
       _mapProvider.updatePosition(

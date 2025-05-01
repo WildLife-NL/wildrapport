@@ -13,15 +13,22 @@ import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/location_model.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen-ui_widget.dart';
 
-class LocationScreen extends StatelessWidget {
+class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
 
+  @override
+  State<LocationScreen> createState() => _LocationScreenState();
+}
+
+class _LocationScreenState extends State<LocationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +59,10 @@ class LocationScreen extends StatelessWidget {
           onNextPressed: () async {
             final animalSightingManager = context.read<AnimalSightingReportingInterface>();
             final locationManager = context.read<LocationScreenInterface>();
+            final mapProvider = context.read<MapProvider>();
 
             try {
-              debugPrint('\x1B[35m[LocationScreen] Starting location update process\x1B[0m');
-
+              debugPrint('\x1B[35m[LocationScreen] Starting location update process\x1B[0m');              
               final locationInfo = await locationManager.getLocationAndDateTime(context);
               debugPrint('\x1B[35m[LocationScreen] LocationInfo: $locationInfo\x1B[0m');
 
@@ -104,6 +111,8 @@ class LocationScreen extends StatelessWidget {
                 final dateTime = DateTime.parse(dateTimeStr);
                 animalSightingManager.updateDateTime(dateTime);
                 debugPrint('\x1B[35m[LocationScreen] Updated datetime: $dateTime\x1B[0m');
+                 mapProvider.resetState();
+
               } else {
                 debugPrint('\x1B[31m[LocationScreen] No datetime provided in locationInfo\x1B[0m');
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -135,8 +144,30 @@ class LocationScreen extends StatelessWidget {
               debugPrint(const JsonEncoder.withIndent('  ').convert(apiFormat));
 
               final questionnaire = await submitReport(context);
-              debugPrint('\x1B[34m[LocationScreen] Received questionnaire: ${questionnaire.name}\x1B[0m');
-
+              
+              // Check if questionnaire has valid content
+              if (questionnaire.questions == null || questionnaire.questions!.isEmpty) {
+                debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
+                // Navigate back to Rapporteren if no questions
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Geen vragen beschikbaar voor deze melding'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  context.read<NavigationStateInterface>().pushReplacementBack(context, const Rapporteren());
+                }
+              } else {
+                debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${questionnaire.name}\x1B[0m');
+                // Navigate to questionnaire screen with the response
+                if (mounted) {
+                  context.read<NavigationStateInterface>().pushReplacementForward(
+                    context,
+                    QuestionnaireScreen(questionnaire: questionnaire),
+                  );
+                }
+              }
             } catch (e, stackTrace) {
               debugPrint('\x1B[31m[LocationScreen] Error: $e\x1B[0m');
               debugPrint('\x1B[31m[LocationScreen] Stack trace: $stackTrace\x1B[0m');
@@ -176,20 +207,24 @@ Future<Questionnaire> submitReport(BuildContext context) async {
     final interactionAPI = context.read<InteractionApiInterface>();
     final response = await interactionAPI.sendInteraction(interaction);
 
+    // Log questionnaire details for debugging
+    if (response.questions != null && response.questions!.isNotEmpty) {
+      debugPrint('\x1B[32m[LocationScreen] Questionnaire has ${response.questions!.length} questions\x1B[0m');
+    } else {
+      debugPrint('\x1B[33m[LocationScreen] Questionnaire has no questions\x1B[0m');
+    }
+
     return response;
   } catch (e, stackTrace) {
-    debugPrint('\x1B[31m[LocationScreen] Error: $e\x1B[0m');
-    debugPrint('\x1B[31m[LocationScreen] Stack trace: $stackTrace\x1B[0m');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Er is een fout opgetreden: $e'),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.fixed,
-      ),
-    );
+    // Error handling...
     rethrow;
   }
 }
+
+
+
+
+
 
 
 
