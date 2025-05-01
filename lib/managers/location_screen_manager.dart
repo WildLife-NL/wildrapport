@@ -11,11 +11,11 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 class LocationScreenManager implements LocationScreenInterface {
   // Private state variables
-  bool _isLocationDropdownExpanded = false;
-  bool _isDateTimeDropdownExpanded = false;
-  String _selectedLocation = LocationType.current.displayText;
+  final bool _isLocationDropdownExpanded = false;
+  final bool _isDateTimeDropdownExpanded = false;
+  final String _selectedLocation = LocationType.current.displayText;
   String _selectedDateTime = DateTimeType.current.displayText;
-  String _currentLocationText = 'Huidige locatie wordt geladen...';
+  final String _currentLocationText = 'Huidige locatie wordt geladen...';
   DateTime? _customDateTime;
 
   @override

@@ -38,12 +38,15 @@ class PossesionManager implements PossesionInterface {
     );
     final questionnaire = await interactionAPI.sendInteraction(interaction);
     debugPrint("$greenLog${questionnaire.name}");
-    debugPrint("$greenLog${questionnaire.questions![0].description}");
+    
+    // Add null check before accessing questions
+    if (questionnaire.questions != null && questionnaire.questions!.isNotEmpty) {
+      debugPrint("$greenLog${questionnaire.questions![0].description}");
+    } else {
+      debugPrint("${greenLog}No questions available in questionnaire");
+    }
 
     //Clearing the provider of it's value
-    //In the future need to implement caching for when out of range of internet
-    //And only clearing after succesfull cache, then submit all reports after reconnect
-    //Probably in a seperate function that doesn't return a questionnaire to the frontend
     formProvider.clearStateOfValues(); 
 
     return questionnaire;

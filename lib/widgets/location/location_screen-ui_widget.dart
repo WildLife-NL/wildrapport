@@ -13,6 +13,7 @@ import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/map_screen.dart';
+import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
@@ -245,24 +246,23 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
 
-    // Check if we're in the possession flow by checking the navigation stack
-    final currentRoute = ModalRoute.of(context);
-    final isFromPossession = currentRoute?.settings.name?.contains('possesion') ?? 
-                            Navigator.of(context).widget.pages.any((route) => 
-                              route.name?.contains('possesion') ?? false);
+    // Check if we're in the possession flow by checking the current context
+    final isFromPossession = ModalRoute.of(context)?.settings.name == 'PossesionLocationScreen' || 
+                            context.findAncestorWidgetOfExactType<PossesionLocationScreen>() != null;
                               
     debugPrint('[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession');
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
+        settings: RouteSettings(name: isFromPossession ? 'PossesionLivingLabMap' : 'LivingLabMap'),
         builder: (_) => MapScreen(
           title: labName,
           mapWidget: LivingLabMapScreen(
             labName: labName,
             labCenter: center,
             boundaryOffset: offset,
-            isFromPossession: isFromPossession,  // Pass the correct flag
+            isFromPossession: isFromPossession,
           ),
         ),
       ),
@@ -271,10 +271,6 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
   void _handleLocationIconTap() {
     debugPrint('Location icon tapped in LocationScreenUIWidget');
-  }
-
-  void _handleNextPressed() {
-    context.read<LocationScreenInterface>().handleNextPressed(context);
   }
 
   @override
