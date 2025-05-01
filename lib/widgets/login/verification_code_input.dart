@@ -255,22 +255,29 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
         ),
         const SizedBox(height: 15),
         Center(
-          child: InkWell(
-            onTap: () {
-              // Resend code logic would go here
+          child: TextButton(
+            onPressed: () async {
+              debugPrint("Resend code button tapped");
+              try {
+                await loginManager.resendCode(widget.email);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Verificatiecode opnieuw verzonden')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Kon code niet verzenden. Probeer het later opnieuw.')),
+                  );
+                }
+              }
             },
-            child: Text(
+            child: const Text(
               'Code niet ontvangen? Stuur opnieuw',
               style: TextStyle(
-                color: AppColors.brown,
                 decoration: TextDecoration.underline,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withOpacity(0.25),
-                    offset: const Offset(0, 2),
-                    blurRadius: 4,
-                  ),
-                ],
+                color: AppColors.brown,
               ),
             ),
           ),
@@ -292,5 +299,10 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
     super.dispose();
   }
 }
+
+
+
+
+
 
 
