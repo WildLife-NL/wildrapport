@@ -15,6 +15,24 @@ class PossesionDamageFormProvider extends ChangeNotifier {
   bool hasErrorImpactedArea = false;
   ReportLocation? systemLocation;
   ReportLocation? userLocation;
+  bool expanded = false;
+  String? inputErrorImpactArea;
+
+  void updateExpanded(bool value){
+    debugPrint("updateExpanded: $value");
+    expanded = value;
+    notifyListeners();
+  }
+
+  void updateInputErrorImpactArea(String value){
+    inputErrorImpactArea = value;
+    notifyListeners();
+  }
+
+  void resetInputErrorImpactArea(){
+    inputErrorImpactArea = null;
+    notifyListeners();
+  }
 
   void setImpactedCrop(String value){
     impactedCrop = value;
@@ -58,7 +76,13 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     userLocation = value;
     notifyListeners();
   }
-
+  void setHasErrorImpactedArea(bool value) {
+    hasErrorImpactedArea = value;
+    notifyListeners();
+  }
+  void resetImpactedArea(){
+    impactedArea = null;
+  }
   void setErrorState(String field, bool hasError) {
     if (field == 'impactedCrop') {
       hasErrorImpactedCrop = hasError;
@@ -80,6 +104,7 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     hasErrorImpactedCrop = false;
     hasErrorImpactedAreaType = false;
     hasErrorImpactedArea = false;
+    resetInputErrorImpactArea();
     notifyListeners();
   }
     void resetErrors() {
