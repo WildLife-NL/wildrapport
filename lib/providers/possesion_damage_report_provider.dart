@@ -17,6 +17,11 @@ class PossesionDamageFormProvider extends ChangeNotifier {
   ReportLocation? userLocation;
   bool expanded = false;
   String? inputErrorImpactArea;
+  String? selectedText;
+
+  void  updateSelectedText(String value){
+    selectedText = value;
+  }
 
   void updateExpanded(bool value){
     debugPrint("updateExpanded: $value");
@@ -106,6 +111,7 @@ class PossesionDamageFormProvider extends ChangeNotifier {
     hasErrorImpactedArea = false;
     resetInputErrorImpactArea();
     notifyListeners();
+    selectedText = null;
   }
     void resetErrors() {
     hasErrorImpactedCrop = false;

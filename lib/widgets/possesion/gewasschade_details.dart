@@ -25,15 +25,59 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   void initState() {
     super.initState();
     _possesionManager = context.read<PossesionInterface>();
-    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
 
     // Initialize the controller with the value from the provider
-    _responseController.text = formProvider.impactedArea?.toString() ?? '';  }
+    _responseController.text = formatImpactAreaString();  }
 
   String capitalize(String s) {
     if (s.isEmpty) return s;
     return s[0].toUpperCase() + s.substring(1);
   }
+
+  String formatImpactAreaString(){
+    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    debugPrint(formProvider.impactedAreaType);
+    try{
+      if(formProvider.impactedAreaType.isNotEmpty && formProvider.impactedAreaType == "hectare"){
+        debugPrint("FIRST");
+        return formProvider.impactedArea?.toString() ?? '';
+      }
+      else{
+        debugPrint("SECOND");
+        return formProvider.impactedArea?.toInt().toString() ?? '';
+      }
+    }catch(e, stackTrace){
+      debugPrint("Message: ${e.toString()}");
+      debugPrint("stackTrace: $stackTrace");
+      rethrow;
+    }
+  }
+
+void convertImpactArea(String value) {
+  debugPrint("convertImpactArea: value = $value");
+  final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+
+  if (formProvider.impactedAreaType.isNotEmpty &&
+      formProvider.impactedArea != null &&
+      formProvider.impactedAreaType != value) {
+    switch (value) {
+      case "vierkante meters":
+        formProvider.setImpactedArea(formProvider.impactedArea! * 10000);
+        break;
+      case "hectare":
+        formProvider.setImpactedArea(formProvider.impactedArea! / 10000);
+        break;
+    }
+
+    final impacted = formProvider.impactedArea!;
+    // ✅ Check if the number is whole (e.g., ends with .0)
+    if (impacted == impacted.roundToDouble()) {
+      _responseController.text = impacted.round().toString();
+    } else {
+      _responseController.text = impacted.toString();
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +128,15 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
           PossesionDropdown(
             onChanged: (value) {
               // Update the impacted area type
+              switch(value){
+                case "vierkante meters":
+                  formProvider.updateSelectedText("m2");
+                case "hectare":
+                  formProvider.updateSelectedText("ha");
+                default:
+                  formProvider.updateSelectedText("Type");
+              }
+              convertImpactArea(value);
               _possesionManager.updateImpactedAreaType(value);
               formProvider.setErrorState("impactedAreaType", false);
 
@@ -134,7 +187,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
               }
             },
             getSelectedValue: formProvider.impactedAreaType,
-            getSelectedText: formProvider.impactedAreaType,
+            getSelectedText: formProvider.selectedText ?? "Type",
             dropdownItems: [
               {'text': 'ha', 'value': 'hectare'},
               {'text': 'm2', 'value': 'vierkante meters'},
