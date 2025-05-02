@@ -5,7 +5,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
-import 'package:wildrapport/managers/location_screen_manager.dart';
+import 'package:wildrapport/managers/map/location_screen_manager.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';

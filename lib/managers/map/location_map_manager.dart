@@ -8,6 +8,8 @@ import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 
 class LocationMapManager implements LocationServiceInterface, MapServiceInterface, MapStateInterface {
+
+  // Netherlands boundaries
   static const double minLat = 50.75;  // Southern Netherlands border
   static const double maxLat = 53.55;  // Northern Netherlands border
   static const double minLng = 3.35;   // Western Netherlands border
@@ -80,6 +82,7 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
   Future<Position?> determinePosition() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
+        debugPrint('Location services are disabled');
         return null;
       }
 
@@ -87,21 +90,36 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          debugPrint('Location permissions denied');
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
+        debugPrint('Location permissions permanently denied');
         return null;
       }
 
-      // Try to get a quick fix first
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.reduced,
-        timeLimit: const Duration(seconds: 5)
-      ).catchError((_) => null);
-      
+      // Try to get a quick fix first with higher accuracy
+      try {
+        return await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 5)
+          )
+        );
+      } catch (e) {
+        debugPrint('Falling back to reduced accuracy: $e');
+        // Fall back to reduced accuracy if high accuracy times out
+        return await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.reduced,
+            timeLimit: Duration(seconds: 3)
+          )
+        );
+      }
     } catch (e) {
+      debugPrint('Error determining position: $e');
       return null;
     }
   }

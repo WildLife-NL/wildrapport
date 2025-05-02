@@ -12,11 +12,6 @@ class AssetPreloader {
       
       // Animal assets
       'assets/wolf.png',
-      'assets/fox.png',
-      'assets/marten.png',
-      'assets/deer.png',
-      'assets/beer.png',
-      'assets/tiger.png',
       
       // GIF assets
       'assets/gifs/login.gif',

@@ -26,7 +26,7 @@ import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/answer_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
-import 'package:wildrapport/managers/location_screen_manager.dart';
+import 'package:wildrapport/managers/map/location_screen_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
