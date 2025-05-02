@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 
 class PossesionDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
@@ -14,6 +16,7 @@ class PossesionDropdown extends StatefulWidget {
   final String defaultValue;
   final bool hasError; // Add this property to check for error state
   final bool useIcons;
+  final ValueChanged<bool>? onDropdownToggle; // Added the callback here
 
   const PossesionDropdown({
     super.key,
@@ -29,6 +32,7 @@ class PossesionDropdown extends StatefulWidget {
     required this.defaultValue,
     required this.hasError, // Pass error state from provider
     required this.useIcons,
+    this.onDropdownToggle, // Make sure to add this to constructor
   });
 
   @override
@@ -50,13 +54,34 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
     "assets/icons/possesion/gewassen/apple.svg",
     "assets/icons/possesion/gewassen/tomato.svg",
   ];
+  final greenLog = '\x1B[32m';
+  final redLog = '\x1B[31m';
+  final yellowLog = '\x1B[93m';
+  late final PossesionDamageFormProvider formProvider;
 
   @override
   void initState() {
     super.initState();
     selectedValue = widget.getSelectedValue.isNotEmpty ? widget.getSelectedValue : widget.defaultValue;
-    selectedText = widget.getSelectedText.isNotEmpty ? widget.getSelectedText : widget.defaultValue; 
+    selectedText = widget.getSelectedText.isNotEmpty ? widget.getSelectedText : widget.defaultValue;
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    formProvider.addListener(_onFormProviderChanged);
+  }
+
+  void _onFormProviderChanged() {
+    debugPrint("$yellowLog _onFormProviderChanged");
+    if (formProvider.expanded && isExpanded) {
+      debugPrint("$yellowLog [PossesionDropdown]: external tap detected, closing overlay");
+      closeOverlay();
+      // ✅ Reset to false to prevent re-triggering
+      formProvider.updateExpanded(false);
+    }
+}
 
   @override
   void didUpdateWidget(covariant PossesionDropdown oldWidget) {
@@ -66,53 +91,64 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        widget.hasDropdownSideDescription
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(widget.dropdownSideDescriptionText ?? ''),
-                  const SizedBox(width: 10),
-                  buildMainButton(),
-                ],
-              )
-            : buildMainButton(),
-        const SizedBox(height: 4), // small space between dropdown and error text
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          child: SizedBox(
-            height: 16, // always reserve space for 1 line of error text
-            child: widget.hasError
-                ? const Text(
-                    'This field is required',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                  )
-                : const SizedBox.shrink(), // invisible when no error
-          ),
-        ),
-      ],
-    ),
-  );
-}
+  @override
+  void dispose() {
+    formProvider.removeListener(_onFormProviderChanged);
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          widget.hasDropdownSideDescription
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(widget.dropdownSideDescriptionText ?? ''),
+                    const SizedBox(width: 10),
+                    buildMainButton(),
+                  ],
+                )
+              : buildMainButton(),
+          const SizedBox(height: 4), // small space between dropdown and error text
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: SizedBox(
+              height: 16, // always reserve space for 1 line of error text
+              child: widget.hasError
+                  ? const Text(
+                      'This field is required',
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    )
+                  : const SizedBox.shrink(), // invisible when no error
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget buildMainButton() {
     return GestureDetector(
       onTap: () {
         setState(() {
           if (isExpanded) {
+            debugPrint("$greenLog [PossesionDropdown]: line 112");
             overlayEntry?.remove();
             isExpanded = false;
           } else {
             showOverlay();
+            debugPrint("$greenLog [PossesionDropdown]: line 120");
             isExpanded = true;
+          }
+          // Notify about the state change (whether dropdown is open or closed)
+          if (widget.onDropdownToggle != null) {
+            widget.onDropdownToggle!(isExpanded); // Trigger callback
           }
         });
       },
@@ -134,8 +170,6 @@ Widget build(BuildContext context) {
             ),
           ],
         ),
-
-
         padding: const EdgeInsets.symmetric(horizontal: 20), // Ensure you know the padding
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,59 +216,69 @@ Widget build(BuildContext context) {
         );
       },
     );
-
     overlay.insert(overlayEntry!);
   }
-Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
-  return GestureDetector(
-    onTap: () {
-      setState(() {
-        selectedValue = item['value']!;
-        selectedText = item['text']!;
-        isExpanded = false;
-      });
-      widget.onChanged?.call(item['value']!);
-      overlayEntry?.remove();
-    },
-    child: Container(
-      width: buttonWidth,
-      height: widget.containerHeight ?? 50,
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF6C452D),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            offset: const Offset(0, 2),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (widget.useIcons)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SvgPicture.asset(
-                gewassIconList[index],
-                height: 20,
-                width: 20,
-                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+
+  void setItemState(item){
+      debugPrint("$greenLog [PossesionDropdown]: line 197");
+        setState(() {
+          selectedValue = item['value']!;
+          selectedText = item['text']!;
+          widget.onChanged?.call(item['value']!);
+        });
+  }
+  void closeOverlay(){
+    debugPrint("$greenLog [PossesionDropdown]: line 205");
+    isExpanded = false;
+    overlayEntry?.remove();
+    formProvider.updateExpanded(false);
+  }
+
+  Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
+    return GestureDetector(
+      onTap: () {
+        setItemState(item);
+        closeOverlay();
+      },
+      child: Container(
+        width: buttonWidth,
+        height: widget.containerHeight ?? 50,
+        margin: const EdgeInsets.only(top: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF6C452D),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (widget.useIcons)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: SvgPicture.asset(
+                  gewassIconList[index],
+                  height: 20,
+                  width: 20,
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ),
+              ),
+            Center(
+              child: Text(
+                item['text']!,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+                textAlign: TextAlign.center,
               ),
             ),
-          Center(
-            child: Text(
-              item['text']!,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

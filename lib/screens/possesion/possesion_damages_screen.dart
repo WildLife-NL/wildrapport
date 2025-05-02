@@ -31,33 +31,83 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
     maxIndex = possesionDamagesWidgetList.length - 1;
   }
 
+  bool validateImpactedCrop(PossesionDamageFormProvider formProvider){
+    bool isValid = true;
+    if (formProvider.impactedCrop.isEmpty) {
+      isValid = false;
+      debugPrint("impactedCrop has error");
+      formProvider.setErrorState('impactedCrop', true);
+      return isValid;
+    }
+    else{
+      return isValid;
+    }
+  }
+   bool validateImpactedAreaType(PossesionDamageFormProvider formProvider){
+    bool isValid = true;
+    if (formProvider.impactedAreaType.isEmpty) {
+      isValid = false;
+      debugPrint("impactedAreaType has error");
+      formProvider.setErrorState('impactedAreaType', true);
+      return isValid;
+    }
+    else{
+      return isValid;
+    }
+  }
+   bool validateImpactedArea(PossesionDamageFormProvider formProvider){
+    bool isValid = true;
+    debugPrint("${formProvider.impactedArea}");
+
+    debugPrint("validateImpactedArea: ${formProvider.hasErrorImpactedArea}");
+    debugPrint("validateImpactedArea: ${formProvider.impactedAreaType}" );
+
+    if (formProvider.impactedArea == null) {
+      isValid = false;
+      debugPrint("impactedArea has error");
+      formProvider.setErrorState('impactedArea', true);
+      //formProvider.updateInputErrorImpactArea("This field is required");
+      return isValid;
+    }
+    else if(formProvider.hasErrorImpactedArea && formProvider.impactedAreaType == "vierkante meters"){
+      debugPrint("formProvider.hasErrorImpactedArea && formProvider.impactedAreaType == vierkante meters");
+      isValid = false;
+      formProvider.updateInputErrorImpactArea("Alleen gehele getallen toegestaan");
+      return isValid;
+    }
+    else{
+      debugPrint("isValid");
+      return isValid;
+    }
+  }
+
   // Method to check if all required fields are filled
   bool validateForm() {
     final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
-    formProvider.resetErrors();
+    //formProvider.resetErrors();
 
     bool isValid = true;
+    bool isValidImpactedCrop = true;
+    bool isValidImpactedAreaType = true;
+    bool isValidImpactedArea = true;
 
     // Check if each required field is filled
-    if (formProvider.impactedCrop.isEmpty) {
-      isValid = false;
-      // Optionally set a flag to highlight this field
-      formProvider.setErrorState('impactedCrop', true);
-    }
-    if (formProvider.impactedAreaType.isEmpty) {
-      isValid = false;
-      formProvider.setErrorState('impactedAreaType', true);
-    }
-    if (formProvider.impactedArea == 0) {
-      isValid = false;
-      formProvider.setErrorState('impactedArea', true);
-    }
+    isValidImpactedCrop = validateImpactedCrop(formProvider);
+    isValidImpactedAreaType = validateImpactedAreaType(formProvider);
+    isValidImpactedArea = validateImpactedArea(formProvider);
 
+    if(isValidImpactedCrop == false || isValidImpactedAreaType == false || isValidImpactedArea == false){
+      isValid = false;
+    }
+   
     return isValid;
   }
 
   void nextScreen() {
     if (validateForm()) {
+      final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+      formProvider.resetInputErrorImpactArea();
+      formProvider.hasErrorImpactedArea = false;
       debugPrint("Form is valid!");
       if (currentIndex < maxIndex) {
         setState(() {

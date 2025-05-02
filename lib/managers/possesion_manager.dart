@@ -84,7 +84,7 @@ class PossesionManager implements PossesionInterface {
     try {
       if(formProvider.impactedAreaType == "hectare"){
         debugPrint("$greenLog impactArea selected is Hectare");
-        formProvider.setImpactedArea(value * 10000);
+        formProvider.setImpactedArea(value);
       }
       else if(formProvider.impactedAreaType == "vierkante meters"){
         debugPrint("$greenLog impactArea selected is Vierkante Meters");
@@ -116,9 +116,26 @@ class PossesionManager implements PossesionInterface {
     formProvider.setSuspectedAnimal(value);
   }
   //we only use vierkante meters and unit, unit as in number of sheep in the future
-  String getCorrectImpactArea(){
+  String getCorrectImpactAreaType(){
     return "vierkante meters";
   }
+  String getCorrectImpactArea(){
+    try{
+      switch (formProvider.impactedAreaType){
+        case "vierkante meters":
+          return formProvider.impactedArea.toString();
+        case "hectare":
+          return (formProvider.impactedArea! * 10000).toString();
+        
+        default:
+          throw Exception("impactedAreaType is invalid!");
+        }
+      }
+      catch(e){
+        rethrow;
+        }
+    }
+
   @override
   PossesionDamageReport buildPossionReport() {
     debugPrint("✅ buildReportTesting called");
@@ -127,8 +144,8 @@ class PossesionManager implements PossesionInterface {
       debugPrint("📍 formProvider location state: selectedPosition=${formProvider.userLocation}, currentPosition=${formProvider.systemLocation}");
       debugPrint("📋 formProvider state: "
           "impactedCrop=${formProvider.impactedCrop}, "
-          "impactedAreaType=$getCorrectImpactArea()"
-          "impactedArea=${formProvider.impactedArea}, "
+          "impactedAreaType=$getCorrectImpactAreaType()"
+          "impactedArea=${getCorrectImpactArea()}, "
           "currentDamage=${formProvider.currentDamage}, "
           "expectedDamage=${formProvider.expectedDamage}, "
           "description=${formProvider.description}, "
