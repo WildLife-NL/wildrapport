@@ -19,17 +19,6 @@ abstract class FilterInterface {
   List<AnimalModel> searchAnimals(List<AnimalModel> animals, String searchTerm);
 }
 
-abstract class SortInterface {
-  List<T> sortAlphabetically<T>(
-    List<T> items,
-    String Function(T item) getComparisonString,
-  );
-
-  List<T> sortByMostViewed<T>(
-    List<T> items,
-    int Function(T item) getViewCount,
-  );
-}
 
 
 
