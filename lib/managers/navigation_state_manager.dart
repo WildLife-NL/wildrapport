@@ -12,7 +12,7 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void dispose() {
-    debugPrint('${greenLog}[NavigationStateManager] Disposing controllers: ${_controllers.length} controllers$resetLog');
+    debugPrint('$greenLog[NavigationStateManager] Disposing controllers: ${_controllers.length} controllers$resetLog');
     for (var controller in _controllers) {
       controller.dispose();
     }

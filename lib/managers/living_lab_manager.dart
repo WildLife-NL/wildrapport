@@ -38,11 +38,16 @@ class LivingLabManager implements LivingLabInterface {
     ),
   ];
 
+  /// Returns all living lab areas
+  /// Simply returns the private _livingLabs list without modification
   @override
   List<LivingLabArea> getAllLivingLabs() {
     return _livingLabs;
   }
 
+  /// Finds a living lab by its ID
+  /// Uses firstWhere to search through the _livingLabs list
+  /// Returns null if no living lab with the given ID is found
   @override
   LivingLabArea? getLivingLabById(String id) {
     try {
@@ -52,6 +57,10 @@ class LivingLabManager implements LivingLabInterface {
     }
   }
 
+  /// Finds a living lab that contains the given location
+  /// Iterates through all living labs and checks if the location
+  /// is inside any of their boundaries using _isPointInPolygon
+  /// Returns the first matching living lab or null if none found
   @override
   LivingLabArea? getLivingLabByLocation(LatLng location) {
     for (var lab in _livingLabs) {
@@ -62,12 +71,17 @@ class LivingLabManager implements LivingLabInterface {
     return null;
   }
 
+  /// Checks if a location is within any living lab area
+  /// Uses getLivingLabByLocation and returns true if it finds a match
   @override
   bool isLocationInAnyLivingLab(LatLng location) {
     return getLivingLabByLocation(location) != null;
   }
 
-  // Ray casting algorithm to determine if a point is inside a polygon
+  /// Determines if a point is inside a polygon using ray casting algorithm
+  /// Works by counting how many times a ray from the point crosses the polygon boundary
+  /// If the number of crossings is odd, the point is inside; if even, the point is outside
+  /// This is a standard algorithm for point-in-polygon testing
   bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
     bool isInside = false;
     int j = polygon.length - 1;
@@ -86,5 +100,6 @@ class LivingLabManager implements LivingLabInterface {
     return isInside;
   }
 }
+
 
 

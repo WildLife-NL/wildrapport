@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
-import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
 abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> implements ScreenStateInterface {
   @override
   void initState() {
     super.initState();
+    // Schedule loading screen state after the first frame to ensure context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       loadScreenState();
@@ -17,16 +16,20 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
 
   @override
   void dispose() {
+    // Save screen state before disposing to persist user's settings
     saveScreenState();
     super.dispose();
   }
 
   // Abstract methods that screens must implement
+  // Returns the default state values for this screen
   Map<String, dynamic> getInitialState();
+  // Returns the unique identifier for this screen
   String get screenName;
 
   @override
   void loadScreenState() {
+    // Loads saved state from AppStateProvider and updates the current screen state
     final provider = context.read<AppStateProvider>();
     final initialState = getInitialState();
     final currentState = getCurrentState();
@@ -40,7 +43,9 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
     });
   }
 
+  @override
   void saveScreenState() {
+    // Persists the current screen state to AppStateProvider
     final provider = context.read<AppStateProvider>();
     final currentState = getCurrentState();
     
@@ -49,33 +54,22 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
     });
   }
 
+  @override
+  // Updates a specific state key with a new value
   void updateState(String key, dynamic value);
+  
+  @override
+  // Returns the current state map for this screen
   Map<String, dynamic> getCurrentState();
 
+  @override
   void safeSetState(VoidCallback fn) {
+    // Safely calls setState only if the widget is still mounted
     if (mounted) {
       setState(fn);
     }
   }
-
-  // Report handling methods
-  void initializeReportFlow(String reportType) {
-    context.read<AppStateProvider>().initializeReport(reportType as ReportType);
-  }
-
-  T? getCurrentReport<T>() {
-    return context.read<AppStateProvider>().getCurrentReport<T>();
-  }
-
-  void updateReport(String property, dynamic value) {
-    context.read<AppStateProvider>().updateCurrentReport(property, value);
-  }
-
-  void clearAllConfirmation(BuildContext context) {
-    context.read<NavigationStateInterface>().resetToHome(context);
-  }
-
-  void resetApplication({Widget? destination}) {
-    context.read<NavigationStateInterface>().resetToHome(context);
-  }
 }
+
+
+
