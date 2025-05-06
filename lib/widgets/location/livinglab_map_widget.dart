@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
-import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
@@ -96,13 +95,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   void _initializeMapView() {
     debugPrint('[LivingLabMapScreen] Initializing map view');
-    if (_mapProvider.mapController.camera != null) {
-      debugPrint('[LivingLabMapScreen] Moving map to lab center');
-      _mapProvider.mapController.move(widget.labCenter, 15);
-    } else {
-      debugPrint('[LivingLabMapScreen] Warning: Map camera not ready');
+    debugPrint('[LivingLabMapScreen] Moving map to lab center');
+    _mapProvider.mapController.move(widget.labCenter, 15);
     }
-  }
 
   // Update this method to avoid setState during build
   Future<void> _quickLocationCheck() async {
@@ -129,8 +124,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   }
 
   void _constrainMap() {
-    if (_mapProvider.mapController.camera == null) return;
-
     final currentCenter = _mapProvider.mapController.camera.center;
     var newCenter = currentCenter;
 
@@ -176,12 +169,12 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           isInBounds ? 'Fetching address...' : 'Buiten het onderzoeksgebied';
     });
 
-    if (isInBounds && animate && _mapProvider.mapController.camera != null) {
+    if (isInBounds && animate) {
       _mapProvider.mapController.move(
         LatLng(position.latitude, position.longitude),
         16,
       );
-    } else if (!isInBounds && animate && _mapProvider.mapController.camera != null) {
+    } else if (!isInBounds && animate) {
       _mapProvider.mapController.move(widget.labCenter, 15);
     }
 
@@ -203,8 +196,10 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 5),
+        ),
       );
 
       if (_isDisposed || !mounted) return;
@@ -221,7 +216,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.reduced,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.reduced,
+        ),
       );
 
       if (_isDisposed || !mounted) return;
@@ -612,6 +609,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
+
+
 
 
 
