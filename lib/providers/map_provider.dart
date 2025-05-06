@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wildrapport/interfaces/map/map_service_interface.dart';
-import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 
 class MapProvider extends ChangeNotifier {
@@ -57,12 +54,6 @@ class MapProvider extends ChangeNotifier {
     }
     _mapController = controller;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    // Do nothing - we want to keep the map controller alive
-    // super.dispose(); // Don't call super.dispose()
   }
 
   void setLoading(bool loading) {

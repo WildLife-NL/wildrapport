@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/accident_report_model.dart';
@@ -7,7 +6,6 @@ import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dar
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:geolocator/geolocator.dart';
 
 
@@ -40,14 +38,14 @@ class AppStateProvider with ChangeNotifier {
 
   void setScreenState(String screenName, String key, dynamic value) {
     if (value == null) {
-      print('Warning: Null value being set for $screenName.$key');
+      debugPrint('Warning: Null value being set for $screenName.$key');
       return;
     }
     
     if (_screenStates[screenName]?.containsKey(key) ?? false) {
       final existingType = _screenStates[screenName]![key].runtimeType;
       if (value.runtimeType != existingType) {
-        print('Warning: Type mismatch for $screenName.$key. Expected $existingType, got ${value.runtimeType}');
+        debugPrint('Warning: Type mismatch for $screenName.$key. Expected $existingType, got ${value.runtimeType}');
         return;
       }
       
@@ -125,8 +123,10 @@ class AppStateProvider with ChangeNotifier {
   Future<void> updateLocationCache() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit:  Duration(seconds: 5),
+        ),
       );
       
       final locationService = LocationMapManager();
@@ -148,6 +148,12 @@ class AppStateProvider with ChangeNotifier {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
   }
 }
+
+
+
+
+
+
 
 
 
