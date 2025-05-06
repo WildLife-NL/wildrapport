@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/screens/map_screen.dart';
 import 'package:provider/provider.dart';
@@ -32,19 +33,39 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
         ? (center: const LatLng(52.3874, 4.5753), offset: 0.018)
         : (center: const LatLng(51.1950, 5.7230), offset: 0.045);
 
-    // Remove the disposal call here
-    // final mapProvider = Provider.of<MapProvider>(context, listen: false);
-    // mapProvider.dispose();  <- Remove this line
+    // Reset map state without creating a new controller
+    final mapProvider = Provider.of<MapProvider>(context, listen: false);
+    mapProvider.resetMapState();
+
+    // Determine if we're in the possession flow
+    // Method 1: Check the current route name
+    final routeName = ModalRoute.of(context)?.settings.name ?? '';
+    bool isFromPossession = routeName.contains('Possession') || routeName.contains('Possesion');
+  
+    // Method 2: Check if the current LivingLabMapScreen has isFromPossession=true
+    if (!isFromPossession) {
+      final currentMapScreen = context.findAncestorWidgetOfExactType<LivingLabMapScreen>();
+      isFromPossession = currentMapScreen?.isFromPossession ?? false;
+    }
+  
+    // Method 3: Check if we can find a PossesionLocationScreen in the widget tree
+    if (!isFromPossession) {
+      isFromPossession = context.findAncestorWidgetOfExactType<PossesionLocationScreen>() != null;
+    }
+  
+    debugPrint('[LivingLabSelector] Selecting lab: $labName, isFromPossession: $isFromPossession');
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
+        settings: RouteSettings(name: isFromPossession ? 'PossesionLivingLabMap' : 'LivingLabMap'),
         builder: (_) => MapScreen(
           title: labName,
           mapWidget: LivingLabMapScreen(
             labName: labName,
             labCenter: labData.center,
             boundaryOffset: labData.offset,
+            isFromPossession: isFromPossession,  // Pass the flag
           ),
         ),
       ),
@@ -167,5 +188,7 @@ Widget _buildLabOption(String labName) {
     );
   }
 }
+
+
 
 

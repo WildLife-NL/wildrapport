@@ -61,8 +61,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   bool _isSatelliteView = false;
   bool _isDisposed = false;
 
-  late final MapController _mapController;
-
   @override
   void initState() {
     super.initState();
@@ -426,6 +424,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   label: 'Bevestig',
                   onPressed: _markedLocation != null
                       ? () async {
+                          // Add explicit debug logging
+                          debugPrint('[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}');
+                          
                           final position = Position(
                             latitude: _markedLocation!.latitude,
                             longitude: _markedLocation!.longitude,
@@ -441,20 +442,19 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                           );
                           
                           final mapProvider = context.read<MapProvider>();
-                          // Only set location in MapProvider, don't update animal sighting
                           mapProvider.setSelectedLocation(position, _markedAddress);
                           
                           final navigationManager = context.read<NavigationStateInterface>();
+                          
+                          // Use the widget property directly
                           if (widget.isFromPossession) {
                             debugPrint('[LivingLabMapScreen] Navigating back to PossesionLocationScreen');
-                            // Don't use animal sighting location manager for possession flow
                             navigationManager.pushReplacementBack(
                               context, 
                               const PossesionLocationScreen(),
                             );
                           } else {
                             debugPrint('[LivingLabMapScreen] Navigating back to LocationScreen');
-                            // Update animal sighting location only for non-possession flow
                             final locationManager = context.read<LocationScreenInterface>();
                             await locationManager.getLocationAndDateTime(context);
                             
@@ -612,4 +612,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
+
+
+
+
 

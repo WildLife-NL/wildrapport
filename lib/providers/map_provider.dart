@@ -137,7 +137,26 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
     setLoading(false);
   }
+
+  Future<void> resetMapState() async {
+    debugPrint('[MapProvider] Resetting map state');
+    _isLoading = true;
+    notifyListeners();
+    
+    // Reset any state but keep the controller
+    selectedPosition = null;
+    selectedAddress = '';
+    currentPosition = null;
+    currentAddress = '';
+    
+    // Small delay to ensure UI updates
+    await Future.delayed(const Duration(milliseconds: 50));
+    
+    _isLoading = false;
+    notifyListeners();
+  }
 }
+
 
 
 
