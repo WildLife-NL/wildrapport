@@ -8,10 +8,6 @@ import 'package:wildrapport/interfaces/reporting/common_report_fields.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
-import 'package:wildrapport/models/animal_sighting_model.dart';
-import 'package:wildrapport/utils/sighting_api_transformer.dart';
-
-import '../models/api_models/interaction_type.dart' as api;
 import 'package:wildrapport/models/enums/interaction_type.dart';
 
 class InteractionApi implements InteractionApiInterface {
