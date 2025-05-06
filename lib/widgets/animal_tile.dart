@@ -25,7 +25,7 @@ class AnimalTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(25),
           ),
           elevation: 4,
-          foregroundColor: Colors.black.withOpacity(0.1),
+          foregroundColor: Colors.black.withValues(alpha:0.1),
         ),
         child: Ink(
           decoration: BoxDecoration(

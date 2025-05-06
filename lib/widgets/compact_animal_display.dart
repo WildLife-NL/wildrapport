@@ -41,7 +41,7 @@ class CompactAnimalDisplay extends StatelessWidget {
         borderRadius: BorderRadius.circular(finalPadding),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha:0.1),
             blurRadius: finalPadding / 3,
             offset: Offset(0, finalPadding / 6),
           ),

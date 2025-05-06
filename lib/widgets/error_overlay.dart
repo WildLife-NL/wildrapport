@@ -15,7 +15,7 @@ class ErrorOverlay extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withValues(alpha:0.5),
         child: Center(
           child: GestureDetector(
             onTap: () {}, // Prevents taps on the container from closing the overlay
@@ -28,7 +28,7 @@ class ErrorOverlay extends StatelessWidget {
                 border: Border.all(color: Colors.red.shade300, width: 2.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha:0.25),
                     spreadRadius: 0,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
@@ -58,7 +58,7 @@ class ErrorOverlay extends StatelessWidget {
                           color: Colors.red.shade700,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.25),
+                              color: Colors.black.withValues(alpha:0.25),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -83,7 +83,7 @@ class ErrorOverlay extends StatelessWidget {
                               color: Colors.red.shade700,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -97,7 +97,7 @@ class ErrorOverlay extends StatelessWidget {
                             style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),

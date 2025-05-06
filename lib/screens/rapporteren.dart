@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/models/animal_sighting_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
 import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -91,7 +86,7 @@ class _RapporterenState extends State<Rapporteren> {
         const InvisibleMapPreloader();
         debugPrint('[Rapporteren] Invisible map preloader initialized');
       }catch(e){
-        debugPrint('[Rapporteren] Error preloading invisible map'+" "+e.toString());
+        debugPrint('[Rapporteren] Error preloading invisible map: ${e.toString()}');
       }
       debugPrint('[Rapporteren] Starting background map initialization');
       mapProvider.initialize().then((_) {
@@ -117,7 +112,7 @@ class _RapporterenState extends State<Rapporteren> {
     final screenSize = MediaQuery.of(context).size;
     final double verticalPadding = screenSize.height * 0.01;
     final double horizontalPadding = screenSize.width * 0.05;
-    final navigationManager = context.read<NavigationStateInterface>();
+    context.read<NavigationStateInterface>();
 
     return Scaffold(
       body: Column(
@@ -195,6 +190,7 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
 
 
 

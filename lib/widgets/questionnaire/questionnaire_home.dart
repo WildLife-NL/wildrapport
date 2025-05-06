@@ -26,7 +26,7 @@ class QuestionnaireHome extends StatelessWidget {
               style: AppTextTheme.textTheme.titleLarge?.copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -45,7 +45,7 @@ class QuestionnaireHome extends StatelessWidget {
                 ).copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -61,7 +61,7 @@ class QuestionnaireHome extends StatelessWidget {
                 ).copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),

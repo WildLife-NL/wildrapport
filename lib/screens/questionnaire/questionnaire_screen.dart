@@ -8,7 +8,7 @@ import 'package:wildrapport/widgets/app_bar.dart';
 class QuestionnaireScreen extends StatefulWidget {
   final Questionnaire? questionnaire;
   
-  const QuestionnaireScreen({Key? key, this.questionnaire}) : super(key: key);
+  const QuestionnaireScreen({super.key, this.questionnaire});
 
   @override
   State<QuestionnaireScreen> createState() => _QuestionnaireScreenState();
@@ -93,4 +93,5 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     );
   }
 }
+
 

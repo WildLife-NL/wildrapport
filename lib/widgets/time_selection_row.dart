@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:wildrapport/widgets/time_picker_dialog.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
@@ -183,7 +182,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
       borderRadius: BorderRadius.circular(15),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           offset: const Offset(0, 2),
           blurRadius: 4,
         ),
@@ -263,7 +262,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
       borderRadius: BorderRadius.circular(15),
       boxShadow: isSelected ? [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           offset: const Offset(0, 2),
           blurRadius: 4,
         ),
@@ -333,19 +332,19 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         child: Container(
           height: 70,
           decoration: BoxDecoration(
-            color: enabled ? AppColors.offWhite : AppColors.offWhite.withOpacity(0.7),
+            color: enabled ? AppColors.offWhite : AppColors.offWhite.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
               color: enabled 
-                  ? AppColors.brown.withOpacity(0.15)
-                  : AppColors.brown.withOpacity(0.05),
+                  ? AppColors.brown.withValues(alpha: 0.15)
+                  : AppColors.brown.withValues(alpha: 0.05),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
                 color: enabled
-                    ? Colors.black.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.04),
+                    ? Colors.black.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.04),
                 offset: const Offset(0, 2),
                 blurRadius: 6,
                 spreadRadius: 0,
@@ -364,7 +363,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                       Text(
                         label,
                         style: TextStyle(
-                          color: AppColors.brown.withOpacity(0.6),
+                          color: AppColors.brown.withValues(alpha: 0.6),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0.3,
@@ -376,7 +375,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                         style: TextStyle(
                           color: enabled 
                               ? AppColors.brown 
-                              : AppColors.brown.withOpacity(0.7),
+                              : AppColors.brown.withValues(alpha: 0.7),
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
@@ -391,8 +390,8 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                 child: Icon(
                   icon,
                   color: enabled
-                      ? AppColors.brown.withOpacity(0.7)
-                      : AppColors.brown.withOpacity(0.4),
+                      ? AppColors.brown.withValues(alpha: 0.7)
+                      : AppColors.brown.withValues(alpha: 0.4),
                   size: 22,
                 ),
               ),
@@ -411,7 +410,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         Text(
           label,
           style: TextStyle(
-            color: AppColors.brown.withOpacity(0.6),
+            color: AppColors.brown.withValues(alpha: 0.6),
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -434,12 +433,12 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
       color: AppColors.offWhite,
       borderRadius: BorderRadius.circular(15),
       border: Border.all(
-        color: enabled ? AppColors.brown.withOpacity(0.1) : Colors.transparent,
+        color: enabled ? AppColors.brown.withValues(alpha: 0.1) : Colors.transparent,
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           offset: const Offset(0, 2),
           blurRadius: 4,
           spreadRadius: 0,
@@ -468,36 +467,4 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

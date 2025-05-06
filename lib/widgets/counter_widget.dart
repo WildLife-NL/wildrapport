@@ -7,11 +7,11 @@ class AnimalCounter extends StatefulWidget {
   final Function(String name, int count)? onCountChanged;
 
   const AnimalCounter({
-    Key? key,
+    super.key,
     required this.name,
     this.height = 49,
     this.onCountChanged,
-  }) : super(key: key);
+  });
 
   @override
   AnimalCounterState createState() => AnimalCounterState();
@@ -81,7 +81,7 @@ class AnimalCounterState extends State<AnimalCounter> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha:0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -97,7 +97,7 @@ class AnimalCounterState extends State<AnimalCounter> {
           Container(
             height: widget.height - 20, // Adjust height of divider
             width: 1,
-            color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+            color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
           ),
           Expanded(
             child: GestureDetector(
@@ -122,7 +122,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                                 fontWeight: FontWeight.bold,
                                 shadows: [
                                   Shadow(
-                                    color: Colors.black.withOpacity(0.25),
+                                    color: Colors.black.withValues(alpha:0.25),
                                     offset: const Offset(0, 2),
                                     blurRadius: 4,
                                   ),
@@ -142,7 +142,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                                 fontWeight: FontWeight.bold,
                                 shadows: [
                                   Shadow(
-                                    color: Colors.black.withOpacity(0.25),
+                                    color: Colors.black.withValues(alpha:0.25),
                                     offset: const Offset(0, 2),
                                     blurRadius: 4,
                                   ),
@@ -153,7 +153,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                     Container(
                       height: 1,
                       width: 40, // Width of the underline
-                      color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+                      color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
                     ),
                   ],
                 ),
@@ -163,7 +163,7 @@ class AnimalCounterState extends State<AnimalCounter> {
           Container(
             height: widget.height - 20, // Adjust height of divider
             width: 1,
-            color: Colors.grey.withOpacity(0.7), // Increased opacity from 0.5 to 0.7
+            color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
           ),
           Padding(
             padding: const EdgeInsets.only(right: 6.0),
@@ -183,8 +183,8 @@ class AnimalCounterState extends State<AnimalCounter> {
         color: Colors.transparent, // Remove brown background
         child: InkWell(
           onTap: onPressed,
-          splashColor: AppColors.brown.withOpacity(0.3),
-          highlightColor: AppColors.brown.withOpacity(0.1),
+          splashColor: AppColors.brown.withValues(alpha:0.3),
+          highlightColor: AppColors.brown.withValues(alpha:0.1),
           child: Center(
             child: Text(
               symbol,
@@ -196,7 +196,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                 height: 1,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha:0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -209,6 +209,7 @@ class AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
 
 
 
