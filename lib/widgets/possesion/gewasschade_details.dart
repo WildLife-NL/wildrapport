@@ -16,7 +16,6 @@ class GewasschadeDetails extends StatefulWidget {
 class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   final TextEditingController _responseController = TextEditingController();
   late final PossesionInterface _possesionManager;
-  String? _inputError;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
@@ -166,7 +165,6 @@ void convertImpactArea(String value) {
                 debugPrint("$isValid");
                 if (isValid) {
                   setState(() {
-                    _inputError = null;
                   });
                   debugPrint("$yellowLog is valid = $isValid");
                   debugPrint("$yellowLog parsed = $parsed");

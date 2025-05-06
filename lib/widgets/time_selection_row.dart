@@ -141,13 +141,6 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 
-  void _enableTimeTextInput() {
-    _timeFocusNode.requestFocus();
-    _timeController.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: _timeController.text.length,
-    );
-  }
 
   void _showTimePicker(BuildContext context) async {
     final TimeOfDay? picked = await showDialog<TimeOfDay>(
@@ -270,51 +263,8 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 
-  Widget _buildCheckboxContent(String label, bool isSelected) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center, // Center the content
-      children: [
-        SizedBox(
-          width: 16,
-          height: 16,
-          child: _buildCustomCheckbox(isSelected, label),
-        ),
-        const SizedBox(width: 4),
-        Flexible(
-          child: _buildCheckboxLabel(label, isSelected),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildCustomCheckbox(bool isSelected, String label) {
-    return Checkbox(
-      value: isSelected,
-      onChanged: (_) => _handleSelection(label),
-      activeColor: AppColors.brown,
-      checkColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-      ),
-      side: BorderSide(
-        color: AppColors.brown,
-        width: 2,
-      ),
-    );
-  }
 
-  Widget _buildCheckboxLabel(String label, bool isSelected) {
-    return Text(
-      label,
-      style: TextStyle(
-        color: AppColors.brown,
-        fontSize: 14,
-        fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-      ),
-      overflow: TextOverflow.ellipsis,
-    );
-  }
 
   Widget _buildDateTimeField({
     required String label,
@@ -324,7 +274,6 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     required bool enabled,
     TextEditingController? controller,
     FocusNode? focusNode,
-    String? placeholder,
   }) {
     return Expanded(
       child: GestureDetector(
@@ -402,69 +351,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 
-  Widget _buildDateTimeFieldLabels(String label, String value) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.brown.withValues(alpha: 0.6),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            color: AppColors.brown,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
 
-  BoxDecoration _buildDateTimeFieldDecoration(bool enabled) {
-    return BoxDecoration(
-      color: AppColors.offWhite,
-      borderRadius: BorderRadius.circular(15),
-      border: Border.all(
-        color: enabled ? AppColors.brown.withValues(alpha: 0.1) : Colors.transparent,
-        width: 1,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.1),
-          offset: const Offset(0, 2),
-          blurRadius: 4,
-          spreadRadius: 0,
-        ),
-      ],
-    );
-  }
 
-  Widget _buildFittedText(
-    String text, {
-    required Color color,
-    required double fontSize,
-    required FontWeight fontWeight,
-  }) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-        ),
-      ),
-    );
-  }
 }
 

@@ -71,7 +71,7 @@ class SightingApiTransformer {
         "latitude": systemLocation.latitude,
         "longitude": systemLocation.longitude,
       },
-      "moment": sighting.dateTime!.dateTime!.toUtc().toIso8601String(),
+      "moment": "${sighting.dateTime!.dateTime!.toIso8601String().split('.')[0]}+02:00",
       "place": {
         "latitude": manualLocation.latitude,
         "longitude": manualLocation.longitude,
@@ -142,3 +142,4 @@ class SightingApiTransformer {
     }
   }
 }
+
