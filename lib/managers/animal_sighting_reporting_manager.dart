@@ -16,35 +16,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
   final List<VoidCallback> _listeners = [];
   AnimalSightingModel? _currentanimalSighting;
 
-  // Predefined list of condition options
-  static const List<({String text, IconData icon, String? imagePath})> conditionButtons = [
-    (text: 'Gezond', icon: Icons.check_circle, imagePath: null),
-    (text: 'Ziek', icon: Icons.sick, imagePath: null),
-    (text: 'Dood', icon: Icons.dangerous, imagePath: null),
-    (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
-  ];
-
-  // Mapping functions
-  AnimalCondition _mapStringToCondition(String status) {
-    switch (status.toLowerCase()) {
-      case 'gezond': return AnimalCondition.gezond;
-      case 'ziek': return AnimalCondition.ziek;
-      case 'dood': return AnimalCondition.dood;
-      default: return AnimalCondition.andere;
-    }
-  }
-
-  @override
-  AnimalCategory convertStringToCategory(String status) {
-    switch (status.toLowerCase()) {
-      case 'evenhoevigen': return AnimalCategory.evenhoevigen;
-      case 'knaagdieren': return AnimalCategory.knaagdieren;
-      case 'roofdieren': return AnimalCategory.roofdieren;
-      case 'andere': return AnimalCategory.andere;
-      default: throw StateError('Invalid category: $status');
-    }
-  }
-
   // Core update method
   AnimalSightingModel _updateSighting({
     List<AnimalModel>? animals,
@@ -88,14 +59,13 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     String? animalImagePath,
     String? animalName,
     List<AnimalGenderViewCount>? genderViewCounts,
-    AnimalCondition? condition,
   }) {
     return AnimalModel(
       animalId: animalId ?? source.animalId,
       animalImagePath: animalImagePath ?? source.animalImagePath,
       animalName: animalName ?? source.animalName,
       genderViewCounts: genderViewCounts ?? source.genderViewCounts,
-      condition: condition ?? source.condition,
+      condition: source.condition,
     );
   }
 
@@ -134,7 +104,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
   AnimalSightingModel updateSelectedAnimal(AnimalModel selectedAnimal) {
     final updatedAnimal = _createAnimalModel(
       source: selectedAnimal,
-      condition: _currentanimalSighting?.animalSelected?.condition ?? selectedAnimal.condition,
     );
     
     return _updateSighting(
@@ -158,16 +127,11 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     
     final updatedAnimal = _createAnimalModel(
       source: currentAnimal,
-      condition: condition,
     );
 
     return _updateSighting(animalSelected: updatedAnimal);
   }
 
-  @override
-  AnimalSightingModel updateConditionFromString(String status) {
-    return updateCondition(_mapStringToCondition(status));
-  }
 
   @override
   AnimalSightingModel updateGender(AnimalGender gender) {
@@ -342,7 +306,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
         genderViewCounts: viewCount != null 
             ? [AnimalGenderViewCount(gender: gender, viewCount: viewCount)]
             : currentAnimal.genderViewCounts,
-        condition: condition,
       );
     }
 
@@ -381,7 +344,27 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
   AnimalSightingModel updateDateTime(DateTime dateTime) {
     return updateDateTimeModel(DateTimeModel(dateTime: dateTime, isUnknown: false));
   }
+  
+  @override
+  AnimalCategory convertStringToCategory(String status) {
+    switch (status) {
+      case 'Evenhoevigen':
+        return AnimalCategory.evenhoevigen;
+      case 'Knaagdieren':
+        return AnimalCategory.knaagdieren;
+      case 'Roofdieren':
+        return AnimalCategory.roofdieren;
+      case 'Andere':
+        return AnimalCategory.andere;
+      default:
+        debugPrint('[AnimalSightingManager] Unknown category: $status, defaulting to andere');
+        return AnimalCategory.andere;
+    }
+  }
 }
+
+
+
 
 
 

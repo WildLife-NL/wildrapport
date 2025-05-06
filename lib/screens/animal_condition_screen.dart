@@ -29,24 +29,21 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
 
     debugPrint('${greenLog}[AnimalConditionScreen] Handling status selection: $status$resetLog');
 
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-
     try {
-      final updatedSighting = animalSightingManager.updateConditionFromString(status);
-      debugPrint('${greenLog}[AnimalConditionScreen] Successfully updated condition to: $status$resetLog');
-      debugPrint('${greenLog}[AnimalConditionScreen] Current animal sighting state: ${updatedSighting.toJson()}$resetLog');
-
+      // Skip condition update since we removed that functionality
+      debugPrint('${greenLog}[AnimalConditionScreen] Selected condition: $status (not applied)$resetLog');
+      
       final navigationManager = context.read<NavigationStateInterface>();
-      // Use push instead of pushReplacement
+      // Navigate to the next screen
       navigationManager.pushForward(context, const CategoryScreen());
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      debugPrint('${greenLog}[AnimalConditionScreen] Error updating condition: $e$resetLog');
+      debugPrint('${greenLog}[AnimalConditionScreen] Error during navigation: $e$resetLog');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Er is een fout opgetreden bij het bijwerken van de conditie'),
+          content: Text('Er is een fout opgetreden bij het navigeren'),
           backgroundColor: Colors.red,
         ),
       );
@@ -73,7 +70,12 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
                   },
                 ),
                 SelectionButtonGroup(
-                  buttons: AnimalSightingReportingInterface.conditionButtons,
+                  buttons: const [
+                    (text: 'Gezond', icon: Icons.check_circle, imagePath: null),
+                    (text: 'Ziek', icon: Icons.sick, imagePath: null),
+                    (text: 'Dood', icon: Icons.dangerous, imagePath: null),
+                    (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
+                  ],
                   onStatusSelected: (status) => _handleStatusSelection(context, status),
                   title: 'Selecteer dier Conditie',
                 ),
@@ -99,6 +101,8 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
     );
   }
 }
+
+
 
 
 

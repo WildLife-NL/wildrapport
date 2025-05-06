@@ -10,6 +10,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/animal_condition_screen.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/possesion_damages_screen.dart';
@@ -28,23 +29,21 @@ class _RapporterenState extends State<Rapporteren> {
   String selectedCategory = '';
 
   void _handleReportTypeSelection(String reportType) {
-    if (!mounted) return;
-    
-    setState(() {
-      selectedCategory = reportType;
-    });
-
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
     
-    ReportType selectedReportType;
     Widget nextScreen;
+    ReportType selectedReportType;
 
     switch (reportType) {
       case 'animalSightingen':
         debugPrint('[Rapporteren] Animal sighting selected, initializing map');
         selectedReportType = ReportType.waarneming;
-        nextScreen = const AnimalConditionScreen();
+        // Create animal sighting report and save it in provider
+        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+        animalSightingManager.createanimalSighting();
+        // Skip condition screen and go directly to category screen
+        nextScreen = const CategoryScreen();
         _initializeMapInBackground();
         break;
       case 'Gewasschade':
@@ -53,6 +52,17 @@ class _RapporterenState extends State<Rapporteren> {
         nextScreen = PossesionDamagesScreen();
         _initializeMapInBackground();
         break;
+      case 'Verkeersongeval':
+        // Temporarily disable this option
+        debugPrint('[Rapporteren] Verkeersongeval selected but temporarily disabled');
+        // Show a message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Deze functie is nog niet beschikbaar'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return; // Return early without navigating
       case 'Diergezondheid':
         debugPrint('[Rapporteren] Diergezondheid selected, initializing map');
         selectedReportType = ReportType.verkeersongeval;
@@ -155,11 +165,24 @@ class _RapporterenState extends State<Rapporteren> {
                     ),
                     SizedBox(height: screenSize.height * 0.02),
                     Expanded(
-                      child: ReportButton(
-                        image: 'assets/icons/rapporteren/sighting_icon.png',
-                        text: 'Waarnemingen',
-                        onPressed: () => _handleReportTypeSelection('animalSightingen'),
-                        isFullWidth: true,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ReportButton(
+                              image: 'assets/icons/rapporteren/sighting_icon.png',
+                              text: 'Waarnemingen',
+                              onPressed: () => _handleReportTypeSelection('animalSightingen'),
+                            ),
+                          ),
+                          SizedBox(width: screenSize.width * 0.02),
+                          Expanded(
+                            child: ReportButton(
+                              image: 'assets/icons/rapporteren/accident_icon.png',
+                              text: 'Verkeersongeval',
+                              onPressed: () => _handleReportTypeSelection('Verkeersongeval'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -172,6 +195,13 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
+
+
+
+
+
+
+
 
 
 

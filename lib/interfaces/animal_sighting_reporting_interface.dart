@@ -1,12 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/location_model.dart';
@@ -18,9 +16,6 @@ abstract class AnimalSightingReportingInterface {
 
   /// Updates the animalSighting with the selected animal
   AnimalSightingModel updateSelectedAnimal(AnimalModel selectedAnimal);
-
-  /// Updates the animal's condition in the animalSighting
-  AnimalSightingModel updateCondition(AnimalCondition condition);
 
   /// Updates the animal's gender in the animalSighting
   AnimalSightingModel updateGender(AnimalGender gender);
@@ -56,10 +51,6 @@ abstract class AnimalSightingReportingInterface {
   /// Updates the description in the animalSighting
   AnimalSightingModel updateDescription(String description);
 
-  AnimalSightingModel updateConditionFromString(String status);
-  static const List<({String text, IconData icon, String? imagePath})> conditionButtons = 
-    AnimalSightingReportingManager.conditionButtons;
-
   /// Validates if there is an active animal sighting
   bool validateActiveAnimalSighting();
 
@@ -88,6 +79,7 @@ abstract class AnimalSightingReportingInterface {
   /// Updates the dateTime model in the animalSighting
   AnimalSightingModel updateDateTimeModel(DateTimeModel dateTimeModel);
 }
+
 
 
 

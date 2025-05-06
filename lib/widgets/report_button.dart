@@ -3,18 +3,20 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 
 class ReportButton extends StatelessWidget {
-  final String image;
+  final String? image;
+  final IconData? icon;
   final String text;
   final VoidCallback onPressed;
   final bool isFullWidth;
 
   const ReportButton({
     super.key,
-    required this.image,
+    this.image,
+    this.icon,
     required this.text,
     required this.onPressed,
     this.isFullWidth = false,
-  });
+  }) : assert(image != null || icon != null, 'Either image or icon must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +63,16 @@ class ReportButton extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Image.asset(
-                            image,
-                            fit: BoxFit.contain,
-                          ),
+                          icon != null
+                              ? Icon(
+                                  icon,
+                                  size: iconSize * 0.6,
+                                  color: AppColors.brown,
+                                )
+                              : Image.asset(
+                                  image!,
+                                  fit: BoxFit.contain,
+                                ),
                         ],
                       ),
                     ),

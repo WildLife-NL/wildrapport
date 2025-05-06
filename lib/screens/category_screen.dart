@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/selection_button_group.dart';
@@ -35,10 +37,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   void _handleBackNavigation() {
     if (!mounted) return;
-    _navigationManager.dispose(); // Clean up resources
-    _navigationManager.pushReplacementBack(
+    
+    // Clear the animal sighting data
+    _animalSightingManager.clearCurrentanimalSighting();
+    
+    // Get the app state provider and clear the current report
+    final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
+    appStateProvider.resetApplicationState(context);
+    
+    // Use the navigation manager's clearApplicationState method which should handle all cleanup
+    _navigationManager.clearApplicationState(context);
+    
+    // Remove all screens and navigate to Rapporteren
+    _navigationManager.pushAndRemoveUntil(
       context,
-      const AnimalConditionScreen(),
+      const Rapporteren(),
     );
   }
 
@@ -118,6 +131,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
+
+
+
+
 
 
 
