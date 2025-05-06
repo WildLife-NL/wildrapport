@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/screens/category_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
@@ -27,11 +26,11 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
       isLoading = true;
     });
 
-    debugPrint('${greenLog}[AnimalConditionScreen] Handling status selection: $status$resetLog');
+    debugPrint('$greenLog[AnimalConditionScreen] Handling status selection: $status$resetLog');
 
     try {
       // Skip condition update since we removed that functionality
-      debugPrint('${greenLog}[AnimalConditionScreen] Selected condition: $status (not applied)$resetLog');
+      debugPrint('$greenLog[AnimalConditionScreen] Selected condition: $status (not applied)$resetLog');
       
       final navigationManager = context.read<NavigationStateInterface>();
       // Navigate to the next screen
@@ -40,7 +39,7 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
       setState(() {
         isLoading = false;
       });
-      debugPrint('${greenLog}[AnimalConditionScreen] Error during navigation: $e$resetLog');
+      debugPrint('$greenLog[AnimalConditionScreen] Error during navigation: $e$resetLog');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Er is een fout opgetreden bij het navigeren'),

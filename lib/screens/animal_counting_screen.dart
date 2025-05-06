@@ -6,7 +6,6 @@ import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_counting.dart';
-import 'package:wildrapport/widgets/snack_bar_with_progress.dart';
 
 class AnimalCountingScreen extends StatefulWidget {
   const AnimalCountingScreen({super.key});

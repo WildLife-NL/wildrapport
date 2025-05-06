@@ -19,8 +19,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = animalSightingManager.getCurrentanimalSighting();
-    final hasDescription = currentSighting?.description?.isNotEmpty ?? false;
+    animalSightingManager.getCurrentanimalSighting();
 
     return Scaffold(
       body: SafeArea(
@@ -55,7 +54,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
