@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 
 import 'package:wildrapport/api/api_client.dart';
-import 'package:wildrapport/interfaces/api/answer_api_interface.dart';
+import 'package:wildrapport/interfaces/api/response_api_interface.dart';
 
-class AnswerApi implements AnswerApiInterface{
+class ResponseApi implements ResponseApiInterface {
   final ApiClient client;
-  AnswerApi(this.client);
-  
+  ResponseApi(this.client);
+
   @override
-  void addReponse(String interactionID, String questionID, String answerID, String text) async {
+  Future<bool> addReponse(String interactionID, String questionID, String answerID, String text) async {
     http.Response response = await client.post(
       'response/',
       {
@@ -21,12 +21,13 @@ class AnswerApi implements AnswerApiInterface{
       },
       authenticated: true,
     );
-    if(response.statusCode == HttpStatus.ok){
-      debugPrint("Answer submitted succesfully");
-    }
-    else{
+    
+    if (response.statusCode == HttpStatus.ok) {
+      debugPrint("Answer submitted successfully");
+      return true;
+    } else {
       debugPrint("Answer could NOT be submitted, status code: ${response.statusCode}");
-      throw Exception("Error: ${response.statusCode} | Something went wrong");
+      return false;
     }
   }
 }

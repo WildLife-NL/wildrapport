@@ -24,7 +24,7 @@ import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
-import 'package:wildrapport/managers/answer_manager.dart';
+import 'package:wildrapport/managers/response_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/map/location_screen_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
@@ -71,7 +71,7 @@ void main() async {
   final interactionApi = InteractionApi(apiClient);
 
   final questionnaireAPI = QuestionaireApi(apiClient);
-  final answerAPI = AnswerApi(apiClient);    
+  final answerAPI = ResponseApi(apiClient);    
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -81,7 +81,7 @@ void main() async {
   final possesionManager = PossesionManager(interactionApi, possesionDamageFormProvider, mapProvider);
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
-  final answerManager = AnswerManager(answerAPI);
+  final answerManager = ResponseManager(answerAPI);
   
   final animalSightingReportingManager = AnimalSightingReportingManager();
   
@@ -114,7 +114,7 @@ void main() async {
           value: DropdownManager(filterManager),
         ),
         Provider<QuestionnaireInterface>.value(value: questionnaireManager),
-        Provider<AnswerManager>.value(value: answerManager),
+        Provider<ResponseManager>.value(value: answerManager),
         Provider<AnimalSightingReportingInterface>(
           create: (context) => animalSightingReportingManager,
         ),
