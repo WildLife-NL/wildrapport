@@ -70,7 +70,6 @@ void convertImpactArea(String value) {
     }
 
     final impacted = formProvider.impactedArea!;
-    // ✅ Check if the number is whole (e.g., ends with .0)
     if (impacted == impacted.roundToDouble()) {
       _responseController.text = impacted.round().toString();
     } else {
