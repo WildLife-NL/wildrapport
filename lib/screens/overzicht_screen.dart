@@ -38,7 +38,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     final double welcomeFontSize = (screenSize.width * 0.045).clamp(14.0, 24.0);
     final double usernameFontSize = (screenSize.width * 0.06).clamp(18.0, 28.0);
     final double buttonHeight = (screenSize.height * 0.18).clamp(100.0, 160.0);
-    final double buttonWidth = (screenSize.width * 0.8).clamp(250.0, 400.0);
+    (screenSize.width * 0.8).clamp(250.0, 400.0);
     final double spacing = (screenSize.height * 0.02).clamp(8.0, 24.0);
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);

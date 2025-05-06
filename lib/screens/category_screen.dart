@@ -8,7 +8,6 @@ import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/selection_button_group.dart';
 import 'package:wildrapport/screens/animals_screen.dart';
-import 'package:wildrapport/screens/animal_condition_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -27,12 +26,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('${purpleLog}[CategoryScreen] Initializing screen$resetLog');
+    debugPrint('$purpleLog[CategoryScreen] Initializing screen$resetLog');
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
     _navigationManager = context.read<NavigationStateInterface>();
     
     final currentState = _animalSightingManager.getCurrentanimalSighting();
-    debugPrint('${purpleLog}[CategoryScreen] Initial animal sighting state: ${currentState?.toJson()}$resetLog');
+    debugPrint('$purpleLog[CategoryScreen] Initial animal sighting state: ${currentState?.toJson()}$resetLog');
   }
 
   void _handleBackNavigation() {
@@ -61,7 +60,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       setState(() => _isLoading = true);
       
       final selectedCategory = _animalSightingManager.convertStringToCategory(status);
-      final updatedSighting = _animalSightingManager.updateCategory(selectedCategory);
+      _animalSightingManager.updateCategory(selectedCategory);
       
       if (mounted) {
         _navigationManager.dispose(); // Clean up resources
@@ -71,7 +70,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         );
       }
     } catch (e) {
-      debugPrint('${purpleLog}[CategoryScreen] Error updating category: $e$resetLog');
+      debugPrint('$purpleLog[CategoryScreen] Error updating category: $e$resetLog');
       if (mounted) {  // Check if still mounted before showing snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -101,7 +100,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   rightIcon: Icons.menu,
                   onLeftIconPressed: _handleBackNavigation,
                   onRightIconPressed: () {
-                    debugPrint('${purpleLog}[CategoryScreen] Menu button pressed$resetLog');
+                    debugPrint('$purpleLog[CategoryScreen] Menu button pressed$resetLog');
                   },
                 ),
                 SelectionButtonGroup(

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
@@ -11,9 +9,7 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/view_count_model.dart';
-import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
-import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class AnimalListTable extends StatefulWidget {
   const AnimalListTable({super.key});
@@ -142,18 +138,8 @@ class AnimalListTableState extends State<AnimalListTable> {
   }
 
   // Helper method to get count from temporary storage
-  int? _getUpdatedCount(AnimalAge age, AnimalGender gender) {
-    return _tempCounts['${age.name}_${gender.name}'];
-  }
 
   // Helper method to store temporary count
-  void _updateTempCount(AnimalAge age, AnimalGender gender, int count) {
-    setState(() {
-      final key = '${age.name}_${gender.name}';
-      _tempCounts[key] = count;
-      debugPrint('Updated temp count for $key: $count');
-    });
-  }
 
   List<AnimalGender> _getUsedGenders(BuildContext context) {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
