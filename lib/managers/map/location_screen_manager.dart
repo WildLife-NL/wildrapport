@@ -64,7 +64,7 @@ class LocationScreenManager implements LocationScreenInterface {
       currentPosition = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 5),
+          timeLimit: Duration(seconds: 5),
         ),
       ).catchError((error) {
         throw error;

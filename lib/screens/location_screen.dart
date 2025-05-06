@@ -17,7 +17,7 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/location/location_screen-ui_widget.dart';
+import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});

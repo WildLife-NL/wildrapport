@@ -80,7 +80,7 @@ Widget _buildLabOption(String labName) {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
       margin: const EdgeInsets.only(bottom: 6), // Slight space between options
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.brown.withOpacity(0.1) : null,
+        color: isSelected ? AppColors.brown.withValues(alpha:0.1) : null,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -117,7 +117,7 @@ Widget _buildLabOption(String labName) {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha:0.1),
               offset: const Offset(0, 2),
               blurRadius: 8,
             ),
@@ -163,7 +163,7 @@ Widget _buildLabOption(String labName) {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             offset: const Offset(0, 2),
             blurRadius: 8,
           ),

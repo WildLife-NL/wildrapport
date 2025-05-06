@@ -10,7 +10,7 @@ import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/location/location_screen-ui_widget.dart';
+import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 
 class PossesionLocationScreen extends StatefulWidget {
