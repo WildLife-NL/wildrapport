@@ -19,7 +19,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
 
 
   @override
-  Future<List<dynamic>> buildQuestionnaireLayout(VoidCallback nextScreen, VoidCallback previousScreen) async {
+  Future<List<dynamic>> buildQuestionnaireLayout(String interactionID, VoidCallback nextScreen, VoidCallback previousScreen) async {
     final Questionnaire questionnaire = await getQuestionnaire();
     final List<Widget> questionnaireWidgets = [];
     questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen));
@@ -34,7 +34,8 @@ class QuestionnaireManager implements QuestionnaireInterface {
             question: question,
             questionnaire: questionnaire,
             onNextPressed: nextScreen,
-            onBackPressed: previousScreen,
+            onBackPressed: previousScreen, 
+            interactionID: interactionID,
           ),
         );
       }
@@ -44,7 +45,8 @@ class QuestionnaireManager implements QuestionnaireInterface {
             question: question,
             questionnaire: questionnaire,
             onNextPressed: nextScreen,
-            onBackPressed: previousScreen,
+            onBackPressed: previousScreen, 
+            interactionID: interactionID,
           ),
         );
       }
@@ -61,6 +63,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
   @override
   Future<List<dynamic>> buildQuestionnaireLayoutFromExisting(
     Questionnaire questionnaire, 
+    String interactionID,
     VoidCallback nextScreen, 
     VoidCallback previousScreen
   ) async {
@@ -78,7 +81,8 @@ class QuestionnaireManager implements QuestionnaireInterface {
               question: question,
               questionnaire: questionnaire,
               onNextPressed: nextScreen,
-              onBackPressed: previousScreen,
+              onBackPressed: previousScreen, 
+              interactionID: interactionID,
             ),
           );
         }
@@ -88,7 +92,8 @@ class QuestionnaireManager implements QuestionnaireInterface {
               question: question,
               questionnaire: questionnaire,
               onNextPressed: nextScreen,
-              onBackPressed: previousScreen,
+              onBackPressed: previousScreen, 
+              interactionID: interactionID,
             ),
           );
         }

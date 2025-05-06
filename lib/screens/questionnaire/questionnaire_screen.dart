@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
-  final Questionnaire? questionnaire;
-  
-  const QuestionnaireScreen({super.key, this.questionnaire});
+  final Questionnaire questionnaire;
+  final String interactionID;
+  const QuestionnaireScreen({super.key, required this.questionnaire, required this.interactionID});
 
   @override
   State<QuestionnaireScreen> createState() => _QuestionnaireScreenState();
@@ -16,6 +18,8 @@ class QuestionnaireScreen extends StatefulWidget {
 
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   late final QuestionnaireInterface _questionnaireManager;
+  final ResponseProvider responseProvider = ResponseProvider();
+  late final ResponseInterface _responseManager;
   late List<dynamic> questionnaireScreensList = [];
   int currentQuestionnaireIndex = 0;
 
@@ -23,10 +27,14 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   void initState() {
     super.initState();
     _questionnaireManager = context.read<QuestionnaireInterface>();
+    _responseManager = context.read<ResponseInterface>();
     _loadQuestionnaire(); 
   }
 
   void nextScreen() {
+    if(responseProvider.interactionID != null && responseProvider.questionID != null){
+      _responseManager.storeResponse(responseProvider.buildResponse(), widget.questionnaire.id, responseProvider.questionID!);
+    }
     debugPrint("Next Screen");
     debugPrint("Current Index: $currentQuestionnaireIndex");
     if (currentQuestionnaireIndex < questionnaireScreensList.length - 1) {
@@ -47,13 +55,9 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    final questionnaireScreens = widget.questionnaire != null
-        ? await _questionnaireManager.buildQuestionnaireLayoutFromExisting(
-            widget.questionnaire!,
-            nextScreen,
-            previousScreen,
-          )
-        : await _questionnaireManager.buildQuestionnaireLayout(
+    final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayoutFromExisting(
+            widget.questionnaire,
+            widget.interactionID,
             nextScreen,
             previousScreen,
           );
@@ -69,8 +73,9 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     if (questionnaireScreensList.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
-
-    return Scaffold(
+ return ChangeNotifierProvider<ResponseProvider>.value(
+    value: responseProvider,
+    child: Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -90,6 +95,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

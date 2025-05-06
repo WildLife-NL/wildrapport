@@ -1,14 +1,14 @@
 class Response {
-  String answerID;
+  String? answerID;
   String interactionID;
   String questionID;
-  String text;
+  String? text;
 
   Response({
-    required this.answerID,
+    this.answerID,
     required this.interactionID,
     required this.questionID,
-    required this.text,
+    this.text,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) => Response(

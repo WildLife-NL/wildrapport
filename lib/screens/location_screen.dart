@@ -162,7 +162,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 if (mounted) {
                   context.read<NavigationStateInterface>().pushReplacementForward(
                     context,
-                    QuestionnaireScreen(questionnaire: questionnaire),
+                    QuestionnaireScreen(questionnaire: questionnaire, interactionID: "1",),
                   );
                 }
               }
@@ -203,7 +203,7 @@ Future<Questionnaire> submitReport(BuildContext context) async {
     );
 
     final interactionAPI = context.read<InteractionApiInterface>();
-    final response = await interactionAPI.sendInteraction(interaction);
+    final response = await interactionAPI.sendInteractionDeprecated(interaction);
 
     // Log questionnaire details for debugging
     if (response.questions != null && response.questions!.isNotEmpty) {

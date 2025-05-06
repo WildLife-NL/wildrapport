@@ -1,10 +1,10 @@
-import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
 abstract class PossesionInterface{
   List<dynamic> buildPossesionWidgetList();
-  Future<Questionnaire> postInteraction();
+  Future<InteractionResponseModel> postInteraction();
   void updateImpactedCrop(String value);
   void updateCurrentDamage(double value);
   void updateExpectedDamage(double value);

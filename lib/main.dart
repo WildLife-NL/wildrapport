@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/api/answer_api.dart';
+import 'package:wildrapport/api/response_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
 import 'package:wildrapport/api/interaction_api.dart';
@@ -22,6 +22,7 @@ import 'package:wildrapport/interfaces/overzicht_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/response_manager.dart';
@@ -81,7 +82,7 @@ void main() async {
   final possesionManager = PossesionManager(interactionApi, possesionDamageFormProvider, mapProvider);
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
-  final answerManager = ResponseManager(answerAPI);
+  final responseManager = ResponseManager(answerAPI);
   
   final animalSightingReportingManager = AnimalSightingReportingManager();
   
@@ -110,11 +111,12 @@ void main() async {
         Provider<FilterInterface>.value(value: filterManager),
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
         Provider<PossesionInterface>.value(value: possesionManager),
+        Provider<ResponseInterface>.value(value: responseManager),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
         Provider<QuestionnaireInterface>.value(value: questionnaireManager),
-        Provider<ResponseManager>.value(value: answerManager),
+        Provider<ResponseManager>.value(value: responseManager),
         Provider<AnimalSightingReportingInterface>(
           create: (context) => animalSightingReportingManager,
         ),

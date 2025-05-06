@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
-import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
@@ -32,18 +32,18 @@ class PossesionManager implements PossesionInterface {
   }
 
   @override
-  Future<Questionnaire> postInteraction() async {
+  Future<InteractionResponseModel> postInteraction() async {
     final interaction = Interaction(
       interactionType: InteractionType.gewasschade,
       userID: "4790e81a-dbfb-4316-9d85-8275de240f01", //Temp because we don't safe user date yet
       report: buildPossionReport(),
     );
-    final questionnaire = await interactionAPI.sendInteraction(interaction);
-    debugPrint("$greenLog${questionnaire.name}");
+    final InteractionResponseModel interactionResponseModel = await interactionAPI.sendInteraction(interaction);
+    debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
     
     // Add null check before accessing questions
-    if (questionnaire.questions != null && questionnaire.questions!.isNotEmpty) {
-      debugPrint("$greenLog${questionnaire.questions![0].description}");
+    if (interactionResponseModel.questionnaire.questions != null && interactionResponseModel.questionnaire.questions!.isNotEmpty) {
+      debugPrint("$greenLog${interactionResponseModel.questionnaire.questions![0].description}");
     } else {
       debugPrint("${greenLog}No questions available in questionnaire");
     }
@@ -51,7 +51,7 @@ class PossesionManager implements PossesionInterface {
     //Clearing the provider of it's value
     formProvider.clearStateOfValues(); 
 
-    return questionnaire;
+    return interactionResponseModel;
   }
 
   @override

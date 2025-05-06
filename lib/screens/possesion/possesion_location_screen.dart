@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/questionnaire_interface.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
@@ -32,11 +34,13 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   bool _isInitialized = false;
 
   NavigationStateInterface get navigationManager => context.read<NavigationStateInterface>();
+  late final QuestionnaireInterface _questionnaireManager;
 
   @override
   void initState() {
     super.initState();
     debugPrint("$yellowLog[PossesionLocationScreen] 🔄 initState called\x1B[0m");
+    _questionnaireManager = context.read<QuestionnaireInterface>();
     _initializeScreen();
   }
 
@@ -116,11 +120,13 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
     
+    InteractionResponseModel interactionResponseModel = await _possesionManager.postInteraction();
+
     if (mounted) {
       navigationManager.pushReplacementForward(
         context,
-        const QuestionnaireScreen(),
-      );
+        QuestionnaireScreen(questionnaire: await _questionnaireManager.getQuestionnaire(), interactionID: interactionResponseModel.interactionID),
+      );                   //^ replace with interactionResponseModel.questionnaire
     }
        mapProvider.resetState();
 

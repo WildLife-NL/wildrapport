@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 
 class QuestionnaireMultipleChoice extends StatefulWidget {
   final Question question;
   final Questionnaire questionnaire;
+  final String interactionID;
   final VoidCallback onNextPressed;
   final VoidCallback onBackPressed;
 
@@ -14,6 +17,7 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
     super.key,
     required this.question,
     required this.questionnaire,
+    required this.interactionID,
     required this.onNextPressed,
     required this.onBackPressed,
   });
@@ -24,6 +28,17 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
 
 class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoice> {
   List<String> _selectedAnswers = [];
+  late final ResponseProvider responseProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      responseProvider = context.read<ResponseProvider>();
+      responseProvider.setInteractionID(widget.interactionID);
+      responseProvider.setQuestionID(widget.question.id);
+    });
+  }
 
 @override
 Widget build(BuildContext context) {
@@ -85,7 +100,9 @@ Widget build(BuildContext context) {
                     groupValue: _selectedAnswers.isNotEmpty ? _selectedAnswers.first : null,
                     onChanged: (String? value) {
                       setState(() {
+                        debugPrint("onChanged!");
                         _selectedAnswers = value != null ? [value] : [];
+                        responseProvider.setAnswerID(answer.id);
                       });
                     },
                   );

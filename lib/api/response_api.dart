@@ -10,7 +10,7 @@ class ResponseApi implements ResponseApiInterface {
   ResponseApi(this.client);
 
   @override
-  Future<bool> addReponse(String interactionID, String questionID, String answerID, String text) async {
+  Future<bool> addReponse(String interactionID, String questionID, String? answerID, String? text) async {
     http.Response response = await client.post(
       'response/',
       {

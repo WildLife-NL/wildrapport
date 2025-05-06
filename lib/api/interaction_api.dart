@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/reporting/common_report_fields.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 
 class InteractionApi implements InteractionApiInterface {
@@ -18,7 +19,7 @@ class InteractionApi implements InteractionApiInterface {
   InteractionApi(this.client);
 
   @override
-  Future<Questionnaire> sendInteraction(Interaction interaction) async {
+  Future<Questionnaire> sendInteractionDeprecated(Interaction interaction) async {
     try {
       debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
       http.Response response;
@@ -109,6 +110,118 @@ class InteractionApi implements InteractionApiInterface {
 
         try {
           return Questionnaire.fromJson(questionnaireJson);
+        } catch (e) {
+          debugPrint("$redLog Error parsing questionnaire: $e");
+          throw Exception("Invalid questionnaire format: $e");
+        }
+      } else {
+        final errorBody = jsonDecode(response.body);
+        final errorMessages = (errorBody['errors'] as List?)
+                ?.map((e) => e['message'])
+                .join('; ') ??
+            errorBody['detail'] ??
+            'Unknown error';
+        throw Exception("API request failed with status ${response.statusCode}: $errorMessages");
+      }
+    } catch (e) {
+      debugPrint("$redLog[InteractionAPI] Error: $e");
+      throw Exception("Failed to send interaction: $e");
+    }
+  }
+
+  @override
+  Future<InteractionResponseModel> sendInteraction(Interaction interaction) async {
+    try {
+      debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
+      http.Response response;
+
+      switch (interaction.interactionType) {
+        case InteractionType.waarnemning:
+          debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
+          if (interaction.report is AnimalSightingReportWrapper) {
+            final apiPayload = interaction.report.toJson();  // Use the wrapper's toJson directly
+            response = await client.post(
+              'interaction/',
+              apiPayload,
+              authenticated: true,
+            );
+          } else {
+            throw Exception("Invalid report type for waarnemning: ${interaction.report.runtimeType}");
+          }
+          break;
+        case InteractionType.gewasschade:
+          debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
+          if (interaction.report is CommonReportFields) {
+            final report = interaction.report as CommonReportFields;
+            response = await client.post(
+              'interaction/',
+              {
+                "description": report.description ?? '',
+                "location": {
+                  "latitude": report.systemLocation?.latitude,
+                  "longitude": report.systemLocation?.longtitude,
+                },
+                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+                "place": {
+                  "latitude": report.userSelectedLocation?.latitude,
+                  "longitude": report.userSelectedLocation?.longtitude,
+                },
+                "reportOfDamage": interaction.report.toJson(),
+                "speciesID": report.suspectedSpeciesID,
+                "typeID": 2,
+              },
+              authenticated: true,
+            );
+          } else {
+            throw Exception("Invalid report type for gewasschade: ${interaction.report.runtimeType}");
+          }
+          break;
+        case InteractionType.verkeersongeval:
+          debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
+          if (interaction.report is CommonReportFields) {
+            final report = interaction.report as CommonReportFields;
+            response = await client.post(
+              'interaction/',
+              {
+                "description": report.description ?? '',
+                "location": {
+                  "latitude": report.systemLocation?.latitude,
+                  "longitude": report.systemLocation?.longtitude,
+                },
+                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+                "place": {
+                  "latitude": report.userSelectedLocation?.latitude,
+                  "longitude": report.userSelectedLocation?.longtitude,
+                },
+                "reportOfCollision": interaction.report.toJson(),
+                "speciesID": report.suspectedSpeciesID,
+                "typeID": 3,
+              },
+              authenticated: true,
+            );
+          } else {
+            throw Exception("Invalid report type for verkeersongeval: ${interaction.report.runtimeType}");
+          }
+          break;
+      }
+
+      debugPrint("$greenLog[InteractionAPI] Response code: ${response.statusCode}");
+      debugPrint("$greenLog[InteractionAPI] Response body: ${response.body}");
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body);
+        if (json == null) {
+          throw Exception("Empty response received from server");
+        }
+
+        final questionnaireJson = json['questionnaire'];
+        final String interactionID = json['ID'];
+        if (questionnaireJson == null) {
+          throw Exception("No questionnaire data in response");
+        }
+
+        try {
+          return InteractionResponseModel(questionnaire: Questionnaire.fromJson(questionnaireJson), interactionID: interactionID);
         } catch (e) {
           debugPrint("$redLog Error parsing questionnaire: $e");
           throw Exception("Invalid questionnaire format: $e");

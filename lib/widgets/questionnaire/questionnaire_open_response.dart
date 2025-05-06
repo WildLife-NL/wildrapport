@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 
 class QuestionnaireOpenResponse extends StatefulWidget {
   final Question question;
   final Questionnaire questionnaire;
+  final String interactionID;
   final VoidCallback onNextPressed;
   final VoidCallback onBackPressed;
+
+  final redLog = '\x1B[31m';
 
   const QuestionnaireOpenResponse({
     super.key,
     required this.question,
     required this.questionnaire,
+    required this.interactionID,
     required this.onNextPressed,
     required this.onBackPressed,
   });
@@ -24,6 +30,17 @@ class QuestionnaireOpenResponse extends StatefulWidget {
 
 class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   final TextEditingController _responseController = TextEditingController();
+  late final ResponseProvider responseProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      responseProvider = context.read<ResponseProvider>();
+      responseProvider.setInteractionID(widget.interactionID);
+      responseProvider.setQuestionID(widget.question.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +79,10 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: TextField(
               controller: _responseController,
+              onChanged: (value) {
+                  responseProvider.setText(value);
+                  responseProvider.buildResponse();
+              },
               maxLines: 10,  
               decoration: InputDecoration(
                 hintText: 'Schrijf hier uw antwoord...',
