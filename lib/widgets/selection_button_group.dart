@@ -48,7 +48,7 @@ class SelectionButtonGroup extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha:0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -109,7 +109,7 @@ class SelectionButtonGroup extends StatelessWidget {
         size: arrowSize * 1.4,
         shadows: [
           Shadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha:0.25),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),

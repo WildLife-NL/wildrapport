@@ -113,7 +113,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     );
   }
 
-  @override
   AnimalSightingModel updateCondition(AnimalCondition condition) {
     _currentanimalSighting ??= createanimalSighting();
 

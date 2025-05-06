@@ -13,7 +13,7 @@ class MemoryTestHelper {
     final initialMemory = ProcessInfo.currentRss;
     
     for (int i = 1; i <= cycles; i++) {
-      print('$testName - Cycle $i/$cycles');
+      debugPrint('$testName - Cycle $i/$cycles');
       
       await tester.pumpWidget(buildWidget());
       await tester.pump();
@@ -29,4 +29,5 @@ class MemoryTestHelper {
     return ProcessInfo.currentRss - initialMemory;
   }
 }
+
 

@@ -291,7 +291,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                         borderRadius: BorderRadius.circular(25),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -299,7 +299,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                       ),
                       child: Table(
                         border: TableBorder.all(
-                          color: AppColors.brown.withOpacity(0.2),
+                          color: AppColors.brown.withValues(alpha: 0.2),
                           width: 1,
                           borderRadius: BorderRadius.circular(25),
                         ),
@@ -329,7 +329,7 @@ class AnimalListTableState extends State<AnimalListTable> {
   TableRow _buildHeaderRow(List<AnimalGender> usedGenders) {
     return TableRow(
       decoration: BoxDecoration(
-        color: AppColors.brown.withOpacity(0.1),
+        color: AppColors.brown.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
           topRight: Radius.circular(25),
@@ -495,7 +495,7 @@ class AnimalListTableState extends State<AnimalListTable> {
               fontWeight: FontWeight.bold,
               shadows: [
                 Shadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withValues(alpha: 0.25),
                   offset: const Offset(0, 2),
                   blurRadius: 4,
                 ),
@@ -510,12 +510,12 @@ class AnimalListTableState extends State<AnimalListTable> {
               color: AppColors.offWhite,
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: AppColors.brown.withOpacity(0.3),
+                color: AppColors.brown.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -554,6 +554,7 @@ class AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
 
 
 

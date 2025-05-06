@@ -159,7 +159,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
-              color: AppColors.brown.withOpacity(0.1),
+              color: AppColors.brown.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(10),
               border: _errorMessage != null 
                   ? Border.all(color: Colors.red, width: 1.0)
@@ -227,7 +227,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       decoration: BoxDecoration(
         color: AppColors.offWhite,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.brown.withOpacity(0.1)),
+        border: Border.all(color: AppColors.brown.withValues(alpha:0.1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -322,7 +322,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       color: isSelected 
                           ? AppColors.brown 
-                          : AppColors.brown.withOpacity(0.5),
+                          : AppColors.brown.withValues(alpha:0.5),
                     ),
                     child: Text(
                       number.toString().padLeft(2, '0'),
@@ -337,7 +337,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: AppColors.brown.withOpacity(0.6),
+            color: AppColors.brown.withValues(alpha:0.6),
           ),
         ),
       ],

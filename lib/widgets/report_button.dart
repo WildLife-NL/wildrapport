@@ -32,7 +32,7 @@ class ReportButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha:0.25),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -46,7 +46,7 @@ class ReportButton extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       height: iconSize,
                       child: Stack(
                         alignment: Alignment.center,
@@ -56,7 +56,7 @@ class ReportButton extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -83,7 +83,7 @@ class ReportButton extends StatelessWidget {
                         fontSize: 15,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: Colors.black.withValues(alpha:0.25),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
@@ -107,7 +107,7 @@ class ReportButton extends StatelessWidget {
                   size: screenSize.width * 0.06,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha:0.25),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),

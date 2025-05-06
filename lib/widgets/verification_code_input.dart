@@ -60,7 +60,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
       // Wait for at least one full animation cycle
       await Future.delayed(const Duration(milliseconds: 1500));
 
-      if (context.mounted && verifiedUser != null) {
+      if (mounted && verifiedUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (_) => const OverzichtScreen(),
@@ -89,26 +89,26 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
       width: 45,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: isError ? Colors.red.shade50.withOpacity(0.9) : Colors.white,
+        color: isError ? Colors.red.shade50.withValues(alpha:0.9) : Colors.white,
         border: isError
             ? Border.all(color: Colors.red.shade300, width: 1.0)
             : Border.all(color: Colors.grey[300]!),
         boxShadow: [
           BoxShadow(
             color: isError
-                ? Colors.red.withOpacity(0.1)
-                : Colors.black.withOpacity(0.25),
+                ? Colors.red.withValues(alpha:0.1)
+                : Colors.black.withValues(alpha:0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: RawKeyboardListener(
+      child: KeyboardListener(
         focusNode: FocusNode(), // Unique FocusNode for each listener
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.backspace) {
+        onKeyEvent: (KeyEvent event) {
+          if (event is! KeyDownEvent) return;
+          if (event.logicalKey == LogicalKeyboardKey.backspace) {
             // If current field is empty and not the first field
             if (controllers[index].text.isEmpty && index > 0) {
               // Move focus to previous field and clear it
@@ -196,7 +196,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
                 color: AppColors.brown,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha:0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -210,7 +210,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
                 fontWeight: FontWeight.w500,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -245,23 +245,9 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
         const SizedBox(height: 15),
         Center(
           child: TextButton(
-            onPressed: () async {
+            onPressed: () {
               debugPrint("Resend code button pressed");
-              try {
-                await loginManager.resendCode(widget.email);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Verificatiecode opnieuw verzonden')),
-                  );
-                }
-              } catch (e) {
-                debugPrint("Error resending code: $e");
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Kon code niet verzenden. Probeer het later opnieuw.')),
-                  );
-                }
-              }
+              _resendCode();
             },
             child: const Text(
               'Code niet ontvangen? Stuur opnieuw',
@@ -288,7 +274,27 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
     }
     super.dispose();
   }
+
+  Future<void> _resendCode() async {
+    try {
+      await loginManager.resendCode(widget.email);
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verificatiecode opnieuw verzonden')),
+      );
+    } catch (e) {
+      debugPrint("Error resending code: $e");
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kon code niet verzenden. Probeer het later opnieuw.')),
+      );
+    }
+  }
 }
+
+
 
 
 

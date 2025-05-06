@@ -164,7 +164,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
               : Border.all(color: Colors.transparent, width: 0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha:0.25),
               offset: const Offset(0, 2),
               blurRadius: 4,
             ),
@@ -249,7 +249,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha:0.25),
               offset: const Offset(0, 2),
               blurRadius: 4,
             ),

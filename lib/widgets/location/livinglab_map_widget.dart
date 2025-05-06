@@ -328,7 +328,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                       polygons: [
                         Polygon(
                           points: squareBoundary,
-                          color: Colors.blue.withOpacity(0.3),
+                          color: Colors.blue.withValues(alpha: 0.3),
                           borderColor: Colors.blue,
                           borderStrokeWidth: 2,
                         ),
@@ -377,7 +377,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -481,7 +481,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     required VoidCallback? onPressed,
     bool isEnabled = true,
   }) {
-    final color = isEnabled ? AppColors.brown : AppColors.brown.withOpacity(0.3);
+    final color = isEnabled ? AppColors.brown : AppColors.brown.withValues(alpha: 0.3);
 
     return Material(
       color: Colors.transparent,
@@ -535,7 +535,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.blue[100]!.withOpacity(0.3),
+                  color: Colors.blue[100]!.withValues(alpha: 0.3),
                   border: Border.all(color: Colors.white, width: 2),
                 ),
               ),
@@ -564,7 +564,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.red.withOpacity(0.3),
+              color: Colors.red.withValues(alpha: 0.3),
             ),
             child: const Icon(
               Icons.location_pin,
@@ -612,22 +612,4 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -15,7 +15,7 @@ class ValidationOverlay extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
-        color: AppColors.lightMintGreen.withOpacity(0.5),
+        color: AppColors.lightMintGreen.withValues(alpha:0.5),
         child: Center(
           child: GestureDetector(
             onTap: () {}, // Prevents taps on the container from closing the overlay
@@ -27,7 +27,7 @@ class ValidationOverlay extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha:0.25),
                     spreadRadius: 0,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
@@ -47,7 +47,7 @@ class ValidationOverlay extends StatelessWidget {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.black,
-                              Colors.black.withOpacity(0.8),
+                              Colors.black.withValues(alpha:0.8),
                             ],
                           ).createShader(bounds);
                         },
@@ -57,7 +57,7 @@ class ValidationOverlay extends StatelessWidget {
                           color: Colors.black,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.25),
+                              color: Colors.black.withValues(alpha:0.25),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -81,7 +81,7 @@ class ValidationOverlay extends StatelessWidget {
                               fontSize: 24,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha:0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -95,7 +95,7 @@ class ValidationOverlay extends StatelessWidget {
                             style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),

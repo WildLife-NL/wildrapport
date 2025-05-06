@@ -39,7 +39,7 @@ class WhiteBulkButton extends StatelessWidget {
     final baseStyle = AppTextTheme.textTheme.titleLarge?.copyWith(
       shadows: [
         Shadow(
-          color: Colors.black.withOpacity(0.25),
+          color: Colors.black.withValues(alpha: 0.25),
           offset: const Offset(0, 2),
           blurRadius: 4,
         ),
@@ -61,7 +61,7 @@ class WhiteBulkButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -73,8 +73,8 @@ class WhiteBulkButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
           onTap: onPressed,
-          splashColor: AppColors.brown.withOpacity(0.1),
-          highlightColor: AppColors.brown.withOpacity(0.05),
+          splashColor: AppColors.brown.withValues(alpha: 0.1),
+          highlightColor: AppColors.brown.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -109,11 +109,4 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
 
