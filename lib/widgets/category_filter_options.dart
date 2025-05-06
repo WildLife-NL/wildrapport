@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/widgets/circle_icon_container.dart';
 
 class CategoryFilterOptions extends StatelessWidget {
@@ -9,11 +8,11 @@ class CategoryFilterOptions extends StatelessWidget {
   final VoidCallback onBackPressed;  // Add new callback
 
   const CategoryFilterOptions({
-    Key? key,
+    super.key,
     required this.items,
     required this.onCategorySelected,
     required this.onBackPressed,  // Add to constructor
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +76,7 @@ class CategoryFilterOptions extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha:0.25),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),

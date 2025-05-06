@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wildrapport/interfaces/map/map_service_interface.dart';
-import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 
 class MapProvider extends ChangeNotifier {
@@ -57,12 +54,6 @@ class MapProvider extends ChangeNotifier {
     }
     _mapController = controller;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    // Do nothing - we want to keep the map controller alive
-    // super.dispose(); // Don't call super.dispose()
   }
 
   void setLoading(bool loading) {
@@ -137,7 +128,26 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
     setLoading(false);
   }
+
+  Future<void> resetMapState() async {
+    debugPrint('[MapProvider] Resetting map state');
+    _isLoading = true;
+    notifyListeners();
+    
+    // Reset any state but keep the controller
+    selectedPosition = null;
+    selectedAddress = '';
+    currentPosition = null;
+    currentAddress = '';
+    
+    // Small delay to ensure UI updates
+    await Future.delayed(const Duration(milliseconds: 50));
+    
+    _isLoading = false;
+    notifyListeners();
+  }
 }
+
 
 
 

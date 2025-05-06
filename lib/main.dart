@@ -41,10 +41,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
@@ -91,7 +89,7 @@ void main() async {
   
 
   // Check for existing token
-  final String? token = await prefs.getString('bearer_token');
+  final String? token = prefs.getString('bearer_token');
   final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
 
   // Start the app
@@ -213,7 +211,7 @@ class MyApp extends StatelessWidget {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(
-                MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.4),
+                MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
               ),
             ),
             child: child!,
@@ -259,7 +257,7 @@ class _MediaQueryWrapper extends StatelessWidget {
       data: MediaQuery.of(context).copyWith(
         // Combine device text scale with our responsive scale
         textScaler: TextScaler.linear(
-          baseTextScale * MediaQuery.of(context).textScaleFactor,
+          baseTextScale * MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
         ),
         viewInsets: MediaQuery.of(context).viewInsets.copyWith(
           bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,

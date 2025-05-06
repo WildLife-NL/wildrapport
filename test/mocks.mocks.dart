@@ -123,7 +123,6 @@ class MockLoginInterface extends _i1.Mock implements _i7.LoginInterface {
     _i1.throwOnMissingStub(this);
   }
 
-  @override
   _i4.Future<bool> handleLogin(String? email, _i6.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#handleLogin, [email, context]),
@@ -131,7 +130,6 @@ class MockLoginInterface extends _i1.Mock implements _i7.LoginInterface {
           )
           as _i4.Future<bool>);
 
-  @override
   _i4.Future<bool> handleVerificationCode(
     String? email,
     String? code,
@@ -175,7 +173,6 @@ class MockLoginInterface extends _i1.Mock implements _i7.LoginInterface {
     returnValueForMissingStub: null,
   );
 
-  @override
   bool isVerificationVisible() =>
       (super.noSuchMethod(
             Invocation.method(#isVerificationVisible, []),
@@ -183,12 +180,10 @@ class MockLoginInterface extends _i1.Mock implements _i7.LoginInterface {
           )
           as bool);
 
-  @override
   bool hasError() =>
       (super.noSuchMethod(Invocation.method(#hasError, []), returnValue: false)
           as bool);
 
-  @override
   String getErrorMessage() =>
       (super.noSuchMethod(
             Invocation.method(#getErrorMessage, []),

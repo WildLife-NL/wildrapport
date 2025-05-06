@@ -11,7 +11,6 @@ import 'package:wildrapport/widgets/error_overlay.dart';
 import 'package:wildrapport/widgets/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/validation_overlay.dart';
 
 class AnimalCounting extends StatefulWidget {
   final Function(String)? onAgeSelected;
@@ -268,7 +267,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
           color: AppColors.brown,
           shadows: [
             Shadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               offset: const Offset(0, 2),
               blurRadius: 4,
             ),

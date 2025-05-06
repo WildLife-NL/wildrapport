@@ -11,7 +11,6 @@ void main() {
   testWidgets('Map controller should be properly disposed during navigation cycles',
       (WidgetTester tester) async {
     // Track disposed controllers
-    int disposedControllers = 0;
 
     // Wrap the test widget with required providers
     Widget buildTestWidget() {

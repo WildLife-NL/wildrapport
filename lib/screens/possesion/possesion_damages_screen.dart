@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';

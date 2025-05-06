@@ -8,10 +8,7 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/widgets/animal_counting.dart';
-import 'package:wildrapport/widgets/animal_grid.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:lottie/lottie.dart';
 import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 
 class AnimalsScreen extends StatefulWidget {
@@ -122,7 +119,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
-    final updatedSighting = _animalSightingManager.processAnimalSelection(
+    _animalSightingManager.processAnimalSelection(
       selectedAnimal,
       _animalManager,
     );

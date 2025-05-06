@@ -31,7 +31,6 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -102,7 +101,7 @@ class ActionButtons extends StatelessWidget {
         size: 24,
         shadows: [
           Shadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withValues(alpha:0.25),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),

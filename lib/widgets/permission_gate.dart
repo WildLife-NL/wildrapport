@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/permission_interface.dart';
 
 class PermissionGate extends StatelessWidget {
   final Widget child;

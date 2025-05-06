@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
@@ -9,7 +8,6 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
-import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/location_model.dart';
@@ -19,7 +17,7 @@ import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/location/location_screen-ui_widget.dart';
+import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -50,7 +48,7 @@ class _LocationScreenState extends State<LocationScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         height: 60, // Constrain height to avoid SnackBar overlap
         child: CustomBottomAppBar(
           onBackPressed: () => context
@@ -215,7 +213,7 @@ Future<Questionnaire> submitReport(BuildContext context) async {
     }
 
     return response;
-  } catch (e, stackTrace) {
+  } catch (e) {
     // Error handling...
     rethrow;
   }

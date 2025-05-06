@@ -53,9 +53,24 @@ class SpeciesApi implements SpeciesApiInterface{
   }
   
   @override
-  Future<Species> getSpeciesByCategory(String category) {
-    // TODO: implement getSpeciesByCategory
-    throw UnimplementedError();
+  Future<Species> getSpeciesByCategory(String category) async {
+    try {
+      final response = await client.get(
+        'species/category/$category/',
+        authenticated: true,
+      );
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body);
+        return Species.fromJson(json);
+      }
+      
+      throw Exception('API Error: ${response.statusCode} - ${response.body}');
+    } catch (e) {
+      debugPrint('[SpeciesApi] Error fetching species by category: $e');
+      throw Exception('Failed to fetch species by category: $e');
+    }
   }
 }
+
 

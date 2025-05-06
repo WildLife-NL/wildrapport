@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
-import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
@@ -11,7 +10,7 @@ import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/location/location_screen-ui_widget.dart';
+import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 
 class PossesionLocationScreen extends StatefulWidget {
@@ -116,7 +115,6 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       _possesionManager.updateSystemLocation(systemLocation);
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
-    Questionnaire questionnaire = await _possesionManager.postInteraction();
     
     if (mounted) {
       navigationManager.pushReplacementForward(

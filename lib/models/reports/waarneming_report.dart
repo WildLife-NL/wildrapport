@@ -1,7 +1,7 @@
 import 'package:wildrapport/models/reports/base_report.dart';
 
-class animalSightingReport extends BaseReport {
-  animalSightingReport() : super('animalSightingen');
+class AnimalSightingReport extends BaseReport {
+  AnimalSightingReport() : super('animalSightingen');
 
   // Add specific getters/setters for animalSighting properties
   String? get selectedAnimal => getProperty('selectedAnimal');

@@ -29,7 +29,6 @@ class LocationScreenUIWidget extends StatefulWidget {
 }
 
 class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
-  Timer? _mapUpdateDebouncer;
   late final LocationServiceInterface _locationService;
   String _selectedLocation = LocationType.current.displayText;
   late final MapProvider _mapProvider;
@@ -157,8 +156,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       if (!mounted) return;
 
       while (mounted &&
-          (!_mapProvider.isInitialized ||
-              _mapProvider.mapController.camera == null)) {
+          (!_mapProvider.isInitialized)) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
 
@@ -175,11 +173,6 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     });
   }
 
-  void _toggleExpanded() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
-  }
 
   void _handleLocationSelection(String location) async {
     // Immediate UI update for dropdown
@@ -308,7 +301,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     width: 160,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: AppColors.brown.withOpacity(0.2),
+                      color: AppColors.brown.withValues(alpha:0.2),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
@@ -331,7 +324,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha:0.1),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -372,7 +365,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     width: 130,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: AppColors.brown.withOpacity(0.2),
+                      color: AppColors.brown.withValues(alpha:0.2),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),

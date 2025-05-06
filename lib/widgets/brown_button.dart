@@ -72,7 +72,7 @@ class BrownButton extends StatelessWidget {
         child: CircleIconContainer(
           icon: _getIconData(iconName),
           iconColor: AppColors.brown,
-          size: model!.leftIconSize ?? 38.0,
+          size: model!.leftIconSize,
         ),
       );
     }
@@ -92,8 +92,8 @@ class BrownButton extends StatelessWidget {
         child: CircleIconContainer(
           icon: _getIconData(iconName),
           iconColor: AppColors.brown,
-          size: model!.rightIconSize ?? 38.0,
-          iconSize: (model!.rightIconSize ?? 38.0) * 0.75,  // Increased from 0.6 to 0.75 for bigger arrows
+          size: model!.rightIconSize,
+          iconSize: (model!.rightIconSize) * 0.75,  // Increased from 0.6 to 0.75 for bigger arrows
         ),
       );
     }
