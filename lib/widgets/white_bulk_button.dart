@@ -49,8 +49,8 @@ class WhiteBulkButton extends StatelessWidget {
     // Combine styles in order of precedence
     final effectiveStyle = baseStyle?.copyWith(
       fontSize: fontSize ?? textStyle?.fontSize ?? baseStyle.fontSize,
-      fontWeight: fontWeight ?? textStyle?.fontWeight ?? baseStyle?.fontWeight,
-      color: textStyle?.color ?? baseStyle?.color,
+      fontWeight: fontWeight ?? textStyle?.fontWeight ?? baseStyle.fontWeight,
+      color: textStyle?.color ?? baseStyle.color,
     ).merge(textStyle);
 
     return Container(
