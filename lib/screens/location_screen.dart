@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/location_model.dart';
@@ -141,10 +142,10 @@ class _LocationScreenState extends State<LocationScreen> {
               debugPrint('\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m');
               debugPrint(const JsonEncoder.withIndent('  ').convert(apiFormat));
 
-              final questionnaire = await submitReport(context);
+              final InteractionResponseModel responseModel = await submitReport(context);
               
               // Check if questionnaire has valid content
-              if (questionnaire.questions == null || questionnaire.questions!.isEmpty) {
+              if (responseModel.questionnaire.questions == null || responseModel.questionnaire.questions!.isEmpty) {
                 debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
                 // Navigate back to Rapporteren if no questions
                 if (mounted) {
@@ -157,12 +158,12 @@ class _LocationScreenState extends State<LocationScreen> {
                   context.read<NavigationStateInterface>().pushReplacementBack(context, const Rapporteren());
                 }
               } else {
-                debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${questionnaire.name}\x1B[0m');
+                debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m');
                 // Navigate to questionnaire screen with the response
                 if (mounted) {
                   context.read<NavigationStateInterface>().pushReplacementForward(
                     context,
-                    QuestionnaireScreen(questionnaire: questionnaire, interactionID: "1",),
+                    QuestionnaireScreen(questionnaire: responseModel.questionnaire, interactionID: responseModel.interactionID,),
                   );
                 }
               }
@@ -186,7 +187,7 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 }
 
-Future<Questionnaire> submitReport(BuildContext context) async {
+Future<InteractionResponseModel> submitReport(BuildContext context) async {
   try {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
@@ -203,11 +204,11 @@ Future<Questionnaire> submitReport(BuildContext context) async {
     );
 
     final interactionAPI = context.read<InteractionApiInterface>();
-    final response = await interactionAPI.sendInteractionDeprecated(interaction);
+    final response = await interactionAPI.sendInteraction(interaction);
 
     // Log questionnaire details for debugging
-    if (response.questions != null && response.questions!.isNotEmpty) {
-      debugPrint('\x1B[32m[LocationScreen] Questionnaire has ${response.questions!.length} questions\x1B[0m');
+    if (response.questionnaire.questions != null && response.questionnaire.questions!.isNotEmpty) {
+      debugPrint('\x1B[32m[LocationScreen] Questionnaire has ${response.questionnaire.questions!.length} questions\x1B[0m');
     } else {
       debugPrint('\x1B[33m[LocationScreen] Questionnaire has no questions\x1B[0m');
     }
