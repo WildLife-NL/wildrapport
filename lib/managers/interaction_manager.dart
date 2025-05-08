@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -14,6 +15,9 @@ class InteractionManager implements InteractionInterface{
   final InteractionApiInterface interactionAPI;
   final Connectivity _connectivity = Connectivity();
   late final StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  bool _isRetryingSend = false;
+
   InteractionManager({required this.interactionAPI});
 
   final greenLog = '\x1B[32m';
@@ -30,25 +34,68 @@ class InteractionManager implements InteractionInterface{
   }
 
   void _handleConnectivityChange(List<ConnectivityResult> results) async {
-  debugPrint(results.toString());
+    debugPrint(results.toString());
 
-  final hasConnection = results.any((r) => r != ConnectivityResult.none);
-  
-  if (hasConnection) {
-    await _trySendCachedData();
-  } else {
-    debugPrint('No internet connection – future data will be cached.');
+    final hasConnection = results.any((r) => r != ConnectivityResult.none);
+
+    if (hasConnection) {
+      await _trySendCachedData();
+    } else {
+      debugPrint('No internet connection – future data will be cached.');
+    }
+  }
+  Future<bool> _hasInternetConnection() async {
+    try {
+      final response = await http.get(Uri.parse('https://clients3.google.com/generate_204'))
+          .timeout(const Duration(seconds: 3));
+      return response.statusCode == 204;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _scheduleRetryUntilSuccess() {
+  if (_isRetryingSend) return;
+  _isRetryingSend = true;
+
+  _retryLoop();
+}
+
+void _retryLoop() async {
+  while (true) {
+    bool hasConnection = await _hasInternetConnection();
+    if (hasConnection) {
+      try {
+        await _trySendCachedData();
+        debugPrint("$greenLog Successfully sent cached data.");
+        _isRetryingSend = false;
+        break; // Stop retrying after success
+      } catch (e) {
+        debugPrint("$yellowLog Retry failed. Will try again in 10 seconds.");
+      }
+    } else {
+      debugPrint("$yellowLog No internet. Will check again in 10 seconds.");
+    }
+    await Future.delayed(Duration(seconds: 10));
   }
 }
 
   Future<void> _trySendCachedData() async {
+    if (!await _hasInternetConnection()) {
+      debugPrint("$yellowLog Internet not fully ready. Retry later.");
+      _scheduleRetryUntilSuccess();
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if(await _doesInteractionCacheExist()){
       final List<Interaction> interactions = await _getAlreadyStoredInteractions();
+      final List<Interaction> interactionsAfterSending = List.from(interactions);
       int interactionIndex = 0;
       for (Interaction interaction in interactions) {
         try {
-          interactionAPI.sendInteraction(interaction);
+          await interactionAPI.sendInteraction(interaction);
+          interactionsAfterSending.remove(interaction);
           debugPrint("$greenLog Interaction $interactionIndex Send!");
           interactionIndex++;
         }
@@ -62,30 +109,50 @@ class InteractionManager implements InteractionInterface{
           debugPrint(stackTrace.toString());
           debugPrint("");
         }
+      }      
+      _updateCache(interactionsAfterSending);
+    }
+  }
+
+  Future<void> _updateCache(List<Interaction> interactionsAfterSending) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(interactionsAfterSending.isEmpty){
+      await prefs.setStringList('interaction_cache', []);
+    }
+    else{
+      List<Interaction> cachedInteractions = await _getAlreadyStoredInteractions();
+      if(cachedInteractions.isEmpty){ await prefs.setStringList('interaction_cache', []); }
+      else{
+        for(Interaction interaction in interactionsAfterSending){
+          cachedInteractions.remove(interaction);
+        }
       }
     }
   }
 
   @override
-  Future<InteractionResponseModel?> postInteraction(Reportable report) async {
+  Future<InteractionResponseModel?> postInteraction(Reportable report, InteractionType type) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userID = prefs.getString("userID");
 
     if(userID == null){ throw Exception("User Profile Wasn't Loaded!"); }
 
     final results = await _connectivity.checkConnectivity();
+    debugPrint(results.toString());
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
 
     final interaction = Interaction(
-      interactionType: InteractionType.gewasschade,
-      userID: userID, //Temp because we don't safe user date yet
+      interactionType: type,
+      userID: userID,
       report: report,
     );
 
     if(hasConnection){
+      debugPrint("$yellowLog [InteractionManager]: Sending Interaction!");
       return interactionAPI.sendInteraction(interaction);
     }
     else{
+      debugPrint("$yellowLog [InteractionManager]: Caching Interaction!");
       _cacheInteraction(interaction);
       return null;
     }
@@ -102,24 +169,26 @@ class InteractionManager implements InteractionInterface{
     List<String>? jsonStringList = prefs.getStringList('interaction_cache');
 
     if (jsonStringList != null) {
-      List<Interaction> responses = jsonStringList
+      return jsonStringList
           .map((jsonString) => Interaction.fromJson(jsonDecode(jsonString)))
           .toList();
-      return responses;
     }
-    throw Exception("Something went wrong!");
+    //If No cache exists, return empty list
+    return [];
   }
+
   Future<void> _cacheInteraction(Interaction interaction) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final List<Interaction> interactions = await _doesInteractionCacheExist()
-        ? await _getAlreadyStoredInteractions()
-        : [];
-
+    final List<Interaction> interactions = await _getAlreadyStoredInteractions();
     interactions.add(interaction);
 
     List<String> interactionJson =
         interactions.map((obj) => jsonEncode(obj.toJson())).toList();
+
+    for (String interactionString in interactionJson) {
+      debugPrint(interactionString);
+    }
 
     await prefs.setStringList('interaction_cache', interactionJson);
   }

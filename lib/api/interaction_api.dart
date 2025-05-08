@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/reporting/common_report_fields.dart';
+import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
@@ -40,8 +41,8 @@ class InteractionApi implements InteractionApiInterface {
           break;
         case InteractionType.gewasschade:
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
-          if (interaction.report is CommonReportFields) {
-            final report = interaction.report as CommonReportFields;
+          if (interaction.report is PossesionReportFields) {
+            final report = interaction.report as PossesionReportFields;
             response = await client.post(
               'interaction/',
               {
@@ -55,7 +56,13 @@ class InteractionApi implements InteractionApiInterface {
                   "latitude": report.userSelectedLocation?.latitude,
                   "longitude": report.userSelectedLocation?.longtitude,
                 },
-                "reportOfDamage": interaction.report.toJson(),
+                "reportOfDamage": {
+                  "belonging": report.possesion.toJson(),
+                  "estimatedDamage": report.currentImpactDamages,
+                  "estimatedLoss": report.estimatedTotalDamages,
+                  "impactType": report.impactedAreaType,
+                  "impactValue": report.impactedArea,
+                },
                 "speciesID": report.suspectedSpeciesID,
                 "typeID": 2,
               },
@@ -151,8 +158,8 @@ class InteractionApi implements InteractionApiInterface {
           break;
         case InteractionType.gewasschade:
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
-          if (interaction.report is CommonReportFields) {
-            final report = interaction.report as CommonReportFields;
+          if (interaction.report is PossesionReportFields) {
+            final report = interaction.report as PossesionReportFields;
             response = await client.post(
               'interaction/',
               {
@@ -166,7 +173,13 @@ class InteractionApi implements InteractionApiInterface {
                   "latitude": report.userSelectedLocation?.latitude,
                   "longitude": report.userSelectedLocation?.longtitude,
                 },
-                "reportOfDamage": interaction.report.toJson(),
+                "reportOfDamage": {
+                  "belonging": report.possesion.toJson(),
+                  "estimatedDamage": report.currentImpactDamages.toInt(),
+                  "estimatedLoss": report.estimatedTotalDamages.toInt(),
+                  "impactType": report.impactedAreaType,
+                  "impactValue": report.impactedArea.toInt(),
+                },
                 "speciesID": report.suspectedSpeciesID,
                 "typeID": 2,
               },
@@ -175,7 +188,7 @@ class InteractionApi implements InteractionApiInterface {
           } else {
             throw Exception("Invalid report type for gewasschade: ${interaction.report.runtimeType}");
           }
-          break;
+        break;
         case InteractionType.verkeersongeval:
           debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
           if (interaction.report is CommonReportFields) {

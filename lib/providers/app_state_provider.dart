@@ -79,8 +79,8 @@ class AppStateProvider with ChangeNotifier {
         possesion: Possesion(possesionName: ''),
         impactedAreaType: 'hectare',
         impactedArea: 0.0,
-        currentImpactDamages: '0',
-        estimatedTotalDamages: '0',
+        currentImpactDamages: 0,
+        estimatedTotalDamages: 0,
         systemDateTime: DateTime.now(),
       ),
       ReportType.verkeersongeval => AccidentReport(

@@ -6,6 +6,7 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/widgets/possesion/gewasschade_details.dart';
@@ -33,7 +34,7 @@ class PossesionManager implements PossesionInterface {
 
   @override
   Future<InteractionResponseModel?> postInteraction() async {
-    final InteractionResponseModel? interactionResponseModel = await interactionManager.postInteraction(buildPossionReport());
+    final InteractionResponseModel? interactionResponseModel = await interactionManager.postInteraction(buildPossionReport(), InteractionType.gewasschade);
     
     if(interactionResponseModel != null){
       debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
@@ -51,7 +52,7 @@ class PossesionManager implements PossesionInterface {
       return interactionResponseModel;
     }
     else{
-      null;
+      return null;
     }
   }
 
@@ -174,17 +175,18 @@ class PossesionManager implements PossesionInterface {
       if (impactedArea == null) {
         throw Exception("Invalid impacted area: ${formProvider.impactedArea}");
       }
-
+      String impactedAreaType = formProvider.impactedAreaType;
+      if(impactedAreaType == "vierkante meters"){ impactedAreaType = "square-meters"; }
       final report = PossesionDamageReport(
         possesion: Possesion(
           possesionID: "3c6c44fc-06da-4530-ab27-3974e6090d7d",
           possesionName: formProvider.impactedCrop,
           category: "gewassen",
         ),
-        impactedAreaType: formProvider.impactedAreaType,
+        impactedAreaType: impactedAreaType,
         impactedArea: impactedArea,
-        currentImpactDamages: formProvider.currentDamage.toString(),
-        estimatedTotalDamages: formProvider.expectedDamage.toString(),
+        currentImpactDamages: formProvider.currentDamage,
+        estimatedTotalDamages: formProvider.expectedDamage,
         description: formProvider.description,
         suspectedSpeciesID: formProvider.suspectedSpeciesID,
         userSelectedDateTime: DateTime.now(),

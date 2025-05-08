@@ -16,7 +16,7 @@ class Interaction {
     dynamic jsonReport = report.toJson();
 
     return {
-      "interactionType": interactionType.toString(),
+      "interactionType": interactionType.name,
       "userID": userID,
       "report": jsonReport,
     };

@@ -10,13 +10,13 @@ class Possesion {
   });
 
   Map<String, dynamic> toJson() => {
-    'possesionID': possesionID,
-    'possesionName': possesionName,
+    'ID': possesionID,
+    'name': possesionName,
     'category': category,
   };
     factory Possesion.fromJson(Map<String, dynamic> json) => Possesion(
-      possesionID: json['possesionID'],
-      possesionName: json['possesionName'],
+      possesionID: json['ID'],
+      possesionName: json['name'],
       category: json['category'],
     );
 }
