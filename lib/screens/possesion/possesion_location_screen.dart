@@ -8,6 +8,7 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -120,16 +121,20 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
     
-    InteractionResponseModel interactionResponseModel = await _possesionManager.postInteraction();
+    InteractionResponseModel? interactionResponseModel = await _possesionManager.postInteraction();
 
     if (mounted) {
       navigationManager.pushReplacementForward(
         context,
-        QuestionnaireScreen(questionnaire: await _questionnaireManager.getQuestionnaire(), interactionID: interactionResponseModel.interactionID),
-      );                   //^ replace with interactionResponseModel.questionnaire
-    }
-       mapProvider.resetState();
-
+        interactionResponseModel != null
+          ? QuestionnaireScreen(
+              questionnaire: await _questionnaireManager.getQuestionnaire(),
+              interactionID: interactionResponseModel.interactionID,
+            )
+          : OverzichtScreen(),
+        );
+      }
+    mapProvider.resetState();
   }
 
   @override

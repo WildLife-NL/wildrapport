@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
+import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/possesion_interface.dart';
-import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
-import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/widgets/possesion/gewasschade_details.dart';
@@ -16,8 +15,9 @@ class PossesionManager implements PossesionInterface {
   final InteractionApiInterface interactionAPI;
   final PossesionDamageFormProvider formProvider;
   final MapProvider mapProvider;
+  final InteractionInterface interactionManager;
 
-  PossesionManager(this.interactionAPI, this.formProvider, this.mapProvider);
+  PossesionManager({required this.interactionAPI, required this.formProvider, required this.mapProvider, required this.interactionManager});
 
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -32,26 +32,27 @@ class PossesionManager implements PossesionInterface {
   }
 
   @override
-  Future<InteractionResponseModel> postInteraction() async {
-    final interaction = Interaction(
-      interactionType: InteractionType.gewasschade,
-      userID: "4790e81a-dbfb-4316-9d85-8275de240f01", //Temp because we don't safe user date yet
-      report: buildPossionReport(),
-    );
-    final InteractionResponseModel interactionResponseModel = await interactionAPI.sendInteraction(interaction);
-    debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
+  Future<InteractionResponseModel?> postInteraction() async {
+    final InteractionResponseModel? interactionResponseModel = await interactionManager.postInteraction(buildPossionReport());
     
-    // Add null check before accessing questions
-    if (interactionResponseModel.questionnaire.questions != null && interactionResponseModel.questionnaire.questions!.isNotEmpty) {
-      debugPrint("$greenLog${interactionResponseModel.questionnaire.questions![0].description}");
-    } else {
-      debugPrint("${greenLog}No questions available in questionnaire");
+    if(interactionResponseModel != null){
+      debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
+      
+      // Add null check before accessing questions
+      if (interactionResponseModel.questionnaire.questions != null && interactionResponseModel.questionnaire.questions!.isNotEmpty) {
+        debugPrint("$greenLog${interactionResponseModel.questionnaire.questions![0].description}");
+      } else {
+        debugPrint("${greenLog}No questions available in questionnaire");
+      }
+
+      //Clearing the provider of it's value
+      formProvider.clearStateOfValues(); 
+
+      return interactionResponseModel;
     }
-
-    //Clearing the provider of it's value
-    formProvider.clearStateOfValues(); 
-
-    return interactionResponseModel;
+    else{
+      null;
+    }
   }
 
   @override

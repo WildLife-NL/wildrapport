@@ -6,8 +6,13 @@ class ResponseProvider extends ChangeNotifier {
   String? interactionID;
   String? questionID;
   String? text;
+  Response? response;
 
   final yellowLog = '\x1B[93m';
+
+  void setResponse(Response value){
+    response = value;
+  }
 
   void setAnswerID(String value) {
     debugPrint("$yellowLog [ResponseProvider]: setting the answerID: $value");
@@ -42,6 +47,7 @@ class ResponseProvider extends ChangeNotifier {
   }
 
   void clearResponse() {
+    response = null;
     answerID = null;
     interactionID = null;
     questionID = null;

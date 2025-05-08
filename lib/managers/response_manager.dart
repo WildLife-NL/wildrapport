@@ -4,11 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/interfaces/api/response_api_interface.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 
 class ResponseManager implements ResponseInterface{
   ResponseApiInterface responseAPI;
-  ResponseManager(this.responseAPI);
+  final ResponseProvider responseProvider;
+  ResponseManager({required this.responseAPI, required this.responseProvider});
   final yellowLog = '\x1B[93m';
+  
 
   //Deprecated, won't be suported in final version!
   @override
@@ -23,20 +26,6 @@ class ResponseManager implements ResponseInterface{
 
   @override
   Future<void> storeResponse(Response response, String questionaireID, String questionID) async {
-    debugPrint("$yellowLog [ResponseManager]: Starting storing procedure!");
-    debugPrint("");
-    debugPrint("$yellowLog -----------------------------------------------------------------------------------");
-    debugPrint("$yellowLog Response:");
-    debugPrint("$yellowLog {");
-    debugPrint("$yellowLog  answerID = ${response.answerID}");
-    debugPrint("$yellowLog  interactionID = ${response.interactionID}");
-    debugPrint("$yellowLog  questionID = ${response.questionID}");
-    debugPrint("$yellowLog  text = ${response.text}");
-    debugPrint("$yellowLog }");
-    debugPrint("$yellowLog questionaireID = $questionaireID");
-    debugPrint("$yellowLog questionID = $questionID");
-    debugPrint("$yellowLog -----------------------------------------------------------------------------------");
-    debugPrint("");
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       debugPrint("$yellowLog [ResponseManager]: Getting already stored responses!");
@@ -157,7 +146,7 @@ class ResponseManager implements ResponseInterface{
   }
 
 @override
-Future<void> submitStoredResponses() async {
+Future<void> submitResponses() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<ResponsesListObject>? storedResponsesList = await _getAlreadyStoredresponseListObjects();
 

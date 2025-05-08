@@ -8,7 +8,8 @@ abstract class QuestionnaireInterface {
     Questionnaire questionnaire, 
     String interactionID,
     VoidCallback nextScreen, 
-    VoidCallback previousScreen
+    VoidCallback previousScreen,
+    VoidCallback lastNextScreen,
   );
   int? getAmountOfQuestions(int amount);
 }

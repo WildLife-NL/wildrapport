@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wildrapport/api/response_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
@@ -15,6 +16,7 @@ import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
@@ -25,6 +27,7 @@ import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/managers/animal_manager.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
+import 'package:wildrapport/managers/interaction_manager.dart';
 import 'package:wildrapport/managers/response_manager.dart';
 import 'package:wildrapport/managers/dropdown_manager.dart';
 import 'package:wildrapport/managers/map/location_screen_manager.dart';
@@ -42,6 +45,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 
@@ -70,19 +74,31 @@ void main() async {
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
   final interactionApi = InteractionApi(apiClient);
-
   final questionnaireAPI = QuestionaireApi(apiClient);
-  final answerAPI = ResponseApi(apiClient);    
+  final responseAPI = ResponseApi(apiClient);    
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
   final possesionDamageFormProvider = PossesionDamageFormProvider();
   final mapProvider = MapProvider();
-  final possesionManager = PossesionManager(interactionApi, possesionDamageFormProvider, mapProvider);
+  final responseProvider = ResponseProvider();
+
+  final interactionManager = InteractionManager(interactionAPI: interactionApi);
+  interactionManager.init();
+
+  final possesionManager = PossesionManager(
+    interactionAPI: interactionApi, 
+    formProvider: possesionDamageFormProvider, 
+    mapProvider: mapProvider, 
+    interactionManager: interactionManager
+  );
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
-  final responseManager = ResponseManager(answerAPI);
+  final responseManager = ResponseManager(
+    responseAPI: responseAPI, 
+    responseProvider: responseProvider
+  );
   
   final animalSightingReportingManager = AnimalSightingReportingManager();
   
@@ -91,8 +107,9 @@ void main() async {
 
   // Check for existing token
   final String? token = prefs.getString('bearer_token');
-  final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
 
+  final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
+  
   // Start the app
   runApp(
     MultiProvider(
@@ -100,11 +117,13 @@ void main() async {
           ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
           ChangeNotifierProvider<PossesionDamageFormProvider>.value(value: possesionDamageFormProvider),          
           ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
+          ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<InteractionApiInterface>.value(value: interactionApi),
+        Provider<InteractionInterface>.value(value: interactionManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),

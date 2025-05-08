@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
@@ -43,6 +44,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       });
     }
   }
+  void lastNextScreen(){
+    _responseManager.submitResponses();
+    context.read<NavigationStateInterface>().pushAndRemoveUntil(
+      context,
+      OverzichtScreen(),
+    );
+  }
 
   void previousScreen() {
     debugPrint("Previous Screen");    
@@ -60,6 +68,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             widget.interactionID,
             nextScreen,
             previousScreen,
+            lastNextScreen,
           );
 
     setState(() {

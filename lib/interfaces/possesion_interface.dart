@@ -4,7 +4,7 @@ import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
 abstract class PossesionInterface{
   List<dynamic> buildPossesionWidgetList();
-  Future<InteractionResponseModel> postInteraction();
+  Future<InteractionResponseModel?> postInteraction();
   void updateImpactedCrop(String value);
   void updateCurrentDamage(double value);
   void updateExpectedDamage(double value);

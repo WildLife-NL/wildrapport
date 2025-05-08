@@ -12,9 +12,10 @@ class LoginManager implements LoginInterface {
   bool _showVerification = false;
   bool _isError = false;
   String _errorMessage = '';
+  ProfileApiInterface profileApi;
 
   /// Constructor that initializes the login manager with authentication API
-  LoginManager(this.authApi, ProfileApiInterface profileApi);
+  LoginManager(this.authApi, this.profileApi);
   
   // Email validation regex
   static final _emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
@@ -80,10 +81,12 @@ class LoginManager implements LoginInterface {
   /// Throws specific exceptions based on error type
   @override
   Future<User> verifyCode(String email, String code) async {
-    try{
-      return authApi.authorize(email, code);
-    }
-    catch(e){
+    try {
+      User response = await authApi.authorize(email, code);
+      await profileApi.setProfileDataInDeviceStorage();
+      return response;
+    } 
+    catch (e) {
       // Handle specific error types
       if (e.toString().contains('Unauthorized') || e.toString().contains('401')) {
         throw Exception("Invalid verification code");
@@ -94,7 +97,6 @@ class LoginManager implements LoginInterface {
       throw Exception("Unhandled Unauthorized Exception");
     }
   }
-
 
   /// Resends the verification code to the provided email
   /// Validates email first, then calls the auth API to resend code

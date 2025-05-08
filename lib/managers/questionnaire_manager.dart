@@ -23,12 +23,19 @@ class QuestionnaireManager implements QuestionnaireInterface {
     final Questionnaire questionnaire = await getQuestionnaire();
     final List<Widget> questionnaireWidgets = [];
     questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen));
-    
+    final int lenght = questionnaire.questions!.length;
+
     for (Question question in questionnaire.questions!) {
       debugPrint("Question Description: ${question.description}");
       debugPrint("Allow Open Response: ${question.allowOpenResponse}");
+
+      debugPrint("index: ${question.index}");
+      debugPrint("lenght: $lenght");
+      if(question.index == lenght){
+        debugPrint("CORRECT!");
+      }
+
       if (!question.allowOpenResponse) {
-        debugPrint("index: ${question.index}");
         questionnaireWidgets.add(
           QuestionnaireMultipleChoice(
             question: question,
@@ -64,16 +71,26 @@ class QuestionnaireManager implements QuestionnaireInterface {
   Future<List<dynamic>> buildQuestionnaireLayoutFromExisting(
     Questionnaire questionnaire, 
     String interactionID,
-    VoidCallback nextScreen, 
-    VoidCallback previousScreen
+    VoidCallback nextScreen,
+    VoidCallback lastNextScreen, 
+    VoidCallback previousScreen,
   ) async {
     final List<Widget> questionnaireWidgets = [];
     questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen));
-    
+
+    final int lenght = questionnaire.questions!.length;
+
     if (questionnaire.questions != null) {
       for (Question question in questionnaire.questions!) {
         debugPrint("Question Description: ${question.description}");
         debugPrint("Allow Open Response: ${question.allowOpenResponse}");
+        
+      debugPrint("index: ${question.index}");
+      debugPrint("lenght: $lenght");
+      if(question.index == lenght){
+        nextScreen = lastNextScreen;
+      }
+
         if (!question.allowOpenResponse) {
           debugPrint("index: ${question.index}");
           questionnaireWidgets.add(
