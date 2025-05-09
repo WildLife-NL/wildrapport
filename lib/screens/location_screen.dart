@@ -195,7 +195,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 // Check if questionnaire has valid content
                 if (responseModel.questionnaire.questions == null || responseModel.questionnaire.questions!.isEmpty) {
                   debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
-                  // Navigate back to Rapporteren if no questions
+                  // Navigate back to Rapporteren if no questions, using pushAndRemoveUntil
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -203,7 +203,10 @@ class _LocationScreenState extends State<LocationScreen> {
                         backgroundColor: Colors.orange,
                       ),
                     );
-                    context.read<NavigationStateInterface>().pushReplacementBack(context, const Rapporteren());
+                    context.read<NavigationStateInterface>().pushAndRemoveUntil(
+                      context, 
+                      const Rapporteren()
+                    );
                   }
                 } else {
                   debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m');
@@ -263,6 +266,8 @@ Future<InteractionResponse?> submitReport(BuildContext context) async {
     rethrow;
   }
 }
+
+
 
 
 
