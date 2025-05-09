@@ -211,12 +211,13 @@ Future<InteractionResponse?> submitReport(BuildContext context) async {
         debugPrint('\x1B[33m[LocationScreen] Questionnaire has no questions\x1B[0m');
       }
     }
-    return null;
+    return response;  // Return the response instead of null
   } catch (e) {
     // Error handling...
     rethrow;
   }
 }
+
 
 
 
