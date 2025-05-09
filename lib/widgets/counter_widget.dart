@@ -104,6 +104,7 @@ class AnimalCounterState extends State<AnimalCounter> {
               onTap: () {
                 setState(() {
                   _isEditing = true;
+                  _controller.text = ""; // Clear the text when starting to edit
                 });
               },
               child: Container(
@@ -210,6 +211,8 @@ class AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
+
 
 
 

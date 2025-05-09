@@ -106,9 +106,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
     final genderIndex = updatedGenderViewCounts.indexWhere((gvc) => gvc.gender == selectedAnimalGender);
 
     if (genderIndex != -1) {
+      // Existing gender found - preserve other age values
       final existingGVC = updatedGenderViewCounts[genderIndex];
       final viewCount = existingGVC.viewCount;
 
+      // Create updated view count preserving other age values
       final updatedViewCount = ViewCountModel(
         pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : viewCount.pasGeborenAmount,
         onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : viewCount.onvolwassenAmount,
@@ -121,6 +123,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
         viewCount: updatedViewCount,
       );
     } else {
+      // New gender - create new entry
       final newViewCount = ViewCountModel(
         pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : 0,
         onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : 0,
@@ -135,6 +138,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
         ),
       );
     }
+    
+    // Reset selections after adding
+    setState(() {
+      selectedAge = null;
+      selectedGender = null;
+    });
 
     final updatedAnimal = AnimalModel(
       animalId: currentAnimal.animalId,
@@ -378,5 +387,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
            (genderVC.viewCount.unknownAmount > 0);
   }
 }
+
 
 
