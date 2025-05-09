@@ -124,7 +124,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       _animalManager,
     );
     
-    _navigationManager.pushReplacementForward(
+    _navigationManager.pushForward(
       context,
       AnimalCountingScreen(),
     );
@@ -179,6 +179,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     );
   }
 }
+
 
 
 

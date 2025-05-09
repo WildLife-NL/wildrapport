@@ -374,6 +374,8 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             ),
             const SizedBox(height: 20),
             TimeSelectionRow(
+              initialSelection: context.read<LocationScreenInterface>().selectedDateTime,
+              initialDate: context.read<LocationScreenInterface>().customDateTime,
               onOptionSelected: (selectedOption) {
                 final locationManager = context.read<LocationScreenInterface>();
                 if (locationManager is LocationScreenManager) {

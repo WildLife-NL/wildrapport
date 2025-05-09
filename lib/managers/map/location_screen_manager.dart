@@ -36,6 +36,9 @@ class LocationScreenManager implements LocationScreenInterface {
   String get currentLocationText => _currentLocationText;
 
   @override
+  DateTime? get customDateTime => _customDateTime;
+
+  @override
   Future<void> handleNextPressed(BuildContext context) async {
     await getLocationAndDateTime(context);
   }
@@ -158,6 +161,7 @@ class LocationScreenManager implements LocationScreenInterface {
     }
   }
 }
+
 
 
 

@@ -6,14 +6,17 @@ import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/managers/map/location_screen_manager.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
+import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/screens/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
@@ -54,9 +57,52 @@ class _LocationScreenState extends State<LocationScreen> {
       bottomNavigationBar: SizedBox(
         height: 60, // Constrain height to avoid SnackBar overlap
         child: CustomBottomAppBar(
-          onBackPressed: () => context
-              .read<NavigationStateInterface>()
-              .pushReplacementBack(context, const Rapporteren()),
+          onBackPressed: () async {
+            // Save the current location and datetime information before navigating back
+            final locationManager = context.read<LocationScreenInterface>();
+            final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+            
+            try {
+              // Get current location and datetime information
+              final locationInfo = await locationManager.getLocationAndDateTime(context);
+              
+              // Save datetime if available
+              if (locationInfo['dateTime'] != null && 
+                  locationInfo['dateTime']['dateTime'] != null) {
+                final dateTimeStr = locationInfo['dateTime']['dateTime'];
+                final dateTime = DateTime.parse(dateTimeStr);
+                animalSightingManager.updateDateTime(dateTime);
+                
+                // Also save the datetime type
+                if (locationManager is LocationScreenManager) {
+                  final dateTimeType = locationInfo['dateTime']['type'];
+                  if (dateTimeType == 'current') {
+                    locationManager.updateDateTime(DateTimeType.current.displayText);
+                  } else if (dateTimeType == 'unknown') {
+                    locationManager.updateDateTime(DateTimeType.unknown.displayText);
+                  } else if (dateTimeType == 'custom' && dateTime != null) {
+                    locationManager.updateDateTime(DateTimeType.custom.displayText, date: dateTime);
+                  }
+                }
+              }
+              
+              // Save location if available
+              if (locationInfo['selectedLocation'] != null) {
+                final userLocation = LocationModel(
+                  latitude: locationInfo['selectedLocation']['latitude'],
+                  longitude: locationInfo['selectedLocation']['longitude'],
+                  source: LocationSource.manual,
+                );
+                animalSightingManager.updateLocation(userLocation);
+              }
+            } catch (e) {
+              debugPrint('\x1B[31m[LocationScreen] Error saving state before navigation: $e\x1B[0m');
+            }
+            
+            // Navigate back to the AnimalListOverviewScreen
+            context.read<NavigationStateInterface>()
+                .pushReplacementBack(context, AnimalListOverviewScreen());
+          },
           onNextPressed: () async {
             final animalSightingManager = context.read<AnimalSightingReportingInterface>();
             final locationManager = context.read<LocationScreenInterface>();
@@ -217,6 +263,12 @@ Future<InteractionResponse?> submitReport(BuildContext context) async {
     rethrow;
   }
 }
+
+
+
+
+
+
 
 
 

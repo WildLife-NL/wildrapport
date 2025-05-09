@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/location_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -31,9 +32,9 @@ class AnimalListOverviewScreen extends StatelessWidget {
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
                 final navigationManager = context.read<NavigationStateInterface>();
-                navigationManager.pushReplacementBack(
+                navigationManager.pushAndRemoveUntil(
                   context,
-                  const Rapporteren(),
+                  const AnimalCountingScreen(),
                 );
               },
               onRightIconPressed: () {
@@ -75,9 +76,9 @@ class AnimalListOverviewScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           final navigationManager = context.read<NavigationStateInterface>();
-          navigationManager.pushReplacementBack(
+          navigationManager.pushAndRemoveUntil(
             context,
-            const Rapporteren(),
+            const AnimalCountingScreen(),
           );
         },
         onNextPressed: () async {
@@ -105,12 +106,16 @@ class AnimalListOverviewScreen extends StatelessWidget {
             );
           }
         },
-        showBackButton: false,
+        showBackButton: true,
         showNextButton: true,
       ),
     );
   }
 }
+
+
+
+
 
 
 
