@@ -25,13 +25,13 @@ class ProfileApi implements ProfileApiInterface {
 
     if(response.statusCode == HttpStatus.ok) {
       json = jsonDecode(response.body);
-      await _setTheProfileData(ProfileModel.fromJson(json!));
+      await _setTheProfileData(Profile.fromJson(json!));
     }
     else{
       throw Exception(json ?? "$redLog Failed to get profile data!");
     }   
   }
-  Future<void> _setTheProfileData(ProfileModel profile) async {
+  Future<void> _setTheProfileData(Profile profile) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString("userID", profile.userID);
       await prefs.setString("email", profile.email);

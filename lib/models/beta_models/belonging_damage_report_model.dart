@@ -3,7 +3,7 @@ import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
-class PossesionDamageReport implements Reportable, PossesionReportFields{
+class BelongingDamageReport implements Reportable, PossesionReportFields{
   final String? possesionDamageReportID;
   @override
   final Possesion possesion;
@@ -28,7 +28,7 @@ class PossesionDamageReport implements Reportable, PossesionReportFields{
   @override
   final DateTime systemDateTime; 
 
-  PossesionDamageReport({
+  BelongingDamageReport({
     this.possesionDamageReportID,
     required this.possesion,
     required this.impactedAreaType,
@@ -61,7 +61,7 @@ class PossesionDamageReport implements Reportable, PossesionReportFields{
     "systemDateTime": systemDateTime.toIso8601String(),
   };
 
-factory PossesionDamageReport.fromJson(Map<String, dynamic> json) => PossesionDamageReport(
+factory BelongingDamageReport.fromJson(Map<String, dynamic> json) => BelongingDamageReport(
   possesionDamageReportID: json["possesionDamageReportID"],
   possesion: Possesion.fromJson(json["belonging"]),
   impactedAreaType: json["impactType"],

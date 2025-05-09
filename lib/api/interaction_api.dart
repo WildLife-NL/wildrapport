@@ -137,7 +137,7 @@ class InteractionApi implements InteractionApiInterface {
   }
 
   @override
-  Future<InteractionResponseModel> sendInteraction(Interaction interaction) async {
+  Future<InteractionResponse> sendInteraction(Interaction interaction) async {
     try {
       debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
       http.Response response;
@@ -234,7 +234,7 @@ class InteractionApi implements InteractionApiInterface {
         }
 
         try {
-          return InteractionResponseModel(questionnaire: Questionnaire.fromJson(questionnaireJson), interactionID: interactionID);
+          return InteractionResponse(questionnaire: Questionnaire.fromJson(questionnaireJson), interactionID: interactionID);
         } catch (e) {
           debugPrint("$redLog Error parsing questionnaire: $e");
           throw Exception("Invalid questionnaire format: $e");

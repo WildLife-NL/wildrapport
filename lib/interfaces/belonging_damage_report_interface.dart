@@ -1,10 +1,10 @@
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
+import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
-abstract class PossesionInterface{
+abstract class BelongingDamageReportInterface{
   List<dynamic> buildPossesionWidgetList();
-  Future<InteractionResponseModel?> postInteraction();
+  Future<InteractionResponse?> postInteraction();
   void updateImpactedCrop(String value);
   void updateCurrentDamage(double value);
   void updateExpectedDamage(double value);
@@ -14,5 +14,5 @@ abstract class PossesionInterface{
   void updateSuspectedAnimal(String value);
   void updateSystemLocation(ReportLocation value);
   void updateUserLocation(ReportLocation value);
-  PossesionDamageReport buildPossionReport();
+  BelongingDamageReport buildBelongingReport();
 }

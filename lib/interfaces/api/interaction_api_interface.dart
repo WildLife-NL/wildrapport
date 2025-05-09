@@ -4,5 +4,5 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 
 abstract class InteractionApiInterface {
   Future<Questionnaire> sendInteractionDeprecated(Interaction interaction); //Deprecated!
-  Future<InteractionResponseModel> sendInteraction(Interaction interaction);
+  Future<InteractionResponse> sendInteraction(Interaction interaction);
 }

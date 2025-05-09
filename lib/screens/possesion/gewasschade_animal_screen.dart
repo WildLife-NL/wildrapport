@@ -25,7 +25,7 @@ class GewasschadeAnimalScreen extends StatefulWidget {
 
 class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
   final ScrollController _scrollController = ScrollController();
-  late final PossesionDamageFormProvider _possesionDamageFormProvider;
+  late final BelongingDamageReportProvider _possesionDamageFormProvider;
   bool _isExpanded = false;
   List<AnimalModel> _animals = [];
   bool _isLoading = true;
@@ -33,7 +33,7 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
   @override
   void initState() {
     super.initState();
-    _possesionDamageFormProvider = context.read<PossesionDamageFormProvider>();
+    _possesionDamageFormProvider = context.read<BelongingDamageReportProvider>();
     _loadAnimals();
   }
 

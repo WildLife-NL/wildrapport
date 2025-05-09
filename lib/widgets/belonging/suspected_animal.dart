@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 
@@ -12,12 +12,12 @@ class SuspectedAnimal extends StatefulWidget{
 }
 
 class _SuspectedAnimalState extends State<SuspectedAnimal> {
-  late final PossesionInterface _possesionManager;
+  late final BelongingDamageReportInterface _possesionManager;
 
   @override
   void initState() {
     super.initState();
-    _possesionManager = context.read<PossesionInterface>();    
+    _possesionManager = context.read<BelongingDamageReportInterface>();    
   }
   Future<dynamic> pressed(String animalType){
     _possesionManager.updateSuspectedAnimal(animalType);

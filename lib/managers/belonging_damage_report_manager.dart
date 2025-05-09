@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
-import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
+import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/widgets/possesion/gewasschade_details.dart';
+import 'package:wildrapport/widgets/possesion/belonging_crops_details.dart';
 import 'package:wildrapport/widgets/possesion/suspected_animal.dart';
 
-class PossesionManager implements PossesionInterface {
+class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionApiInterface interactionAPI;
-  final PossesionDamageFormProvider formProvider;
+  final BelongingDamageReportProvider formProvider;
   final MapProvider mapProvider;
   final InteractionInterface interactionManager;
 
-  PossesionManager({required this.interactionAPI, required this.formProvider, required this.mapProvider, required this.interactionManager});
+  BelongingDamageReportManager({required this.interactionAPI, required this.formProvider, required this.mapProvider, required this.interactionManager});
 
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -27,14 +27,14 @@ class PossesionManager implements PossesionInterface {
   @override
   List<dynamic> buildPossesionWidgetList() {
     return [
-      GewasschadeDetails(),
+      BelongingCropsDetails(),
       SuspectedAnimal(),
     ];
   }
 
   @override
-  Future<InteractionResponseModel?> postInteraction() async {
-    final InteractionResponseModel? interactionResponseModel = await interactionManager.postInteraction(buildPossionReport(), InteractionType.gewasschade);
+  Future<InteractionResponse?> postInteraction() async {
+    final InteractionResponse? interactionResponseModel = await interactionManager.postInteraction(buildBelongingReport(), InteractionType.gewasschade);
     
     if(interactionResponseModel != null){
       debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
@@ -139,7 +139,7 @@ class PossesionManager implements PossesionInterface {
     }
 
   @override
-  PossesionDamageReport buildPossionReport() {
+  BelongingDamageReport buildBelongingReport() {
     debugPrint("✅ buildReportTesting called");
     try {
       // Log provider state
@@ -177,7 +177,7 @@ class PossesionManager implements PossesionInterface {
       }
       String impactedAreaType = formProvider.impactedAreaType;
       if(impactedAreaType == "vierkante meters"){ impactedAreaType = "square-meters"; }
-      final report = PossesionDamageReport(
+      final report = BelongingDamageReport(
         possesion: Possesion(
           possesionID: "3c6c44fc-06da-4530-ab27-3974e6090d7d",
           possesionName: formProvider.impactedCrop,

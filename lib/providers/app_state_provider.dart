@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/accident_report_model.dart';
-import 'package:wildrapport/models/beta_models/possesion_damage_report_model.dart';
+import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
@@ -75,7 +75,7 @@ class AppStateProvider with ChangeNotifier {
     _currentReportType = reportType;
     final report = switch (reportType) {
       ReportType.waarneming => SightingReport(animals: [], systemDateTime: DateTime.now()),
-      ReportType.gewasschade => PossesionDamageReport(
+      ReportType.gewasschade => BelongingDamageReport(
         possesion: Possesion(possesionName: ''),
         impactedAreaType: 'hectare',
         impactedArea: 0.0,

@@ -1,13 +1,13 @@
 import 'package:wildrapport/models/api_models/questionaire.dart';
 
-class InteractionResponseModel {
+class InteractionResponse {
   Questionnaire questionnaire;
   String interactionID;
-  InteractionResponseModel({
+  InteractionResponse({
     required this.questionnaire,
     required this.interactionID,
   });
-  factory InteractionResponseModel.fromJson(Map<String, dynamic> json) => InteractionResponseModel(
+  factory InteractionResponse.fromJson(Map<String, dynamic> json) => InteractionResponse(
     questionnaire: Questionnaire.fromJson(json["questionnaire"]),
     interactionID: json["interactionID"],
   );

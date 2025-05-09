@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 
-class PossesionDropdown extends StatefulWidget {
+class BelongingDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final String getSelectedValue;
   final String getSelectedText;
@@ -18,7 +18,7 @@ class PossesionDropdown extends StatefulWidget {
   final bool useIcons;
   final ValueChanged<bool>? onDropdownToggle; // Added the callback here
 
-  const PossesionDropdown({
+  const BelongingDropdown({
     super.key,
     this.onChanged,
     required this.getSelectedValue,
@@ -36,10 +36,10 @@ class PossesionDropdown extends StatefulWidget {
   });
 
   @override
-  State<PossesionDropdown> createState() => _PossesionDropdownState();
+  State<BelongingDropdown> createState() => _BelongingDropdownState();
 }
 
-class _PossesionDropdownState extends State<PossesionDropdown> {
+class _BelongingDropdownState extends State<BelongingDropdown> {
   bool isExpanded = false;
   late String selectedValue;
   late String selectedText;
@@ -57,7 +57,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
-  late final PossesionDamageFormProvider formProvider;
+  late final BelongingDamageReportProvider formProvider;
 
   @override
   void initState() {
@@ -69,7 +69,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
     formProvider.addListener(_onFormProviderChanged);
   }
 
@@ -84,7 +84,7 @@ class _PossesionDropdownState extends State<PossesionDropdown> {
 }
 
   @override
-  void didUpdateWidget(covariant PossesionDropdown oldWidget) {
+  void didUpdateWidget(covariant BelongingDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.getSelectedValue != oldWidget.getSelectedValue && widget.getSelectedValue.isNotEmpty) {
       selectedValue = widget.getSelectedValue;

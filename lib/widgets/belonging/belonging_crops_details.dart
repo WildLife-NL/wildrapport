@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/widgets/possesion/possesion_dropdown.dart';
+import 'package:wildrapport/widgets/possesion/belonging_dropdown.dart';
 
-class GewasschadeDetails extends StatefulWidget {
-  const GewasschadeDetails({super.key});
+class BelongingCropsDetails extends StatefulWidget {
+  const BelongingCropsDetails({super.key});
 
   @override
-  State<GewasschadeDetails> createState() => _GewasschadeDetailsState();
+  State<BelongingCropsDetails> createState() => _BelongingCropsDetailsState();
 }
 
-class _GewasschadeDetailsState extends State<GewasschadeDetails> {
+class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
   final TextEditingController _responseController = TextEditingController();
-  late final PossesionInterface _possesionManager;
+  late final BelongingDamageReportInterface _belongingDamageReportManager;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
@@ -23,7 +23,7 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   @override
   void initState() {
     super.initState();
-    _possesionManager = context.read<PossesionInterface>();
+    _belongingDamageReportManager = context.read<BelongingDamageReportInterface>();
 
     // Initialize the controller with the value from the provider
     _responseController.text = formatImpactAreaString();  }
@@ -34,16 +34,16 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
   }
 
   String formatImpactAreaString(){
-    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
-    debugPrint(formProvider.impactedAreaType);
+    final belongingDamageReportProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
+    debugPrint(belongingDamageReportProvider.impactedAreaType);
     try{
-      if(formProvider.impactedAreaType.isNotEmpty && formProvider.impactedAreaType == "hectare"){
+      if(belongingDamageReportProvider.impactedAreaType.isNotEmpty && belongingDamageReportProvider.impactedAreaType == "hectare"){
         debugPrint("FIRST");
-        return formProvider.impactedArea?.toString() ?? '';
+        return belongingDamageReportProvider.impactedArea?.toString() ?? '';
       }
       else{
         debugPrint("SECOND");
-        return formProvider.impactedArea?.toInt().toString() ?? '';
+        return belongingDamageReportProvider.impactedArea?.toInt().toString() ?? '';
       }
     }catch(e, stackTrace){
       debugPrint("Message: ${e.toString()}");
@@ -54,21 +54,21 @@ class _GewasschadeDetailsState extends State<GewasschadeDetails> {
 
 void convertImpactArea(String value) {
   debugPrint("convertImpactArea: value = $value");
-  final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+  final belongingDamageReportProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
 
-  if (formProvider.impactedAreaType.isNotEmpty &&
-      formProvider.impactedArea != null &&
-      formProvider.impactedAreaType != value) {
+  if (belongingDamageReportProvider.impactedAreaType.isNotEmpty &&
+      belongingDamageReportProvider.impactedArea != null &&
+      belongingDamageReportProvider.impactedAreaType != value) {
     switch (value) {
       case "vierkante meters":
-        formProvider.setImpactedArea(formProvider.impactedArea! * 10000);
+        belongingDamageReportProvider.setImpactedArea(belongingDamageReportProvider.impactedArea! * 10000);
         break;
       case "hectare":
-        formProvider.setImpactedArea(formProvider.impactedArea! / 10000);
+        belongingDamageReportProvider.setImpactedArea(belongingDamageReportProvider.impactedArea! / 10000);
         break;
     }
 
-    final impacted = formProvider.impactedArea!;
+    final impacted = belongingDamageReportProvider.impactedArea!;
     if (impacted == impacted.roundToDouble()) {
       _responseController.text = impacted.round().toString();
     } else {
@@ -80,14 +80,14 @@ void convertImpactArea(String value) {
   @override
   Widget build(BuildContext context) {
     final euroFormat = NumberFormat.currency(locale: 'nl_NL', symbol: '€', decimalDigits: 0);
-    final formProvider = Provider.of<PossesionDamageFormProvider>(context);
+    final belongingDamageReportProvider = Provider.of<BelongingDamageReportProvider>(context);
 
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
         debugPrint("$greenLog [GewasschadeDetails]: Line 47");
-        formProvider.updateExpanded(true);
+        belongingDamageReportProvider.updateExpanded(true);
         FocusScope.of(context).unfocus();
       }, 
     child: SingleChildScrollView(
@@ -97,13 +97,13 @@ void convertImpactArea(String value) {
         Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PossesionDropdown(
+          BelongingDropdown(
             onChanged: (value) { 
-              _possesionManager.updateImpactedCrop(value); 
-              formProvider.setErrorState("impactedCrop", false);
+              _belongingDamageReportManager.updateImpactedCrop(value); 
+              belongingDamageReportProvider.setErrorState("impactedCrop", false);
               },
-            getSelectedValue: formProvider.impactedCrop,
-            getSelectedText: capitalize(formProvider.impactedCrop),
+            getSelectedValue: belongingDamageReportProvider.impactedCrop,
+            getSelectedText: capitalize(belongingDamageReportProvider.impactedCrop),
             dropdownItems: [
               {'text': 'Mais', 'value': 'mais'},
               {'text': 'Bieten', 'value': 'bieten'},
@@ -118,25 +118,25 @@ void convertImpactArea(String value) {
             startingValue: "mais",
             defaultValue: "Kies Gewas",
             hasDropdownSideDescription: false,
-            hasError: formProvider.hasErrorImpactedCrop,
+            hasError: belongingDamageReportProvider.hasErrorImpactedCrop,
             useIcons: true,
           ),
           const SizedBox(height: 10),
 
-          PossesionDropdown(
+          BelongingDropdown(
             onChanged: (value) {
               // Update the impacted area type
               switch(value){
                 case "vierkante meters":
-                  formProvider.updateSelectedText("m2");
+                  belongingDamageReportProvider.updateSelectedText("m2");
                 case "hectare":
-                  formProvider.updateSelectedText("ha");
+                  belongingDamageReportProvider.updateSelectedText("ha");
                 default:
-                  formProvider.updateSelectedText("Type");
+                  belongingDamageReportProvider.updateSelectedText("Type");
               }
               convertImpactArea(value);
-              _possesionManager.updateImpactedAreaType(value);
-              formProvider.setErrorState("impactedAreaType", false);
+              _belongingDamageReportManager.updateImpactedAreaType(value);
+              belongingDamageReportProvider.setErrorState("impactedAreaType", false);
 
               // If impactedArea is not null or empty, validate the input
               if (_responseController.text.isNotEmpty) {
@@ -168,23 +168,23 @@ void convertImpactArea(String value) {
                   debugPrint("$yellowLog is valid = $isValid");
                   debugPrint("$yellowLog parsed = $parsed");
 
-                  _possesionManager.updateImpactedArea(parsed!);
-                  formProvider.setHasErrorImpactedArea(false); // Clear error in provider
-                  formProvider.resetInputErrorImpactArea();
+                  _belongingDamageReportManager.updateImpactedArea(parsed!);
+                  belongingDamageReportProvider.setHasErrorImpactedArea(false); // Clear error in provider
+                  belongingDamageReportProvider.resetInputErrorImpactArea();
                   
-                  debugPrint("$yellowLog ErrorImpactedArea = ${formProvider.hasErrorImpactedArea}");
+                  debugPrint("$yellowLog ErrorImpactedArea = ${belongingDamageReportProvider.hasErrorImpactedArea}");
                 } else {
                   setState(() {
-                    formProvider.updateInputErrorImpactArea(areaType == "vierkante meters"
+                    belongingDamageReportProvider.updateInputErrorImpactArea(areaType == "vierkante meters"
                         ? "Alleen gehele getallen toegestaan"
                         : "Gebruik een geldig getal (bv. 1,5 of 1.5)");
                   });
-                  formProvider.setHasErrorImpactedArea(true); // Set error in provider
+                  belongingDamageReportProvider.setHasErrorImpactedArea(true); // Set error in provider
                 }
               }
             },
-            getSelectedValue: formProvider.impactedAreaType,
-            getSelectedText: formProvider.selectedText ?? "Type",
+            getSelectedValue: belongingDamageReportProvider.impactedAreaType,
+            getSelectedText: belongingDamageReportProvider.selectedText ?? "Type",
             dropdownItems: [
               {'text': 'ha', 'value': 'hectare'},
               {'text': 'm2', 'value': 'vierkante meters'},
@@ -193,7 +193,7 @@ void convertImpactArea(String value) {
             defaultValue: "Type",
             hasDropdownSideDescription: true,
             dropdownSideDescriptionText: "Getroffen Gebied",
-            hasError: formProvider.hasErrorImpactedAreaType,
+            hasError: belongingDamageReportProvider.hasErrorImpactedAreaType,
             useIcons: false,
           ),
           
@@ -217,7 +217,7 @@ void convertImpactArea(String value) {
                     controller: _responseController,
                     onChanged: (value) {
                       debugPrint(value);
-                      final areaType = formProvider.impactedAreaType;
+                      final areaType = belongingDamageReportProvider.impactedAreaType;
                       String cleanedValue = value.replaceAll(',', '.');
 
                       bool isValid = false;
@@ -241,28 +241,28 @@ void convertImpactArea(String value) {
 
                       if (isValid) {
                         setState(() {
-                          formProvider.resetInputErrorImpactArea(); // Clear the error if the input is valid
+                          belongingDamageReportProvider.resetInputErrorImpactArea(); // Clear the error if the input is valid
                         });
-                        _possesionManager.updateImpactedArea(parsed!);
-                        formProvider.setHasErrorImpactedArea(false); // Clear error in provider
+                        _belongingDamageReportManager.updateImpactedArea(parsed!);
+                        belongingDamageReportProvider.setHasErrorImpactedArea(false); // Clear error in provider
                       } else {
                         // Only show 'This field is required' when input is empty
                         setState(() {
                           if (value.isNotEmpty && areaType != "vierkante meters" && areaType != "hectare"){
                             debugPrint("$greenLog [GewasschadeDetails]: Line 198");
-                            formProvider.updateInputErrorImpactArea("Vul Getroffen Gebied in");
+                            belongingDamageReportProvider.updateInputErrorImpactArea("Vul Getroffen Gebied in");
                           }
                           else if (value.isEmpty) {
                             debugPrint("$greenLog [GewasschadeDetails]: Line 197, value = $value");
-                            formProvider.resetImpactedArea();
-                            formProvider.updateInputErrorImpactArea("This field is required"); // Show error if the input is empty
+                            belongingDamageReportProvider.resetImpactedArea();
+                            belongingDamageReportProvider.updateInputErrorImpactArea("This field is required"); // Show error if the input is empty
                           } else {
-                            formProvider.updateInputErrorImpactArea(areaType == "vierkante meters"
+                            belongingDamageReportProvider.updateInputErrorImpactArea(areaType == "vierkante meters"
                                 ? "Alleen gehele getallen toegestaan"
                                 : "Gebruik een geldig getal (bv. 1,5 of 1.5)");
                           }
                         });
-                        formProvider.setHasErrorImpactedArea(true); // Set error in provider
+                        belongingDamageReportProvider.setHasErrorImpactedArea(true); // Set error in provider
                       }
                     },
                     keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -272,19 +272,19 @@ void convertImpactArea(String value) {
                       hintText: 'hoe groot',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                        borderSide: (formProvider.inputErrorImpactArea != null || formProvider.hasErrorImpactedArea)
+                        borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null || belongingDamageReportProvider.hasErrorImpactedArea)
                             ? const BorderSide(color: Colors.red, width: 2.0)
                             : BorderSide.none,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                        borderSide: (formProvider.inputErrorImpactArea != null || formProvider.hasErrorImpactedArea)
+                        borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null || belongingDamageReportProvider.hasErrorImpactedArea)
                             ? const BorderSide(color: Colors.red, width: 2.0)
                             : BorderSide.none,
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                        borderSide: (formProvider.inputErrorImpactArea != null || formProvider.hasErrorImpactedArea)
+                        borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null || belongingDamageReportProvider.hasErrorImpactedArea)
                             ? const BorderSide(color: Colors.red, width: 2.0)
                             : BorderSide.none,
                       ),
@@ -296,9 +296,9 @@ void convertImpactArea(String value) {
                   ),
                 ),
                 const SizedBox(height: 5),
-                formProvider.hasErrorImpactedArea
+                belongingDamageReportProvider.hasErrorImpactedArea
                   ? Text(
-                      formProvider.inputErrorImpactArea ?? 'This field is required',
+                      belongingDamageReportProvider.inputErrorImpactArea ?? 'This field is required',
                       style: TextStyle(color: Colors.red, fontSize: 12),
                     )
                   : const SizedBox.shrink(), // invisible when no error
@@ -309,7 +309,7 @@ void convertImpactArea(String value) {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
-              "Geschatte huidige schade: ${euroFormat.format(formProvider.currentDamage)}",
+              "Geschatte huidige schade: ${euroFormat.format(belongingDamageReportProvider.currentDamage)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -328,12 +328,12 @@ void convertImpactArea(String value) {
                 ],
               ),
               child: Slider(
-                value: formProvider.currentDamage,
-                onChanged: (value) => _possesionManager.updateCurrentDamage(value),
+                value: belongingDamageReportProvider.currentDamage,
+                onChanged: (value) => _belongingDamageReportManager.updateCurrentDamage(value),
                 min: 0,
                 max: 10000,
                 divisions: 1000, // so each step is €10
-                label: formProvider.currentDamage.round().toString(),
+                label: belongingDamageReportProvider.currentDamage.round().toString(),
                 activeColor: AppColors.brown,
               ),
             ),
@@ -342,7 +342,7 @@ void convertImpactArea(String value) {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
-              "Verwachte toekomstige schade: ${euroFormat.format(formProvider.expectedDamage)}",
+              "Verwachte toekomstige schade: ${euroFormat.format(belongingDamageReportProvider.expectedDamage)}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -361,12 +361,12 @@ void convertImpactArea(String value) {
                 ],
               ),
               child: Slider(
-                value: formProvider.expectedDamage,
-                onChanged: (value) => _possesionManager.updateExpectedDamage(value),
+                value: belongingDamageReportProvider.expectedDamage,
+                onChanged: (value) => _belongingDamageReportManager.updateExpectedDamage(value),
                 min: 0,
                 max: 10000,
                 divisions: 1000, // so each step is €10
-                label: formProvider.expectedDamage.round().toString(),
+                label: belongingDamageReportProvider.expectedDamage.round().toString(),
                 activeColor: AppColors.brown,
               ),
             ),
@@ -385,7 +385,7 @@ void convertImpactArea(String value) {
                 ],
               ),
               child: TextField(
-                onChanged: (val) => _possesionManager.updateDescription(val),
+                onChanged: (val) => _belongingDamageReportManager.updateDescription(val),
                 maxLines: 5,
                 decoration: InputDecoration(
                   filled: true,
@@ -407,6 +407,3 @@ void convertImpactArea(String value) {
     );
   }
 }
-
-
-

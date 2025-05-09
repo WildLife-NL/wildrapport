@@ -1,11 +1,11 @@
-class ProfileModel {
+class Profile {
   String userID;
   String email;
   String? gender;
   String userName;
   String? postcode;
 
-  ProfileModel({
+  Profile({
     required this.userID,
     required this.email,
     this.gender,
@@ -19,7 +19,7 @@ class ProfileModel {
     'name': userName,
     'postcode': postcode,
   };
-    factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
+    factory Profile.fromJson(Map<String, dynamic> json) => Profile(
       userID: json['ID'],
       email: json['email'],
       gender: json['gender'],

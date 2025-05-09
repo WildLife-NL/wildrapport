@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
-class PossesionDamageFormProvider extends ChangeNotifier {
+class BelongingDamageReportProvider extends ChangeNotifier {
   String impactedCrop = '';
   double currentDamage = 0;
   double expectedDamage = 0;

@@ -10,6 +10,7 @@ import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
+import 'package:wildrapport/utils/connection_checker.dart';
 
 class InteractionManager implements InteractionInterface{
   final InteractionApiInterface interactionAPI;
@@ -44,15 +45,6 @@ class InteractionManager implements InteractionInterface{
       debugPrint('No internet connection – future data will be cached.');
     }
   }
-  Future<bool> _hasInternetConnection() async {
-    try {
-      final response = await http.get(Uri.parse('https://clients3.google.com/generate_204'))
-          .timeout(const Duration(seconds: 3));
-      return response.statusCode == 204;
-    } catch (_) {
-      return false;
-    }
-  }
 
   void _scheduleRetryUntilSuccess() {
   if (_isRetryingSend) return;
@@ -63,7 +55,7 @@ class InteractionManager implements InteractionInterface{
 
 void _retryLoop() async {
   while (true) {
-    bool hasConnection = await _hasInternetConnection();
+    bool hasConnection = await ConnectionChecker.hasInternetConnection();
     if (hasConnection) {
       try {
         await _trySendCachedData();
@@ -81,7 +73,7 @@ void _retryLoop() async {
 }
 
   Future<void> _trySendCachedData() async {
-    if (!await _hasInternetConnection()) {
+    if (!await ConnectionChecker.hasInternetConnection()) {
       debugPrint("$yellowLog Internet not fully ready. Retry later.");
       _scheduleRetryUntilSuccess();
       return;
@@ -131,7 +123,7 @@ void _retryLoop() async {
   }
 
   @override
-  Future<InteractionResponseModel?> postInteraction(Reportable report, InteractionType type) async {
+  Future<InteractionResponse?> postInteraction(Reportable report, InteractionType type) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userID = prefs.getString("userID");
 

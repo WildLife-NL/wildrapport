@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
@@ -24,13 +24,13 @@ class PossesionLocationScreen extends StatefulWidget {
 }
 
 class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
-  late final PossesionInterface _possesionManager;
+  late final BelongingDamageReportInterface _possesionManager;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
   final blueLog = '\x1B[34m';
   final purpleLog = '\x1B[35m';
-  late final PossesionDamageFormProvider possesionProvider;
+  late final BelongingDamageReportProvider possesionProvider;
   late final MapProvider mapProvider;
   bool _isInitialized = false;
 
@@ -51,8 +51,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Initializing screen\x1B[0m");
     
     try {
-      _possesionManager = context.read<PossesionInterface>();
-      possesionProvider = context.read<PossesionDamageFormProvider>();
+      _possesionManager = context.read<BelongingDamageReportInterface>();
+      possesionProvider = context.read<BelongingDamageReportProvider>();
       mapProvider = context.read<MapProvider>();
       
       if (!mapProvider.isInitialized) {
@@ -121,7 +121,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
       debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
     }
     
-    InteractionResponseModel? interactionResponseModel = await _possesionManager.postInteraction();
+    InteractionResponse? interactionResponseModel = await _possesionManager.postInteraction();
 
     if (mounted) {
       navigationManager.pushReplacementForward(

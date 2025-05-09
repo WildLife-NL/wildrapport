@@ -144,7 +144,7 @@ class _LocationScreenState extends State<LocationScreen> {
               debugPrint('\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m');
               debugPrint(const JsonEncoder.withIndent('  ').convert(apiFormat));
 
-              final InteractionResponseModel? responseModel = await submitReport(context);
+              final InteractionResponse? responseModel = await submitReport(context);
               if(responseModel != null) {
                 // Check if questionnaire has valid content
                 if (responseModel.questionnaire.questions == null || responseModel.questionnaire.questions!.isEmpty) {
@@ -190,7 +190,7 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 }
 
-Future<InteractionResponseModel?> submitReport(BuildContext context) async {
+Future<InteractionResponse?> submitReport(BuildContext context) async {
   try {
     final animalSightingManager = context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
@@ -202,7 +202,7 @@ Future<InteractionResponseModel?> submitReport(BuildContext context) async {
     // Create the interaction object using the wrapper
     final InteractionInterface interactionManager = context.read<InteractionInterface>();
 
-    final InteractionResponseModel? response = await interactionManager.postInteraction(AnimalSightingReportWrapper(currentSighting), InteractionType.waarnemning);
+    final InteractionResponse? response = await interactionManager.postInteraction(AnimalSightingReportWrapper(currentSighting), InteractionType.waarnemning);
     if(response != null){
       // Log questionnaire details for debugging
       if (response.questionnaire.questions != null && response.questionnaire.questions!.isNotEmpty) {

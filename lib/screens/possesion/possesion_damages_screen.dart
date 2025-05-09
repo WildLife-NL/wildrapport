@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/interfaces/possesion_interface.dart';
+import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -16,7 +16,7 @@ class PossesionDamagesScreen extends StatefulWidget{
 }
 
 class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
-  late final PossesionInterface _possesionManager;
+  late final BelongingDamageReportInterface _possesionManager;
   late List<dynamic> possesionDamagesWidgetList;
   late int currentIndex;
   late int maxIndex;
@@ -24,13 +24,13 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
   @override
   void initState() {
     super.initState();
-    _possesionManager = context.read<PossesionInterface>();
+    _possesionManager = context.read<BelongingDamageReportInterface>();
     _loadPossesionWidgets();
     currentIndex = 0;
     maxIndex = possesionDamagesWidgetList.length - 1;
   }
 
-  bool validateImpactedCrop(PossesionDamageFormProvider formProvider){
+  bool validateImpactedCrop(BelongingDamageReportProvider formProvider){
     bool isValid = true;
     if (formProvider.impactedCrop.isEmpty) {
       isValid = false;
@@ -42,7 +42,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
       return isValid;
     }
   }
-   bool validateImpactedAreaType(PossesionDamageFormProvider formProvider){
+   bool validateImpactedAreaType(BelongingDamageReportProvider formProvider){
     bool isValid = true;
     if (formProvider.impactedAreaType.isEmpty) {
       isValid = false;
@@ -54,7 +54,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
       return isValid;
     }
   }
-   bool validateImpactedArea(PossesionDamageFormProvider formProvider){
+   bool validateImpactedArea(BelongingDamageReportProvider formProvider){
     bool isValid = true;
     debugPrint("${formProvider.impactedArea}");
 
@@ -82,7 +82,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
 
   // Method to check if all required fields are filled
   bool validateForm() {
-    final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+    final formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
     //formProvider.resetErrors();
 
     bool isValid = true;
@@ -104,7 +104,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
 
   void nextScreen() {
     if (validateForm()) {
-      final formProvider = Provider.of<PossesionDamageFormProvider>(context, listen: false);
+      final formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
       formProvider.resetInputErrorImpactArea();
       formProvider.hasErrorImpactedArea = false;
       debugPrint("Form is valid!");
@@ -139,7 +139,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<PossesionDamageFormProvider>(context);
+    final provider = Provider.of<BelongingDamageReportProvider>(context);
     final navigationManager = context.read<NavigationStateInterface>();
     return Scaffold(
       body: SafeArea(
