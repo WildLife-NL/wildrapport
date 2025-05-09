@@ -29,7 +29,9 @@ class AnimalCounting extends StatefulWidget {
 class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedAge;
   String? selectedGender;
+  String? lastSelectedGender; // Add this to remember the last gender
   int currentCount = 0;
+  bool _forceRebuild = false;
   final GlobalKey<AnimalCounterState> _counterKey = GlobalKey<AnimalCounterState>();
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
@@ -101,6 +103,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
     final selectedAnimalGender = _convertStringToAnimalGender(selectedGender!);
     final selectedAnimalAge = _convertStringToAnimalAge(selectedAge!);
 
+    // Save the current gender before resetting
+    final String? genderToRestore = selectedGender;
+
     List<AnimalGenderViewCount> updatedGenderViewCounts = List.from(currentAnimal.genderViewCounts);
 
     final genderIndex = updatedGenderViewCounts.indexWhere((gvc) => gvc.gender == selectedAnimalGender);
@@ -139,7 +144,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
       );
     }
     
-    // Reset selections after adding
+    // Reset selections after adding and force rebuild
     setState(() {
       selectedAge = null;
       selectedGender = null;
@@ -157,6 +162,14 @@ class _AnimalCountingState extends State<AnimalCounting> {
     (_counterKey.currentState as AnimalCounterState).reset();
 
     widget.onAddToList?.call();
+    
+    // Force a rebuild to update the UI
+    setState(() {
+      selectedAge = null;
+      selectedGender = genderToRestore; // Restore the gender
+      // Force rebuild by setting a dummy variable
+      _forceRebuild = !_forceRebuild;
+    });
     
     // Show success snackbar
     SnackBarWithProgress.show(
@@ -179,15 +192,18 @@ class _AnimalCountingState extends State<AnimalCounting> {
     setState(() {
       if (selectedGender == gender) {
         selectedGender = null;
+        // Don't update lastSelectedGender when deselecting
       } else {
         selectedGender = gender;
+        lastSelectedGender = gender; // Remember this gender
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AnimalSightingReportingInterface>();
+    // Watch for changes in the animal sighting manager
+    final animalSightingManager = context.watch<AnimalSightingReportingInterface>();
     
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -312,8 +328,20 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   Widget _buildAgeButton(String text) {
     final bool isSelected = text == selectedAge;
-    final bool disable = selectedGender != null && _isAgeAlreadyAdded(selectedGender!, text);
+    
+    // Check if this age is already added for ANY gender in the list
+    bool disable = false;
+    if (selectedGender != null) {
+      disable = _isAgeAlreadyAdded(selectedGender!, text);
+    } else {
+      // If no gender is selected, check all possible genders
+      disable = _isAgeAlreadyAdded("Mannelijk", text) || 
+                _isAgeAlreadyAdded("Vrouwelijk", text) || 
+                _isAgeAlreadyAdded("Onbekend", text);
+    }
 
+    debugPrint('_buildAgeButton: text=$text, isSelected=$isSelected, disable=$disable');
+    
     if (disable) return const SizedBox.shrink();
 
     return WhiteBulkButton(
@@ -332,7 +360,13 @@ class _AnimalCountingState extends State<AnimalCounting> {
     final bool isSelected = text == selectedGender;
     final bool disable = _areAllAgesFilledForGender(text);
 
-    if (disable) return const SizedBox.shrink();
+    // Instead of returning SizedBox.shrink(), return an invisible container with the same height
+    if (disable) {
+      return SizedBox(
+        height: 64.5, // Same height as the button
+        child: const SizedBox(), // Empty child
+      );
+    }
 
     return WhiteBulkButton(
       text: text,
@@ -352,21 +386,46 @@ class _AnimalCountingState extends State<AnimalCounting> {
     final selectedGender = _convertStringToAnimalGender(genderText);
     final selectedAge = _convertStringToAnimalAge(ageText);
 
-    final genderVC = sighting?.animalSelected?.genderViewCounts.firstWhere(
-      (gvc) => gvc.gender == selectedGender,
-      orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
-    );
-
-    switch (selectedAge) {
-      case AnimalAge.pasGeboren:
-        return (genderVC?.viewCount.pasGeborenAmount ?? 0) > 0;
-      case AnimalAge.onvolwassen:
-        return (genderVC?.viewCount.onvolwassenAmount ?? 0) > 0;
-      case AnimalAge.volwassen:
-        return (genderVC?.viewCount.volwassenAmount ?? 0) > 0;
-      case AnimalAge.onbekend:
-        return (genderVC?.viewCount.unknownAmount ?? 0) > 0;
+    // Check in the animals list
+    final animals = sighting?.animals;
+    if (animals == null || animals.isEmpty) {
+      debugPrint('_isAgeAlreadyAdded: No animals in list');
+      return false;
     }
+    
+    // Check all animals in the list
+    for (final animal in animals) {
+      // Find the gender view count for the selected gender
+      final genderVC = animal.genderViewCounts.firstWhere(
+        (gvc) => gvc.gender == selectedGender,
+        orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
+      );
+
+      // Check if this age is already added for this gender
+      bool hasCount = false;
+      switch (selectedAge) {
+        case AnimalAge.pasGeboren:
+          hasCount = (genderVC.viewCount.pasGeborenAmount > 0);
+          break;
+        case AnimalAge.onvolwassen:
+          hasCount = (genderVC.viewCount.onvolwassenAmount > 0);
+          break;
+        case AnimalAge.volwassen:
+          hasCount = (genderVC.viewCount.volwassenAmount > 0);
+          break;
+        case AnimalAge.onbekend:
+          hasCount = (genderVC.viewCount.unknownAmount > 0);
+          break;
+      }
+      
+      if (hasCount) {
+        debugPrint('_isAgeAlreadyAdded: Found count for gender=$genderText, age=$ageText');
+        return true;
+      }
+    }
+    
+    debugPrint('_isAgeAlreadyAdded: No count found for gender=$genderText, age=$ageText');
+    return false;
   }
 
   bool _areAllAgesFilledForGender(String genderText) {
@@ -387,6 +446,22 @@ class _AnimalCountingState extends State<AnimalCounting> {
            (genderVC.viewCount.unknownAmount > 0);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
