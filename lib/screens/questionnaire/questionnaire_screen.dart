@@ -67,8 +67,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             widget.questionnaire,
             widget.interactionID,
             nextScreen,
-            previousScreen,
             lastNextScreen,
+            previousScreen,
           );
 
     setState(() {

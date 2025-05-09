@@ -7,7 +7,7 @@ import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
@@ -16,21 +16,21 @@ import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
 
-class PossesionLocationScreen extends StatefulWidget {
-  const PossesionLocationScreen({super.key});
+class BelongingLocationScreen extends StatefulWidget {
+  const BelongingLocationScreen({super.key});
 
   @override
-  State<PossesionLocationScreen> createState() => _PossesionLocationScreenState();
+  State<BelongingLocationScreen> createState() => _BelongingLocationScreenState();
 }
 
-class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
-  late final BelongingDamageReportInterface _possesionManager;
+class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
+  late final BelongingDamageReportInterface _belongingManager;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
   final blueLog = '\x1B[34m';
   final purpleLog = '\x1B[35m';
-  late final BelongingDamageReportProvider possesionProvider;
+  late final BelongingDamageReportProvider belongingProvider;
   late final MapProvider mapProvider;
   bool _isInitialized = false;
 
@@ -40,7 +40,7 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint("$yellowLog[PossesionLocationScreen] 🔄 initState called\x1B[0m");
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m");
     _questionnaireManager = context.read<QuestionnaireInterface>();
     _initializeScreen();
   }
@@ -48,33 +48,33 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
   Future<void> _initializeScreen() async {
     if (!mounted) return;
     
-    debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Initializing screen\x1B[0m");
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing screen\x1B[0m");
     
     try {
-      _possesionManager = context.read<BelongingDamageReportInterface>();
-      possesionProvider = context.read<BelongingDamageReportProvider>();
+      _belongingManager = context.read<BelongingDamageReportInterface>();
+      belongingProvider = context.read<BelongingDamageReportProvider>();
       mapProvider = context.read<MapProvider>();
       
       if (!mapProvider.isInitialized) {
-        debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Initializing map provider\x1B[0m");
+        debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing map provider\x1B[0m");
         await mapProvider.initialize();
       } else {
-        debugPrint("$greenLog[PossesionLocationScreen] ✅ Map provider already initialized\x1B[0m");
+        debugPrint("$greenLog[BelongingLocationScreen] ✅ Map provider already initialized\x1B[0m");
       }
       
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-        debugPrint("$greenLog[PossesionLocationScreen] ✅ Screen initialized successfully\x1B[0m");
+        debugPrint("$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m");
       }
     } catch (e) {
-      debugPrint("$redLog[PossesionLocationScreen] ❌ Error initializing screen: $e\x1B[0m");
+      debugPrint("$redLog[BelongingLocationScreen] ❌ Error initializing screen: $e\x1B[0m");
     }
   }
 
   void _handleNextPressed() async {
-    debugPrint("$yellowLog[PossesionLocationScreen] 🔄 Next button pressed\x1B[0m");
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Next button pressed\x1B[0m");
     
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
@@ -91,12 +91,12 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
     final locationManager = context.read<LocationScreenInterface>();
     final locationInfo = await locationManager.getLocationAndDateTime(context);
     
-    debugPrint("\n$blueLog[PossesionLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
-    debugPrint("$blueLog[PossesionLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
-    debugPrint("$blueLog[PossesionLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
+    debugPrint("\n$blueLog[BelongingLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
+    debugPrint("$blueLog[BelongingLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
+    debugPrint("$blueLog[BelongingLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
 
     if (locationInfo['selectedLocation'] == null) {
-      debugPrint("$redLog[PossesionLocationScreen] ⚠️ No selected location found\x1B[0m");
+      debugPrint("$redLog[BelongingLocationScreen] ⚠️ No selected location found\x1B[0m");
       return;
     }
 
@@ -107,8 +107,8 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
         latitude: selectedLocation['latitude'],
         longtitude: selectedLocation['longitude'],
       );
-      _possesionManager.updateUserLocation(reportLocation);
-      debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated user location\x1B[0m");
+      _belongingManager.updateUserLocation(reportLocation);
+      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated user location\x1B[0m");
     }
 
     if (locationInfo['currentGpsLocation'] != null) {
@@ -117,11 +117,11 @@ class _PossesionLocationScreenState extends State<PossesionLocationScreen> {
         latitude: currentLocation['latitude'],
         longtitude: currentLocation['longitude'],
       );
-      _possesionManager.updateSystemLocation(systemLocation);
-      debugPrint("$greenLog[PossesionLocationScreen] ✅ Updated system location\x1B[0m");
+      _belongingManager.updateSystemLocation(systemLocation);
+      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m");
     }
     
-    InteractionResponse? interactionResponseModel = await _possesionManager.postInteraction();
+    InteractionResponse? interactionResponseModel = await _belongingManager.postInteraction();
 
     if (mounted) {
       navigationManager.pushReplacementForward(

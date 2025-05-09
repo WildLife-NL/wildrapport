@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
-import 'package:wildrapport/screens/possesion/gewasschade_animal_screen.dart';
+import 'package:wildrapport/screens/possesion/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 
 class SuspectedAnimal extends StatefulWidget{
@@ -12,19 +12,19 @@ class SuspectedAnimal extends StatefulWidget{
 }
 
 class _SuspectedAnimalState extends State<SuspectedAnimal> {
-  late final BelongingDamageReportInterface _possesionManager;
+  late final BelongingDamageReportInterface _belongingDamageReportManager;
 
   @override
   void initState() {
     super.initState();
-    _possesionManager = context.read<BelongingDamageReportInterface>();    
+    _belongingDamageReportManager = context.read<BelongingDamageReportInterface>();    
   }
   Future<dynamic> pressed(String animalType){
-    _possesionManager.updateSuspectedAnimal(animalType);
+    _belongingDamageReportManager.updateSuspectedAnimal(animalType);
     return Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const GewasschadeAnimalScreen(appBarTitle: 'Kies Dier'),
+                  builder: (context) => const BelongingAnimalScreen(appBarTitle: 'Kies Dier'),
                 ),
               );
   }

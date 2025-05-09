@@ -44,7 +44,7 @@ import 'package:wildrapport/config/app_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
@@ -80,25 +80,27 @@ void main() async {
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
-  final possesionDamageFormProvider = BelongingDamageReportProvider();
+  final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
   final responseProvider = ResponseProvider();
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();
 
-  final possesionManager = BelongingDamageReportManager(
+  final responseManager = ResponseManager(
+    responseAPI: responseAPI, 
+    responseProvider: responseProvider
+  );
+  responseManager.init();
+
+  final belongingManager = BelongingDamageReportManager(
     interactionAPI: interactionApi, 
-    formProvider: possesionDamageFormProvider, 
+    formProvider: belongingDamageFormProvider, 
     mapProvider: mapProvider, 
     interactionManager: interactionManager
   );
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
-  final responseManager = ResponseManager(
-    responseAPI: responseAPI, 
-    responseProvider: responseProvider
-  );
   
   final animalSightingReportingManager = AnimalSightingReportingManager();
   
@@ -115,7 +117,7 @@ void main() async {
     MultiProvider(
       providers: [
           ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
-          ChangeNotifierProvider<BelongingDamageReportProvider>.value(value: possesionDamageFormProvider),          
+          ChangeNotifierProvider<BelongingDamageReportProvider>.value(value: belongingDamageFormProvider),          
           ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
           ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         Provider<AppConfig>.value(value: appConfig),
@@ -129,7 +131,7 @@ void main() async {
         Provider<AnimalManagerInterface>.value(value: animalManager),
         Provider<FilterInterface>.value(value: filterManager),
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
-        Provider<BelongingDamageReportInterface>.value(value: possesionManager),
+        Provider<BelongingDamageReportInterface>.value(value: belongingManager),
         Provider<ResponseInterface>.value(value: responseManager),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),

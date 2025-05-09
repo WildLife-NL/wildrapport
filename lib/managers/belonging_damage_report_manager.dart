@@ -8,9 +8,9 @@ import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/widgets/possesion/belonging_crops_details.dart';
-import 'package:wildrapport/widgets/possesion/suspected_animal.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
+import 'package:wildrapport/widgets/belonging/belonging_crops_details.dart';
+import 'package:wildrapport/widgets/belonging/suspected_animal.dart';
 
 class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionApiInterface interactionAPI;

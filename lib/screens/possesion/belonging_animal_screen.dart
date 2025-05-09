@@ -6,26 +6,26 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
-import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
+import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 
-class GewasschadeAnimalScreen extends StatefulWidget {
+class BelongingAnimalScreen extends StatefulWidget {
   final String appBarTitle;
 
-  const GewasschadeAnimalScreen({
+  const BelongingAnimalScreen({
     super.key,
     required this.appBarTitle,
   });
 
   @override
-  State<GewasschadeAnimalScreen> createState() => _GewasschadeAnimalScreenState();
+  State<BelongingAnimalScreen> createState() => _BelongingAnimalScreenState();
 }
 
-class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
+class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   final ScrollController _scrollController = ScrollController();
-  late final BelongingDamageReportProvider _possesionDamageFormProvider;
+  late final BelongingDamageReportProvider _belongingDamageReportProvider;
   bool _isExpanded = false;
   List<AnimalModel> _animals = [];
   bool _isLoading = true;
@@ -33,7 +33,7 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
   @override
   void initState() {
     super.initState();
-    _possesionDamageFormProvider = context.read<BelongingDamageReportProvider>();
+    _belongingDamageReportProvider = context.read<BelongingDamageReportProvider>();
     _loadAnimals();
   }
 
@@ -57,7 +57,7 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('[GewasschadeAnimalScreen] Error loading animals: $e');
+      debugPrint('[BelongingAnimalScreen] Error loading animals: $e');
       setState(() {
         _isLoading = false;
       });
@@ -82,11 +82,11 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
               centerText: widget.appBarTitle,
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                debugPrint('[GewasschadeAnimalScreen] Back button pressed');
+                debugPrint('[BelongingAnimalScreen] Back button pressed');
                 Navigator.pop(context);
               },
               onRightIconPressed: () {
-                debugPrint('[GewasschadeAnimalScreen] Menu button pressed');
+                debugPrint('[BelongingAnimalScreen] Menu button pressed');
               },
             ),
             Padding(
@@ -108,25 +108,25 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
               isLoading: _isLoading,
               scrollController: _scrollController,
               onAnimalSelected: (AnimalModel selectedAnimal) async {
-                debugPrint('[GewasschadeAnimalScreen] Next button pressed');
+                debugPrint('[BelongingAnimalScreen] Next button pressed');
                 final permissionManager = context.read<PermissionInterface>();
                 final navigationManager = context.read<NavigationStateInterface>();
                 
                 // Check if location permission is already granted
                 final hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
-                debugPrint('[GewasschadeAnimalScreen] Location permission status: $hasPermission');
+                debugPrint('[BelongingAnimalScreen] Location permission status: $hasPermission');
                 
                 if (!hasPermission) {
-                  debugPrint('[GewasschadeAnimalScreen] Requesting location permission');
+                  debugPrint('[BelongingAnimalScreen] Requesting location permission');
                   // Request permission if not granted
                   final permissionGranted = await permissionManager.requestPermission(
                     context,
                     PermissionType.location,
                     showRationale: true, // Explicitly show rationale
                   );
-                  debugPrint('[GewasschadeAnimalScreen] Permission request result: $permissionGranted');
+                  debugPrint('[BelongingAnimalScreen] Permission request result: $permissionGranted');
                   if (!permissionGranted) {
-                    debugPrint('[GewasschadeAnimalScreen] Permission denied, showing error');
+                    debugPrint('[BelongingAnimalScreen] Permission denied, showing error');
                     // If permission denied, show error message and stay on current screen
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -140,14 +140,14 @@ class _GewasschadeAnimalScreenState extends State<GewasschadeAnimalScreen> {
                   }
                 }
                 // Navigate to LocationScreen if permission is granted
-                debugPrint('[GewasschadeAnimalScreen] Navigating to LocationScreen');
+                debugPrint('[BelongingAnimalScreen] Navigating to LocationScreen');
                 if (context.mounted) {
-                  debugPrint('[GewasschadeAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
-                  debugPrint('[GewasschadeAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}');
-                  _possesionDamageFormProvider.setSuspectedAnimal(selectedAnimal.animalId!);
+                  debugPrint('[BelongingAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
+                  debugPrint('[BelongingAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}');
+                  _belongingDamageReportProvider.setSuspectedAnimal(selectedAnimal.animalId!);
                   navigationManager.pushReplacementForward(
                     context,
-                    const PossesionLocationScreen(),
+                    const BelongingLocationScreen(),
                   );
                 }
               },

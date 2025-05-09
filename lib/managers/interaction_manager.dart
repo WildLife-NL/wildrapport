@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -47,11 +46,11 @@ class InteractionManager implements InteractionInterface{
   }
 
   void _scheduleRetryUntilSuccess() {
-  if (_isRetryingSend) return;
-  _isRetryingSend = true;
+    if (_isRetryingSend) return;
+    _isRetryingSend = true;
 
-  _retryLoop();
-}
+    _retryLoop();
+  }
 
 void _retryLoop() async {
   while (true) {

@@ -8,7 +8,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/location_screen.dart';
-import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
+import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
@@ -392,7 +392,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                     if (widget.isFromPossession) {
                       navigationManager.pushReplacementBack(
                         context, 
-                        const PossesionLocationScreen(),
+                        const BelongingLocationScreen(),
                       );
                     } else {
                       navigationManager.pushReplacementBack(
@@ -448,7 +448,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                             debugPrint('[LivingLabMapScreen] Navigating back to PossesionLocationScreen');
                             navigationManager.pushReplacementBack(
                               context, 
-                              const PossesionLocationScreen(),
+                              const BelongingLocationScreen(),
                             );
                           } else {
                             debugPrint('[LivingLabMapScreen] Navigating back to LocationScreen');

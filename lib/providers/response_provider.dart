@@ -7,11 +7,20 @@ class ResponseProvider extends ChangeNotifier {
   String? questionID;
   String? text;
   Response? response;
+  List<Response> responses = [];
 
   final yellowLog = '\x1B[93m';
 
   void setResponse(Response value){
     response = value;
+  }
+
+  void addResponse(Response value){
+    responses.add(value);
+  }
+
+  void removeResponse(Response value){
+    responses.remove(value);
   }
 
   void setAnswerID(String value) {
@@ -52,6 +61,7 @@ class ResponseProvider extends ChangeNotifier {
     interactionID = null;
     questionID = null;
     text = null;
+    responses = [];
     notifyListeners();
   }
 }

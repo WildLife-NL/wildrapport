@@ -2,32 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
-import 'package:wildrapport/providers/possesion_damage_report_provider.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 
-class PossesionDamagesScreen extends StatefulWidget{
-  const PossesionDamagesScreen({super.key});
+class BelongingDamagesScreen extends StatefulWidget{
+  const BelongingDamagesScreen({super.key});
 
   @override
-  State<PossesionDamagesScreen> createState() => _PossesionDamageScreenState();
+  State<BelongingDamagesScreen> createState() => _PossesionDamageScreenState();
 }
 
-class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
-  late final BelongingDamageReportInterface _possesionManager;
-  late List<dynamic> possesionDamagesWidgetList;
+class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
+  late final BelongingDamageReportInterface _belongingDamageReportManager;
+  late List<dynamic> belongingDamagesWidgetList;
   late int currentIndex;
   late int maxIndex;
 
   @override
   void initState() {
     super.initState();
-    _possesionManager = context.read<BelongingDamageReportInterface>();
+    _belongingDamageReportManager = context.read<BelongingDamageReportInterface>();
     _loadPossesionWidgets();
     currentIndex = 0;
-    maxIndex = possesionDamagesWidgetList.length - 1;
+    maxIndex = belongingDamagesWidgetList.length - 1;
   }
 
   bool validateImpactedCrop(BelongingDamageReportProvider formProvider){
@@ -131,9 +131,9 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
   }
 
   void _loadPossesionWidgets() {
-    final widgetList = _possesionManager.buildPossesionWidgetList();
+    final widgetList = _belongingDamageReportManager.buildPossesionWidgetList();
     setState(() {
-      possesionDamagesWidgetList = widgetList;
+      belongingDamagesWidgetList = widgetList;
     });
   }
 
@@ -160,7 +160,7 @@ class _PossesionDamageScreenState extends State<PossesionDamagesScreen> {
                 // Handle menu
               },
             ),
-            Expanded(child: possesionDamagesWidgetList[currentIndex]),
+            Expanded(child: belongingDamagesWidgetList[currentIndex]),
             CustomBottomAppBar(
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,

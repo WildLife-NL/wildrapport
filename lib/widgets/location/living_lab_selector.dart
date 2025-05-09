@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
+import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/screens/map_screen.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +50,7 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
   
     // Method 3: Check if we can find a PossesionLocationScreen in the widget tree
     if (!isFromPossession) {
-      isFromPossession = context.findAncestorWidgetOfExactType<PossesionLocationScreen>() != null;
+      isFromPossession = context.findAncestorWidgetOfExactType<BelongingLocationScreen>() != null;
     }
   
     debugPrint('[LivingLabSelector] Selecting lab: $labName, isFromPossession: $isFromPossession');

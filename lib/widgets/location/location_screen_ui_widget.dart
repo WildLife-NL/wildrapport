@@ -13,7 +13,7 @@ import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/map_screen.dart';
-import 'package:wildrapport/screens/possesion/possesion_location_screen.dart';
+import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
@@ -245,7 +245,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
     // Check if we're in the possession flow by checking the current context
     final isFromPossession = ModalRoute.of(context)?.settings.name == 'PossesionLocationScreen' || 
-                            context.findAncestorWidgetOfExactType<PossesionLocationScreen>() != null;
+                            context.findAncestorWidgetOfExactType<BelongingLocationScreen>() != null;
                               
     debugPrint('[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession');
 
