@@ -24,15 +24,23 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   final TextEditingController _timeController = TextEditingController();
   late TimeOfDay _currentTime;
   bool _isEditing = false;
-  String? _errorMessage;  // Add this line to track error state
+  String? _errorMessage;
+  
+  // Add scroll controllers for the wheels
+  FixedExtentScrollController? _hourScrollController;
+  FixedExtentScrollController? _minuteScrollController;
 
   @override
   void initState() {
     super.initState();
     _currentTime = TimeOfDay.now();
     
-    _selectedHour = _currentTime.hour;
-    _selectedMinute = _currentTime.minute;
+    _selectedHour = widget.initialTime.hour;
+    _selectedMinute = widget.initialTime.minute;
+    
+    // Initialize scroll controllers
+    _hourScrollController = FixedExtentScrollController(initialItem: _selectedHour);
+    _minuteScrollController = FixedExtentScrollController(initialItem: _selectedMinute);
     
     _updateTimeDisplay();
   }
@@ -73,6 +81,20 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         selection: TextSelection.collapsed(offset: formattedTime.length),
       );
 
+      // Check hours validity as soon as they're entered
+      if (hours.length == 2) {
+        final hoursValue = int.tryParse(hours);
+        if (hoursValue != null && hoursValue >= 0 && hoursValue < 24) {
+          // If today's date is selected, check if hours are in the future
+          if (_isToday(widget.selectedDate) && hoursValue > _currentTime.hour) {
+            setState(() {
+              _errorMessage = 'Tijd kan niet in de toekomst liggen';
+            });
+            return;
+          }
+        }
+      }
+
       // If we have a complete time (4 digits)
       if (digitsOnly.length >= 4) {
         final hours = int.tryParse(digitsOnly.substring(0, 2));
@@ -88,11 +110,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               _selectedHour = hours;
               _selectedMinute = minutes;
               _errorMessage = null;  // Clear error message on valid input
+            
+              // Update wheel positions to match typed time
+              _updateWheelPositions();
             });
           } else {
             setState(() {
               _errorMessage = 'Tijd kan niet in de toekomst liggen';
-              _updateTimeDisplay();
             });
           }
         }
@@ -109,9 +133,30 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     }
   }
 
+  void _updateWheelPositions() {
+    // We need to add controllers for the wheels
+    if (_hourScrollController != null) {
+      _hourScrollController!.animateToItem(
+        _selectedHour,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+    
+    if (_minuteScrollController != null) {
+      _minuteScrollController!.animateToItem(
+        _selectedMinute,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   void dispose() {
     _timeController.dispose();
+    _hourScrollController?.dispose();
+    _minuteScrollController?.dispose();
     super.dispose();
   }
 
@@ -234,19 +279,25 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         children: [
           _buildWheel(
             value: _selectedHour,
-            maxValue: _currentTime.hour,
+            maxValue: _isToday(widget.selectedDate) ? _currentTime.hour : 23,
             onChanged: (value) {
               setState(() {
                 _selectedHour = value;
                 // Adjust minutes if necessary
-                if (value == _currentTime.hour && _selectedMinute > _currentTime.minute) {
+                if (_isToday(widget.selectedDate) && value == _currentTime.hour && _selectedMinute > _currentTime.minute) {
                   _selectedMinute = _currentTime.minute;
+                  _minuteScrollController?.animateToItem(
+                    _selectedMinute,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
                 }
                 _updateTimeDisplay();
               });
             },
             label: 'uur',
             initialScrollIndex: _selectedHour,
+            controller: _hourScrollController,
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -261,10 +312,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           ),
           _buildWheel(
             value: _selectedMinute,
-            maxValue: _selectedHour == _currentTime.hour ? 
+            maxValue: _isToday(widget.selectedDate) && _selectedHour == _currentTime.hour ? 
               _currentTime.minute : 59,
             onChanged: (value) {
-              if (_selectedHour == _currentTime.hour && value > _currentTime.minute) {
+              if (_isToday(widget.selectedDate) && _selectedHour == _currentTime.hour && value > _currentTime.minute) {
                 return;
               }
               setState(() {
@@ -272,9 +323,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 _updateTimeDisplay();
               });
             },
-            step: 1, // Changed from 5 to 1
+            step: 1,
             label: 'min',
             initialScrollIndex: _selectedMinute,
+            controller: _minuteScrollController,
           ),
         ],
       ),
@@ -288,6 +340,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     int step = 1,
     required String label,
     required int initialScrollIndex,
+    FixedExtentScrollController? controller,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -305,7 +358,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             overAndUnderCenterOpacity: 0.7,
             magnification: 1.2,
             useMagnifier: true,
-            controller: FixedExtentScrollController(
+            controller: controller ?? FixedExtentScrollController(
               initialItem: initialScrollIndex,
             ),
             onSelectedItemChanged: (index) => onChanged(index * step),
@@ -375,6 +428,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 }
+
+
+
+
+
+
+
 
 
 
