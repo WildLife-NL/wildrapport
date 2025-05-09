@@ -30,6 +30,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
@@ -70,6 +71,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     );
   }
 }
+
 
 
 

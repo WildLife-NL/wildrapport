@@ -182,75 +182,97 @@ class _AnimalCountingState extends State<AnimalCounting> {
     
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top section with age/gender buttons that can change
+                  SizedBox(
+                    height: 300, // Fixed height for the top section
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildHeader('Leeftijd'),
-                            _buildAgeButton("<6 maanden"),
-                            const SizedBox(height: 8),
-                            _buildAgeButton("Onvolwassen"),
-                            const SizedBox(height: 8),
-                            _buildAgeButton("Volwassen"),
-                            const SizedBox(height: 8),
-                            _buildAgeButton("Onbekend"),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min, // Keep this as min
+                                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
+                                children: [
+                                  _buildHeader('Leeftijd'),
+                                  Flexible(child: _buildAgeButton("<6 maanden")),
+                                  const SizedBox(height: 8),
+                                  Flexible(child: _buildAgeButton("Onvolwassen")),
+                                  const SizedBox(height: 8),
+                                  Flexible(child: _buildAgeButton("Volwassen")),
+                                  const SizedBox(height: 8),
+                                  Flexible(child: _buildAgeButton("Onbekend")),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min, // Keep this as min
+                                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
+                                children: [
+                                  _buildHeader('Geslacht'),
+                                  Flexible(child: _buildGenderButton("Mannelijk")),
+                                  const SizedBox(height: 8),
+                                  Flexible(child: _buildGenderButton("Vrouwelijk")),
+                                  const SizedBox(height: 8),
+                                  Flexible(child: _buildGenderButton("Onbekend")),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildHeader('Geslacht'),
-                            _buildGenderButton("Mannelijk"),
-                            const SizedBox(height: 8),
-                            _buildGenderButton("Vrouwelijk"),
-                            const SizedBox(height: 8),
-                            _buildGenderButton("Onbekend"),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                child: Column(
-                  children: [
-                    _buildHeader('Aantal'),
-                    const SizedBox(height: 8),
-                    AnimalCounter(
-                      key: _counterKey,
-                      name: "Example",
-                      height: 49,
-                      onCountChanged: _handleCountChanged,
+                  // Add extra space here to move the Aantal section lower
+                  const SizedBox(height: 30),
+                  // Fixed position "Aantal" section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    child: Column(
+                      children: [
+                        _buildHeader('Aantal'),
+                        const SizedBox(height: 8),
+                        AnimalCounter(
+                          key: _counterKey,
+                          name: "Example",
+                          height: 49,
+                          onCountChanged: _handleCountChanged,
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: 350,
+                          child: WhiteBulkButton(
+                            text: "Voeg toe aan de lijst",
+                            showIcon: false,
+                            height: 85,
+                            onPressed: () => _validateAndAddToList(context),
+                          ),
+                        ),
+                        // Add extra padding at the bottom to ensure the button is visible
+                        SizedBox(height: 100),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: 350,
-                      child: WhiteBulkButton(
-                        text: "Voeg toe aan de lijst",
-                        showIcon: false,
-                        height: 85,
-                        onPressed: () => _validateAndAddToList(context),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -356,7 +378,5 @@ class _AnimalCountingState extends State<AnimalCounting> {
            (genderVC.viewCount.unknownAmount > 0);
   }
 }
-
-
 
 

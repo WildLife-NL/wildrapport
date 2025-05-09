@@ -120,6 +120,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                                color: AppColors.brown, // Add this line to make text brown when typing
                                 shadows: [
                                   Shadow(
                                     color: Colors.black.withValues(alpha:0.25),
@@ -209,6 +210,7 @@ class AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
+
 
 
 
