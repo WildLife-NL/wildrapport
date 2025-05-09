@@ -235,13 +235,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
                                 children: [
                                   _buildHeader('Leeftijd'),
-                                  Flexible(child: _buildAgeButton("<6 maanden")),
-                                  const SizedBox(height: 8),
-                                  Flexible(child: _buildAgeButton("Onvolwassen")),
-                                  const SizedBox(height: 8),
-                                  Flexible(child: _buildAgeButton("Volwassen")),
-                                  const SizedBox(height: 8),
-                                  Flexible(child: _buildAgeButton("Onbekend")),
+                                  // Filter out null widgets and add spacing only between non-null widgets
+                                  ..._buildAgeButtonsWithSpacing(),
                                 ],
                               ),
                             ),
@@ -252,11 +247,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
                                 children: [
                                   _buildHeader('Geslacht'),
-                                  Flexible(child: _buildGenderButton("Mannelijk")),
-                                  const SizedBox(height: 8),
-                                  Flexible(child: _buildGenderButton("Vrouwelijk")),
-                                  const SizedBox(height: 8),
-                                  Flexible(child: _buildGenderButton("Onbekend")),
+                                  // Filter out null widgets and add spacing only between non-null widgets
+                                  ..._buildGenderButtonsWithSpacing(),
                                 ],
                               ),
                             ),
@@ -329,54 +321,36 @@ class _AnimalCountingState extends State<AnimalCounting> {
   Widget _buildAgeButton(String text) {
     final bool isSelected = text == selectedAge;
     
-    // Check if this age is already added for ANY gender in the list
-    bool disable = false;
-    if (selectedGender != null) {
-      disable = _isAgeAlreadyAdded(selectedGender!, text);
-    } else {
-      // If no gender is selected, check all possible genders
-      disable = _isAgeAlreadyAdded("Mannelijk", text) || 
-                _isAgeAlreadyAdded("Vrouwelijk", text) || 
-                _isAgeAlreadyAdded("Onbekend", text);
-    }
-
-    debugPrint('_buildAgeButton: text=$text, isSelected=$isSelected, disable=$disable');
-    
-    if (disable) return const SizedBox.shrink();
-
-    return WhiteBulkButton(
-      text: text,
-      height: 64.5,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      textAlign: TextAlign.center,
-      showIcon: false,
-      backgroundColor: isSelected ? AppColors.lightGreen : null,
-      onPressed: () => _handleAgeSelection(text),
+    return SizedBox(
+      height: 64.5, // Same height as the button
+      child: WhiteBulkButton(
+        text: text,
+        height: 64.5,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        textAlign: TextAlign.center,
+        showIcon: false,
+        backgroundColor: isSelected ? AppColors.lightGreen : null,
+        onPressed: () => _handleAgeSelection(text),
+      ),
     );
   }
 
   Widget _buildGenderButton(String text) {
     final bool isSelected = text == selectedGender;
-    final bool disable = _areAllAgesFilledForGender(text);
-
-    // Instead of returning SizedBox.shrink(), return an invisible container with the same height
-    if (disable) {
-      return SizedBox(
-        height: 64.5, // Same height as the button
-        child: const SizedBox(), // Empty child
-      );
-    }
-
-    return WhiteBulkButton(
-      text: text,
-      height: 64.5,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      textAlign: TextAlign.center,
-      showIcon: false,
-      backgroundColor: isSelected ? AppColors.lightGreen : null,
-      onPressed: () => _handleGenderSelection(text),
+    
+    return SizedBox(
+      height: 64.5, // Same height as the button
+      child: WhiteBulkButton(
+        text: text,
+        height: 64.5,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        textAlign: TextAlign.center,
+        showIcon: false,
+        backgroundColor: isSelected ? AppColors.lightGreen : null,
+        onPressed: () => _handleGenderSelection(text),
+      ),
     );
   }
 
@@ -445,7 +419,103 @@ class _AnimalCountingState extends State<AnimalCounting> {
            (genderVC.viewCount.volwassenAmount > 0) &&
            (genderVC.viewCount.unknownAmount > 0);
   }
+
+  List<Widget> _buildAgeButtonsWithSpacing() {
+    final List<Widget> result = [];
+    final ageOptions = ["<6 maanden", "Onvolwassen", "Volwassen", "Onbekend"];
+    
+    // Count visible and hidden buttons
+    int visibleCount = 0;
+    
+    // Add visible buttons with spacing
+    for (int i = 0; i < ageOptions.length; i++) {
+      // Check if this age is already added for the selected gender
+      bool disable = false;
+      if (selectedGender != null) {
+        disable = _isAgeAlreadyAdded(selectedGender!, ageOptions[i]);
+      } else {
+        disable = _isAgeAlreadyAdded("Mannelijk", ageOptions[i]) || 
+                  _isAgeAlreadyAdded("Vrouwelijk", ageOptions[i]) || 
+                  _isAgeAlreadyAdded("Onbekend", ageOptions[i]);
+      }
+      
+      // Only add visible buttons
+      if (!disable) {
+        if (visibleCount > 0) {
+          result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        }
+        result.add(Flexible(child: _buildAgeButton(ageOptions[i])));
+        visibleCount++;
+      }
+    }
+    
+    // Add SizedBoxes at the end to maintain consistent height
+    int hiddenCount = ageOptions.length - visibleCount;
+    for (int i = 0; i < hiddenCount; i++) {
+      if (result.isNotEmpty) {
+        result.add(const SizedBox(height: 8)); // Add spacing
+      }
+      result.add(Flexible(child: SizedBox(height: 64.5))); // Same height as buttons
+    }
+    
+    return result;
+  }
+
+  List<Widget> _buildGenderButtonsWithSpacing() {
+    final List<Widget> result = [];
+    final genderOptions = ["Mannelijk", "Vrouwelijk", "Onbekend"];
+    
+    // Count visible and hidden buttons
+    int visibleCount = 0;
+    
+    // Add visible buttons with spacing
+    for (int i = 0; i < genderOptions.length; i++) {
+      // Check if all ages are filled for this gender
+      bool disable = _areAllAgesFilledForGender(genderOptions[i]);
+      
+      // Only add visible buttons
+      if (!disable) {
+        if (visibleCount > 0) {
+          result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        }
+        result.add(Flexible(child: _buildGenderButton(genderOptions[i])));
+        visibleCount++;
+      }
+    }
+    
+    // Add SizedBoxes at the end to maintain consistent height
+    int hiddenCount = genderOptions.length - visibleCount;
+    for (int i = 0; i < hiddenCount; i++) {
+      if (result.isNotEmpty) {
+        result.add(const SizedBox(height: 8)); // Add spacing
+      }
+      result.add(Flexible(child: SizedBox(height: 64.5))); // Same height as buttons
+    }
+    
+    // Add an extra SizedBox at the end for alignment with age column
+    // The age column has 4 options while gender has 3, so we need one extra space
+    result.add(const SizedBox(height: 8)); // Add spacing
+    result.add(Flexible(child: SizedBox(height: 64.5))); // Extra SizedBox for alignment
+    
+    return result;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
