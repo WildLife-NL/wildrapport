@@ -12,16 +12,16 @@ class Answer {
   });
 
   factory Answer.fromJson(Map<String, dynamic> json) => Answer(
-        id: json["ID"],
-        index: json["index"],
-        nextQuestionId: json["nextQuestionID"],
-        text: json["text"],
-      );
+    id: json["ID"],
+    index: json["index"],
+    nextQuestionId: json["nextQuestionID"],
+    text: json["text"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "ID": id,
-        "index": index,
-        "nextQuestionID": nextQuestionId,
-        "text": text,
-      };
+    "ID": id,
+    "index": index,
+    "nextQuestionID": nextQuestionId,
+    "text": text,
+  };
 }

@@ -5,17 +5,15 @@ import 'package:wildrapport/constants/asset_preloader.dart';
 
 class LoadingScreen extends StatefulWidget {
   final VoidCallback? onLoadingComplete;
-  
-  const LoadingScreen({
-    super.key,
-    this.onLoadingComplete,
-  });
+
+  const LoadingScreen({super.key, this.onLoadingComplete});
 
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();
 }
 
-class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProviderStateMixin {
+class _LoadingScreenState extends State<LoadingScreen>
+    with SingleTickerProviderStateMixin {
   bool _initialized = false;
   late final AnimationController _animationController;
 
@@ -24,7 +22,9 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000), // Adjust this to control speed
+      duration: const Duration(
+        milliseconds: 1000,
+      ), // Adjust this to control speed
     );
   }
 
@@ -47,10 +47,10 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
     // Create two futures: one for asset preloading and one for the minimum duration
     final Future<void> assetsFuture = AssetPreloader.precacheAllAssets(context);
     final Future<void> timerFuture = Future.delayed(const Duration(seconds: 2));
-    
+
     // Wait for both futures to complete
     await Future.wait([assetsFuture, timerFuture]);
-    
+
     if (mounted && widget.onLoadingComplete != null) {
       widget.onLoadingComplete!();
     }
@@ -75,7 +75,8 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                 frameRate: FrameRate(60),
                 controller: _animationController,
                 onLoaded: (composition) {
-                  _animationController.duration = composition.duration ~/ 2; // Makes it 2x faster
+                  _animationController.duration =
+                      composition.duration ~/ 2; // Makes it 2x faster
                   _animationController.repeat();
                 },
               ),
@@ -86,11 +87,3 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
     );
   }
 }
-
-
-
-
-
-
-
-

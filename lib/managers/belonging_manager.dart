@@ -9,22 +9,22 @@ class BelongingManager implements BelongingManagerInterface {
   BelongingManager({required this.belongingApi});
 
   @override
-  Future<List<String>> getAllBelongingsFilteredAndFormatted(String category) async {
-    try{
+  Future<List<String>> getAllBelongingsFilteredAndFormatted(
+    String category,
+  ) async {
+    try {
       List<Belonging> belongings = await belongingApi.getAllBelongings();
       List<String> belongingsFormatted = [];
-      for(Belonging belonging in belongings){
-        if(belonging.category == category){
+      for (Belonging belonging in belongings) {
+        if (belonging.category == category) {
           belongingsFormatted.add(belonging.name);
         }
       }
       return belongingsFormatted;
-    }
-    catch(e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint(e.toString());
       debugPrint(stackTrace.toString());
       rethrow;
     }
   }
-  
 }

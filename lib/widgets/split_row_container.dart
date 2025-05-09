@@ -26,4 +26,3 @@ class SplitRowContainer extends StatelessWidget {
     );
   }
 }
-

@@ -18,7 +18,12 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final MapProvider mapProvider;
   final InteractionInterface interactionManager;
 
-  BelongingDamageReportManager({required this.interactionAPI, required this.formProvider, required this.mapProvider, required this.interactionManager});
+  BelongingDamageReportManager({
+    required this.interactionAPI,
+    required this.formProvider,
+    required this.mapProvider,
+    required this.interactionManager,
+  });
 
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -26,32 +31,35 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
 
   @override
   List<dynamic> buildPossesionWidgetList() {
-    return [
-      BelongingCropsDetails(),
-      SuspectedAnimal(),
-    ];
+    return [BelongingCropsDetails(), SuspectedAnimal()];
   }
 
   @override
   Future<InteractionResponse?> postInteraction() async {
-    final InteractionResponse? interactionResponseModel = await interactionManager.postInteraction(buildBelongingReport(), InteractionType.gewasschade);
-    
-    if(interactionResponseModel != null){
+    final InteractionResponse? interactionResponseModel =
+        await interactionManager.postInteraction(
+          buildBelongingReport(),
+          InteractionType.gewasschade,
+        );
+
+    if (interactionResponseModel != null) {
       debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
-      
+
       // Add null check before accessing questions
-      if (interactionResponseModel.questionnaire.questions != null && interactionResponseModel.questionnaire.questions!.isNotEmpty) {
-        debugPrint("$greenLog${interactionResponseModel.questionnaire.questions![0].description}");
+      if (interactionResponseModel.questionnaire.questions != null &&
+          interactionResponseModel.questionnaire.questions!.isNotEmpty) {
+        debugPrint(
+          "$greenLog${interactionResponseModel.questionnaire.questions![0].description}",
+        );
       } else {
         debugPrint("${greenLog}No questions available in questionnaire");
       }
 
       //Clearing the provider of it's value
-      formProvider.clearStateOfValues(); 
+      formProvider.clearStateOfValues();
 
       return interactionResponseModel;
-    }
-    else{
+    } else {
       return null;
     }
   }
@@ -84,22 +92,21 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   @override
   void updateImpactedArea(double value) {
     try {
-      if(formProvider.impactedAreaType == "hectare"){
+      if (formProvider.impactedAreaType == "hectare") {
         debugPrint("$greenLog impactArea selected is Hectare");
         formProvider.setImpactedArea(value);
-      }
-      else if(formProvider.impactedAreaType == "vierkante meters"){
+      } else if (formProvider.impactedAreaType == "vierkante meters") {
         debugPrint("$greenLog impactArea selected is Vierkante Meters");
         formProvider.setImpactedArea(value);
+      } else {
+        throw Exception(
+          "$redLog Impacted Area Type of: ${formProvider.impactedAreaType} Isn't Valid!",
+        );
       }
-      else{
-        throw Exception("$redLog Impacted Area Type of: ${formProvider.impactedAreaType} Isn't Valid!");
-      }
-    } catch(e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint("$redLog Something went wrong:");
       debugPrint("$redLog Message: ${e.toString()}");
       debugPrint("$redLog Stacktrace: $stackTrace");
-
     }
   }
 
@@ -117,52 +124,64 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   void updateSuspectedAnimal(String value) {
     formProvider.setSuspectedAnimal(value);
   }
+
   //we only use vierkante meters and unit, unit as in number of sheep in the future
-  String getCorrectImpactAreaType(){
+  String getCorrectImpactAreaType() {
     return "vierkante meters";
   }
-  String getCorrectImpactArea(){
-    try{
-      switch (formProvider.impactedAreaType){
+
+  String getCorrectImpactArea() {
+    try {
+      switch (formProvider.impactedAreaType) {
         case "vierkante meters":
           return formProvider.impactedArea.toString();
         case "hectare":
           return (formProvider.impactedArea! * 10000).toString();
-        
+
         default:
           throw Exception("impactedAreaType is invalid!");
-        }
       }
-      catch(e){
-        rethrow;
-        }
+    } catch (e) {
+      rethrow;
     }
+  }
 
   @override
   BelongingDamageReport buildBelongingReport() {
     debugPrint("✅ buildReportTesting called");
     try {
       // Log provider state
-      debugPrint("📍 formProvider location state: selectedPosition=${formProvider.userLocation}, currentPosition=${formProvider.systemLocation}");
-      debugPrint("📋 formProvider state: "
-          "impactedCrop=${formProvider.impactedCrop}, "
-          "impactedAreaType=$getCorrectImpactAreaType()"
-          "impactedArea=${getCorrectImpactArea()}, "
-          "currentDamage=${formProvider.currentDamage}, "
-          "expectedDamage=${formProvider.expectedDamage}, "
-          "description=${formProvider.description}, "
-          "suspectedSpeciesID=${formProvider.suspectedSpeciesID}");
+      debugPrint(
+        "📍 formProvider location state: selectedPosition=${formProvider.userLocation}, currentPosition=${formProvider.systemLocation}",
+      );
+      debugPrint(
+        "📋 formProvider state: "
+        "impactedCrop=${formProvider.impactedCrop}, "
+        "impactedAreaType=$getCorrectImpactAreaType()"
+        "impactedArea=${getCorrectImpactArea()}, "
+        "currentDamage=${formProvider.currentDamage}, "
+        "expectedDamage=${formProvider.expectedDamage}, "
+        "description=${formProvider.description}, "
+        "suspectedSpeciesID=${formProvider.suspectedSpeciesID}",
+      );
 
       // Validate positions
-      if (formProvider.userLocation == null || formProvider.systemLocation == null) {
-        debugPrint("❗ One or both positions are null: "
-            "selectedPosition=${formProvider.userLocation}, "
-            "currentPosition=${formProvider.systemLocation}");
+      if (formProvider.userLocation == null ||
+          formProvider.systemLocation == null) {
+        debugPrint(
+          "❗ One or both positions are null: "
+          "selectedPosition=${formProvider.userLocation}, "
+          "currentPosition=${formProvider.systemLocation}",
+        );
       }
 
       // Use actual positions if available, fallback to defaults
-      final systemReportLocation = formProvider.systemLocation ?? ReportLocation(latitude: 20.0, longtitude: 20.0);
-      final userReportLocation = formProvider.userLocation ?? ReportLocation(latitude: 20.0, longtitude: 20.0);
+      final systemReportLocation =
+          formProvider.systemLocation ??
+          ReportLocation(latitude: 20.0, longtitude: 20.0);
+      final userReportLocation =
+          formProvider.userLocation ??
+          ReportLocation(latitude: 20.0, longtitude: 20.0);
 
       // Validate formProvider inputs
       if (formProvider.impactedCrop.isEmpty) {
@@ -176,7 +195,9 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         throw Exception("Invalid impacted area: ${formProvider.impactedArea}");
       }
       String impactedAreaType = formProvider.impactedAreaType;
-      if(impactedAreaType == "vierkante meters"){ impactedAreaType = "square-meters"; }
+      if (impactedAreaType == "vierkante meters") {
+        impactedAreaType = "square-meters";
+      }
       final report = BelongingDamageReport(
         possesion: Possesion(
           possesionID: "3c6c44fc-06da-4530-ab27-3974e6090d7d",

@@ -22,7 +22,3 @@ abstract class NavigationStateInterface {
   /// Pushes a new screen onto the navigation stack
   void pushForward(BuildContext context, Widget screen);
 }
-
-
-
-

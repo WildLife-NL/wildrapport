@@ -57,9 +57,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   void _updateSelectedLocation() {
     if (_mapProvider.selectedPosition == null) {
       setState(() {
-        _selectedLocation = _mapProvider.selectedAddress == LocationType.unknown.displayText
-            ? LocationType.unknown.displayText
-            : LocationType.current.displayText;
+        _selectedLocation =
+            _mapProvider.selectedAddress == LocationType.unknown.displayText
+                ? LocationType.unknown.displayText
+                : LocationType.current.displayText;
       });
       return;
     }
@@ -124,8 +125,11 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       debugPrint('[LocationScreenUIWidget] Using cached location data');
       final position = appState.cachedPosition!;
       final address = appState.cachedAddress ?? '';
-      
-      if (_locationService.isLocationInNetherlands(position.latitude, position.longitude)) {
+
+      if (_locationService.isLocationInNetherlands(
+        position.latitude,
+        position.longitude,
+      )) {
         _mapProvider.updatePosition(position, address);
         _updateMapView(position);
         return;
@@ -155,8 +159,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      while (mounted &&
-          (!_mapProvider.isInitialized)) {
+      while (mounted && (!_mapProvider.isInitialized)) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
 
@@ -172,7 +175,6 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       }
     });
   }
-
 
   void _handleLocationSelection(String location) async {
     // Immediate UI update for dropdown
@@ -190,15 +192,18 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
     if (location == LocationType.current.displayText) {
       mapProvider.setLoading(true);
-      
+
       // Try to use cached location first
       final appState = context.read<AppStateProvider>();
       if (appState.isLocationCacheValid && appState.cachedPosition != null) {
         debugPrint('[LocationScreenUIWidget] Using cached location data');
         final position = appState.cachedPosition!;
         final address = appState.cachedAddress ?? '';
-        
-        if (_locationService.isLocationInNetherlands(position.latitude, position.longitude)) {
+
+        if (_locationService.isLocationInNetherlands(
+          position.latitude,
+          position.longitude,
+        )) {
           await mapProvider.resetToCurrentLocation(position, address);
           _updateMapView(position);
           return;
@@ -238,30 +243,37 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   }
 
   void _navigateToLivingLab(String labName, LatLng center, double offset) {
-    final mapProvider = context.read<MapProvider>();  
+    final mapProvider = context.read<MapProvider>();
     mapProvider.setLoading(true);
     mapProvider.currentPosition = null;
     mapProvider.currentAddress = '';
 
     // Check if we're in the possession flow by checking the current context
-    final isFromPossession = ModalRoute.of(context)?.settings.name == 'PossesionLocationScreen' || 
-                            context.findAncestorWidgetOfExactType<BelongingLocationScreen>() != null;
-                              
-    debugPrint('[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession');
+    final isFromPossession =
+        ModalRoute.of(context)?.settings.name == 'PossesionLocationScreen' ||
+        context.findAncestorWidgetOfExactType<BelongingLocationScreen>() !=
+            null;
+
+    debugPrint(
+      '[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession',
+    );
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        settings: RouteSettings(name: isFromPossession ? 'PossesionLivingLabMap' : 'LivingLabMap'),
-        builder: (_) => MapScreen(
-          title: labName,
-          mapWidget: LivingLabMapScreen(
-            labName: labName,
-            labCenter: center,
-            boundaryOffset: offset,
-            isFromPossession: isFromPossession,
-          ),
+        settings: RouteSettings(
+          name: isFromPossession ? 'PossesionLivingLabMap' : 'LivingLabMap',
         ),
+        builder:
+            (_) => MapScreen(
+              title: labName,
+              mapWidget: LivingLabMapScreen(
+                labName: labName,
+                labCenter: center,
+                boundaryOffset: offset,
+                isFromPossession: isFromPossession,
+              ),
+            ),
       ),
     );
   }
@@ -301,7 +313,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     width: 160,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: AppColors.brown.withValues(alpha:0.2),
+                      color: AppColors.brown.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
@@ -324,7 +336,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -338,7 +350,8 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     locationText: context.watch<MapProvider>().selectedAddress,
                     isLoading:
                         context.watch<MapProvider>().selectedAddress.isEmpty,
-                    position: context.watch<MapProvider>().selectedPosition ??
+                    position:
+                        context.watch<MapProvider>().selectedPosition ??
                         context.watch<MapProvider>().currentPosition,
                   ),
                 ],
@@ -365,7 +378,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     width: 130,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: AppColors.brown.withValues(alpha:0.2),
+                      color: AppColors.brown.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
@@ -374,8 +387,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             ),
             const SizedBox(height: 20),
             TimeSelectionRow(
-              initialSelection: context.read<LocationScreenInterface>().selectedDateTime,
-              initialDate: context.read<LocationScreenInterface>().customDateTime,
+              initialSelection:
+                  context.read<LocationScreenInterface>().selectedDateTime,
+              initialDate:
+                  context.read<LocationScreenInterface>().customDateTime,
               onOptionSelected: (selectedOption) {
                 final locationManager = context.read<LocationScreenInterface>();
                 if (locationManager is LocationScreenManager) {

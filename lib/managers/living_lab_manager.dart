@@ -7,31 +7,31 @@ class LivingLabManager implements LivingLabInterface {
     LivingLabArea(
       id: "np-zuid-kennemerland",
       name: "Nationaal Park Zuid-Kennemerland",
-      center: LatLng(52.4114, 4.5733),  // Use this as map center
+      center: LatLng(52.4114, 4.5733), // Use this as map center
       areaKm2: 38.0,
       boundary: [
-        LatLng(52.4280, 4.5400),  // maxLat = 52.4280
+        LatLng(52.4280, 4.5400), // maxLat = 52.4280
         LatLng(52.4200, 4.5800),
-        LatLng(52.4100, 4.6000),  // maxLng = 4.6000
+        LatLng(52.4100, 4.6000), // maxLng = 4.6000
         LatLng(52.4000, 4.5800),
-        LatLng(52.3900, 4.5500),  // minLat = 52.3900
+        LatLng(52.3900, 4.5500), // minLat = 52.3900
         LatLng(52.3980, 4.5200),
-        LatLng(52.4100, 4.5100),  // minLng = 4.5100
+        LatLng(52.4100, 4.5100), // minLng = 4.5100
         LatLng(52.4280, 4.5400),
       ],
     ),
     LivingLabArea(
       id: "grenspark-kempenbroek",
       name: "Grenspark Kempen~Broek",
-      center: LatLng(51.1950, 5.7230),  // Use this as map center
+      center: LatLng(51.1950, 5.7230), // Use this as map center
       areaKm2: 250.0,
       boundary: [
-        LatLng(51.2200, 5.7000),  // maxLat = 51.2200
-        LatLng(51.2100, 5.7400),  // maxLng = 5.7500
+        LatLng(51.2200, 5.7000), // maxLat = 51.2200
+        LatLng(51.2100, 5.7400), // maxLng = 5.7500
         LatLng(51.1900, 5.7500),
         LatLng(51.1800, 5.7300),
-        LatLng(51.1700, 5.6900),  // minLat = 51.1700
-        LatLng(51.1850, 5.6700),  // minLng = 5.6700
+        LatLng(51.1700, 5.6900), // minLat = 51.1700
+        LatLng(51.1850, 5.6700), // minLng = 5.6700
         LatLng(51.2000, 5.6800),
         LatLng(51.2200, 5.7000),
       ],
@@ -87,11 +87,15 @@ class LivingLabManager implements LivingLabInterface {
     int j = polygon.length - 1;
 
     for (int i = 0; i < polygon.length; i++) {
-      if ((polygon[i].longitude < point.longitude && polygon[j].longitude >= point.longitude) ||
-          (polygon[j].longitude < point.longitude && polygon[i].longitude >= point.longitude)) {
-        if (polygon[i].latitude + (point.longitude - polygon[i].longitude) /
-            (polygon[j].longitude - polygon[i].longitude) *
-            (polygon[j].latitude - polygon[i].latitude) < point.latitude) {
+      if ((polygon[i].longitude < point.longitude &&
+              polygon[j].longitude >= point.longitude) ||
+          (polygon[j].longitude < point.longitude &&
+              polygon[i].longitude >= point.longitude)) {
+        if (polygon[i].latitude +
+                (point.longitude - polygon[i].longitude) /
+                    (polygon[j].longitude - polygon[i].longitude) *
+                    (polygon[j].latitude - polygon[i].latitude) <
+            point.latitude) {
           isInside = !isInside;
         }
       }
@@ -100,6 +104,3 @@ class LivingLabManager implements LivingLabInterface {
     return isInside;
   }
 }
-
-
-

@@ -9,4 +9,3 @@ abstract class ScreenStateInterface {
 }
 
 // Remove ReportManagerInterface methods that are now handled by NavigationStateInterface
-

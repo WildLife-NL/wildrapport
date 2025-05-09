@@ -20,10 +20,7 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     debugPrint("GET: $baseUrl/$url");
-    return await http.get(
-      Uri.parse('$baseUrl/$url'),
-      headers: headers,
-    );
+    return await http.get(Uri.parse('$baseUrl/$url'), headers: headers);
   }
 
   Future<http.Response> post(
@@ -65,14 +62,13 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
 
-    return await http.delete(
-      Uri.parse('$baseUrl/$url'),
-      headers: headers,
-    );
+    return await http.delete(Uri.parse('$baseUrl/$url'), headers: headers);
   }
 
   Future<Map<String, String>> _buildHeaders(
-      Map<String, String>? headers, bool authenticated) async {
+    Map<String, String>? headers,
+    bool authenticated,
+  ) async {
     final Map<String, String> defaultHeaders = {
       HttpHeaders.acceptHeader: 'application/json',
       HttpHeaders.contentTypeHeader: 'application/json',

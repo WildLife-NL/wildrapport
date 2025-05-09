@@ -11,7 +11,7 @@ abstract class OverzichtInterface {
 
   // Methods
   void updateUserName(String newName);
-  
+
   // State management
   void addListener(VoidCallback listener);
   void removeListener(VoidCallback listener);

@@ -4,7 +4,7 @@ import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/screens/possesion/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 
-class SuspectedAnimal extends StatefulWidget{
+class SuspectedAnimal extends StatefulWidget {
   const SuspectedAnimal({super.key});
 
   @override
@@ -17,21 +17,24 @@ class _SuspectedAnimalState extends State<SuspectedAnimal> {
   @override
   void initState() {
     super.initState();
-    _belongingDamageReportManager = context.read<BelongingDamageReportInterface>();    
+    _belongingDamageReportManager =
+        context.read<BelongingDamageReportInterface>();
   }
-  Future<dynamic> pressed(String animalType){
+
+  Future<dynamic> pressed(String animalType) {
     _belongingDamageReportManager.updateSuspectedAnimal(animalType);
     return Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BelongingAnimalScreen(appBarTitle: 'Kies Dier'),
-                ),
-              );
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => const BelongingAnimalScreen(appBarTitle: 'Kies Dier'),
+      ),
+    );
   }
 
   @override
-  Widget build(BuildContext context){
-return Center(
+  Widget build(BuildContext context) {
+    return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.05,
@@ -41,42 +44,51 @@ return Center(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildButton(
-              text: "Onbekend", 
-              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
+              text: "Onbekend",
+              image: Image.asset(
+                "assets/icons/questionnaire/arrow_forward.png",
+              ),
               height: 63,
               width: 200,
               onPressed: () => pressed("Onbekend"),
+            ),
+            SizedBox(height: 24),
+            _buildButton(
+              text: "Vogels",
+              image: Image.asset(
+                "assets/icons/questionnaire/arrow_forward.png",
               ),
-              SizedBox(height: 24),
-              _buildButton(
-              text: "Vogels", 
-              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 63,
               width: 277,
               onPressed: () => pressed("Vogels"),
+            ),
+            SizedBox(height: 24),
+            _buildButton(
+              text: "Knaagdieren",
+              image: Image.asset(
+                "assets/icons/questionnaire/arrow_forward.png",
               ),
-              SizedBox(height: 24),
-              _buildButton(
-              text: "Knaagdieren", 
-              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
               onPressed: () => pressed("Knaagdieren"),
+            ),
+            SizedBox(height: 24),
+            _buildButton(
+              text: "Evenhoevigen",
+              image: Image.asset(
+                "assets/icons/questionnaire/arrow_forward.png",
               ),
-              SizedBox(height: 24),
-              _buildButton(
-              text: "Evenhoevigen", 
-              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
               onPressed: () => pressed("Evenhoevigen"),
-              ),
+            ),
           ],
-        )
-      )
+        ),
+      ),
     );
   }
-    Widget _buildButton({
+
+  Widget _buildButton({
     required String text,
     required Image image,
     double? height,
@@ -85,11 +97,7 @@ return Center(
   }) {
     return WhiteBulkButton(
       text: text,
-      rightWidget: SizedBox(
-        width: 24,
-        height: 24,
-        child: image,
-      ),
+      rightWidget: SizedBox(width: 24, height: 24, child: image),
       onPressed: onPressed,
     );
   }

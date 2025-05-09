@@ -21,12 +21,15 @@ class CountBar extends StatelessWidget {
     this.iconSize = 38.0,
     this.iconScale = 0.5,
     this.iconColor = AppColors.brown,
-  }) : assert(rightIcon != null || imagePath != null, 'Either rightIcon or imagePath must be provided');
+  }) : assert(
+         rightIcon != null || imagePath != null,
+         'Either rightIcon or imagePath must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    
+
     final double fontSize = screenSize.width * 0.04;
     final double minFontSize = 14.0;
     final double maxFontSize = 18.0;
@@ -55,10 +58,7 @@ class CountBar extends StatelessWidget {
           Expanded(
             flex: 4,
             child: Center(
-              child: AnimalCounter(
-                name: name,
-                onCountChanged: onCountChanged,
-              ),
+              child: AnimalCounter(name: name, onCountChanged: onCountChanged),
             ),
           ),
           Expanded(
@@ -82,6 +82,3 @@ class CountBar extends StatelessWidget {
     );
   }
 }
-
-
-

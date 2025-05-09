@@ -9,5 +9,3 @@ enum FilterType {
 
   const FilterType(this.displayText, this.iconPath);
 }
-
-

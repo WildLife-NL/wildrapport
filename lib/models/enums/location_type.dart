@@ -30,7 +30,3 @@ enum LocationType {
     }
   }
 }
-
-
-
-

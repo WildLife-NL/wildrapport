@@ -26,7 +26,7 @@ class _RapporterenState extends State<Rapporteren> {
   void _handleReportTypeSelection(String reportType) {
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
-    
+
     Widget nextScreen;
     ReportType selectedReportType;
 
@@ -35,7 +35,8 @@ class _RapporterenState extends State<Rapporteren> {
         debugPrint('[Rapporteren] Animal sighting selected, initializing map');
         selectedReportType = ReportType.waarneming;
         // Create animal sighting report and save it in provider
-        final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+        final animalSightingManager =
+            context.read<AnimalSightingReportingInterface>();
         animalSightingManager.createanimalSighting();
         // Skip condition screen and go directly to category screen
         nextScreen = const CategoryScreen();
@@ -49,7 +50,9 @@ class _RapporterenState extends State<Rapporteren> {
         break;
       case 'Verkeersongeval':
         // Temporarily disable this option
-        debugPrint('[Rapporteren] Verkeersongeval selected but temporarily disabled');
+        debugPrint(
+          '[Rapporteren] Verkeersongeval selected but temporarily disabled',
+        );
         // Show a message to the user
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -77,23 +80,32 @@ class _RapporterenState extends State<Rapporteren> {
 
   void _initializeMapInBackground() {
     if (!mounted) return;
-    
+
     final mapProvider = context.read<MapProvider>();
-    debugPrint('[Rapporteren] Current map initialization status: ${mapProvider.isInitialized}');
-    
+    debugPrint(
+      '[Rapporteren] Current map initialization status: ${mapProvider.isInitialized}',
+    );
+
     if (!mapProvider.isInitialized) {
-      try{
+      try {
         const InvisibleMapPreloader();
         debugPrint('[Rapporteren] Invisible map preloader initialized');
-      }catch(e){
-        debugPrint('[Rapporteren] Error preloading invisible map: ${e.toString()}');
+      } catch (e) {
+        debugPrint(
+          '[Rapporteren] Error preloading invisible map: ${e.toString()}',
+        );
       }
       debugPrint('[Rapporteren] Starting background map initialization');
-      mapProvider.initialize().then((_) {
-        debugPrint('[Rapporteren] Background map initialization completed');
-      }).catchError((error) {
-        debugPrint('[Rapporteren] Error in background map initialization: $error');
-      });
+      mapProvider
+          .initialize()
+          .then((_) {
+            debugPrint('[Rapporteren] Background map initialization completed');
+          })
+          .catchError((error) {
+            debugPrint(
+              '[Rapporteren] Error in background map initialization: $error',
+            );
+          });
     } else {
       debugPrint('[Rapporteren] Map already initialized, skipping');
     }
@@ -101,10 +113,7 @@ class _RapporterenState extends State<Rapporteren> {
 
   void _handleBackNavigation(BuildContext context) {
     final navigationManager = context.read<NavigationStateInterface>();
-    navigationManager.pushAndRemoveUntil(
-      context,
-      const OverzichtScreen(),
-    );
+    navigationManager.pushAndRemoveUntil(context, const OverzichtScreen());
   }
 
   @override
@@ -144,7 +153,9 @@ class _RapporterenState extends State<Rapporteren> {
                             child: ReportButton(
                               image: 'assets/icons/rapporteren/crop_icon.png',
                               text: 'Gewasschade',
-                              onPressed: () => _handleReportTypeSelection('Gewasschade'),
+                              onPressed:
+                                  () =>
+                                      _handleReportTypeSelection('Gewasschade'),
                             ),
                           ),
                           SizedBox(width: screenSize.width * 0.02),
@@ -152,7 +163,10 @@ class _RapporterenState extends State<Rapporteren> {
                             child: ReportButton(
                               image: 'assets/icons/rapporteren/health_icon.png',
                               text: 'Diergezondheid',
-                              onPressed: () => _handleReportTypeSelection('Diergezondheid'),
+                              onPressed:
+                                  () => _handleReportTypeSelection(
+                                    'Diergezondheid',
+                                  ),
                             ),
                           ),
                         ],
@@ -164,17 +178,25 @@ class _RapporterenState extends State<Rapporteren> {
                         children: [
                           Expanded(
                             child: ReportButton(
-                              image: 'assets/icons/rapporteren/sighting_icon.png',
+                              image:
+                                  'assets/icons/rapporteren/sighting_icon.png',
                               text: 'Waarnemingen',
-                              onPressed: () => _handleReportTypeSelection('animalSightingen'),
+                              onPressed:
+                                  () => _handleReportTypeSelection(
+                                    'animalSightingen',
+                                  ),
                             ),
                           ),
                           SizedBox(width: screenSize.width * 0.02),
                           Expanded(
                             child: ReportButton(
-                              image: 'assets/icons/rapporteren/accident_icon.png',
+                              image:
+                                  'assets/icons/rapporteren/accident_icon.png',
                               text: 'Verkeersongeval',
-                              onPressed: () => _handleReportTypeSelection('Verkeersongeval'),
+                              onPressed:
+                                  () => _handleReportTypeSelection(
+                                    'Verkeersongeval',
+                                  ),
                             ),
                           ),
                         ],
@@ -190,25 +212,3 @@ class _RapporterenState extends State<Rapporteren> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

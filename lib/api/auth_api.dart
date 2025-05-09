@@ -8,20 +8,19 @@ import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 
-class AuthApi implements AuthApiInterface{
+class AuthApi implements AuthApiInterface {
   final ApiClient client;
   AuthApi(this.client);
 
   @override
-  Future<Map<String, dynamic>> authenticate(String displayNameApp, String email) async {
-    http.Response response = await client.post(
-      'auth/',
-      {
-        "displayNameApp": displayNameApp,
-        "email": email,
-      },
-      authenticated: false,
-    );
+  Future<Map<String, dynamic>> authenticate(
+    String displayNameApp,
+    String email,
+  ) async {
+    http.Response response = await client.post('auth/', {
+      "displayNameApp": displayNameApp,
+      "email": email,
+    }, authenticated: false);
 
     Map<String, dynamic>? json;
     try {
@@ -38,15 +37,11 @@ class AuthApi implements AuthApiInterface{
 
   @override
   Future<User> authorize(String email, String code) async {
-debugPrint("Starting Authorization");
-    http.Response response = await client.put(
-      'auth/',
-      {
-        "code": code,
-        "email": email,
-      },
-      authenticated: false,
-    );
+    debugPrint("Starting Authorization");
+    http.Response response = await client.put('auth/', {
+      "code": code,
+      "email": email,
+    }, authenticated: false);
     debugPrint("Response code: ${response.statusCode}");
 
     Map<String, dynamic>? json;

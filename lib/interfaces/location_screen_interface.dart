@@ -13,5 +13,3 @@ abstract class LocationScreenInterface {
   // Add the new method
   Future<void> handleNextPressed(BuildContext context);
 }
-
-

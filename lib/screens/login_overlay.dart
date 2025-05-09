@@ -13,7 +13,8 @@ class LoginOverlay extends StatelessWidget {
         color: AppColors.lightMintGreen.withValues(alpha: 0.5),
         child: Center(
           child: GestureDetector(
-            onTap: () {}, // Prevents taps on the container from closing the overlay
+            onTap:
+                () {}, // Prevents taps on the container from closing the overlay
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               constraints: const BoxConstraints(maxWidth: 500),
@@ -42,7 +43,7 @@ class LoginOverlay extends StatelessWidget {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.black,
-                              Colors.black.withValues(alpha:0.8),
+                              Colors.black.withValues(alpha: 0.8),
                             ],
                           ).createShader(bounds);
                         },
@@ -52,7 +53,7 @@ class LoginOverlay extends StatelessWidget {
                           color: Colors.black,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withValues(alpha:0.25),
+                              color: Colors.black.withValues(alpha: 0.25),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -76,7 +77,7 @@ class LoginOverlay extends StatelessWidget {
                               fontSize: 24,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withValues(alpha:0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -92,7 +93,7 @@ class LoginOverlay extends StatelessWidget {
                             style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withValues(alpha:0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
@@ -113,7 +114,3 @@ class LoginOverlay extends StatelessWidget {
     );
   }
 }
-
-
-
-

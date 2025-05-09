@@ -19,48 +19,56 @@ class PermissionManager implements PermissionInterface {
   @override
   Future<bool> requestPermission(
     BuildContext context,
-    PermissionType permission,
-    {bool showRationale = true}
-  ) async {
-    debugPrint('[PermissionManager] Requesting permission, showRationale: $showRationale');
-    
+    PermissionType permission, {
+    bool showRationale = true,
+  }) async {
+    debugPrint(
+      '[PermissionManager] Requesting permission, showRationale: $showRationale',
+    );
+
     if (showRationale) {
       debugPrint('[PermissionManager] Showing permission rationale dialog');
       bool shouldProceed = await showPermissionRationale(context, permission);
-      debugPrint('[PermissionManager] User response to rationale: $shouldProceed');
+      debugPrint(
+        '[PermissionManager] User response to rationale: $shouldProceed',
+      );
       if (!shouldProceed) return false;
     }
 
     debugPrint('[PermissionManager] Making actual permission request');
     final status = await Permission.location.request();
-    debugPrint('[PermissionManager] Permission request result: ${status.isGranted}');
+    debugPrint(
+      '[PermissionManager] Permission request result: ${status.isGranted}',
+    );
     return status.isGranted;
   }
 
   @override
   Future<bool> showPermissionRationale(
     BuildContext context,
-    PermissionType permission
+    PermissionType permission,
   ) async {
     return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Locatie Toegang'),
-        content: const Text(
-          'We hebben toegang tot je locatie nodig om nauwkeurig te kunnen rapporteren waar je dieren hebt waargenomen.'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Niet nu'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Doorgaan'),
-          ),
-        ],
-      ),
-    ) ?? false;
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Locatie Toegang'),
+                content: const Text(
+                  'We hebben toegang tot je locatie nodig om nauwkeurig te kunnen rapporteren waar je dieren hebt waargenomen.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Niet nu'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Doorgaan'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
   }
 
   // Remove handleInitialPermissions as it's no longer needed
@@ -69,8 +77,3 @@ class PermissionManager implements PermissionInterface {
     // No longer needed as permissions are handled in the location flow
   }
 }
-
-
-
-
-

@@ -16,5 +16,3 @@ abstract class AnimalManagerInterface {
   void addListener(Function() listener);
   void removeListener(Function() listener);
 }
-
-

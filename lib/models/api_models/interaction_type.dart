@@ -18,10 +18,6 @@ class InteractionType {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-    };
+    return {'id': id, 'name': name, 'description': description};
   }
 }

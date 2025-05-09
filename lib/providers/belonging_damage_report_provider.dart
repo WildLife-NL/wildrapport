@@ -19,27 +19,27 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   String? inputErrorImpactArea;
   String? selectedText;
 
-  void  updateSelectedText(String value){
+  void updateSelectedText(String value) {
     selectedText = value;
   }
 
-  void updateExpanded(bool value){
+  void updateExpanded(bool value) {
     debugPrint("updateExpanded: $value");
     expanded = value;
     notifyListeners();
   }
 
-  void updateInputErrorImpactArea(String value){
+  void updateInputErrorImpactArea(String value) {
     inputErrorImpactArea = value;
     notifyListeners();
   }
 
-  void resetInputErrorImpactArea(){
+  void resetInputErrorImpactArea() {
     inputErrorImpactArea = null;
     notifyListeners();
   }
 
-  void setImpactedCrop(String value){
+  void setImpactedCrop(String value) {
     impactedCrop = value;
     notifyListeners();
   }
@@ -73,21 +73,26 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     suspectedSpeciesID = value;
     notifyListeners();
   }
-  void setSystemLocation(ReportLocation value){
+
+  void setSystemLocation(ReportLocation value) {
     systemLocation = value;
     notifyListeners();
   }
-  void setUserLocation(ReportLocation value){
+
+  void setUserLocation(ReportLocation value) {
     userLocation = value;
     notifyListeners();
   }
+
   void setHasErrorImpactedArea(bool value) {
     hasErrorImpactedArea = value;
     notifyListeners();
   }
-  void resetImpactedArea(){
+
+  void resetImpactedArea() {
     impactedArea = null;
   }
+
   void setErrorState(String field, bool hasError) {
     if (field == 'impactedCrop') {
       hasErrorImpactedCrop = hasError;
@@ -98,7 +103,8 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-  void clearStateOfValues(){
+
+  void clearStateOfValues() {
     debugPrint("$greenLog[PossesionDamageReportProvider]: Clearing Values!");
     impactedCrop = '';
     currentDamage = 0;
@@ -113,7 +119,8 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     notifyListeners();
     selectedText = null;
   }
-    void resetErrors() {
+
+  void resetErrors() {
     hasErrorImpactedCrop = false;
     hasErrorImpactedAreaType = false;
     hasErrorImpactedArea = false;

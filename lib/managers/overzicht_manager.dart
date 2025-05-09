@@ -4,20 +4,20 @@ import 'package:wildrapport/interfaces/overzicht_interface.dart';
 class OverzichtManager implements OverzichtInterface {
   final List<VoidCallback> _listeners = [];
   String _userName = 'John Doe';
-  
+
   // Constants
   @override
   final double topContainerHeight = 285.0;
-  
+
   @override
   final double welcomeFontSize = 20.0;
-  
+
   @override
   final double usernameFontSize = 24.0;
-  
+
   @override
   final double logoWidth = 180.0;
-  
+
   @override
   final double logoHeight = 180.0;
 

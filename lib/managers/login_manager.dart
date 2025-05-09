@@ -16,9 +16,11 @@ class LoginManager implements LoginInterface {
 
   /// Constructor that initializes the login manager with authentication API
   LoginManager(this.authApi, this.profileApi);
-  
+
   // Email validation regex
-  static final _emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+  static final _emailRegex = RegExp(
+    r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$',
+  );
 
   /// Validates an email address format
   /// Returns null if valid, or an error message if invalid
@@ -49,7 +51,7 @@ class LoginManager implements LoginInterface {
         fontSize: 16,
       );
     }
-    
+
     return BrownButtonModel(
       text: text,
       leftIconPath: leftIconPath,
@@ -85,13 +87,13 @@ class LoginManager implements LoginInterface {
       User response = await authApi.authorize(email, code);
       await profileApi.setProfileDataInDeviceStorage();
       return response;
-    } 
-    catch (e) {
+    } catch (e) {
       // Handle specific error types
-      if (e.toString().contains('Unauthorized') || e.toString().contains('401')) {
+      if (e.toString().contains('Unauthorized') ||
+          e.toString().contains('401')) {
         throw Exception("Invalid verification code");
-      } else if (e.toString().contains('SocketException') || 
-                e.toString().contains('Connection refused')) {
+      } else if (e.toString().contains('SocketException') ||
+          e.toString().contains('Connection refused')) {
         throw Exception("Network connection error");
       }
       throw Exception("Unhandled Unauthorized Exception");
@@ -159,9 +161,6 @@ class LoginManager implements LoginInterface {
   void _notifyListeners() {
     for (final listener in _listeners) {
       listener();
-  }}
+    }
+  }
 }
-
-
-
-

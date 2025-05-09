@@ -13,10 +13,6 @@ class AppTextTheme {
       fontWeight: FontWeight.w500,
       color: AppColors.brown,
     ),
-    bodyMedium: TextStyle(
-      fontSize: 16,
-      color: AppColors.brown,
-    ),
+    bodyMedium: TextStyle(fontSize: 16, color: AppColors.brown),
   );
 }
-

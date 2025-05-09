@@ -1,5 +1,3 @@
-
-
 import 'package:wildrapport/models/enums/location_source.dart';
 
 class LocationModel {

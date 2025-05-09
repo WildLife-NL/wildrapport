@@ -23,10 +23,12 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
   });
 
   @override
-  State<QuestionnaireMultipleChoice> createState() => _QuestionnaireMultipleChoiceState();
+  State<QuestionnaireMultipleChoice> createState() =>
+      _QuestionnaireMultipleChoiceState();
 }
 
-class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoice> {
+class _QuestionnaireMultipleChoiceState
+    extends State<QuestionnaireMultipleChoice> {
   List<String> _selectedAnswers = [];
   late final ResponseProvider responseProvider;
 
@@ -40,45 +42,56 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Display question index and total questions
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-          child: Text(
-            'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.brown),
-          ),
-        ),
-        const SizedBox(height: 1),
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-          child: Text(
-            widget.question.text,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.brown),
-          ),
-        ),
-        const SizedBox(height: 1),
-        if (widget.question.description.isNotEmpty)
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Display question index and total questions
           Padding(
-            padding: const EdgeInsets.only(left: 12.0),
+            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
             child: Text(
-              widget.question.description,
-              style: const TextStyle(fontSize: 18, color: AppColors.brown),
+              'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.brown,
+              ),
             ),
           ),
-        const SizedBox(height: 24),
-        if (widget.question.answers != null)
-          ...widget.question.answers!.map((answer) {
-            return widget.question.allowMultipleResponse
-                ? CheckboxListTile(
+          const SizedBox(height: 1),
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
+            child: Text(
+              widget.question.text,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.brown,
+              ),
+            ),
+          ),
+          const SizedBox(height: 1),
+          if (widget.question.description.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0),
+              child: Text(
+                widget.question.description,
+                style: const TextStyle(fontSize: 18, color: AppColors.brown),
+              ),
+            ),
+          const SizedBox(height: 24),
+          if (widget.question.answers != null)
+            ...widget.question.answers!.map((answer) {
+              return widget.question.allowMultipleResponse
+                  ? CheckboxListTile(
                     title: Text(
-                      answer.text, 
-                      style: const TextStyle(fontSize: 18, color: AppColors.brown),
+                      answer.text,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: AppColors.brown,
+                      ),
                     ),
                     value: _selectedAnswers.contains(answer.id),
                     onChanged: (bool? value) {
@@ -91,13 +104,19 @@ Widget build(BuildContext context) {
                       });
                     },
                   )
-                : RadioListTile<String>(
+                  : RadioListTile<String>(
                     title: Text(
-                      answer.text, 
-                      style: const TextStyle(fontSize: 18, color: AppColors.brown),
+                      answer.text,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: AppColors.brown,
+                      ),
                     ),
                     value: answer.id,
-                    groupValue: _selectedAnswers.isNotEmpty ? _selectedAnswers.first : null,
+                    groupValue:
+                        _selectedAnswers.isNotEmpty
+                            ? _selectedAnswers.first
+                            : null,
                     onChanged: (String? value) {
                       setState(() {
                         debugPrint("onChanged!");
@@ -106,16 +125,16 @@ Widget build(BuildContext context) {
                       });
                     },
                   );
-          }),
-        Expanded(
-          child: Container(), // This will take up remaining space
-        ),
-        CustomBottomAppBar(
-          onNextPressed: widget.onNextPressed,
-          onBackPressed: widget.onBackPressed,
-        ),
-      ],
-    ),
-  );
-}
+            }),
+          Expanded(
+            child: Container(), // This will take up remaining space
+          ),
+          CustomBottomAppBar(
+            onNextPressed: widget.onNextPressed,
+            onBackPressed: widget.onBackPressed,
+          ),
+        ],
+      ),
+    );
+  }
 }

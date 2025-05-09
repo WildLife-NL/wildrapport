@@ -10,27 +10,30 @@ import '../helpers/memory_test_helper.dart';
 
 void main() {
   group('Map Memory Tests', () {
-    testWidgets('Normal navigation flow memory test', (WidgetTester tester) async {
+    testWidgets('Normal navigation flow memory test', (
+      WidgetTester tester,
+    ) async {
       final memoryDiff = await MemoryTestHelper.measureMemoryUsage(
         tester: tester,
         cycles: 5,
         testName: 'Normal Navigation',
-        buildWidget: () => MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => MapProvider()),
-            Provider<NavigationStateInterface>(
-              create: (_) => NavigationStateManager(),
+        buildWidget:
+            () => MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => MapProvider()),
+                Provider<NavigationStateInterface>(
+                  create: (_) => NavigationStateManager(),
+                ),
+              ],
+              child: MaterialApp(
+                home: LivingLabMapScreen(
+                  labName: 'Test Lab',
+                  labCenter: const LatLng(51.6988, 5.3041),
+                ),
+              ),
             ),
-          ],
-          child: MaterialApp(
-            home: LivingLabMapScreen(
-              labName: 'Test Lab',
-              labCenter: const LatLng(51.6988, 5.3041),
-            ),
-          ),
-        ),
       );
-      
+
       expect(memoryDiff, lessThan(10 * 1024 * 1024));
     });
 
@@ -39,26 +42,24 @@ void main() {
         tester: tester,
         cycles: 20, // More cycles for stress testing
         testName: 'Rapid Navigation',
-        buildWidget: () => MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => MapProvider()),
-            Provider<NavigationStateInterface>(
-              create: (_) => NavigationStateManager(),
+        buildWidget:
+            () => MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => MapProvider()),
+                Provider<NavigationStateInterface>(
+                  create: (_) => NavigationStateManager(),
+                ),
+              ],
+              child: MaterialApp(
+                home: LivingLabMapScreen(
+                  labName: 'Test Lab',
+                  labCenter: const LatLng(51.6988, 5.3041),
+                ),
+              ),
             ),
-          ],
-          child: MaterialApp(
-            home: LivingLabMapScreen(
-              labName: 'Test Lab',
-              labCenter: const LatLng(51.6988, 5.3041),
-            ),
-          ),
-        ),
       );
-      
+
       expect(memoryDiff, lessThan(15 * 1024 * 1024));
     });
   });
 }
-
-
-

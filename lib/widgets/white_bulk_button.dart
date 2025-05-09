@@ -9,13 +9,13 @@ class WhiteBulkButton extends StatelessWidget {
   final Widget? rightWidget;
   final VoidCallback? onPressed;
   final double height;
-  final double? width;  // Add width parameter
+  final double? width; // Add width parameter
   final bool showIcon;
   final TextStyle? textStyle;
   final double? fontSize;
   final FontWeight? fontWeight;
   final TextAlign textAlign;
-  final Color? backgroundColor;  // Add this line
+  final Color? backgroundColor; // Add this line
 
   const WhiteBulkButton({
     super.key,
@@ -24,13 +24,13 @@ class WhiteBulkButton extends StatelessWidget {
     this.rightWidget,
     this.onPressed,
     this.height = 120,
-    this.width,    // Add width parameter
+    this.width, // Add width parameter
     this.showIcon = true,
     this.textStyle,
     this.fontSize,
     this.fontWeight,
     this.textAlign = TextAlign.center,
-    this.backgroundColor,  // Add this line
+    this.backgroundColor, // Add this line
   });
 
   @override
@@ -47,17 +47,20 @@ class WhiteBulkButton extends StatelessWidget {
     );
 
     // Combine styles in order of precedence
-    final effectiveStyle = baseStyle?.copyWith(
-      fontSize: fontSize ?? textStyle?.fontSize ?? baseStyle.fontSize,
-      fontWeight: fontWeight ?? textStyle?.fontWeight ?? baseStyle.fontWeight,
-      color: textStyle?.color ?? baseStyle.color,
-    ).merge(textStyle);
+    final effectiveStyle = baseStyle
+        ?.copyWith(
+          fontSize: fontSize ?? textStyle?.fontSize ?? baseStyle.fontSize,
+          fontWeight:
+              fontWeight ?? textStyle?.fontWeight ?? baseStyle.fontWeight,
+          color: textStyle?.color ?? baseStyle.color,
+        )
+        .merge(textStyle);
 
     return Container(
       height: height,
-      width: width ?? double.infinity,  // Use width parameter if provided
+      width: width ?? double.infinity, // Use width parameter if provided
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.offWhite,  // Modify this line
+        color: backgroundColor ?? AppColors.offWhite, // Modify this line
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
@@ -97,7 +100,8 @@ class WhiteBulkButton extends StatelessWidget {
                     iconColor: AppColors.brown,
                     size: 48,
                     iconSize: 28,
-                    backgroundColor: backgroundColor ?? AppColors.offWhite,  // Add this line
+                    backgroundColor:
+                        backgroundColor ?? AppColors.offWhite, // Add this line
                   )
                 else
                   const SizedBox(),
@@ -109,4 +113,3 @@ class WhiteBulkButton extends StatelessWidget {
     );
   }
 }
-

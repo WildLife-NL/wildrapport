@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_white_button.dart';
 
-class QuestionnaireHomeButtons extends StatelessWidget{
+class QuestionnaireHomeButtons extends StatelessWidget {
   final Function() onOverslaanPressed;
   final Function() onBewaarVoorLaterPressed;
   final VoidCallback onVragenlijnstOpenenPressed;
@@ -25,33 +25,36 @@ class QuestionnaireHomeButtons extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildButton(
-              text: "Overslaan", 
+              text: "Overslaan",
               image: Image.asset("assets/icons/questionnaire/arrow.png"),
               height: 63,
               width: 200,
               onPressed: onOverslaanPressed,
-              ),
-              SizedBox(height: 24),
-              _buildButton(
-              text: "Bewaar voor later", 
+            ),
+            SizedBox(height: 24),
+            _buildButton(
+              text: "Bewaar voor later",
               image: Image.asset("assets/icons/questionnaire/save.png"),
               height: 63,
               width: 277,
               onPressed: onBewaarVoorLaterPressed,
+            ),
+            SizedBox(height: 24),
+            _buildButton(
+              text: "Vragenlijst Openen",
+              image: Image.asset(
+                "assets/icons/questionnaire/arrow_forward.png",
               ),
-              SizedBox(height: 24),
-              _buildButton(
-              text: "Vragenlijst Openen", 
-              image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
               height: 70,
               width: 339,
               onPressed: onVragenlijnstOpenenPressed,
-              ),
+            ),
           ],
-        )
-      )
+        ),
+      ),
     );
   }
+
   Widget _buildButton({
     required String text,
     required Image image,
@@ -61,11 +64,7 @@ class QuestionnaireHomeButtons extends StatelessWidget{
   }) {
     return QuestionnaireWhiteButton(
       text: text,
-      rightWidget: SizedBox(
-        width: 24,
-        height: 24,
-        child: image,
-      ),
+      rightWidget: SizedBox(width: 24, height: 24, child: image),
       height: height,
       width: width,
       onPressed: onPressed,

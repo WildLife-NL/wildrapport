@@ -1,5 +1,1 @@
-enum AnimalGender {
-  vrouwelijk,
-  mannelijk,
-  onbekend
-}
+enum AnimalGender { vrouwelijk, mannelijk, onbekend }

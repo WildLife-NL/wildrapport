@@ -16,7 +16,10 @@ class ReportButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.isFullWidth = false,
-  }) : assert(image != null || icon != null, 'Either image or icon must be provided');
+  }) : assert(
+         image != null || icon != null,
+         'Either image or icon must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class ReportButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -56,7 +59,7 @@ class ReportButton extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -65,14 +68,11 @@ class ReportButton extends StatelessWidget {
                           ),
                           icon != null
                               ? Icon(
-                                  icon,
-                                  size: iconSize * 0.6,
-                                  color: AppColors.brown,
-                                )
-                              : Image.asset(
-                                  image!,
-                                  fit: BoxFit.contain,
-                                ),
+                                icon,
+                                size: iconSize * 0.6,
+                                color: AppColors.brown,
+                              )
+                              : Image.asset(image!, fit: BoxFit.contain),
                         ],
                       ),
                     ),
@@ -83,7 +83,7 @@ class ReportButton extends StatelessWidget {
                         fontSize: 15,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withValues(alpha:0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
@@ -96,9 +96,8 @@ class ReportButton extends StatelessWidget {
               ),
             ),
             Align(
-              alignment: isFullWidth 
-                ? Alignment.bottomCenter 
-                : Alignment.bottomRight,
+              alignment:
+                  isFullWidth ? Alignment.bottomCenter : Alignment.bottomRight,
               child: Padding(
                 padding: EdgeInsets.all(screenSize.width * 0.04),
                 child: Icon(
@@ -107,7 +106,7 @@ class ReportButton extends StatelessWidget {
                   size: screenSize.width * 0.06,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha:0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),

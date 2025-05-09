@@ -3,7 +3,7 @@ import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 
-class BelongingDamageReport implements Reportable, PossesionReportFields{
+class BelongingDamageReport implements Reportable, PossesionReportFields {
   final String? possesionDamageReportID;
   @override
   final Possesion possesion;
@@ -26,7 +26,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields{
   @override
   final DateTime? userSelectedDateTime;
   @override
-  final DateTime systemDateTime; 
+  final DateTime systemDateTime;
 
   BelongingDamageReport({
     this.possesionDamageReportID,
@@ -61,24 +61,28 @@ class BelongingDamageReport implements Reportable, PossesionReportFields{
     "systemDateTime": systemDateTime.toIso8601String(),
   };
 
-factory BelongingDamageReport.fromJson(Map<String, dynamic> json) => BelongingDamageReport(
-  possesionDamageReportID: json["possesionDamageReportID"],
-  possesion: Possesion.fromJson(json["belonging"]),
-  impactedAreaType: json["impactType"],
-  impactedArea: (json["impactValue"] as num).toDouble(),
-  currentImpactDamages: (json["estimatedDamage"]as num).toDouble(),
-  estimatedTotalDamages: (json["estimatedLoss"]as num).toDouble(),
-  description: json["description"],
-  suspectedSpeciesID: json["suspectedAnimalID"],
-  userSelectedLocation: json["userSelectedLocation"] != null
-      ? ReportLocation.fromJson(json["userSelectedLocation"])
-      : null,
-  systemLocation: json["systemLocation"] != null
-      ? ReportLocation.fromJson(json["systemLocation"])
-      : null,
-  userSelectedDateTime: json["userSelectedDateTime"] != null
-      ? DateTime.parse(json["userSelectedDateTime"])
-      : null,
-  systemDateTime: DateTime.parse(json["systemDateTime"]),
-  );
+  factory BelongingDamageReport.fromJson(Map<String, dynamic> json) =>
+      BelongingDamageReport(
+        possesionDamageReportID: json["possesionDamageReportID"],
+        possesion: Possesion.fromJson(json["belonging"]),
+        impactedAreaType: json["impactType"],
+        impactedArea: (json["impactValue"] as num).toDouble(),
+        currentImpactDamages: (json["estimatedDamage"] as num).toDouble(),
+        estimatedTotalDamages: (json["estimatedLoss"] as num).toDouble(),
+        description: json["description"],
+        suspectedSpeciesID: json["suspectedAnimalID"],
+        userSelectedLocation:
+            json["userSelectedLocation"] != null
+                ? ReportLocation.fromJson(json["userSelectedLocation"])
+                : null,
+        systemLocation:
+            json["systemLocation"] != null
+                ? ReportLocation.fromJson(json["systemLocation"])
+                : null,
+        userSelectedDateTime:
+            json["userSelectedDateTime"] != null
+                ? DateTime.parse(json["userSelectedDateTime"])
+                : null,
+        systemDateTime: DateTime.parse(json["systemDateTime"]),
+      );
 }

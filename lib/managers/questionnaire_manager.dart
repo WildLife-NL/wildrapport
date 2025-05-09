@@ -17,9 +17,12 @@ class QuestionnaireManager implements QuestionnaireInterface {
     return await questionnaireAPI.getQuestionnaireByID(id);
   }
 
-
   @override
-  Future<List<dynamic>> buildQuestionnaireLayout(String interactionID, VoidCallback nextScreen, VoidCallback previousScreen) async {
+  Future<List<dynamic>> buildQuestionnaireLayout(
+    String interactionID,
+    VoidCallback nextScreen,
+    VoidCallback previousScreen,
+  ) async {
     final Questionnaire questionnaire = await getQuestionnaire();
     final List<Widget> questionnaireWidgets = [];
     questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen));
@@ -31,7 +34,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
 
       debugPrint("index: ${question.index}");
       debugPrint("lenght: $lenght");
-      if(question.index == lenght){
+      if (question.index == lenght) {
         debugPrint("CORRECT!");
       }
 
@@ -41,7 +44,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
             question: question,
             questionnaire: questionnaire,
             onNextPressed: nextScreen,
-            onBackPressed: previousScreen, 
+            onBackPressed: previousScreen,
             interactionID: interactionID,
           ),
         );
@@ -52,7 +55,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
             question: question,
             questionnaire: questionnaire,
             onNextPressed: nextScreen,
-            onBackPressed: previousScreen, 
+            onBackPressed: previousScreen,
             interactionID: interactionID,
           ),
         );
@@ -60,7 +63,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
     }
     return questionnaireWidgets;
   }
-  
+
   @override
   int? getAmountOfQuestions(int amount) {
     return amount;
@@ -69,10 +72,10 @@ class QuestionnaireManager implements QuestionnaireInterface {
   // Add a method to build questionnaire layout from an existing questionnaire
   @override
   Future<List<dynamic>> buildQuestionnaireLayoutFromExisting(
-    Questionnaire questionnaire, 
+    Questionnaire questionnaire,
     String interactionID,
     VoidCallback nextScreen,
-    VoidCallback lastNextScreen, 
+    VoidCallback lastNextScreen,
     VoidCallback previousScreen,
   ) async {
     final List<Widget> questionnaireWidgets = [];
@@ -84,12 +87,12 @@ class QuestionnaireManager implements QuestionnaireInterface {
       for (Question question in questionnaire.questions!) {
         debugPrint("Question Description: ${question.description}");
         debugPrint("Allow Open Response: ${question.allowOpenResponse}");
-        
-      debugPrint("index: ${question.index}");
-      debugPrint("lenght: $lenght");
-      if(question.index == lenght){
-        nextScreen = lastNextScreen;
-      }
+
+        debugPrint("index: ${question.index}");
+        debugPrint("lenght: $lenght");
+        if (question.index == lenght) {
+          nextScreen = lastNextScreen;
+        }
 
         if (!question.allowOpenResponse) {
           debugPrint("index: ${question.index}");
@@ -98,7 +101,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
               question: question,
               questionnaire: questionnaire,
               onNextPressed: nextScreen,
-              onBackPressed: previousScreen, 
+              onBackPressed: previousScreen,
               interactionID: interactionID,
             ),
           );
@@ -109,7 +112,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
               question: question,
               questionnaire: questionnaire,
               onNextPressed: nextScreen,
-              onBackPressed: previousScreen, 
+              onBackPressed: previousScreen,
               interactionID: interactionID,
             ),
           );
@@ -119,4 +122,3 @@ class QuestionnaireManager implements QuestionnaireInterface {
     return questionnaireWidgets;
   }
 }
-

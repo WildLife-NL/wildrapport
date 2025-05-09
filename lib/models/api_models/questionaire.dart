@@ -20,16 +20,18 @@ class Questionnaire {
   });
 
   factory Questionnaire.fromJson(Map<String, dynamic> json) => Questionnaire(
-        id: json["ID"],
-        experiment: Experiment.fromJson(json["experiment"]),
-        identifier: json["identifier"],
-        interactionType: InteractionType.fromJson(json["interactionType"]),
-        name: json["name"],
-        questions: json["questions"] != null
+    id: json["ID"],
+    experiment: Experiment.fromJson(json["experiment"]),
+    identifier: json["identifier"],
+    interactionType: InteractionType.fromJson(json["interactionType"]),
+    name: json["name"],
+    questions:
+        json["questions"] != null
             ? List<Question>.from(
-                json["questions"].map((x) => Question.fromJson(x)))
+              json["questions"].map((x) => Question.fromJson(x)),
+            )
             : null,
-      );
+  );
 
   Map<String, dynamic> toJson() {
     List<dynamic>? listQuestions;

@@ -3,7 +3,8 @@ import 'package:wildrapport/models/beta_models/report_factory.dart';
 import '../enums/interaction_type.dart';
 
 class Interaction {
-  final InteractionType interactionType; //waarneming, gewasschade, verkeersongeval  
+  final InteractionType
+  interactionType; //waarneming, gewasschade, verkeersongeval
   final String userID;
   final Reportable report;
 
@@ -21,6 +22,7 @@ class Interaction {
       "report": jsonReport,
     };
   }
+
   factory Interaction.fromJson(Map<String, dynamic> json) {
     final String type = json["interactionType"];
     final Map<String, dynamic> reportJson = json["report"];

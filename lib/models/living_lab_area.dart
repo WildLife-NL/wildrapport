@@ -24,10 +24,13 @@ class LivingLabArea {
         json['center']['lng'].toDouble(),
       ),
       areaKm2: json['areaKm2'].toDouble(),
-      boundary: (json['boundary'] as List<dynamic>).map((point) => LatLng(
-        point['lat'].toDouble(),
-        point['lng'].toDouble(),
-      )).toList(),
+      boundary:
+          (json['boundary'] as List<dynamic>)
+              .map(
+                (point) =>
+                    LatLng(point['lat'].toDouble(), point['lng'].toDouble()),
+              )
+              .toList(),
     );
   }
 
@@ -35,15 +38,12 @@ class LivingLabArea {
     return {
       'id': id,
       'name': name,
-      'center': {
-        'lat': center.latitude,
-        'lng': center.longitude,
-      },
+      'center': {'lat': center.latitude, 'lng': center.longitude},
       'areaKm2': areaKm2,
-      'boundary': boundary.map((point) => {
-        'lat': point.latitude,
-        'lng': point.longitude,
-      }).toList(),
+      'boundary':
+          boundary
+              .map((point) => {'lat': point.latitude, 'lng': point.longitude})
+              .toList(),
     };
   }
 

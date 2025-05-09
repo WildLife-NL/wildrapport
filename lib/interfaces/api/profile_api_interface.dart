@@ -1,4 +1,3 @@
-
-abstract class ProfileApiInterface{
+abstract class ProfileApiInterface {
   Future<void> setProfileDataInDeviceStorage();
 }

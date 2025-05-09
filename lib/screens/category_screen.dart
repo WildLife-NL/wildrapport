@@ -29,39 +29,43 @@ class _CategoryScreenState extends State<CategoryScreen> {
     debugPrint('$purpleLog[CategoryScreen] Initializing screen$resetLog');
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
     _navigationManager = context.read<NavigationStateInterface>();
-    
+
     final currentState = _animalSightingManager.getCurrentanimalSighting();
-    debugPrint('$purpleLog[CategoryScreen] Initial animal sighting state: ${currentState?.toJson()}$resetLog');
+    debugPrint(
+      '$purpleLog[CategoryScreen] Initial animal sighting state: ${currentState?.toJson()}$resetLog',
+    );
   }
 
   void _handleBackNavigation() {
     if (!mounted) return;
-    
+
     // Clear the animal sighting data
     _animalSightingManager.clearCurrentanimalSighting();
-    
+
     // Get the app state provider and clear the current report
-    final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
+    final appStateProvider = Provider.of<AppStateProvider>(
+      context,
+      listen: false,
+    );
     appStateProvider.resetApplicationState(context);
-    
+
     // Use the navigation manager's clearApplicationState method which should handle all cleanup
     _navigationManager.clearApplicationState(context);
-    
+
     // Remove all screens and navigate to Rapporteren
-    _navigationManager.pushAndRemoveUntil(
-      context,
-      const Rapporteren(),
-    );
+    _navigationManager.pushAndRemoveUntil(context, const Rapporteren());
   }
 
   void _handleStatusSelection(BuildContext context, String status) {
     if (!mounted) return;
     try {
       setState(() => _isLoading = true);
-      
-      final selectedCategory = _animalSightingManager.convertStringToCategory(status);
+
+      final selectedCategory = _animalSightingManager.convertStringToCategory(
+        status,
+      );
       _animalSightingManager.updateCategory(selectedCategory);
-      
+
       if (mounted) {
         _navigationManager.dispose(); // Clean up resources
         _navigationManager.pushReplacementForward(
@@ -70,18 +74,23 @@ class _CategoryScreenState extends State<CategoryScreen> {
         );
       }
     } catch (e) {
-      debugPrint('$purpleLog[CategoryScreen] Error updating category: $e$resetLog');
-      if (mounted) {  // Check if still mounted before showing snackbar
+      debugPrint(
+        '$purpleLog[CategoryScreen] Error updating category: $e$resetLog',
+      );
+      if (mounted) {
+        // Check if still mounted before showing snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Er is een fout opgetreden bij het bijwerken van de categorie'),
+            content: Text(
+              'Er is een fout opgetreden bij het bijwerken van de categorie',
+            ),
             backgroundColor: Colors.red,
           ),
         );
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);  // Hide loading indicator
+        setState(() => _isLoading = false); // Hide loading indicator
       }
     }
   }
@@ -100,26 +109,38 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   rightIcon: Icons.menu,
                   onLeftIconPressed: _handleBackNavigation,
                   onRightIconPressed: () {
-                    debugPrint('$purpleLog[CategoryScreen] Menu button pressed$resetLog');
+                    debugPrint(
+                      '$purpleLog[CategoryScreen] Menu button pressed$resetLog',
+                    );
                   },
                 ),
                 SelectionButtonGroup(
                   buttons: const [
-                    (text: 'Evenhoevigen', icon: null, imagePath: 'assets/icons/category/evenhoevigen.png'),
-                    (text: 'Knaagdieren', icon: null, imagePath: 'assets/icons/category/knaagdieren.png'),
-                    (text: 'Roofdieren', icon: null, imagePath: 'assets/icons/category/roofdieren.png'),
+                    (
+                      text: 'Evenhoevigen',
+                      icon: null,
+                      imagePath: 'assets/icons/category/evenhoevigen.png',
+                    ),
+                    (
+                      text: 'Knaagdieren',
+                      icon: null,
+                      imagePath: 'assets/icons/category/knaagdieren.png',
+                    ),
+                    (
+                      text: 'Roofdieren',
+                      icon: null,
+                      imagePath: 'assets/icons/category/roofdieren.png',
+                    ),
                     (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
                   ],
-                  onStatusSelected: (status) => _handleStatusSelection(context, status),
+                  onStatusSelected:
+                      (status) => _handleStatusSelection(context, status),
                   title: 'Selecteer Categorie',
                 ),
               ],
             ),
           ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+          if (_isLoading) const Center(child: CircularProgressIndicator()),
         ],
       ),
       bottomNavigationBar: CustomBottomAppBar(
@@ -130,43 +151,3 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -27,18 +27,11 @@ class LocationMapPreview extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.location_off,
-                    size: 40,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.location_off, size: 40, color: Colors.grey[400]),
                   const SizedBox(height: 8),
                   Text(
                     'Geen locatie geselecteerd',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                 ],
               ),
@@ -47,7 +40,8 @@ class LocationMapPreview extends StatelessWidget {
         }
 
         // Show loading animation when either position is null OR address is empty
-        if (mapProvider.currentPosition == null || mapProvider.selectedAddress.isEmpty) {
+        if (mapProvider.currentPosition == null ||
+            mapProvider.selectedAddress.isEmpty) {
           return Container(
             height: 150,
             decoration: BoxDecoration(
@@ -73,15 +67,14 @@ class LocationMapPreview extends StatelessWidget {
         }
 
         // Get the position to display (either selected or current)
-        final position = mapProvider.selectedPosition ?? mapProvider.currentPosition!;
+        final position =
+            mapProvider.selectedPosition ?? mapProvider.currentPosition!;
         final point = LatLng(position.latitude, position.longitude);
 
         return SizedBox(
           height: 150,
           child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(15),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             child: flutter_map.FlutterMap(
               mapController: mapProvider.mapController,
               options: flutter_map.MapOptions(
@@ -118,6 +111,3 @@ class LocationMapPreview extends StatelessWidget {
     );
   }
 }
-
-
-

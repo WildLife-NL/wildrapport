@@ -28,15 +28,15 @@ class CustomBottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    
+
     final double barHeight = screenSize.height * 0.1;
     final double minHeight = 80.0;
     final double maxHeight = 100.0;
-    
+
     final double fontSize = screenSize.width * 0.05;
     final double minFontSize = 18.0;
     final double maxFontSize = 24.0;
-    
+
     final double iconSize = screenSize.width * 0.08;
     final double minIconSize = 28.0;
     final double maxIconSize = 36.0;
@@ -51,9 +51,10 @@ class CustomBottomAppBar extends StatelessWidget {
       color: Colors.transparent, // Make container background transparent
       child: SafeArea(
         child: Row(
-          mainAxisAlignment: showNextButton && showBackButton
-              ? MainAxisAlignment.spaceBetween
-              : showNextButton
+          mainAxisAlignment:
+              showNextButton && showBackButton
+                  ? MainAxisAlignment.spaceBetween
+                  : showNextButton
                   ? MainAxisAlignment.end
                   : MainAxisAlignment.start,
           children: [
@@ -70,7 +71,7 @@ class CustomBottomAppBar extends StatelessWidget {
                         size: finalIconSize,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withValues(alpha:0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
@@ -85,7 +86,7 @@ class CustomBottomAppBar extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withValues(alpha:0.25),
+                              color: Colors.black.withValues(alpha: 0.25),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -111,7 +112,7 @@ class CustomBottomAppBar extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withValues(alpha:0.25),
+                              color: Colors.black.withValues(alpha: 0.25),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -125,7 +126,7 @@ class CustomBottomAppBar extends StatelessWidget {
                         size: finalIconSize,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withValues(alpha:0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
@@ -141,12 +142,3 @@ class CustomBottomAppBar extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-

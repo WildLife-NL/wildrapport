@@ -81,7 +81,7 @@ class AnimalCounterState extends State<AnimalCounter> {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -97,7 +97,9 @@ class AnimalCounterState extends State<AnimalCounter> {
           Container(
             height: widget.height - 20, // Adjust height of divider
             width: 1,
-            color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
+            color: Colors.grey.withValues(
+              alpha: 0.7,
+            ), // Increased opacity from 0.5 to 0.7
           ),
           Expanded(
             child: GestureDetector(
@@ -113,49 +115,58 @@ class AnimalCounterState extends State<AnimalCounter> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
-                      child: _isEditing
-                          ? TextField(
-                              controller: _controller,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.brown, // Add this line to make text brown when typing
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withValues(alpha:0.25),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                  ),
-                                ],
+                      child:
+                          _isEditing
+                              ? TextField(
+                                controller: _controller,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      AppColors
+                                          .brown, // Add this line to make text brown when typing
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.25,
+                                      ),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                onSubmitted: _handleTextSubmitted,
+                                autofocus: true,
+                              )
+                              : Text(
+                                '$_count',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.25,
+                                      ),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              onSubmitted: _handleTextSubmitted,
-                              autofocus: true,
-                            )
-                          : Text(
-                              '$_count',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withValues(alpha:0.25),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                            ),
                     ),
                     Container(
                       height: 1,
                       width: 40, // Width of the underline
-                      color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
+                      color: Colors.grey.withValues(
+                        alpha: 0.7,
+                      ), // Increased opacity from 0.5 to 0.7
                     ),
                   ],
                 ),
@@ -165,7 +176,9 @@ class AnimalCounterState extends State<AnimalCounter> {
           Container(
             height: widget.height - 20, // Adjust height of divider
             width: 1,
-            color: Colors.grey.withValues(alpha:0.7), // Increased opacity from 0.5 to 0.7
+            color: Colors.grey.withValues(
+              alpha: 0.7,
+            ), // Increased opacity from 0.5 to 0.7
           ),
           Padding(
             padding: const EdgeInsets.only(right: 6.0),
@@ -179,14 +192,14 @@ class AnimalCounterState extends State<AnimalCounter> {
   Widget _buildButton(String symbol, VoidCallback onPressed) {
     final bool isMinus = symbol == "−";
     return SizedBox(
-      width: 44,  // Same width for both buttons
+      width: 44, // Same width for both buttons
       height: widget.height - 13, // Adjust height based on parent container
       child: Material(
         color: Colors.transparent, // Remove brown background
         child: InkWell(
           onTap: onPressed,
-          splashColor: AppColors.brown.withValues(alpha:0.3),
-          highlightColor: AppColors.brown.withValues(alpha:0.1),
+          splashColor: AppColors.brown.withValues(alpha: 0.3),
+          highlightColor: AppColors.brown.withValues(alpha: 0.1),
           child: Center(
             child: Text(
               symbol,
@@ -198,7 +211,7 @@ class AnimalCounterState extends State<AnimalCounter> {
                 height: 1,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withValues(alpha:0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -211,26 +224,3 @@ class AnimalCounterState extends State<AnimalCounter> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -58,7 +58,8 @@ class AccidentReport implements Reportable, CommonReportFields {
     userSelectedDateTime: json["userSelectedDateTime"],
     systemDateTime: json["systemDateTime"],
     animals: List<SightedAnimal>.from(
-      json["animals"].map((x) => SightedAnimal.fromJson(x))),
+      json["animals"].map((x) => SightedAnimal.fromJson(x)),
+    ),
     intensity: json["intensity"],
     urgency: json["urgency"],
   );

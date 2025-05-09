@@ -11,7 +11,11 @@ import 'package:wildrapport/widgets/app_bar.dart';
 class QuestionnaireScreen extends StatefulWidget {
   final Questionnaire questionnaire;
   final String interactionID;
-  const QuestionnaireScreen({super.key, required this.questionnaire, required this.interactionID});
+  const QuestionnaireScreen({
+    super.key,
+    required this.questionnaire,
+    required this.interactionID,
+  });
 
   @override
   State<QuestionnaireScreen> createState() => _QuestionnaireScreenState();
@@ -29,12 +33,17 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     super.initState();
     _questionnaireManager = context.read<QuestionnaireInterface>();
     _responseManager = context.read<ResponseInterface>();
-    _loadQuestionnaire(); 
+    _loadQuestionnaire();
   }
 
   void nextScreen() {
-    if(responseProvider.interactionID != null && responseProvider.questionID != null){
-      _responseManager.storeResponse(responseProvider.buildResponse(), widget.questionnaire.id, responseProvider.questionID!);
+    if (responseProvider.interactionID != null &&
+        responseProvider.questionID != null) {
+      _responseManager.storeResponse(
+        responseProvider.buildResponse(),
+        widget.questionnaire.id,
+        responseProvider.questionID!,
+      );
     }
     debugPrint("Next Screen");
     debugPrint("Current Index: $currentQuestionnaireIndex");
@@ -44,7 +53,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       });
     }
   }
-  void lastNextScreen(){
+
+  void lastNextScreen() {
     _responseManager.submitResponses();
     context.read<NavigationStateInterface>().pushAndRemoveUntil(
       context,
@@ -53,7 +63,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   void previousScreen() {
-    debugPrint("Previous Screen");    
+    debugPrint("Previous Screen");
     debugPrint("Current Index: $currentQuestionnaireIndex");
     if (currentQuestionnaireIndex > 0) {
       setState(() {
@@ -63,18 +73,21 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayoutFromExisting(
-            widget.questionnaire,
-            widget.interactionID,
-            nextScreen,
-            lastNextScreen,
-            previousScreen,
-          );
+    final questionnaireScreens = await _questionnaireManager
+        .buildQuestionnaireLayoutFromExisting(
+          widget.questionnaire,
+          widget.interactionID,
+          nextScreen,
+          lastNextScreen,
+          previousScreen,
+        );
 
     setState(() {
       questionnaireScreensList = questionnaireScreens;
     });
-    debugPrint('Loaded questionnaireScreensList: ${questionnaireScreensList.length}');
+    debugPrint(
+      'Loaded questionnaireScreensList: ${questionnaireScreensList.length}',
+    );
   }
 
   @override
@@ -82,31 +95,34 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     if (questionnaireScreensList.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
- return ChangeNotifierProvider<ResponseProvider>.value(
-    value: responseProvider,
-    child: Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
+    return ChangeNotifierProvider<ResponseProvider>.value(
+      value: responseProvider,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
               CustomAppBar(
                 leftIcon: Icons.arrow_back_ios,
                 centerText: "Vragenlijst",
                 rightIcon: Icons.menu,
-                onLeftIconPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OverzichtScreen(),
-                  ),
-                ),
-                onRightIconPressed: () {/* Handle menu */},
+                onLeftIconPressed:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OverzichtScreen(),
+                      ),
+                    ),
+                onRightIconPressed: () {
+                  /* Handle menu */
+                },
               ),
-            Expanded(child: questionnaireScreensList[currentQuestionnaireIndex]),
-          ],
+              Expanded(
+                child: questionnaireScreensList[currentQuestionnaireIndex],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
-
-

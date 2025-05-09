@@ -14,16 +14,14 @@ import 'package:wildrapport/widgets/scrollable_animal_grid.dart';
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
 
-  const AnimalsScreen({
-    super.key, 
-    required this.appBarTitle,
-  });
+  const AnimalsScreen({super.key, required this.appBarTitle});
 
   @override
   State<AnimalsScreen> createState() => _AnimalsScreenState();
 }
 
-class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProviderStateMixin {
+class _AnimalsScreenState extends State<AnimalsScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimalManagerInterface _animalManager;
   late final AnimalSightingReportingInterface _animalSightingManager;
   late final NavigationStateInterface _navigationManager;
@@ -74,8 +72,10 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       });
 
       final animals = await _animalManager.getAnimals();
-      debugPrint('[AnimalsScreen] Successfully loaded ${animals.length} animals');
-      
+      debugPrint(
+        '[AnimalsScreen] Successfully loaded ${animals.length} animals',
+      );
+
       if (mounted) {
         setState(() {
           _animals = animals;
@@ -86,7 +86,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       debugPrint('[AnimalsScreen] ERROR: Failed to load animals');
       debugPrint('[AnimalsScreen] Error details: $e');
       debugPrint('[AnimalsScreen] Stack trace: $stackTrace');
-      
+
       if (mounted) {
         setState(() {
           _error = e.toString();
@@ -112,7 +112,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
   }
 
   void _toggleExpanded() {
-    debugPrint('[AnimalsScreen] Toggling expanded state from $_isExpanded to ${!_isExpanded}');
+    debugPrint(
+      '[AnimalsScreen] Toggling expanded state from $_isExpanded to ${!_isExpanded}',
+    );
     setState(() {
       _isExpanded = !_isExpanded;
     });
@@ -123,26 +125,20 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
       selectedAnimal,
       _animalManager,
     );
-    
-    _navigationManager.pushForward(
-      context,
-      AnimalCountingScreen(),
-    );
+
+    _navigationManager.pushForward(context, AnimalCountingScreen());
   }
 
   void _handleBackNavigation() {
     debugPrint('[AnimalsScreen] Back button pressed');
     _navigationManager.dispose(); // Call dispose first to clean up resources
-    _navigationManager.pushReplacementBack(
-      context,
-      const CategoryScreen(),
-    );
+    _navigationManager.pushReplacementBack(context, const CategoryScreen());
   }
 
   @override
   Widget build(BuildContext context) {
     final dropdownInterface = context.read<DropdownInterface>();
-    
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -152,7 +148,9 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
               centerText: widget.appBarTitle,
               rightIcon: Icons.menu,
               onLeftIconPressed: _handleBackNavigation,
-              onRightIconPressed: () {/* Handle menu */},
+              onRightIconPressed: () {
+                /* Handle menu */
+              },
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),
@@ -166,7 +164,7 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
               ),
             ),
             ScrollableAnimalGrid(
-              animals: _animals,  // Pass directly without the ?? []
+              animals: _animals, // Pass directly without the ?? []
               isLoading: _isLoading,
               error: _error,
               scrollController: _scrollController,
@@ -179,34 +177,3 @@ class _AnimalsScreenState extends State<AnimalsScreen> with SingleTickerProvider
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

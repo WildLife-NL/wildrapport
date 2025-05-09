@@ -4,7 +4,10 @@ import 'package:wildrapport/widgets/circle_icon_container.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
-  final List<({String text, IconData? icon, String? imagePath, VoidCallback? onPressed})> buttons;
+  final List<
+    ({String text, IconData? icon, String? imagePath, VoidCallback? onPressed})
+  >
+  buttons;
   final double? verticalPadding;
   final double? horizontalPadding;
   final double? buttonSpacing;
@@ -31,10 +34,10 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding ?? 8, // <-- Only small margin on left/right
+        horizontal:
+            horizontalPadding ?? 8, // <-- Only small margin on left/right
         vertical: verticalPadding ?? 0,
       ),
       child: Column(
@@ -43,7 +46,8 @@ class ActionButtons extends StatelessWidget {
           for (var button in buttons) ...[
             SizedBox(
               height: buttonHeight,
-              width: double.infinity, // <-- Force button to be as wide as possible
+              width:
+                  double.infinity, // <-- Force button to be as wide as possible
               child: _buildButton(
                 text: button.text,
                 icon: button.icon,
@@ -51,8 +55,7 @@ class ActionButtons extends StatelessWidget {
                 onPressed: button.onPressed,
               ),
             ),
-            if (button != buttons.last)
-              SizedBox(height: buttonSpacing ?? 0),
+            if (button != buttons.last) SizedBox(height: buttonSpacing ?? 0),
           ],
         ],
       ),
@@ -72,17 +75,14 @@ class ActionButtons extends StatelessWidget {
     final bool useCircle = useCircleIconsForIndices.contains(buttonIndex);
 
     if (icon != null) {
-      leftWidget = useCircle
-          ? CircleIconContainer(
-              icon: icon,
-              iconColor: iconColor,
-              size: iconSize,
-            )
-          : Icon(
-              icon,
-              color: iconColor,
-              size: iconSize,
-            );
+      leftWidget =
+          useCircle
+              ? CircleIconContainer(
+                icon: icon,
+                iconColor: iconColor,
+                size: iconSize,
+              )
+              : Icon(icon, color: iconColor, size: iconSize);
     } else if (imagePath != null) {
       leftWidget = Image.asset(
         imagePath,
@@ -101,7 +101,7 @@ class ActionButtons extends StatelessWidget {
         size: 24,
         shadows: [
           Shadow(
-            color: Colors.black.withValues(alpha:0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -114,4 +114,3 @@ class ActionButtons extends StatelessWidget {
     );
   }
 }
-

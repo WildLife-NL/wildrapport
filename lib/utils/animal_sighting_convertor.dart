@@ -13,10 +13,12 @@ class AnimalSightingConvertor {
       throw StateError('Location is required for API submission');
     }
 
-    final systemLocation = report.locations!
-        .firstWhere((loc) => loc.source.toString().split('.').last == 'system');
-    final userLocation = report.locations!
-        .firstWhere((loc) => loc.source.toString().split('.').last == 'manual');
+    final systemLocation = report.locations!.firstWhere(
+      (loc) => loc.source.toString().split('.').last == 'system',
+    );
+    final userLocation = report.locations!.firstWhere(
+      (loc) => loc.source.toString().split('.').last == 'manual',
+    );
 
     return {
       "description": report.description,
@@ -29,47 +31,47 @@ class AnimalSightingConvertor {
         "latitude": userLocation.latitude,
         "longitude": userLocation.longitude,
       },
-      "reportOfSighting": {
-        "involvedAnimals": allInvolvedAnimals
-      },
-      "speciesID": report.animalSelected?.animalId, // Make sure this is not null when sending
-      "typeID": 1
+      "reportOfSighting": {"involvedAnimals": allInvolvedAnimals},
+      "speciesID":
+          report
+              .animalSelected
+              ?.animalId, // Make sure this is not null when sending
+      "typeID": 1,
     };
   }
 
-static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
-  final List<Map<String, dynamic>> involvedAnimals = [];
+  static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
+    final List<Map<String, dynamic>> involvedAnimals = [];
 
-  final condition = animal.condition.toString().split('.').last;
-  final mappedCondition = mapCondition(condition);
+    final condition = animal.condition.toString().split('.').last;
+    final mappedCondition = mapCondition(condition);
 
-  for (final genderView in animal.genderViewCounts) {
-    final genderString = genderView.gender.toString().split('.').last;
-    final sex = mapSex(genderString);
-    final viewCount = genderView.viewCount;
+    for (final genderView in animal.genderViewCounts) {
+      final genderString = genderView.gender.toString().split('.').last;
+      final sex = mapSex(genderString);
+      final viewCount = genderView.viewCount;
 
-    void addEntries(int amount, String ageKey) {
-      final age = mapAge(ageKey);
-      final lifeStage = mapLifeStage(age);
+      void addEntries(int amount, String ageKey) {
+        final age = mapAge(ageKey);
+        final lifeStage = mapLifeStage(age);
 
-      for (int i = 0; i < amount; i++) {
-        involvedAnimals.add({
-          "condition": mappedCondition,
-          "lifeStage": lifeStage,
-          "sex": sex
-        });
+        for (int i = 0; i < amount; i++) {
+          involvedAnimals.add({
+            "condition": mappedCondition,
+            "lifeStage": lifeStage,
+            "sex": sex,
+          });
+        }
       }
+
+      addEntries(viewCount.pasGeborenAmount, 'pasGeborenAmount');
+      addEntries(viewCount.onvolwassenAmount, 'onvolwassenAmount');
+      addEntries(viewCount.volwassenAmount, 'volwassenAmount');
+      addEntries(viewCount.unknownAmount, 'unknownAmount');
     }
 
-    addEntries(viewCount.pasGeborenAmount, 'pasGeborenAmount');
-    addEntries(viewCount.onvolwassenAmount, 'onvolwassenAmount');
-    addEntries(viewCount.volwassenAmount, 'volwassenAmount');
-    addEntries(viewCount.unknownAmount, 'unknownAmount');
+    return involvedAnimals;
   }
-
-  return involvedAnimals;
-}
-
 
   static String mapSex(String genderEnum) {
     switch (genderEnum) {
@@ -110,17 +112,16 @@ static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
     }
   }
 
-static String mapLifeStage(String age) {
-  switch (age.toLowerCase()) {
-    case 'pasgeboren':
-      return 'infant';      // newborn
-    case 'onvolwassen':
-      return 'adolescent';  // NOT "juvenile" -> API wants "adolescent"
-    case 'volwassen':
-      return 'adult';       // adult
-    default:
-      return 'unknown';     // if undefined
+  static String mapLifeStage(String age) {
+    switch (age.toLowerCase()) {
+      case 'pasgeboren':
+        return 'infant'; // newborn
+      case 'onvolwassen':
+        return 'adolescent'; // NOT "juvenile" -> API wants "adolescent"
+      case 'volwassen':
+        return 'adult'; // adult
+      default:
+        return 'unknown'; // if undefined
+    }
   }
-}
-
 }

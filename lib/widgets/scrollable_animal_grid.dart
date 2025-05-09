@@ -46,10 +46,7 @@ class ScrollableAnimalGrid extends StatelessWidget {
             Text('Error: $error'),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: onRetry,
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
             ],
           ],
         ),
@@ -57,17 +54,12 @@ class ScrollableAnimalGrid extends StatelessWidget {
     }
 
     if (animals == null || animals!.isEmpty) {
-      return const Center(
-        child: Text('Geen dieren gevonden'),
-      );
+      return const Center(child: Text('Geen dieren gevonden'));
     }
 
     return SingleChildScrollView(
       controller: scrollController,
-      child: AnimalGrid(
-        animals: animals!,
-        onAnimalSelected: onAnimalSelected,
-      ),
+      child: AnimalGrid(animals: animals!, onAnimalSelected: onAnimalSelected),
     );
   }
 
@@ -81,5 +73,3 @@ class ScrollableAnimalGrid extends StatelessWidget {
     );
   }
 }
-
-

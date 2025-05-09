@@ -18,18 +18,21 @@ class SelectionButtonGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    
+
     // Calculate responsive text size
     final double fontSize = screenSize.width * 0.06;
     final double minFontSize = 20.0;
     final double maxFontSize = 28.0;
     final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
-    
+
     // Calculate responsive icon sizes
     final double circleSize = screenSize.width * 0.15;
     final double minCircleSize = 64.0;
     final double maxCircleSize = 80.0;
-    final double finalCircleSize = circleSize.clamp(minCircleSize, maxCircleSize);
+    final double finalCircleSize = circleSize.clamp(
+      minCircleSize,
+      maxCircleSize,
+    );
 
     return Expanded(
       child: Padding(
@@ -48,20 +51,22 @@ class SelectionButtonGroup extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withValues(alpha:0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
                 ],
               ),
             ),
-            ...buttons.reversed.map((button) => _buildButton(
-                  text: button.text,
-                  icon: button.icon,
-                  imagePath: button.imagePath,
-                  circleSize: finalCircleSize,
-                  arrowSize: finalCircleSize * 0.3,
-                )),
+            ...buttons.reversed.map(
+              (button) => _buildButton(
+                text: button.text,
+                icon: button.icon,
+                imagePath: button.imagePath,
+                circleSize: finalCircleSize,
+                arrowSize: finalCircleSize * 0.3,
+              ),
+            ),
           ],
         ),
       ),
@@ -76,21 +81,18 @@ class SelectionButtonGroup extends StatelessWidget {
     required double arrowSize,
   }) {
     Widget? leftWidget;
-    
+
     if (icon != null) {
-      leftWidget = text == 'Andere' 
-          ? CircleIconContainer(
-              size: circleSize,
-              icon: icon,
-              iconColor: AppColors.brown,
-              backgroundColor: AppColors.offWhite,
-              iconSize: circleSize * 0.5,
-            )
-          : Icon(
-              icon,
-              color: AppColors.brown,
-              size: circleSize * 0.8,
-            );
+      leftWidget =
+          text == 'Andere'
+              ? CircleIconContainer(
+                size: circleSize,
+                icon: icon,
+                iconColor: AppColors.brown,
+                backgroundColor: AppColors.offWhite,
+                iconSize: circleSize * 0.5,
+              )
+              : Icon(icon, color: AppColors.brown, size: circleSize * 0.8);
     } else if (imagePath != null) {
       leftWidget = Image.asset(
         imagePath,
@@ -109,7 +111,7 @@ class SelectionButtonGroup extends StatelessWidget {
         size: arrowSize * 1.4,
         shadows: [
           Shadow(
-            color: Colors.black.withValues(alpha:0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -119,19 +121,3 @@ class SelectionButtonGroup extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

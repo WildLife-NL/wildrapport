@@ -22,26 +22,28 @@ class Question {
   });
 
   factory Question.fromJson(Map<String, dynamic> json) => Question(
-        id: json["ID"],
-        allowMultipleResponse: json["allowMultipleResponse"],
-        allowOpenResponse: json["allowOpenResponse"],
-        answers: json["answers"] != null
+    id: json["ID"],
+    allowMultipleResponse: json["allowMultipleResponse"],
+    allowOpenResponse: json["allowOpenResponse"],
+    answers:
+        json["answers"] != null
             ? List<Answer>.from(json["answers"].map((x) => Answer.fromJson(x)))
             : null,
-        description: json["description"],
-        index: json["index"],
-        openResponseFormat: json["openResponseFormat"],
-        text: json["text"],
-      );
+    description: json["description"],
+    index: json["index"],
+    openResponseFormat: json["openResponseFormat"],
+    text: json["text"],
+  );
 
   Map<String, dynamic> toJson() {
     return {
       "ID": id,
       "allowMultipleResponse": allowMultipleResponse,
       "allowOpenResponse": allowOpenResponse,
-      "answers": answers != null
-          ? List<dynamic>.from(answers!.map((x) => x.toJson()))
-          : null,
+      "answers":
+          answers != null
+              ? List<dynamic>.from(answers!.map((x) => x.toJson()))
+              : null,
       "description": description,
       "index": index,
       "openResponseFormat": openResponseFormat,

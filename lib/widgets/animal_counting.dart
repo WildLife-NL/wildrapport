@@ -16,11 +16,7 @@ class AnimalCounting extends StatefulWidget {
   final Function(String)? onAgeSelected;
   final VoidCallback? onAddToList;
 
-  const AnimalCounting({
-    super.key,
-    this.onAgeSelected,
-    this.onAddToList,
-  });
+  const AnimalCounting({super.key, this.onAgeSelected, this.onAddToList});
 
   @override
   State<AnimalCounting> createState() => _AnimalCountingState();
@@ -32,7 +28,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? lastSelectedGender; // Add this to remember the last gender
   int currentCount = 0;
   bool _forceRebuild = false;
-  final GlobalKey<AnimalCounterState> _counterKey = GlobalKey<AnimalCounterState>();
+  final GlobalKey<AnimalCounterState> _counterKey =
+      GlobalKey<AnimalCounterState>();
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
     switch (ageString) {
@@ -94,7 +91,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     final currentAnimal = currentSighting?.animalSelected;
 
@@ -106,9 +104,13 @@ class _AnimalCountingState extends State<AnimalCounting> {
     // Save the current gender before resetting
     final String? genderToRestore = selectedGender;
 
-    List<AnimalGenderViewCount> updatedGenderViewCounts = List.from(currentAnimal.genderViewCounts);
+    List<AnimalGenderViewCount> updatedGenderViewCounts = List.from(
+      currentAnimal.genderViewCounts,
+    );
 
-    final genderIndex = updatedGenderViewCounts.indexWhere((gvc) => gvc.gender == selectedAnimalGender);
+    final genderIndex = updatedGenderViewCounts.indexWhere(
+      (gvc) => gvc.gender == selectedAnimalGender,
+    );
 
     if (genderIndex != -1) {
       // Existing gender found - preserve other age values
@@ -117,10 +119,22 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
       // Create updated view count preserving other age values
       final updatedViewCount = ViewCountModel(
-        pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : viewCount.pasGeborenAmount,
-        onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : viewCount.onvolwassenAmount,
-        volwassenAmount: selectedAnimalAge == AnimalAge.volwassen ? currentCount : viewCount.volwassenAmount,
-        unknownAmount: selectedAnimalAge == AnimalAge.onbekend ? currentCount : viewCount.unknownAmount,
+        pasGeborenAmount:
+            selectedAnimalAge == AnimalAge.pasGeboren
+                ? currentCount
+                : viewCount.pasGeborenAmount,
+        onvolwassenAmount:
+            selectedAnimalAge == AnimalAge.onvolwassen
+                ? currentCount
+                : viewCount.onvolwassenAmount,
+        volwassenAmount:
+            selectedAnimalAge == AnimalAge.volwassen
+                ? currentCount
+                : viewCount.volwassenAmount,
+        unknownAmount:
+            selectedAnimalAge == AnimalAge.onbekend
+                ? currentCount
+                : viewCount.unknownAmount,
       );
 
       updatedGenderViewCounts[genderIndex] = AnimalGenderViewCount(
@@ -130,10 +144,14 @@ class _AnimalCountingState extends State<AnimalCounting> {
     } else {
       // New gender - create new entry
       final newViewCount = ViewCountModel(
-        pasGeborenAmount: selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : 0,
-        onvolwassenAmount: selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : 0,
-        volwassenAmount: selectedAnimalAge == AnimalAge.volwassen ? currentCount : 0,
-        unknownAmount: selectedAnimalAge == AnimalAge.onbekend ? currentCount : 0,
+        pasGeborenAmount:
+            selectedAnimalAge == AnimalAge.pasGeboren ? currentCount : 0,
+        onvolwassenAmount:
+            selectedAnimalAge == AnimalAge.onvolwassen ? currentCount : 0,
+        volwassenAmount:
+            selectedAnimalAge == AnimalAge.volwassen ? currentCount : 0,
+        unknownAmount:
+            selectedAnimalAge == AnimalAge.onbekend ? currentCount : 0,
       );
 
       updatedGenderViewCounts.add(
@@ -143,7 +161,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
         ),
       );
     }
-    
+
     // Reset selections after adding and force rebuild
     setState(() {
       selectedAge = null;
@@ -162,7 +180,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
     (_counterKey.currentState as AnimalCounterState).reset();
 
     widget.onAddToList?.call();
-    
+
     // Force a rebuild to update the UI
     setState(() {
       selectedAge = null;
@@ -170,7 +188,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
       // Force rebuild by setting a dummy variable
       _forceRebuild = !_forceRebuild;
     });
-    
+
     // Show success snackbar
     SnackBarWithProgress.show(
       context: context,
@@ -203,8 +221,8 @@ class _AnimalCountingState extends State<AnimalCounting> {
   @override
   Widget build(BuildContext context) {
     // Watch for changes in the animal sighting manager
-    final animalSightingManager = context.watch<AnimalSightingReportingInterface>();
-    
+    context.watch<AnimalSightingReportingInterface>();
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Padding(
@@ -215,7 +233,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - MediaQuery.of(context).viewInsets.bottom,
+                minHeight:
+                    constraints.maxHeight -
+                    MediaQuery.of(context).viewInsets.bottom,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -231,8 +251,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
                           children: [
                             Expanded(
                               child: Column(
-                                mainAxisSize: MainAxisSize.min, // Keep this as min
-                                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
+                                mainAxisSize:
+                                    MainAxisSize.min, // Keep this as min
+                                crossAxisAlignment:
+                                    CrossAxisAlignment
+                                        .stretch, // Ensure buttons stretch
                                 children: [
                                   _buildHeader('Leeftijd'),
                                   // Filter out null widgets and add spacing only between non-null widgets
@@ -243,8 +266,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
-                                mainAxisSize: MainAxisSize.min, // Keep this as min
-                                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure buttons stretch
+                                mainAxisSize:
+                                    MainAxisSize.min, // Keep this as min
+                                crossAxisAlignment:
+                                    CrossAxisAlignment
+                                        .stretch, // Ensure buttons stretch
                                 children: [
                                   _buildHeader('Geslacht'),
                                   // Filter out null widgets and add spacing only between non-null widgets
@@ -261,7 +287,10 @@ class _AnimalCountingState extends State<AnimalCounting> {
                   const SizedBox(height: 30),
                   // Fixed position "Aantal" section
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                     child: Column(
                       children: [
                         _buildHeader('Aantal'),
@@ -320,7 +349,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   Widget _buildAgeButton(String text) {
     final bool isSelected = text == selectedAge;
-    
+
     return SizedBox(
       height: 64.5, // Same height as the button
       child: WhiteBulkButton(
@@ -338,7 +367,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   Widget _buildGenderButton(String text) {
     final bool isSelected = text == selectedGender;
-    
+
     return SizedBox(
       height: 64.5, // Same height as the button
       child: WhiteBulkButton(
@@ -366,13 +395,17 @@ class _AnimalCountingState extends State<AnimalCounting> {
       debugPrint('_isAgeAlreadyAdded: No animals in list');
       return false;
     }
-    
+
     // Check all animals in the list
     for (final animal in animals) {
       // Find the gender view count for the selected gender
       final genderVC = animal.genderViewCounts.firstWhere(
         (gvc) => gvc.gender == selectedGender,
-        orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
+        orElse:
+            () => AnimalGenderViewCount(
+              gender: selectedGender,
+              viewCount: ViewCountModel(),
+            ),
       );
 
       // Check if this age is already added for this gender
@@ -391,14 +424,18 @@ class _AnimalCountingState extends State<AnimalCounting> {
           hasCount = (genderVC.viewCount.unknownAmount > 0);
           break;
       }
-      
+
       if (hasCount) {
-        debugPrint('_isAgeAlreadyAdded: Found count for gender=$genderText, age=$ageText');
+        debugPrint(
+          '_isAgeAlreadyAdded: Found count for gender=$genderText, age=$ageText',
+        );
         return true;
       }
     }
-    
-    debugPrint('_isAgeAlreadyAdded: No count found for gender=$genderText, age=$ageText');
+
+    debugPrint(
+      '_isAgeAlreadyAdded: No count found for gender=$genderText, age=$ageText',
+    );
     return false;
   }
 
@@ -409,24 +446,28 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
     final genderVC = sighting?.animalSelected?.genderViewCounts.firstWhere(
       (gvc) => gvc.gender == selectedGender,
-      orElse: () => AnimalGenderViewCount(gender: selectedGender, viewCount: ViewCountModel()),
+      orElse:
+          () => AnimalGenderViewCount(
+            gender: selectedGender,
+            viewCount: ViewCountModel(),
+          ),
     );
 
     if (genderVC == null) return false;
 
     return (genderVC.viewCount.pasGeborenAmount > 0) &&
-           (genderVC.viewCount.onvolwassenAmount > 0) &&
-           (genderVC.viewCount.volwassenAmount > 0) &&
-           (genderVC.viewCount.unknownAmount > 0);
+        (genderVC.viewCount.onvolwassenAmount > 0) &&
+        (genderVC.viewCount.volwassenAmount > 0) &&
+        (genderVC.viewCount.unknownAmount > 0);
   }
 
   List<Widget> _buildAgeButtonsWithSpacing() {
     final List<Widget> result = [];
     final ageOptions = ["<6 maanden", "Onvolwassen", "Volwassen", "Onbekend"];
-    
+
     // Count visible and hidden buttons
     int visibleCount = 0;
-    
+
     // Add visible buttons with spacing
     for (int i = 0; i < ageOptions.length; i++) {
       // Check if this age is already added for the selected gender
@@ -434,11 +475,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
       if (selectedGender != null) {
         disable = _isAgeAlreadyAdded(selectedGender!, ageOptions[i]);
       } else {
-        disable = _isAgeAlreadyAdded("Mannelijk", ageOptions[i]) || 
-                  _isAgeAlreadyAdded("Vrouwelijk", ageOptions[i]) || 
-                  _isAgeAlreadyAdded("Onbekend", ageOptions[i]);
+        disable =
+            _isAgeAlreadyAdded("Mannelijk", ageOptions[i]) ||
+            _isAgeAlreadyAdded("Vrouwelijk", ageOptions[i]) ||
+            _isAgeAlreadyAdded("Onbekend", ageOptions[i]);
       }
-      
+
       // Only add visible buttons
       if (!disable) {
         if (visibleCount > 0) {
@@ -448,31 +490,33 @@ class _AnimalCountingState extends State<AnimalCounting> {
         visibleCount++;
       }
     }
-    
+
     // Add SizedBoxes at the end to maintain consistent height
     int hiddenCount = ageOptions.length - visibleCount;
     for (int i = 0; i < hiddenCount; i++) {
       if (result.isNotEmpty) {
         result.add(const SizedBox(height: 8)); // Add spacing
       }
-      result.add(Flexible(child: SizedBox(height: 64.5))); // Same height as buttons
+      result.add(
+        Flexible(child: SizedBox(height: 64.5)),
+      ); // Same height as buttons
     }
-    
+
     return result;
   }
 
   List<Widget> _buildGenderButtonsWithSpacing() {
     final List<Widget> result = [];
     final genderOptions = ["Mannelijk", "Vrouwelijk", "Onbekend"];
-    
+
     // Count visible and hidden buttons
     int visibleCount = 0;
-    
+
     // Add visible buttons with spacing
     for (int i = 0; i < genderOptions.length; i++) {
       // Check if all ages are filled for this gender
       bool disable = _areAllAgesFilledForGender(genderOptions[i]);
-      
+
       // Only add visible buttons
       if (!disable) {
         if (visibleCount > 0) {
@@ -482,56 +526,25 @@ class _AnimalCountingState extends State<AnimalCounting> {
         visibleCount++;
       }
     }
-    
+
     // Add SizedBoxes at the end to maintain consistent height
     int hiddenCount = genderOptions.length - visibleCount;
     for (int i = 0; i < hiddenCount; i++) {
       if (result.isNotEmpty) {
         result.add(const SizedBox(height: 8)); // Add spacing
       }
-      result.add(Flexible(child: SizedBox(height: 64.5))); // Same height as buttons
+      result.add(
+        Flexible(child: SizedBox(height: 64.5)),
+      ); // Same height as buttons
     }
-    
+
     // Add an extra SizedBox at the end for alignment with age column
     // The age column has 4 options while gender has 3, so we need one extra space
     result.add(const SizedBox(height: 8)); // Add spacing
-    result.add(Flexible(child: SizedBox(height: 64.5))); // Extra SizedBox for alignment
-    
+    result.add(
+      Flexible(child: SizedBox(height: 64.5)),
+    ); // Extra SizedBox for alignment
+
     return result;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

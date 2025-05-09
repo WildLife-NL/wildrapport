@@ -11,15 +11,15 @@ class ResponseProvider extends ChangeNotifier {
 
   final yellowLog = '\x1B[93m';
 
-  void setResponse(Response value){
+  void setResponse(Response value) {
     response = value;
   }
 
-  void addResponse(Response value){
+  void addResponse(Response value) {
     responses.add(value);
   }
 
-  void removeResponse(Response value){
+  void removeResponse(Response value) {
     responses.remove(value);
   }
 
@@ -27,26 +27,29 @@ class ResponseProvider extends ChangeNotifier {
     debugPrint("$yellowLog [ResponseProvider]: setting the answerID: $value");
     answerID = value;
     notifyListeners();
-  }  
+  }
 
   void setInteractionID(String value) {
-    debugPrint("$yellowLog [ResponseProvider]: setting the interactionID: $value");
+    debugPrint(
+      "$yellowLog [ResponseProvider]: setting the interactionID: $value",
+    );
     interactionID = value;
     notifyListeners();
-  }  
-  
+  }
+
   void setQuestionID(String value) {
     debugPrint("$yellowLog [ResponseProvider]: setting the questionID: $value");
     questionID = value;
     notifyListeners();
-  }  
-  
+  }
+
   void setText(String value) {
     debugPrint("$yellowLog [ResponseProvider]: setting the text: $value");
     text = value;
     notifyListeners();
   }
-  Response buildResponse(){
+
+  Response buildResponse() {
     return Response(
       answerID: answerID,
       interactionID: interactionID!,

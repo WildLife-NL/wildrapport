@@ -20,7 +20,9 @@ class InteractionApi implements InteractionApiInterface {
   InteractionApi(this.client);
 
   @override
-  Future<Questionnaire> sendInteractionDeprecated(Interaction interaction) async {
+  Future<Questionnaire> sendInteractionDeprecated(
+    Interaction interaction,
+  ) async {
     try {
       debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
       http.Response response;
@@ -29,79 +31,81 @@ class InteractionApi implements InteractionApiInterface {
         case InteractionType.waarnemning:
           debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
           if (interaction.report is AnimalSightingReportWrapper) {
-            final apiPayload = interaction.report.toJson();  // Use the wrapper's toJson directly
+            final apiPayload =
+                interaction.report
+                    .toJson(); // Use the wrapper's toJson directly
             response = await client.post(
               'interaction/',
               apiPayload,
               authenticated: true,
             );
           } else {
-            throw Exception("Invalid report type for waarnemning: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for waarnemning: ${interaction.report.runtimeType}",
+            );
           }
           break;
         case InteractionType.gewasschade:
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
           if (interaction.report is PossesionReportFields) {
             final report = interaction.report as PossesionReportFields;
-            response = await client.post(
-              'interaction/',
-              {
-                "description": report.description ?? '',
-                "location": {
-                  "latitude": report.systemLocation?.latitude,
-                  "longitude": report.systemLocation?.longtitude,
-                },
-                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-                "place": {
-                  "latitude": report.userSelectedLocation?.latitude,
-                  "longitude": report.userSelectedLocation?.longtitude,
-                },
-                "reportOfDamage": {
-                  "belonging": report.possesion.toJson(),
-                  "estimatedDamage": report.currentImpactDamages,
-                  "estimatedLoss": report.estimatedTotalDamages,
-                  "impactType": report.impactedAreaType,
-                  "impactValue": report.impactedArea,
-                },
-                "speciesID": report.suspectedSpeciesID,
-                "typeID": 2,
+            response = await client.post('interaction/', {
+              "description": report.description ?? '',
+              "location": {
+                "latitude": report.systemLocation?.latitude,
+                "longitude": report.systemLocation?.longtitude,
               },
-              authenticated: true,
-            );
+              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+              "place": {
+                "latitude": report.userSelectedLocation?.latitude,
+                "longitude": report.userSelectedLocation?.longtitude,
+              },
+              "reportOfDamage": {
+                "belonging": report.possesion.toJson(),
+                "estimatedDamage": report.currentImpactDamages,
+                "estimatedLoss": report.estimatedTotalDamages,
+                "impactType": report.impactedAreaType,
+                "impactValue": report.impactedArea,
+              },
+              "speciesID": report.suspectedSpeciesID,
+              "typeID": 2,
+            }, authenticated: true);
           } else {
-            throw Exception("Invalid report type for gewasschade: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for gewasschade: ${interaction.report.runtimeType}",
+            );
           }
           break;
         case InteractionType.verkeersongeval:
           debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
           if (interaction.report is CommonReportFields) {
             final report = interaction.report as CommonReportFields;
-            response = await client.post(
-              'interaction/',
-              {
-                "description": report.description ?? '',
-                "location": {
-                  "latitude": report.systemLocation?.latitude,
-                  "longitude": report.systemLocation?.longtitude,
-                },
-                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-                "place": {
-                  "latitude": report.userSelectedLocation?.latitude,
-                  "longitude": report.userSelectedLocation?.longtitude,
-                },
-                "reportOfCollision": interaction.report.toJson(),
-                "speciesID": report.suspectedSpeciesID,
-                "typeID": 3,
+            response = await client.post('interaction/', {
+              "description": report.description ?? '',
+              "location": {
+                "latitude": report.systemLocation?.latitude,
+                "longitude": report.systemLocation?.longtitude,
               },
-              authenticated: true,
-            );
+              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+              "place": {
+                "latitude": report.userSelectedLocation?.latitude,
+                "longitude": report.userSelectedLocation?.longtitude,
+              },
+              "reportOfCollision": interaction.report.toJson(),
+              "speciesID": report.suspectedSpeciesID,
+              "typeID": 3,
+            }, authenticated: true);
           } else {
-            throw Exception("Invalid report type for verkeersongeval: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for verkeersongeval: ${interaction.report.runtimeType}",
+            );
           }
           break;
       }
 
-      debugPrint("$greenLog[InteractionAPI] Response code: ${response.statusCode}");
+      debugPrint(
+        "$greenLog[InteractionAPI] Response code: ${response.statusCode}",
+      );
       debugPrint("$greenLog[InteractionAPI] Response body: ${response.body}");
 
       if (response.statusCode == HttpStatus.ok) {
@@ -123,12 +127,15 @@ class InteractionApi implements InteractionApiInterface {
         }
       } else {
         final errorBody = jsonDecode(response.body);
-        final errorMessages = (errorBody['errors'] as List?)
+        final errorMessages =
+            (errorBody['errors'] as List?)
                 ?.map((e) => e['message'])
                 .join('; ') ??
             errorBody['detail'] ??
             'Unknown error';
-        throw Exception("API request failed with status ${response.statusCode}: $errorMessages");
+        throw Exception(
+          "API request failed with status ${response.statusCode}: $errorMessages",
+        );
       }
     } catch (e) {
       debugPrint("$redLog[InteractionAPI] Error: $e");
@@ -146,79 +153,81 @@ class InteractionApi implements InteractionApiInterface {
         case InteractionType.waarnemning:
           debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
           if (interaction.report is AnimalSightingReportWrapper) {
-            final apiPayload = interaction.report.toJson();  // Use the wrapper's toJson directly
+            final apiPayload =
+                interaction.report
+                    .toJson(); // Use the wrapper's toJson directly
             response = await client.post(
               'interaction/',
               apiPayload,
               authenticated: true,
             );
           } else {
-            throw Exception("Invalid report type for waarnemning: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for waarnemning: ${interaction.report.runtimeType}",
+            );
           }
           break;
         case InteractionType.gewasschade:
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
           if (interaction.report is PossesionReportFields) {
             final report = interaction.report as PossesionReportFields;
-            response = await client.post(
-              'interaction/',
-              {
-                "description": report.description ?? '',
-                "location": {
-                  "latitude": report.systemLocation?.latitude,
-                  "longitude": report.systemLocation?.longtitude,
-                },
-                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-                "place": {
-                  "latitude": report.userSelectedLocation?.latitude,
-                  "longitude": report.userSelectedLocation?.longtitude,
-                },
-                "reportOfDamage": {
-                  "belonging": report.possesion.toJson(),
-                  "estimatedDamage": report.currentImpactDamages.toInt(),
-                  "estimatedLoss": report.estimatedTotalDamages.toInt(),
-                  "impactType": report.impactedAreaType,
-                  "impactValue": report.impactedArea.toInt(),
-                },
-                "speciesID": report.suspectedSpeciesID,
-                "typeID": 2,
+            response = await client.post('interaction/', {
+              "description": report.description ?? '',
+              "location": {
+                "latitude": report.systemLocation?.latitude,
+                "longitude": report.systemLocation?.longtitude,
               },
-              authenticated: true,
-            );
+              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+              "place": {
+                "latitude": report.userSelectedLocation?.latitude,
+                "longitude": report.userSelectedLocation?.longtitude,
+              },
+              "reportOfDamage": {
+                "belonging": report.possesion.toJson(),
+                "estimatedDamage": report.currentImpactDamages.toInt(),
+                "estimatedLoss": report.estimatedTotalDamages.toInt(),
+                "impactType": report.impactedAreaType,
+                "impactValue": report.impactedArea.toInt(),
+              },
+              "speciesID": report.suspectedSpeciesID,
+              "typeID": 2,
+            }, authenticated: true);
           } else {
-            throw Exception("Invalid report type for gewasschade: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for gewasschade: ${interaction.report.runtimeType}",
+            );
           }
-        break;
+          break;
         case InteractionType.verkeersongeval:
           debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
           if (interaction.report is CommonReportFields) {
             final report = interaction.report as CommonReportFields;
-            response = await client.post(
-              'interaction/',
-              {
-                "description": report.description ?? '',
-                "location": {
-                  "latitude": report.systemLocation?.latitude,
-                  "longitude": report.systemLocation?.longtitude,
-                },
-                "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-                "place": {
-                  "latitude": report.userSelectedLocation?.latitude,
-                  "longitude": report.userSelectedLocation?.longtitude,
-                },
-                "reportOfCollision": interaction.report.toJson(),
-                "speciesID": report.suspectedSpeciesID,
-                "typeID": 3,
+            response = await client.post('interaction/', {
+              "description": report.description ?? '',
+              "location": {
+                "latitude": report.systemLocation?.latitude,
+                "longitude": report.systemLocation?.longtitude,
               },
-              authenticated: true,
-            );
+              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
+              "place": {
+                "latitude": report.userSelectedLocation?.latitude,
+                "longitude": report.userSelectedLocation?.longtitude,
+              },
+              "reportOfCollision": interaction.report.toJson(),
+              "speciesID": report.suspectedSpeciesID,
+              "typeID": 3,
+            }, authenticated: true);
           } else {
-            throw Exception("Invalid report type for verkeersongeval: ${interaction.report.runtimeType}");
+            throw Exception(
+              "Invalid report type for verkeersongeval: ${interaction.report.runtimeType}",
+            );
           }
           break;
       }
 
-      debugPrint("$greenLog[InteractionAPI] Response code: ${response.statusCode}");
+      debugPrint(
+        "$greenLog[InteractionAPI] Response code: ${response.statusCode}",
+      );
       debugPrint("$greenLog[InteractionAPI] Response body: ${response.body}");
 
       if (response.statusCode == HttpStatus.ok) {
@@ -234,19 +243,25 @@ class InteractionApi implements InteractionApiInterface {
         }
 
         try {
-          return InteractionResponse(questionnaire: Questionnaire.fromJson(questionnaireJson), interactionID: interactionID);
+          return InteractionResponse(
+            questionnaire: Questionnaire.fromJson(questionnaireJson),
+            interactionID: interactionID,
+          );
         } catch (e) {
           debugPrint("$redLog Error parsing questionnaire: $e");
           throw Exception("Invalid questionnaire format: $e");
         }
       } else {
         final errorBody = jsonDecode(response.body);
-        final errorMessages = (errorBody['errors'] as List?)
+        final errorMessages =
+            (errorBody['errors'] as List?)
                 ?.map((e) => e['message'])
                 .join('; ') ??
             errorBody['detail'] ??
             'Unknown error';
-        throw Exception("API request failed with status ${response.statusCode}: $errorMessages");
+        throw Exception(
+          "API request failed with status ${response.statusCode}: $errorMessages",
+        );
       }
     } catch (e) {
       debugPrint("$redLog[InteractionAPI] Error: $e");
@@ -254,5 +269,3 @@ class InteractionApi implements InteractionApiInterface {
     }
   }
 }
-
-

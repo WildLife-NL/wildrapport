@@ -28,9 +28,7 @@ class _MapScreenState extends State<MapScreen> {
             Positioned(
               left: 16,
               bottom: 96,
-              child: LivingLabSelector(
-                currentLabName: widget.title,
-              ),
+              child: LivingLabSelector(currentLabName: widget.title),
             ),
           ],
         ),
@@ -38,6 +36,3 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
-
-
-

@@ -25,7 +25,8 @@ class QuestionnaireOpenResponse extends StatefulWidget {
   });
 
   @override
-  State<QuestionnaireOpenResponse> createState() => _QuestionnaireOpenResponseState();
+  State<QuestionnaireOpenResponse> createState() =>
+      _QuestionnaireOpenResponseState();
 }
 
 class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
@@ -53,7 +54,11 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             child: Text(
               'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
               textAlign: TextAlign.left,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.brown),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.brown,
+              ),
             ),
           ),
           Padding(
@@ -61,7 +66,11 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             child: Text(
               widget.question.text,
               textAlign: TextAlign.left,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.brown),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.brown,
+              ),
             ),
           ),
           const SizedBox(height: 1),
@@ -80,10 +89,10 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             child: TextField(
               controller: _responseController,
               onChanged: (value) {
-                  responseProvider.setText(value);
-                  responseProvider.buildResponse();
+                responseProvider.setText(value);
+                responseProvider.buildResponse();
               },
-              maxLines: 10,  
+              maxLines: 10,
               decoration: InputDecoration(
                 hintText: 'Schrijf hier uw antwoord...',
                 border: OutlineInputBorder(
@@ -93,9 +102,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               style: const TextStyle(fontSize: 18, color: AppColors.brown),
             ),
           ),
-          Expanded(
-            child: Container(), 
-          ),
+          Expanded(child: Container()),
           CustomBottomAppBar(
             onNextPressed: widget.onNextPressed,
             onBackPressed: widget.onBackPressed,

@@ -9,12 +9,13 @@ import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
 
-class ResponseManager implements ResponseInterface{
+class ResponseManager implements ResponseInterface {
   ResponseApiInterface responseAPI;
   final ResponseProvider responseProvider;
 
   final Connectivity _connectivity = Connectivity();
-  late final StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  late final StreamSubscription<List<ConnectivityResult>>
+  _connectivitySubscription;
 
   bool _isRetryingSend = false;
 
@@ -23,10 +24,11 @@ class ResponseManager implements ResponseInterface{
   final yellowLog = '\x1B[93m';
 
   ResponseManager({required this.responseAPI, required this.responseProvider});
-  
+
   void init() {
-    _connectivitySubscription =
-      _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _handleConnectivityChange,
+    );
   }
 
   void dispose() {
@@ -81,16 +83,26 @@ class ResponseManager implements ResponseInterface{
   }
 
   @override
-  Future<void> storeResponse(Response response, String questionaireID, String questionID) async {
+  Future<void> storeResponse(
+    Response response,
+    String questionaireID,
+    String questionID,
+  ) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      debugPrint("$yellowLog [ResponseManager]: Getting already stored responses!");
-      List<ResponsesListObject>? storedResponsesList = await _getAlreadyStoredresponseListObjects();
+      debugPrint(
+        "$yellowLog [ResponseManager]: Getting already stored responses!",
+      );
+      List<ResponsesListObject>? storedResponsesList =
+          await _getAlreadyStoredresponseListObjects();
 
       // If no existing data, initialize empty list
       List<ResponsesListObject> responses = storedResponsesList ?? [];
 
-      ResponseObject newResponse = ResponseObject(questionID: questionID, response: response);
+      ResponseObject newResponse = ResponseObject(
+        questionID: questionID,
+        response: response,
+      );
 
       // There should only be one ReponseListObject in practice if you store all answers under one wrapper
       ResponsesListObject responsesListObject;
@@ -114,14 +126,16 @@ class ResponseManager implements ResponseInterface{
 
       // If questionaireID was not found, add a new map entry
       if (!found) {
-        responsesListObject.responses.add({questionaireID: [newResponse]});
+        responsesListObject.responses.add({
+          questionaireID: [newResponse],
+        });
       }
 
       // Convert back to JSON strings and store
-      List<String> jsonStringList = responses.map((obj) => jsonEncode(obj.toJson())).toList();
+      List<String> jsonStringList =
+          responses.map((obj) => jsonEncode(obj.toJson())).toList();
       await prefs.setStringList('responses', jsonStringList);
-    }
-    catch(e, stackTrace){
+    } catch (e, stackTrace) {
       debugPrint(e.toString());
       debugPrint(stackTrace.toString());
       rethrow;
@@ -129,9 +143,14 @@ class ResponseManager implements ResponseInterface{
   }
 
   @override
-  Future<void> updateResponse(Response updatedResponses, String questionaireID, String questionID) async {
+  Future<void> updateResponse(
+    Response updatedResponses,
+    String questionaireID,
+    String questionID,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<ResponsesListObject>? storedResponsesList = await _getAlreadyStoredresponseListObjects();
+    List<ResponsesListObject>? storedResponsesList =
+        await _getAlreadyStoredresponseListObjects();
 
     // If no existing data, initialize empty list
     List<ResponsesListObject> responses = storedResponsesList ?? [];
@@ -156,7 +175,10 @@ class ResponseManager implements ResponseInterface{
         for (int i = 0; i < responsesList.length; i++) {
           if (responsesList[i].questionID == questionID) {
             // Update the response
-            responsesList[i] = ResponseObject(questionID: questionID, response: updatedResponses);
+            responsesList[i] = ResponseObject(
+              questionID: questionID,
+              response: updatedResponses,
+            );
             responseUpdated = true;
             break;
           }
@@ -164,7 +186,9 @@ class ResponseManager implements ResponseInterface{
 
         // If questionID not found, add a new ResponseObject
         if (!responseUpdated) {
-          responsesList.add(ResponseObject(questionID: questionID, response: updatedResponses));
+          responsesList.add(
+            ResponseObject(questionID: questionID, response: updatedResponses),
+          );
         }
 
         break;
@@ -174,30 +198,41 @@ class ResponseManager implements ResponseInterface{
     // If questionaireID not found at all, create new entry
     if (!questionnaireFound) {
       responsesListObject.responses.add({
-        questionaireID: [ResponseObject(questionID: questionID, response: updatedResponses)]
+        questionaireID: [
+          ResponseObject(questionID: questionID, response: updatedResponses),
+        ],
       });
     }
 
     // Save the updated structure back to SharedPreferences
-    List<String> jsonStringList = responses.map((obj) => jsonEncode(obj.toJson())).toList();
+    List<String> jsonStringList =
+        responses.map((obj) => jsonEncode(obj.toJson())).toList();
     await prefs.setStringList('responses', jsonStringList);
   }
 
-
-  Future<List<ResponsesListObject>?> _getAlreadyStoredresponseListObjects() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();  
+  Future<List<ResponsesListObject>?>
+  _getAlreadyStoredresponseListObjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? jsonStringList = prefs.getStringList('responses');
     debugPrint("$yellowLog [ResponseManager]: jsonStringList = ");
     debugPrint("$yellowLog $jsonStringList");
 
     if (jsonStringList != null) {
-      List<ResponsesListObject> responses = jsonStringList
-          .map((jsonString) => ResponsesListObject.fromJson(jsonDecode(jsonString)))
-          .toList();
+      List<ResponsesListObject> responses =
+          jsonStringList
+              .map(
+                (jsonString) =>
+                    ResponsesListObject.fromJson(jsonDecode(jsonString)),
+              )
+              .toList();
 
       // Check if all ResponsesListObject instances contain no meaningful data
-      bool allEmpty = responses.every((r) => r.responses.isEmpty || (r.responses.length == 1 && r.responses.first.isEmpty));
-      
+      bool allEmpty = responses.every(
+        (r) =>
+            r.responses.isEmpty ||
+            (r.responses.length == 1 && r.responses.first.isEmpty),
+      );
+
       if (allEmpty) {
         debugPrint("$yellowLog All responses are empty. Returning null.");
         return null;
@@ -207,52 +242,53 @@ class ResponseManager implements ResponseInterface{
     return null;
   }
 
-@override
-Future<void> submitResponses() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<ResponsesListObject>? storedResponsesList = await _getAlreadyStoredresponseListObjects();
+  @override
+  Future<void> submitResponses() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<ResponsesListObject>? storedResponsesList =
+        await _getAlreadyStoredresponseListObjects();
 
-  if (storedResponsesList == null || storedResponsesList.isEmpty) {
-    debugPrint("No stored responses to submit.");
-    return;
-  }
+    if (storedResponsesList == null || storedResponsesList.isEmpty) {
+      debugPrint("No stored responses to submit.");
+      return;
+    }
 
-  List<ResponsesListObject> responsesList = storedResponsesList;
+    List<ResponsesListObject> responsesList = storedResponsesList;
 
-  final results = await _connectivity.checkConnectivity();
-  debugPrint(results.toString());
-  final hasConnection = results.any((r) => r != ConnectivityResult.none);
+    final results = await _connectivity.checkConnectivity();
+    debugPrint(results.toString());
+    final hasConnection = results.any((r) => r != ConnectivityResult.none);
 
-  if(hasConnection){
-    for (int i = 0; i < responsesList.length; i++) {
-      ResponsesListObject listObject = responsesList[i];
+    if (hasConnection) {
+      for (int i = 0; i < responsesList.length; i++) {
+        ResponsesListObject listObject = responsesList[i];
 
-      // For each questionnaire entry
-      for (int j = 0; j < listObject.responses.length; j++) {
-        Map<String, List<ResponseObject>> entry = listObject.responses[j];
-        String questionaireID = entry.keys.first;
-        List<ResponseObject> responseObjects = entry[questionaireID]!;
+        // For each questionnaire entry
+        for (int j = 0; j < listObject.responses.length; j++) {
+          Map<String, List<ResponseObject>> entry = listObject.responses[j];
+          String questionaireID = entry.keys.first;
+          List<ResponseObject> responseObjects = entry[questionaireID]!;
 
-        List<ResponseObject> failedResponses = [];
+          List<ResponseObject> failedResponses = [];
 
-        for (var responseObj in responseObjects) {
-          Response r = responseObj.response;
-          bool success = await responseAPI.addReponse(
-            r.interactionID,
-            r.questionID,
-            r.answerID,
-            r.text,
-          );
+          for (var responseObj in responseObjects) {
+            Response r = responseObj.response;
+            bool success = await responseAPI.addReponse(
+              r.interactionID,
+              r.questionID,
+              r.answerID,
+              r.text,
+            );
 
-          if (!success) {
-            failedResponses.add(responseObj);
+            if (!success) {
+              failedResponses.add(responseObj);
+            }
           }
-        }
 
-        // Update the entry with only failed responses if there were any
-        if (failedResponses.isNotEmpty) {
-          listObject.responses[j][questionaireID] = failedResponses;
-        } else {
+          // Update the entry with only failed responses if there were any
+          if (failedResponses.isNotEmpty) {
+            listObject.responses[j][questionaireID] = failedResponses;
+          } else {
             // Remove successfully submitted questionnaire entry
             listObject.responses[j].remove(questionaireID);
           }
@@ -266,9 +302,12 @@ Future<void> submitResponses() async {
         await prefs.remove('responses');
         debugPrint("All stored responses submitted and cleared.");
       } else {
-        List<String> updatedJson = responsesList.map((obj) => jsonEncode(obj.toJson())).toList();
+        List<String> updatedJson =
+            responsesList.map((obj) => jsonEncode(obj.toJson())).toList();
         await prefs.setStringList('responses', updatedJson);
-        debugPrint("Some responses failed to submit; remaining ones kept in storage.");
+        debugPrint(
+          "Some responses failed to submit; remaining ones kept in storage.",
+        );
       }
     }
   }
@@ -281,28 +320,32 @@ class ResponsesListObject {
 
   factory ResponsesListObject.fromJson(Map<String, dynamic> json) {
     return ResponsesListObject(
-      responses: (json['responses'] as List).map((entry) {
-        final mapEntry = entry as Map<String, dynamic>;
-        return mapEntry.map((key, value) {
-          return MapEntry(
-            key,
-            (value as List)
-                .map((item) => ResponseObject.fromJson(item))
-                .toList(),
-          );
-        });
-      }).toList(),
+      responses:
+          (json['responses'] as List).map((entry) {
+            final mapEntry = entry as Map<String, dynamic>;
+            return mapEntry.map((key, value) {
+              return MapEntry(
+                key,
+                (value as List)
+                    .map((item) => ResponseObject.fromJson(item))
+                    .toList(),
+              );
+            });
+          }).toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'responses': responses.map((entry) {
-        return entry.map((key, value) {
-          return MapEntry(
-              key, value.map((answerObj) => answerObj.toJson()).toList());
-        });
-      }).toList(),
+      'responses':
+          responses.map((entry) {
+            return entry.map((key, value) {
+              return MapEntry(
+                key,
+                value.map((answerObj) => answerObj.toJson()).toList(),
+              );
+            });
+          }).toList(),
     };
   }
 }
@@ -321,9 +364,6 @@ class ResponseObject {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'questionID': questionID,
-      'response': response.toJson(),
-    };
+    return {'questionID': questionID, 'response': response.toJson()};
   }
 }

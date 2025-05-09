@@ -26,12 +26,16 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
       isLoading = true;
     });
 
-    debugPrint('$greenLog[AnimalConditionScreen] Handling status selection: $status$resetLog');
+    debugPrint(
+      '$greenLog[AnimalConditionScreen] Handling status selection: $status$resetLog',
+    );
 
     try {
       // Skip condition update since we removed that functionality
-      debugPrint('$greenLog[AnimalConditionScreen] Selected condition: $status (not applied)$resetLog');
-      
+      debugPrint(
+        '$greenLog[AnimalConditionScreen] Selected condition: $status (not applied)$resetLog',
+      );
+
       final navigationManager = context.read<NavigationStateInterface>();
       // Navigate to the next screen
       navigationManager.pushForward(context, const CategoryScreen());
@@ -39,7 +43,9 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
       setState(() {
         isLoading = false;
       });
-      debugPrint('$greenLog[AnimalConditionScreen] Error during navigation: $e$resetLog');
+      debugPrint(
+        '$greenLog[AnimalConditionScreen] Error during navigation: $e$resetLog',
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Er is een fout opgetreden bij het navigeren'),
@@ -75,7 +81,8 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
                     (text: 'Dood', icon: Icons.dangerous, imagePath: null),
                     (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
                   ],
-                  onStatusSelected: (status) => _handleStatusSelection(context, status),
+                  onStatusSelected:
+                      (status) => _handleStatusSelection(context, status),
                   title: 'Selecteer dier Conditie',
                 ),
               ],
@@ -83,16 +90,17 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
           ),
           const InvisibleMapPreloader(), // Add map preloader widget
           if (isLoading) // Use a properly defined variable
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+            const Center(child: CircularProgressIndicator()),
         ],
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           // Handle back navigation
           final navigationManager = context.read<NavigationStateInterface>();
-          navigationManager.pushReplacementBack(context, const OverzichtScreen()); // Adjust destination as needed
+          navigationManager.pushReplacementBack(
+            context,
+            const OverzichtScreen(),
+          ); // Adjust destination as needed
         },
         onNextPressed: () {},
         showNextButton: false,
@@ -100,10 +108,3 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
     );
   }
 }
-
-
-
-
-
-
-

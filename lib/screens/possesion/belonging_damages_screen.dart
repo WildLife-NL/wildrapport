@@ -8,7 +8,7 @@ import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 
-class BelongingDamagesScreen extends StatefulWidget{
+class BelongingDamagesScreen extends StatefulWidget {
   const BelongingDamagesScreen({super.key});
 
   @override
@@ -24,42 +24,43 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
   @override
   void initState() {
     super.initState();
-    _belongingDamageReportManager = context.read<BelongingDamageReportInterface>();
+    _belongingDamageReportManager =
+        context.read<BelongingDamageReportInterface>();
     _loadPossesionWidgets();
     currentIndex = 0;
     maxIndex = belongingDamagesWidgetList.length - 1;
   }
 
-  bool validateImpactedCrop(BelongingDamageReportProvider formProvider){
+  bool validateImpactedCrop(BelongingDamageReportProvider formProvider) {
     bool isValid = true;
     if (formProvider.impactedCrop.isEmpty) {
       isValid = false;
       debugPrint("impactedCrop has error");
       formProvider.setErrorState('impactedCrop', true);
       return isValid;
-    }
-    else{
+    } else {
       return isValid;
     }
   }
-   bool validateImpactedAreaType(BelongingDamageReportProvider formProvider){
+
+  bool validateImpactedAreaType(BelongingDamageReportProvider formProvider) {
     bool isValid = true;
     if (formProvider.impactedAreaType.isEmpty) {
       isValid = false;
       debugPrint("impactedAreaType has error");
       formProvider.setErrorState('impactedAreaType', true);
       return isValid;
-    }
-    else{
+    } else {
       return isValid;
     }
   }
-   bool validateImpactedArea(BelongingDamageReportProvider formProvider){
+
+  bool validateImpactedArea(BelongingDamageReportProvider formProvider) {
     bool isValid = true;
     debugPrint("${formProvider.impactedArea}");
 
     debugPrint("validateImpactedArea: ${formProvider.hasErrorImpactedArea}");
-    debugPrint("validateImpactedArea: ${formProvider.impactedAreaType}" );
+    debugPrint("validateImpactedArea: ${formProvider.impactedAreaType}");
 
     if (formProvider.impactedArea == null) {
       isValid = false;
@@ -67,14 +68,17 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
       formProvider.setErrorState('impactedArea', true);
       //formProvider.updateInputErrorImpactArea("This field is required");
       return isValid;
-    }
-    else if(formProvider.hasErrorImpactedArea && formProvider.impactedAreaType == "vierkante meters"){
-      debugPrint("formProvider.hasErrorImpactedArea && formProvider.impactedAreaType == vierkante meters");
+    } else if (formProvider.hasErrorImpactedArea &&
+        formProvider.impactedAreaType == "vierkante meters") {
+      debugPrint(
+        "formProvider.hasErrorImpactedArea && formProvider.impactedAreaType == vierkante meters",
+      );
       isValid = false;
-      formProvider.updateInputErrorImpactArea("Alleen gehele getallen toegestaan");
+      formProvider.updateInputErrorImpactArea(
+        "Alleen gehele getallen toegestaan",
+      );
       return isValid;
-    }
-    else{
+    } else {
       debugPrint("isValid");
       return isValid;
     }
@@ -82,7 +86,10 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
 
   // Method to check if all required fields are filled
   bool validateForm() {
-    final formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
+    final formProvider = Provider.of<BelongingDamageReportProvider>(
+      context,
+      listen: false,
+    );
     //formProvider.resetErrors();
 
     bool isValid = true;
@@ -95,16 +102,21 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
     isValidImpactedAreaType = validateImpactedAreaType(formProvider);
     isValidImpactedArea = validateImpactedArea(formProvider);
 
-    if(isValidImpactedCrop == false || isValidImpactedAreaType == false || isValidImpactedArea == false){
+    if (isValidImpactedCrop == false ||
+        isValidImpactedAreaType == false ||
+        isValidImpactedArea == false) {
       isValid = false;
     }
-   
+
     return isValid;
   }
 
   void nextScreen() {
     if (validateForm()) {
-      final formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
+      final formProvider = Provider.of<BelongingDamageReportProvider>(
+        context,
+        listen: false,
+      );
       formProvider.resetInputErrorImpactArea();
       formProvider.hasErrorImpactedArea = false;
       debugPrint("Form is valid!");

@@ -25,22 +25,23 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final appStateProvider = context.watch<AppStateProvider>();
-    
+
     // Use the report type's display text if available, otherwise use provided centerText
-    final displayText = appStateProvider.currentReportType?.displayText ?? centerText ?? '';
-    
+    final displayText =
+        appStateProvider.currentReportType?.displayText ?? centerText ?? '';
+
     // Calculate responsive dimensions
     final double barHeight = screenSize.height * 0.05; // 5% of screen height
     final double minHeight = 24.0;
     final double maxHeight = 40.0;
     final double finalHeight = barHeight.clamp(minHeight, maxHeight);
-    
+
     // Calculate responsive text size
     final double fontSize = screenSize.width * 0.05; // 5% of screen width
     final double minFontSize = 16.0;
     final double maxFontSize = 24.0;
     final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
-    
+
     // Calculate responsive icon size
     final double iconSize = screenSize.width * 0.06; // 6% of screen width
     final double minIconSize = 24.0;
@@ -64,9 +65,11 @@ class CustomAppBar extends StatelessWidget {
                       left: screenSize.width * 0.04, // 4% of screen width
                     ),
                     child: GestureDetector(
-                      onTap: onLeftIconPressed ?? () {
-                        Navigator.of(context).pop();
-                      },
+                      onTap:
+                          onLeftIconPressed ??
+                          () {
+                            Navigator.of(context).pop();
+                          },
                       child: Icon(
                         Icons.arrow_back_ios,
                         color: AppColors.brown,
@@ -77,7 +80,7 @@ class CustomAppBar extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Center text (2/4 of space)
           Expanded(
             flex: 2,
@@ -95,7 +98,7 @@ class CustomAppBar extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Right section (1/4 of space)
           Expanded(
             flex: 1,
@@ -124,17 +127,3 @@ class CustomAppBar extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

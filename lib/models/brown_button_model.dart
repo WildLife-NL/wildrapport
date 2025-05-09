@@ -28,26 +28,27 @@ class BrownButtonModel {
     this.fontSize,
     double? leftIconPadding,
     this.backgroundColor,
-  })  : rightIconSize = rightIconSize ??
-            (rightIconPath?.contains('arrow') == true
-                ? defaultArrowIconSize
-                : defaultRegularIconSize),
-        leftIconSize = leftIconSize ?? defaultRegularIconSize,
-        height = height ?? defaultButtonHeight,
-        leftIconPadding = leftIconPadding ?? defaultLeftIconPadding;
+  }) : rightIconSize =
+           rightIconSize ??
+           (rightIconPath?.contains('arrow') == true
+               ? defaultArrowIconSize
+               : defaultRegularIconSize),
+       leftIconSize = leftIconSize ?? defaultRegularIconSize,
+       height = height ?? defaultButtonHeight,
+       leftIconPadding = leftIconPadding ?? defaultLeftIconPadding;
 
   Map<String, dynamic> toMap() => {
-        'text': text,
-        'rightIconPath': rightIconPath,
-        'leftIconPath': leftIconPath,
-        'rightIconSize': rightIconSize,
-        'leftIconSize': leftIconSize,
-        'height': height,
-        'width': width,
-        'fontSize': fontSize,
-        'leftIconPadding': leftIconPadding,
-        'backgroundColor': backgroundColor,
-      };
+    'text': text,
+    'rightIconPath': rightIconPath,
+    'leftIconPath': leftIconPath,
+    'rightIconSize': rightIconSize,
+    'leftIconSize': leftIconSize,
+    'height': height,
+    'width': width,
+    'fontSize': fontSize,
+    'leftIconPadding': leftIconPadding,
+    'backgroundColor': backgroundColor,
+  };
 
   factory BrownButtonModel.fromMap(Map<String, dynamic> map) {
     return BrownButtonModel(

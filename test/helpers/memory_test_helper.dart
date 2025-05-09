@@ -11,23 +11,21 @@ class MemoryTestHelper {
     required Widget Function() buildWidget,
   }) async {
     final initialMemory = ProcessInfo.currentRss;
-    
+
     for (int i = 1; i <= cycles; i++) {
       debugPrint('$testName - Cycle $i/$cycles');
-      
+
       await tester.pumpWidget(buildWidget());
       await tester.pump();
       await Future.delayed(const Duration(milliseconds: 100));
       await tester.pump();
-      
+
       await tester.pumpWidget(Container());
       await tester.pump();
       await Future.delayed(const Duration(milliseconds: 100));
       await tester.pump();
     }
-    
+
     return ProcessInfo.currentRss - initialMemory;
   }
 }
-
-

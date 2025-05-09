@@ -11,10 +11,11 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
 
-class InteractionManager implements InteractionInterface{
+class InteractionManager implements InteractionInterface {
   final InteractionApiInterface interactionAPI;
   final Connectivity _connectivity = Connectivity();
-  late final StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  late final StreamSubscription<List<ConnectivityResult>>
+  _connectivitySubscription;
 
   bool _isRetryingSend = false;
 
@@ -25,8 +26,9 @@ class InteractionManager implements InteractionInterface{
   final yellowLog = '\x1B[93m';
 
   void init() {
-    _connectivitySubscription =
-      _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _handleConnectivityChange,
+    );
   }
 
   void dispose() {
@@ -52,24 +54,24 @@ class InteractionManager implements InteractionInterface{
     _retryLoop();
   }
 
-void _retryLoop() async {
-  while (true) {
-    bool hasConnection = await ConnectionChecker.hasInternetConnection();
-    if (hasConnection) {
-      try {
-        await _trySendCachedData();
-        debugPrint("$greenLog Successfully sent cached data.");
-        _isRetryingSend = false;
-        break; // Stop retrying after success
-      } catch (e) {
-        debugPrint("$yellowLog Retry failed. Will try again in 10 seconds.");
+  void _retryLoop() async {
+    while (true) {
+      bool hasConnection = await ConnectionChecker.hasInternetConnection();
+      if (hasConnection) {
+        try {
+          await _trySendCachedData();
+          debugPrint("$greenLog Successfully sent cached data.");
+          _isRetryingSend = false;
+          break; // Stop retrying after success
+        } catch (e) {
+          debugPrint("$yellowLog Retry failed. Will try again in 10 seconds.");
+        }
+      } else {
+        debugPrint("$yellowLog No internet. Will check again in 10 seconds.");
       }
-    } else {
-      debugPrint("$yellowLog No internet. Will check again in 10 seconds.");
+      await Future.delayed(Duration(seconds: 10));
     }
-    await Future.delayed(Duration(seconds: 10));
   }
-}
 
   Future<void> _trySendCachedData() async {
     if (!await ConnectionChecker.hasInternetConnection()) {
@@ -79,9 +81,12 @@ void _retryLoop() async {
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(await _doesInteractionCacheExist()){
-      final List<Interaction> interactions = await _getAlreadyStoredInteractions();
-      final List<Interaction> interactionsAfterSending = List.from(interactions);
+    if (await _doesInteractionCacheExist()) {
+      final List<Interaction> interactions =
+          await _getAlreadyStoredInteractions();
+      final List<Interaction> interactionsAfterSending = List.from(
+        interactions,
+      );
       int interactionIndex = 0;
       for (Interaction interaction in interactions) {
         try {
@@ -89,8 +94,7 @@ void _retryLoop() async {
           interactionsAfterSending.remove(interaction);
           debugPrint("$greenLog Interaction $interactionIndex Send!");
           interactionIndex++;
-        }
-        catch(e, stackTrace){
+        } catch (e, stackTrace) {
           debugPrint("");
           debugPrint("$redLog Something went wrong at $interactionIndex");
           debugPrint("");
@@ -100,21 +104,22 @@ void _retryLoop() async {
           debugPrint(stackTrace.toString());
           debugPrint("");
         }
-      }      
+      }
       _updateCache(interactionsAfterSending);
     }
   }
 
   Future<void> _updateCache(List<Interaction> interactionsAfterSending) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(interactionsAfterSending.isEmpty){
+    if (interactionsAfterSending.isEmpty) {
       await prefs.setStringList('interaction_cache', []);
-    }
-    else{
-      List<Interaction> cachedInteractions = await _getAlreadyStoredInteractions();
-      if(cachedInteractions.isEmpty){ await prefs.setStringList('interaction_cache', []); }
-      else{
-        for(Interaction interaction in interactionsAfterSending){
+    } else {
+      List<Interaction> cachedInteractions =
+          await _getAlreadyStoredInteractions();
+      if (cachedInteractions.isEmpty) {
+        await prefs.setStringList('interaction_cache', []);
+      } else {
+        for (Interaction interaction in interactionsAfterSending) {
           cachedInteractions.remove(interaction);
         }
       }
@@ -122,11 +127,16 @@ void _retryLoop() async {
   }
 
   @override
-  Future<InteractionResponse?> postInteraction(Reportable report, InteractionType type) async {
+  Future<InteractionResponse?> postInteraction(
+    Reportable report,
+    InteractionType type,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userID = prefs.getString("userID");
 
-    if(userID == null){ throw Exception("User Profile Wasn't Loaded!"); }
+    if (userID == null) {
+      throw Exception("User Profile Wasn't Loaded!");
+    }
 
     final results = await _connectivity.checkConnectivity();
     debugPrint(results.toString());
@@ -138,11 +148,10 @@ void _retryLoop() async {
       report: report,
     );
 
-    if(hasConnection){
+    if (hasConnection) {
       debugPrint("$yellowLog [InteractionManager]: Sending Interaction!");
       return interactionAPI.sendInteraction(interaction);
-    }
-    else{
+    } else {
       debugPrint("$yellowLog [InteractionManager]: Caching Interaction!");
       _cacheInteraction(interaction);
       return null;
@@ -151,12 +160,15 @@ void _retryLoop() async {
 
   Future<bool> _doesInteractionCacheExist() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(prefs.getStringList("interaction_cache") != null){ return true; }
-    else { return false; }
+    if (prefs.getStringList("interaction_cache") != null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<List<Interaction>> _getAlreadyStoredInteractions() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();  
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? jsonStringList = prefs.getStringList('interaction_cache');
 
     if (jsonStringList != null) {
@@ -171,7 +183,8 @@ void _retryLoop() async {
   Future<void> _cacheInteraction(Interaction interaction) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final List<Interaction> interactions = await _getAlreadyStoredInteractions();
+    final List<Interaction> interactions =
+        await _getAlreadyStoredInteractions();
     interactions.add(interaction);
 
     List<String> interactionJson =

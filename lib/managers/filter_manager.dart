@@ -3,7 +3,6 @@ import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/animal_model.dart';
 
-
 //Animal screen filter dropdown logic handeling
 
 class FilterManager implements FilterInterface {
@@ -37,15 +36,15 @@ class FilterManager implements FilterInterface {
   /// Otherwise, returns all options except the currently selected one
   @override
   List<BrownButtonModel> getAvailableFilters(String currentFilter) {
-    if (currentFilter == FilterType.none.displayText || 
+    if (currentFilter == FilterType.none.displayText ||
         currentFilter == 'Filteren' ||
         currentFilter.isEmpty) {
       return _filterOptions;
     }
-    
-    return _filterOptions.where((filter) =>
-      filter.text != currentFilter
-    ).toList();
+
+    return _filterOptions
+        .where((filter) => filter.text != currentFilter)
+        .toList();
   }
 
   /// Filters animals alphabetically by name
@@ -54,8 +53,10 @@ class FilterManager implements FilterInterface {
   @override
   List<AnimalModel> filterAnimalsAlphabetically(List<AnimalModel> animals) {
     // Separate "Onbekend" from other animals
-    final unknown = animals.where((animal) => animal.animalName == 'Onbekend').toList();
-    final regularAnimals = animals.where((animal) => animal.animalName != 'Onbekend').toList();
+    final unknown =
+        animals.where((animal) => animal.animalName == 'Onbekend').toList();
+    final regularAnimals =
+        animals.where((animal) => animal.animalName != 'Onbekend').toList();
 
     // Sort regular animals
     final sortedRegularAnimals = sortAlphabetically(
@@ -71,9 +72,12 @@ class FilterManager implements FilterInterface {
   /// Each category is represented as a map with 'icon' and 'text' keys
   List<Map<String, String>> getAnimalCategories() {
     return [
-      {'icon': 'circle_icon:pets', 'text': 'Evenhoevigen'},  // Using Flutter icon
-      {'icon': 'circle_icon:pets', 'text': 'Knaagdieren'},   // Using Flutter icon
-      {'icon': 'circle_icon:pets', 'text': 'Roofdieren'},    // Using Flutter icon
+      {
+        'icon': 'circle_icon:pets',
+        'text': 'Evenhoevigen',
+      }, // Using Flutter icon
+      {'icon': 'circle_icon:pets', 'text': 'Knaagdieren'}, // Using Flutter icon
+      {'icon': 'circle_icon:pets', 'text': 'Roofdieren'}, // Using Flutter icon
     ];
   }
 
@@ -97,8 +101,9 @@ class FilterManager implements FilterInterface {
     List<T> items,
     String Function(T item) getComparisonString,
   ) {
-    return List<T>.from(items)
-      ..sort((a, b) => getComparisonString(a).compareTo(getComparisonString(b)));
+    return List<T>.from(
+      items,
+    )..sort((a, b) => getComparisonString(a).compareTo(getComparisonString(b)));
   }
 
   /// Sorts items by view count in descending order (most viewed first)
@@ -116,9 +121,12 @@ class FilterManager implements FilterInterface {
   /// Returns all animals if search term is empty
   /// Otherwise returns animals whose names contain the search term (case-insensitive)
   @override
-  List<AnimalModel> searchAnimals(List<AnimalModel> animals, String searchTerm) {
+  List<AnimalModel> searchAnimals(
+    List<AnimalModel> animals,
+    String searchTerm,
+  ) {
     if (searchTerm.isEmpty) return animals;
-    
+
     final searchTermLower = searchTerm.toLowerCase();
     return animals.where((animal) {
       final animalNameLower = animal.animalName.toLowerCase();
@@ -126,5 +134,3 @@ class FilterManager implements FilterInterface {
     }).toList();
   }
 }
-
-

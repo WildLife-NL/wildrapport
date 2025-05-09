@@ -22,12 +22,10 @@ class TopContainer extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.darkGreen,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(75),
-        ),
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(75)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             spreadRadius: 2,
             blurRadius: 10,
             offset: const Offset(0, 4),
@@ -52,7 +50,7 @@ class TopContainer extends StatelessWidget {
                     fontSize: welcomeFontSize,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withValues(alpha:0.25),
+                        color: Colors.black.withValues(alpha: 0.25),
                         offset: const Offset(0, 2),
                         blurRadius: 4,
                       ),
@@ -68,7 +66,7 @@ class TopContainer extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withValues(alpha:0.25),
+                        color: Colors.black.withValues(alpha: 0.25),
                         offset: const Offset(0, 2),
                         blurRadius: 4,
                       ),
@@ -95,4 +93,3 @@ class TopContainer extends StatelessWidget {
     );
   }
 }
-

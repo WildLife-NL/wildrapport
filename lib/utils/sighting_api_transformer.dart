@@ -24,14 +24,16 @@ class SightingApiTransformer {
     }
 
     // Find system and manual locations
-    final systemLocation = sighting.locations!
-        .firstWhere((loc) => loc.source == LocationSource.system,
-            orElse: () => throw StateError('System location is required'));
+    final systemLocation = sighting.locations!.firstWhere(
+      (loc) => loc.source == LocationSource.system,
+      orElse: () => throw StateError('System location is required'),
+    );
     debugPrint('System Location: ${systemLocation.toJson()}');
 
-    final manualLocation = sighting.locations!
-        .firstWhere((loc) => loc.source == LocationSource.manual,
-            orElse: () => throw StateError('Manual location is required'));
+    final manualLocation = sighting.locations!.firstWhere(
+      (loc) => loc.source == LocationSource.manual,
+      orElse: () => throw StateError('Manual location is required'),
+    );
     debugPrint('Manual Location: ${manualLocation.toJson()}');
 
     // Transform animals to SightedAnimal format
@@ -49,11 +51,13 @@ class SightingApiTransformer {
             final age = _mapAge(ageKey);
             final lifeStage = _mapLifeStage(age);
             for (int i = 0; i < amount; i++) {
-              sightedAnimals.add(SightedAnimal(
-                condition: mappedCondition,
-                lifeStage: lifeStage,
-                sex: sex,
-              ));
+              sightedAnimals.add(
+                SightedAnimal(
+                  condition: mappedCondition,
+                  lifeStage: lifeStage,
+                  sex: sex,
+                ),
+              );
             }
           }
         }
@@ -71,13 +75,15 @@ class SightingApiTransformer {
         "latitude": systemLocation.latitude,
         "longitude": systemLocation.longitude,
       },
-      "moment": "${sighting.dateTime!.dateTime!.toIso8601String().split('.')[0]}+02:00",
+      "moment":
+          "${sighting.dateTime!.dateTime!.toIso8601String().split('.')[0]}+02:00",
       "place": {
         "latitude": manualLocation.latitude,
         "longitude": manualLocation.longitude,
       },
       "reportOfSighting": {
-        "involvedAnimals": sightedAnimals.map((animal) => animal.toJson()).toList(),
+        "involvedAnimals":
+            sightedAnimals.map((animal) => animal.toJson()).toList(),
       },
       "speciesID": sighting.animalSelected!.animalId,
       "typeID": 1,
@@ -142,4 +148,3 @@ class SightingApiTransformer {
     }
   }
 }
-

@@ -75,7 +75,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     _locationService = widget.locationService ?? LocationMapManager();
     _mapService = widget.mapService ?? LocationMapManager();
     _mapProvider = context.read<MapProvider>();
-    debugPrint('[LivingLabMapScreen] Map controller initialized: ${_mapProvider.isInitialized}');
+    debugPrint(
+      '[LivingLabMapScreen] Map controller initialized: ${_mapProvider.isInitialized}',
+    );
   }
 
   void _initializeBoundaries() {
@@ -97,7 +99,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     debugPrint('[LivingLabMapScreen] Initializing map view');
     debugPrint('[LivingLabMapScreen] Moving map to lab center');
     _mapProvider.mapController.move(widget.labCenter, 15);
-    }
+  }
 
   // Update this method to avoid setState during build
   Future<void> _quickLocationCheck() async {
@@ -107,7 +109,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     // Try cached location first
     final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
-      debugPrint('\x1B[36m[LivingLabMapScreen] Using cached location data\x1B[0m');
+      debugPrint(
+        '\x1B[36m[LivingLabMapScreen] Using cached location data\x1B[0m',
+      );
       await _handleUserLocation(appState.cachedPosition!, animate: false);
       return;
     }
@@ -141,7 +145,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
     if (newCenter != currentCenter) {
       _mapProvider.mapController.move(
-          newCenter, _mapProvider.mapController.camera.zoom);
+        newCenter,
+        _mapProvider.mapController.camera.zoom,
+      );
     }
   }
 
@@ -152,10 +158,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     super.dispose();
   }
 
-  Future<void> _handleUserLocation(Position position, {bool animate = true}) async {
+  Future<void> _handleUserLocation(
+    Position position, {
+    bool animate = true,
+  }) async {
     if (_isDisposed) return;
 
-    bool isInBounds = position.latitude >= minLat &&
+    bool isInBounds =
+        position.latitude >= minLat &&
         position.latitude <= maxLat &&
         position.longitude >= minLng &&
         position.longitude <= maxLng;
@@ -189,7 +199,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     // Try to use cached location first
     final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
-      debugPrint('[LivingLabMapScreen] Using cached location for initialization');
+      debugPrint(
+        '[LivingLabMapScreen] Using cached location for initialization',
+      );
       await _handleUserLocation(appState.cachedPosition!, animate: false);
       return;
     }
@@ -253,7 +265,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         point.latitude <= maxLat &&
         point.longitude >= minLng &&
         point.longitude <= maxLng) {
-      
       final tempPoint = point;
       if (mounted) {
         setState(() {
@@ -286,7 +297,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       body: SafeArea(
         child: Consumer<MapProvider>(
           builder: (context, mapProvider, child) {
-            debugPrint('[LivingLabMapScreen] Building map widget, initialized: ${mapProvider.isInitialized}');
+            debugPrint(
+              '[LivingLabMapScreen] Building map widget, initialized: ${mapProvider.isInitialized}',
+            );
             if (!mapProvider.isInitialized) {
               debugPrint('[LivingLabMapScreen] Showing loading indicator');
               return const Center(child: CircularProgressIndicator());
@@ -316,7 +329,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
+                          _isSatelliteView
+                              ? _satelliteTileUrl
+                              : _standardTileUrl,
                       userAgentPackageName: 'com.wildrapport.app',
                     ),
                     PolygonLayer(
@@ -329,9 +344,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                         ),
                       ],
                     ),
-                    MarkerLayer(
-                      markers: _buildMarkers(),
-                    ),
+                    MarkerLayer(markers: _buildMarkers()),
                   ],
                 ),
                 Positioned(
@@ -339,28 +352,31 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   left: 16,
                   right: 16,
                   child: LocationDataCard(
-                    cityName: _markedLocation != null
-                        ? _getLocationCity(_markedAddress)
-                        : _getLocationCity(_currentAddress),
-                    streetName: _markedLocation != null
-                        ? _getLocationStreet(_markedAddress)
-                        : _getLocationStreet(_currentAddress),
-                    houseNumber: _markedLocation != null
-                        ? _getLocationHouseNumber(_markedAddress)
-                        : _getLocationHouseNumber(_currentAddress),
+                    cityName:
+                        _markedLocation != null
+                            ? _getLocationCity(_markedAddress)
+                            : _getLocationCity(_currentAddress),
+                    streetName:
+                        _markedLocation != null
+                            ? _getLocationStreet(_markedAddress)
+                            : _getLocationStreet(_currentAddress),
+                    houseNumber:
+                        _markedLocation != null
+                            ? _getLocationHouseNumber(_markedAddress)
+                            : _getLocationHouseNumber(_currentAddress),
                     isLoading: _isLoading,
                     isCurrentLocation: _markedLocation == null,
-                    latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
+                    latitude:
+                        _markedLocation?.latitude ?? _currentPosition?.latitude,
                     longitude:
-                        _markedLocation?.longitude ?? _currentPosition?.longitude,
+                        _markedLocation?.longitude ??
+                        _currentPosition?.longitude,
                   ),
                 ),
                 if (_isLoading)
                   Container(
                     color: Colors.black26,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: const Center(child: CircularProgressIndicator()),
                   ),
               ],
             );
@@ -388,15 +404,16 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   icon: Icons.arrow_back,
                   label: 'Terug',
                   onPressed: () {
-                    final navigationManager = context.read<NavigationStateInterface>();
+                    final navigationManager =
+                        context.read<NavigationStateInterface>();
                     if (widget.isFromPossession) {
                       navigationManager.pushReplacementBack(
-                        context, 
+                        context,
                         const BelongingLocationScreen(),
                       );
                     } else {
                       navigationManager.pushReplacementBack(
-                        context, 
+                        context,
                         const LocationScreen(),
                       );
                     }
@@ -419,49 +436,63 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                 _buildNavButton(
                   icon: Icons.check_circle,
                   label: 'Bevestig',
-                  onPressed: _markedLocation != null
-                      ? () async {
-                          // Add explicit debug logging
-                          debugPrint('[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}');
-                          
-                          final position = Position(
-                            latitude: _markedLocation!.latitude,
-                            longitude: _markedLocation!.longitude,
-                            timestamp: DateTime.now(),
-                            accuracy: 0,
-                            altitude: 0,
-                            altitudeAccuracy: 0,
-                            heading: 0,
-                            headingAccuracy: 0,
-                            speed: 0,
-                            speedAccuracy: 0,
-                            isMocked: false,
-                          );
-                          
-                          final mapProvider = context.read<MapProvider>();
-                          mapProvider.setSelectedLocation(position, _markedAddress);
-                          
-                          final navigationManager = context.read<NavigationStateInterface>();
-                          
-                          // Use the widget property directly
-                          if (widget.isFromPossession) {
-                            debugPrint('[LivingLabMapScreen] Navigating back to PossesionLocationScreen');
-                            navigationManager.pushReplacementBack(
-                              context, 
-                              const BelongingLocationScreen(),
+                  onPressed:
+                      _markedLocation != null
+                          ? () async {
+                            // Add explicit debug logging
+                            debugPrint(
+                              '[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}',
                             );
-                          } else {
-                            debugPrint('[LivingLabMapScreen] Navigating back to LocationScreen');
-                            final locationManager = context.read<LocationScreenInterface>();
-                            await locationManager.getLocationAndDateTime(context);
-                            
-                            navigationManager.pushReplacementBack(
-                              context, 
-                              const LocationScreen(),
+
+                            final position = Position(
+                              latitude: _markedLocation!.latitude,
+                              longitude: _markedLocation!.longitude,
+                              timestamp: DateTime.now(),
+                              accuracy: 0,
+                              altitude: 0,
+                              altitudeAccuracy: 0,
+                              heading: 0,
+                              headingAccuracy: 0,
+                              speed: 0,
+                              speedAccuracy: 0,
+                              isMocked: false,
                             );
+
+                            final mapProvider = context.read<MapProvider>();
+                            mapProvider.setSelectedLocation(
+                              position,
+                              _markedAddress,
+                            );
+
+                            final navigationManager =
+                                context.read<NavigationStateInterface>();
+
+                            // Use the widget property directly
+                            if (widget.isFromPossession) {
+                              debugPrint(
+                                '[LivingLabMapScreen] Navigating back to PossesionLocationScreen',
+                              );
+                              navigationManager.pushReplacementBack(
+                                context,
+                                const BelongingLocationScreen(),
+                              );
+                            } else {
+                              debugPrint(
+                                '[LivingLabMapScreen] Navigating back to LocationScreen',
+                              );
+                              final locationManager =
+                                  context.read<LocationScreenInterface>();
+                              await locationManager.getLocationAndDateTime(
+                                context,
+                              );
+
+                              navigationManager.pushReplacementBack(
+                                context,
+                                const LocationScreen(),
+                              );
+                            }
                           }
-                        }
-                      : null,
+                          : null,
                   isEnabled: _markedLocation != null,
                 ),
               ],
@@ -478,7 +509,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     required VoidCallback? onPressed,
     bool isEnabled = true,
   }) {
-    final color = isEnabled ? AppColors.brown : AppColors.brown.withValues(alpha: 0.3);
+    final color =
+        isEnabled ? AppColors.brown : AppColors.brown.withValues(alpha: 0.3);
 
     return Material(
       color: Colors.transparent,
@@ -490,11 +522,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
+              Icon(icon, color: color, size: 24),
               const SizedBox(height: 4),
               Text(
                 label,
@@ -563,11 +591,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
               shape: BoxShape.circle,
               color: Colors.red.withValues(alpha: 0.3),
             ),
-            child: const Icon(
-              Icons.location_pin,
-              color: Colors.red,
-              size: 40,
-            ),
+            child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
           ),
         ),
       );
@@ -609,11 +633,3 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     return null;
   }
 }
-
-
-
-
-
-
-
-

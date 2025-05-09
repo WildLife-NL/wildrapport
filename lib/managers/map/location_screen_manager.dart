@@ -9,10 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
-
 class LocationScreenManager implements LocationScreenInterface {
-
-
   final bool _isLocationDropdownExpanded = false;
   final bool _isDateTimeDropdownExpanded = false;
   final String _selectedLocation = LocationType.current.displayText;
@@ -44,24 +41,27 @@ class LocationScreenManager implements LocationScreenInterface {
   }
 
   @override
-  Future<Map<String, dynamic>> getLocationAndDateTime(BuildContext context) async {
+  Future<Map<String, dynamic>> getLocationAndDateTime(
+    BuildContext context,
+  ) async {
     final mapProvider = context.read<MapProvider>();
     final appState = context.read<AppStateProvider>();
     final LocationServiceInterface locationService = LocationMapManager();
-    
+
     Position? currentPosition;
     Map<String, dynamic>? currentGpsLocation;
 
     // Trying to use cached location first
     if (appState.isLocationCacheValid) {
       currentPosition = appState.cachedPosition;
-      currentGpsLocation = currentPosition != null 
-          ? {
-              'latitude': currentPosition.latitude,
-              'longitude': currentPosition.longitude,
-              'address': appState.cachedAddress,
-            }
-          : null;
+      currentGpsLocation =
+          currentPosition != null
+              ? {
+                'latitude': currentPosition.latitude,
+                'longitude': currentPosition.longitude,
+                'address': appState.cachedAddress,
+              }
+              : null;
     } else {
       // If cache is invalid or empty, it will fall back on gps fetch to get new location and update cache
       currentPosition = await Geolocator.getCurrentPosition(
@@ -72,37 +72,43 @@ class LocationScreenManager implements LocationScreenInterface {
       ).catchError((error) {
         throw error;
       });
-      
-      final address = await locationService.getAddressFromPosition(currentPosition);
+
+      final address = await locationService.getAddressFromPosition(
+        currentPosition,
+      );
       currentGpsLocation = {
         'latitude': currentPosition.latitude,
         'longitude': currentPosition.longitude,
         'address': address,
       };
-      
+
       // Update cache in background (avoid direct calls not to block process)
       appState.updateLocationCache();
     }
 
     // Get user selected location
-    final selectedLocation = mapProvider.selectedPosition != null 
-        ? {
-            'latitude': mapProvider.selectedPosition!.latitude,
-            'longitude': mapProvider.selectedPosition!.longitude,
-            'address': mapProvider.selectedAddress,
-          }
-        : null;
+    final selectedLocation =
+        mapProvider.selectedPosition != null
+            ? {
+              'latitude': mapProvider.selectedPosition!.latitude,
+              'longitude': mapProvider.selectedPosition!.longitude,
+              'address': mapProvider.selectedAddress,
+            }
+            : null;
 
     // Getting date time information
     final dateTimeInfo = {
-      'dateTime': _selectedDateTime == DateTimeType.current.displayText
-          ? DateTime.now().toIso8601String()
-          : _selectedDateTime == DateTimeType.unknown.displayText
+      'dateTime':
+          _selectedDateTime == DateTimeType.current.displayText
+              ? DateTime.now().toIso8601String()
+              : _selectedDateTime == DateTimeType.unknown.displayText
               ? null
-              : _customDateTime?.toIso8601String(),  // This can be null if _customDateTime wasn't set
-      'type': _selectedDateTime == DateTimeType.current.displayText
-          ? 'current'
-          : _selectedDateTime == DateTimeType.unknown.displayText
+              : _customDateTime
+                  ?.toIso8601String(), // This can be null if _customDateTime wasn't set
+      'type':
+          _selectedDateTime == DateTimeType.current.displayText
+              ? 'current'
+              : _selectedDateTime == DateTimeType.unknown.displayText
               ? 'unknown'
               : 'custom',
     };
@@ -111,9 +117,11 @@ class LocationScreenManager implements LocationScreenInterface {
       'currentGpsLocation': currentGpsLocation,
       'selectedLocation': selectedLocation,
       'dateTime': dateTimeInfo,
-      'isLocationUnknown': selectedLocation == null || 
+      'isLocationUnknown':
+          selectedLocation == null ||
           mapProvider.selectedAddress == LocationType.unknown.displayText,
-      'isDateTimeUnknown': _selectedDateTime == DateTimeType.unknown.displayText,
+      'isDateTimeUnknown':
+          _selectedDateTime == DateTimeType.unknown.displayText,
     };
 
     return result;
@@ -125,7 +133,7 @@ class LocationScreenManager implements LocationScreenInterface {
 
   void updateDateTime(String option, {DateTime? date, DateTime? time}) {
     _selectedDateTime = option;
-    
+
     if (option == DateTimeType.current.displayText) {
       _customDateTime = null;
     } else if (option == DateTimeType.unknown.displayText) {
@@ -161,34 +169,3 @@ class LocationScreenManager implements LocationScreenInterface {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

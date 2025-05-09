@@ -15,24 +15,17 @@ class TestScreen extends StatelessWidget {
           centerText: 'Test Screen',
           rightIcon: Icons.menu,
           onLeftIconPressed: () => Navigator.pop(context),
-          onRightIconPressed: () {/* Handle menu */},
+          onRightIconPressed: () {
+            /* Handle menu */
+          },
         ),
       ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimalCounting(),
-          ],
+          children: [AnimalCounting()],
         ),
       ),
     );
   }
 }
-
-
-
-
-
-
-

@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
-abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> implements ScreenStateInterface {
+abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
+    implements ScreenStateInterface {
   @override
   void initState() {
     super.initState();
@@ -48,7 +49,7 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
     // Persists the current screen state to AppStateProvider
     final provider = context.read<AppStateProvider>();
     final currentState = getCurrentState();
-    
+
     currentState.forEach((key, value) {
       provider.setScreenState(screenName, key, value);
     });
@@ -57,7 +58,7 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
   @override
   // Updates a specific state key with a new value
   void updateState(String key, dynamic value);
-  
+
   @override
   // Returns the current state map for this screen
   Map<String, dynamic> getCurrentState();
@@ -70,6 +71,3 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T> imp
     }
   }
 }
-
-
-

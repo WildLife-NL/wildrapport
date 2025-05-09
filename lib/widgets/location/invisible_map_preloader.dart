@@ -19,7 +19,10 @@ class InvisibleMapPreloader extends StatelessWidget {
         child: FlutterMap(
           mapController: mapController,
           options: MapOptions(
-            initialCenter: const LatLng(52.0, 5.0), // Can be any default NL position
+            initialCenter: const LatLng(
+              52.0,
+              5.0,
+            ), // Can be any default NL position
             initialZoom: 5,
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none,

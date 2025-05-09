@@ -1,18 +1,15 @@
 class Belonging {
-  String? ID;
+  String? id;
   String category;
   String name;
 
-  Belonging({this.ID, required this.category, required this.name});
+  Belonging({this.id, required this.category, required this.name});
 
   Map<String, dynamic> toJson() => {
-    'ID': ID,
+    'id': id,
     'category': category,
     'name': name,
   };
-    factory Belonging.fromJson(Map<String, dynamic> json) => Belonging(
-      ID: json['ID'],
-      category: json['category'],
-      name: json['name'],
-    );
+  factory Belonging.fromJson(Map<String, dynamic> json) =>
+      Belonging(id: json['id'], category: json['category'], name: json['name']);
 }

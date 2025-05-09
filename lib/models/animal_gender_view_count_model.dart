@@ -5,10 +5,7 @@ class AnimalGenderViewCount {
   final AnimalGender gender;
   final ViewCountModel viewCount;
 
-  AnimalGenderViewCount({
-    required this.gender,
-    required this.viewCount,
-  });
+  AnimalGenderViewCount({required this.gender, required this.viewCount});
 
   Map<String, dynamic> toJson() => {
     'gender': gender.toString(),

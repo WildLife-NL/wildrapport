@@ -1,6 +1,1 @@
-enum AnimalAge {
-  pasGeboren,
-  onvolwassen,
-  volwassen,
-  onbekend
-}
+enum AnimalAge { pasGeboren, onvolwassen, volwassen, onbekend }

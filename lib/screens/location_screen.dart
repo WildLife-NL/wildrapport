@@ -2,14 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/managers/map/location_screen_manager.dart';
-import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
-import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
@@ -27,7 +24,6 @@ import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
 
-
   @override
   State<LocationScreen> createState() => _LocationScreenState();
 }
@@ -43,14 +39,15 @@ class _LocationScreenState extends State<LocationScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Locatie',
               rightIcon: Icons.menu,
-              onLeftIconPressed: () => context
-                  .read<NavigationStateInterface>()
-                  .pushReplacementBack(context, const Rapporteren()),
-              onRightIconPressed: () {/* Handle menu */},
+              onLeftIconPressed:
+                  () => context
+                      .read<NavigationStateInterface>()
+                      .pushReplacementBack(context, const Rapporteren()),
+              onRightIconPressed: () {
+                /* Handle menu */
+              },
             ),
-            Expanded(
-              child: const LocationScreenUIWidget(),
-            ),
+            Expanded(child: const LocationScreenUIWidget()),
           ],
         ),
       ),
@@ -60,32 +57,42 @@ class _LocationScreenState extends State<LocationScreen> {
           onBackPressed: () async {
             // Save the current location and datetime information before navigating back
             final locationManager = context.read<LocationScreenInterface>();
-            final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-            
+            final animalSightingManager =
+                context.read<AnimalSightingReportingInterface>();
+
             try {
               // Get current location and datetime information
-              final locationInfo = await locationManager.getLocationAndDateTime(context);
-              
+              final locationInfo = await locationManager.getLocationAndDateTime(
+                context,
+              );
+
               // Save datetime if available
-              if (locationInfo['dateTime'] != null && 
+              if (locationInfo['dateTime'] != null &&
                   locationInfo['dateTime']['dateTime'] != null) {
                 final dateTimeStr = locationInfo['dateTime']['dateTime'];
                 final dateTime = DateTime.parse(dateTimeStr);
                 animalSightingManager.updateDateTime(dateTime);
-                
+
                 // Also save the datetime type
                 if (locationManager is LocationScreenManager) {
                   final dateTimeType = locationInfo['dateTime']['type'];
                   if (dateTimeType == 'current') {
-                    locationManager.updateDateTime(DateTimeType.current.displayText);
+                    locationManager.updateDateTime(
+                      DateTimeType.current.displayText,
+                    );
                   } else if (dateTimeType == 'unknown') {
-                    locationManager.updateDateTime(DateTimeType.unknown.displayText);
-                  } else if (dateTimeType == 'custom' && dateTime != null) {
-                    locationManager.updateDateTime(DateTimeType.custom.displayText, date: dateTime);
+                    locationManager.updateDateTime(
+                      DateTimeType.unknown.displayText,
+                    );
+                  } else if (dateTimeType == 'custom') {
+                    locationManager.updateDateTime(
+                      DateTimeType.custom.displayText,
+                      date: dateTime,
+                    );
                   }
                 }
               }
-              
+
               // Save location if available
               if (locationInfo['selectedLocation'] != null) {
                 final userLocation = LocationModel(
@@ -96,25 +103,38 @@ class _LocationScreenState extends State<LocationScreen> {
                 animalSightingManager.updateLocation(userLocation);
               }
             } catch (e) {
-              debugPrint('\x1B[31m[LocationScreen] Error saving state before navigation: $e\x1B[0m');
+              debugPrint(
+                '\x1B[31m[LocationScreen] Error saving state before navigation: $e\x1B[0m',
+              );
             }
-            
+
             // Navigate back to the AnimalListOverviewScreen
-            context.read<NavigationStateInterface>()
-                .pushReplacementBack(context, AnimalListOverviewScreen());
+            context.read<NavigationStateInterface>().pushReplacementBack(
+              context,
+              AnimalListOverviewScreen(),
+            );
           },
           onNextPressed: () async {
-            final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+            final animalSightingManager =
+                context.read<AnimalSightingReportingInterface>();
             final locationManager = context.read<LocationScreenInterface>();
             final mapProvider = context.read<MapProvider>();
 
             try {
-              debugPrint('\x1B[35m[LocationScreen] Starting location update process\x1B[0m');              
-              final locationInfo = await locationManager.getLocationAndDateTime(context);
-              debugPrint('\x1B[35m[LocationScreen] LocationInfo: $locationInfo\x1B[0m');
+              debugPrint(
+                '\x1B[35m[LocationScreen] Starting location update process\x1B[0m',
+              );
+              final locationInfo = await locationManager.getLocationAndDateTime(
+                context,
+              );
+              debugPrint(
+                '\x1B[35m[LocationScreen] LocationInfo: $locationInfo\x1B[0m',
+              );
 
               if (locationInfo['selectedLocation'] == null) {
-                debugPrint('\x1B[31m[LocationScreen] No location selected\x1B[0m');
+                debugPrint(
+                  '\x1B[31m[LocationScreen] No location selected\x1B[0m',
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Selecteer eerst een locatie'),
@@ -125,12 +145,15 @@ class _LocationScreenState extends State<LocationScreen> {
                 return;
               }
 
-              final currentSighting = animalSightingManager.getCurrentanimalSighting();
+              final currentSighting =
+                  animalSightingManager.getCurrentanimalSighting();
               if (currentSighting == null) {
                 throw StateError('No active animal sighting found');
               }
 
-              debugPrint('\x1B[35m[LocationScreen] Updating locations in animal sighting model\x1B[0m');
+              debugPrint(
+                '\x1B[35m[LocationScreen] Updating locations in animal sighting model\x1B[0m',
+              );
 
               if (locationInfo['currentGpsLocation'] != null) {
                 final systemLocation = LocationModel(
@@ -139,7 +162,9 @@ class _LocationScreenState extends State<LocationScreen> {
                   source: LocationSource.system,
                 );
                 animalSightingManager.updateLocation(systemLocation);
-                debugPrint('\x1B[35m[LocationScreen] Updated system location: ${systemLocation.latitude}, ${systemLocation.longitude}\x1B[0m');
+                debugPrint(
+                  '\x1B[35m[LocationScreen] Updated system location: ${systemLocation.latitude}, ${systemLocation.longitude}\x1B[0m',
+                );
               }
 
               if (locationInfo['selectedLocation'] != null) {
@@ -149,19 +174,24 @@ class _LocationScreenState extends State<LocationScreen> {
                   source: LocationSource.manual,
                 );
                 animalSightingManager.updateLocation(userLocation);
-                debugPrint('\x1B[35m[LocationScreen] Updated user location: ${userLocation.latitude}, ${userLocation.longitude}\x1B[0m');
+                debugPrint(
+                  '\x1B[35m[LocationScreen] Updated user location: ${userLocation.latitude}, ${userLocation.longitude}\x1B[0m',
+                );
               }
 
-              if (locationInfo['dateTime'] != null && 
+              if (locationInfo['dateTime'] != null &&
                   locationInfo['dateTime']['dateTime'] != null) {
                 final dateTimeStr = locationInfo['dateTime']['dateTime'];
                 final dateTime = DateTime.parse(dateTimeStr);
                 animalSightingManager.updateDateTime(dateTime);
-                debugPrint('\x1B[35m[LocationScreen] Updated datetime: $dateTime\x1B[0m');
-                 mapProvider.resetState();
-
+                debugPrint(
+                  '\x1B[35m[LocationScreen] Updated datetime: $dateTime\x1B[0m',
+                );
+                mapProvider.resetState();
               } else {
-                debugPrint('\x1B[31m[LocationScreen] No datetime provided in locationInfo\x1B[0m');
+                debugPrint(
+                  '\x1B[31m[LocationScreen] No datetime provided in locationInfo\x1B[0m',
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Selecteer een datum en tijd'),
@@ -172,9 +202,13 @@ class _LocationScreenState extends State<LocationScreen> {
                 return;
               }
 
-              final updatedSighting = animalSightingManager.getCurrentanimalSighting();
-              if (updatedSighting!.dateTime == null || updatedSighting.dateTime!.dateTime == null) {
-                debugPrint('\x1B[31m[LocationScreen] DateTime is still null after update\x1B[0m');
+              final updatedSighting =
+                  animalSightingManager.getCurrentanimalSighting();
+              if (updatedSighting!.dateTime == null ||
+                  updatedSighting.dateTime!.dateTime == null) {
+                debugPrint(
+                  '\x1B[31m[LocationScreen] DateTime is still null after update\x1B[0m',
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Datum en tijd zijn verplicht'),
@@ -185,43 +219,63 @@ class _LocationScreenState extends State<LocationScreen> {
                 return;
               }
 
-              final apiFormat = SightingApiTransformer.transformForApi(updatedSighting);
+              final apiFormat = SightingApiTransformer.transformForApi(
+                updatedSighting,
+              );
 
-              debugPrint('\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m');
+              debugPrint(
+                '\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m',
+              );
               debugPrint(const JsonEncoder.withIndent('  ').convert(apiFormat));
 
-              final InteractionResponse? responseModel = await submitReport(context);
-              if(responseModel != null) {
+              final InteractionResponse? responseModel = await submitReport(
+                context,
+              );
+              if (responseModel != null) {
                 // Check if questionnaire has valid content
-                if (responseModel.questionnaire.questions == null || responseModel.questionnaire.questions!.isEmpty) {
-                  debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
+                if (responseModel.questionnaire.questions == null ||
+                    responseModel.questionnaire.questions!.isEmpty) {
+                  debugPrint(
+                    '\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m',
+                  );
                   // Navigate back to Rapporteren if no questions, using pushAndRemoveUntil
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Geen vragen beschikbaar voor deze melding'),
+                        content: Text(
+                          'Geen vragen beschikbaar voor deze melding',
+                        ),
                         backgroundColor: Colors.orange,
                       ),
                     );
                     context.read<NavigationStateInterface>().pushAndRemoveUntil(
-                      context, 
-                      const Rapporteren()
+                      context,
+                      const Rapporteren(),
                     );
                   }
                 } else {
-                  debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m');
+                  debugPrint(
+                    '\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m',
+                  );
                   // Navigate to questionnaire screen with the response
                   if (mounted) {
-                    context.read<NavigationStateInterface>().pushReplacementForward(
-                      context,
-                      QuestionnaireScreen(questionnaire: responseModel.questionnaire, interactionID: responseModel.interactionID,),
-                    );
+                    context
+                        .read<NavigationStateInterface>()
+                        .pushReplacementForward(
+                          context,
+                          QuestionnaireScreen(
+                            questionnaire: responseModel.questionnaire,
+                            interactionID: responseModel.interactionID,
+                          ),
+                        );
                   }
                 }
               }
             } catch (e, stackTrace) {
               debugPrint('\x1B[31m[LocationScreen] Error: $e\x1B[0m');
-              debugPrint('\x1B[31m[LocationScreen] Stack trace: $stackTrace\x1B[0m');
+              debugPrint(
+                '\x1B[31m[LocationScreen] Stack trace: $stackTrace\x1B[0m',
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Er is een fout opgetreden: $e'),
@@ -241,7 +295,8 @@ class _LocationScreenState extends State<LocationScreen> {
 
 Future<InteractionResponse?> submitReport(BuildContext context) async {
   try {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
 
     if (currentSighting == null) {
@@ -249,39 +304,30 @@ Future<InteractionResponse?> submitReport(BuildContext context) async {
     }
 
     // Create the interaction object using the wrapper
-    final InteractionInterface interactionManager = context.read<InteractionInterface>();
+    final InteractionInterface interactionManager =
+        context.read<InteractionInterface>();
 
-    final InteractionResponse? response = await interactionManager.postInteraction(AnimalSightingReportWrapper(currentSighting), InteractionType.waarnemning);
-    if(response != null){
+    final InteractionResponse? response = await interactionManager
+        .postInteraction(
+          AnimalSightingReportWrapper(currentSighting),
+          InteractionType.waarnemning,
+        );
+    if (response != null) {
       // Log questionnaire details for debugging
-      if (response.questionnaire.questions != null && response.questionnaire.questions!.isNotEmpty) {
-        debugPrint('\x1B[32m[LocationScreen] Questionnaire has ${response.questionnaire.questions!.length} questions\x1B[0m');
+      if (response.questionnaire.questions != null &&
+          response.questionnaire.questions!.isNotEmpty) {
+        debugPrint(
+          '\x1B[32m[LocationScreen] Questionnaire has ${response.questionnaire.questions!.length} questions\x1B[0m',
+        );
       } else {
-        debugPrint('\x1B[33m[LocationScreen] Questionnaire has no questions\x1B[0m');
+        debugPrint(
+          '\x1B[33m[LocationScreen] Questionnaire has no questions\x1B[0m',
+        );
       }
     }
-    return response;  // Return the response instead of null
+    return response; // Return the response instead of null
   } catch (e) {
     // Error handling...
     rethrow;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

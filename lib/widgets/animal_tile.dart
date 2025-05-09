@@ -6,11 +6,7 @@ class AnimalTile extends StatelessWidget {
   final AnimalModel animal;
   final VoidCallback onTap;
 
-  const AnimalTile({
-    super.key,
-    required this.animal,
-    required this.onTap,
-  });
+  const AnimalTile({super.key, required this.animal, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +21,7 @@ class AnimalTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(25),
           ),
           elevation: 4,
-          foregroundColor: Colors.black.withValues(alpha:0.1),
+          foregroundColor: Colors.black.withValues(alpha: 0.1),
         ),
         child: Ink(
           decoration: BoxDecoration(
@@ -40,27 +36,33 @@ class AnimalTile extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     color: AppColors.offWhite,
-                    child: animal.animalImagePath != null 
-                        ? Image(
-                            image: AssetImage(animal.animalImagePath!),
-                            fit: BoxFit.cover,
-                            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                              if (wasSynchronouslyLoaded) return child;
-                              return AnimatedOpacity(
-                                opacity: frame == null ? 0 : 1,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOut,
-                                child: child,
-                              );
-                            },
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.help_outline,
-                              size: 80,
-                              color: AppColors.brown,
+                    child:
+                        animal.animalImagePath != null
+                            ? Image(
+                              image: AssetImage(animal.animalImagePath!),
+                              fit: BoxFit.cover,
+                              frameBuilder: (
+                                context,
+                                child,
+                                frame,
+                                wasSynchronouslyLoaded,
+                              ) {
+                                if (wasSynchronouslyLoaded) return child;
+                                return AnimatedOpacity(
+                                  opacity: frame == null ? 0 : 1,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOut,
+                                  child: child,
+                                );
+                              },
+                            )
+                            : const Center(
+                              child: Icon(
+                                Icons.help_outline,
+                                size: 80,
+                                color: AppColors.brown,
+                              ),
                             ),
-                          ),
                   ),
                 ),
               ),
@@ -83,8 +85,3 @@ class AnimalTile extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

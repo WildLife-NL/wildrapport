@@ -31,11 +31,15 @@ class DropdownManager implements DropdownInterface {
       children: [
         BrownButton(
           model: BrownButtonModel(
-            text: selectedValue == FilterType.none.displayText ? 'Filteren' : selectedValue,
+            text:
+                selectedValue == FilterType.none.displayText
+                    ? 'Filteren'
+                    : selectedValue,
             leftIconPath: _getSelectedFilterIcon(selectedValue),
-            rightIconPath: isExpanded 
-                ? 'circle_icon:keyboard_arrow_up'
-                : 'circle_icon:keyboard_arrow_down',
+            rightIconPath:
+                isExpanded
+                    ? 'circle_icon:keyboard_arrow_up'
+                    : 'circle_icon:keyboard_arrow_down',
             leftIconSize: 38.0,
             rightIconSize: 38.0,
             leftIconPadding: 5,
@@ -66,94 +70,96 @@ class DropdownManager implements DropdownInterface {
     final List<Widget> options = [];
 
     options.addAll(
-      _filterManager.getAvailableFilters(selectedValue)
-          .map((filterModel) {
-            if (filterModel.text == FilterType.search.displayText) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.brown,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        spreadRadius: 0,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+      _filterManager.getAvailableFilters(selectedValue).map((filterModel) {
+        if (filterModel.text == FilterType.search.displayText) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.brown,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    spreadRadius: 0,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: CircleIconContainer(
-                          icon: Icons.search,
-                          iconColor: AppColors.brown,
-                        ),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          style: const TextStyle(color: Colors.white),
-                          cursorColor: Colors.white,
-                          decoration: const InputDecoration(
-                            hintText: 'Zoek een dier...',
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(color: Colors.white70),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          ),
-                          onChanged: (value) {
-                            final animalManager = Provider.of<AnimalManagerInterface>(context, listen: false);
-                            if (animalManager is AnimalManager) {
-                              animalManager.updateSearchTerm(value);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-            
-            // Special handling for "Meest gezien" option
-            if (filterModel.text == FilterType.mostViewed.displayText) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: BrownButton(
-                  model: filterModel,
-                  onPressed: () {
-                    // Show snackbar but don't select this option
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Deze functie komt binnenkort beschikbaar'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                    // Don't close dropdown or update selection
-                  },
-                ),
-              );
-            }
-            
-            // Normal handling for other options
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: BrownButton(
-                model: filterModel,
-                onPressed: () {
-                  onOptionSelected(filterModel.text ?? '');
-                  onExpandChanged(false);
-                },
+                ],
               ),
-            );
-          })
-          .toList(),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: CircleIconContainer(
+                      icon: Icons.search,
+                      iconColor: AppColors.brown,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      style: const TextStyle(color: Colors.white),
+                      cursorColor: Colors.white,
+                      decoration: const InputDecoration(
+                        hintText: 'Zoek een dier...',
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white70),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                      onChanged: (value) {
+                        final animalManager =
+                            Provider.of<AnimalManagerInterface>(
+                              context,
+                              listen: false,
+                            );
+                        if (animalManager is AnimalManager) {
+                          animalManager.updateSearchTerm(value);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Special handling for "Meest gezien" option
+        if (filterModel.text == FilterType.mostViewed.displayText) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: BrownButton(
+              model: filterModel,
+              onPressed: () {
+                // Show snackbar but don't select this option
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Deze functie komt binnenkort beschikbaar'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                // Don't close dropdown or update selection
+              },
+            ),
+          );
+        }
+
+        // Normal handling for other options
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: BrownButton(
+            model: filterModel,
+            onPressed: () {
+              onOptionSelected(filterModel.text ?? '');
+              onExpandChanged(false);
+            },
+          ),
+        );
+      }).toList(),
     );
 
-    if (selectedValue != FilterType.none.displayText && 
+    if (selectedValue != FilterType.none.displayText &&
         selectedValue != 'Filteren' &&
         selectedValue.isNotEmpty) {
       options.add(
@@ -180,7 +186,8 @@ class DropdownManager implements DropdownInterface {
   /// Determines the appropriate icon to display for the selected filter
   /// Returns the icon path based on the filter type
   String _getSelectedFilterIcon(String selectedValue) {
-    if (selectedValue == FilterType.none.displayText || selectedValue == 'Filteren') {
+    if (selectedValue == FilterType.none.displayText ||
+        selectedValue == 'Filteren') {
       return FilterType.none.iconPath;
     }
 
@@ -206,13 +213,15 @@ class DropdownManager implements DropdownInterface {
       children: [
         BrownButton(
           model: BrownButtonModel(
-            text: selectedValue == LocationType.current.displayText 
-                ? LocationType.current.displayText 
-                : selectedValue,
+            text:
+                selectedValue == LocationType.current.displayText
+                    ? LocationType.current.displayText
+                    : selectedValue,
             leftIconPath: _getLocationIcon(selectedValue),
-            rightIconPath: isExpanded 
-                ? 'circle_icon:keyboard_arrow_up'
-                : 'circle_icon:keyboard_arrow_down',
+            rightIconPath:
+                isExpanded
+                    ? 'circle_icon:keyboard_arrow_up'
+                    : 'circle_icon:keyboard_arrow_down',
             leftIconSize: 38.0,
             rightIconSize: 38.0,
             leftIconPadding: 5,
@@ -236,10 +245,12 @@ class DropdownManager implements DropdownInterface {
   /// Determines the appropriate icon to display for the selected location
   /// Returns the icon path based on the location type
   String _getLocationIcon(String selectedValue) {
-    return LocationType.values.firstWhere(
-      (type) => type.displayText == selectedValue,
-      orElse: () => LocationType.current,
-    ).iconPath;
+    return LocationType.values
+        .firstWhere(
+          (type) => type.displayText == selectedValue,
+          orElse: () => LocationType.current,
+        )
+        .iconPath;
   }
 
   /// Creates a list of location option widgets excluding the currently selected location
@@ -253,23 +264,24 @@ class DropdownManager implements DropdownInterface {
     return LocationType.values
         .where((type) => type.displayText != selectedValue)
         .map((type) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: BrownButton(
-          model: BrownButtonModel(
-            text: type.displayText,
-            leftIconPath: type.iconPath,
-            leftIconSize: 38.0,
-            leftIconPadding: 5,
-            backgroundColor: backgroundColor,
-          ),
-          onPressed: () {
-            onOptionSelected(type.displayText);
-            onExpandChanged(false);
-          },
-        ),
-      );
-    }).toList();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: BrownButton(
+              model: BrownButtonModel(
+                text: type.displayText,
+                leftIconPath: type.iconPath,
+                leftIconSize: 38.0,
+                leftIconPadding: 5,
+                backgroundColor: backgroundColor,
+              ),
+              onPressed: () {
+                onOptionSelected(type.displayText);
+                onExpandChanged(false);
+              },
+            ),
+          );
+        })
+        .toList();
   }
 
   /// Public method that builds the appropriate dropdown based on the specified type
@@ -305,35 +317,3 @@ class DropdownManager implements DropdownInterface {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

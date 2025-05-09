@@ -8,7 +8,6 @@ import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:geolocator/geolocator.dart';
 
-
 class AppStateProvider with ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final Map<String, Map<String, dynamic>> _screenStates = {};
@@ -26,13 +25,18 @@ class AppStateProvider with ChangeNotifier {
 
   bool get isLocationCacheValid {
     if (_lastLocationUpdate == null || _cachedPosition == null) {
-      debugPrint('\x1B[33m[AppStateProvider] Cache invalid: No cached data\x1B[0m');
+      debugPrint(
+        '\x1B[33m[AppStateProvider] Cache invalid: No cached data\x1B[0m',
+      );
       return false;
     }
-    
-    final isValid = DateTime.now().difference(_lastLocationUpdate!) < locationCacheTimeout;
-    debugPrint('\x1B[36m[AppStateProvider] Cache status: ${isValid ? "valid" : "expired"}'
-        ' (Age: ${DateTime.now().difference(_lastLocationUpdate!).inMinutes}m)\x1B[0m');
+
+    final isValid =
+        DateTime.now().difference(_lastLocationUpdate!) < locationCacheTimeout;
+    debugPrint(
+      '\x1B[36m[AppStateProvider] Cache status: ${isValid ? "valid" : "expired"}'
+      ' (Age: ${DateTime.now().difference(_lastLocationUpdate!).inMinutes}m)\x1B[0m',
+    );
     return isValid;
   }
 
@@ -41,14 +45,16 @@ class AppStateProvider with ChangeNotifier {
       debugPrint('Warning: Null value being set for $screenName.$key');
       return;
     }
-    
+
     if (_screenStates[screenName]?.containsKey(key) ?? false) {
       final existingType = _screenStates[screenName]![key].runtimeType;
       if (value.runtimeType != existingType) {
-        debugPrint('Warning: Type mismatch for $screenName.$key. Expected $existingType, got ${value.runtimeType}');
+        debugPrint(
+          'Warning: Type mismatch for $screenName.$key. Expected $existingType, got ${value.runtimeType}',
+        );
         return;
       }
-      
+
       // Only notify if the value actually changed
       if (_screenStates[screenName]![key] != value) {
         _screenStates[screenName]![key] = value;
@@ -70,11 +76,13 @@ class AppStateProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
   void initializeReport(ReportType reportType) {
     _currentReportType = reportType;
     final report = switch (reportType) {
-      ReportType.waarneming => SightingReport(animals: [], systemDateTime: DateTime.now()),
+      ReportType.waarneming => SightingReport(
+        animals: [],
+        systemDateTime: DateTime.now(),
+      ),
       ReportType.gewasschade => BelongingDamageReport(
         possesion: Possesion(possesionName: ''),
         impactedAreaType: 'hectare',
@@ -90,7 +98,7 @@ class AppStateProvider with ChangeNotifier {
         urgency: '0',
       ),
     };
-    
+
     _activeReports['currentReport'] = report;
     notifyListeners();
   }
@@ -125,22 +133,26 @@ class AppStateProvider with ChangeNotifier {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit:  Duration(seconds: 5),
+          timeLimit: Duration(seconds: 5),
         ),
       );
-      
+
       final locationService = LocationMapManager();
       final address = await locationService.getAddressFromPosition(position);
 
       _cachedPosition = position;
       _cachedAddress = address;
       _lastLocationUpdate = DateTime.now();
-      
-      debugPrint('\x1B[32m[AppStateProvider] Location cache updated successfully:'
-          ' ${position.latitude}, ${position.longitude}\x1B[0m');
+
+      debugPrint(
+        '\x1B[32m[AppStateProvider] Location cache updated successfully:'
+        ' ${position.latitude}, ${position.longitude}\x1B[0m',
+      );
       notifyListeners();
     } catch (e) {
-      debugPrint('\x1B[31m[AppStateProvider] Error updating location cache: $e\x1B[0m');
+      debugPrint(
+        '\x1B[31m[AppStateProvider] Error updating location cache: $e\x1B[0m',
+      );
     }
   }
 
@@ -148,14 +160,3 @@ class AppStateProvider with ChangeNotifier {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
   }
 }
-
-
-
-
-
-
-
-
-
-
-

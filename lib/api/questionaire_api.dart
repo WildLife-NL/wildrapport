@@ -6,7 +6,7 @@ import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 
-class QuestionaireApi implements QuestionnaireApiInterface{
+class QuestionaireApi implements QuestionnaireApiInterface {
   final ApiClient client;
   QuestionaireApi(this.client);
 
@@ -19,13 +19,12 @@ class QuestionaireApi implements QuestionnaireApiInterface{
 
     Map<String, dynamic>? json;
 
-    if(response.statusCode == HttpStatus.ok) {
+    if (response.statusCode == HttpStatus.ok) {
       json = jsonDecode(response.body);
       Questionnaire questionnaire = Questionnaire.fromJson(json!);
       return questionnaire;
-    }
-    else{
+    } else {
       throw Exception(json ?? "Failed to get questionnaire");
-    }    
+    }
   }
 }

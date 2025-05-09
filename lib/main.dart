@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wildrapport/api/response_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
@@ -60,22 +59,22 @@ Future<Widget> getHomepageBasedOnLoginStatus() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager(prefs);
-  
+
   await dotenv.load(fileName: ".env");
-  
+
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
   final appConfig = AppConfig(apiClient);
-  
+
   final authApi = AuthApi(apiClient);
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
   final interactionApi = InteractionApi(apiClient);
   final questionnaireAPI = QuestionaireApi(apiClient);
-  final responseAPI = ResponseApi(apiClient);    
+  final responseAPI = ResponseApi(apiClient);
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -88,38 +87,40 @@ void main() async {
   interactionManager.init();
 
   final responseManager = ResponseManager(
-    responseAPI: responseAPI, 
-    responseProvider: responseProvider
+    responseAPI: responseAPI,
+    responseProvider: responseProvider,
   );
   responseManager.init();
 
   final belongingManager = BelongingDamageReportManager(
-    interactionAPI: interactionApi, 
-    formProvider: belongingDamageFormProvider, 
-    mapProvider: mapProvider, 
-    interactionManager: interactionManager
+    interactionAPI: interactionApi,
+    formProvider: belongingDamageFormProvider,
+    mapProvider: mapProvider,
+    interactionManager: interactionManager,
   );
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
-  
+
   final animalSightingReportingManager = AnimalSightingReportingManager();
-  
+
   final locationScreenManager = LocationScreenManager();
-  
 
   // Check for existing token
   final String? token = prefs.getString('bearer_token');
 
-  final Widget initialScreen = token != null ? const OverzichtScreen() : const LoginScreen();
-  
+  final Widget initialScreen =
+      token != null ? const OverzichtScreen() : const LoginScreen();
+
   // Start the app
   runApp(
     MultiProvider(
       providers: [
-          ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
-          ChangeNotifierProvider<BelongingDamageReportProvider>.value(value: belongingDamageFormProvider),          
-          ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
-          ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
+        ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
+        ChangeNotifierProvider<BelongingDamageReportProvider>.value(
+          value: belongingDamageFormProvider,
+        ),
+        ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
+        ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
@@ -144,20 +145,18 @@ void main() async {
         Provider<NavigationStateInterface>(
           create: (context) => NavigationStateManager(),
         ),
-        Provider<LocationScreenInterface>(
-          create: (_) => locationScreenManager,
-        ),
-        Provider<PermissionInterface>(
-          create: (_) => permissionManager,
-        ),
+        Provider<LocationScreenInterface>(create: (_) => locationScreenManager),
+        Provider<PermissionInterface>(create: (_) => permissionManager),
         ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
       child: MyApp(
         initialScreen: initialScreen,
         onAppStart: () async {
           // Check if we already have permission
-          bool hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
-          
+          bool hasPermission = await permissionManager.isPermissionGranted(
+            PermissionType.location,
+          );
+
           if (!hasPermission) {
             // Get the context after the app has started
             final context = appStateProvider.navigatorKey.currentContext;
@@ -182,8 +181,7 @@ void main() async {
   );
 }
 
-class UserService {
-}
+class UserService {}
 
 Future<String?> _getToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -193,9 +191,9 @@ Future<String?> _getToken() async {
 class MyApp extends StatelessWidget {
   final Widget initialScreen;
   final Future<void> Function() onAppStart;
-  
+
   const MyApp({
-    super.key, 
+    super.key,
     required this.initialScreen,
     required this.onAppStart,
   });
@@ -203,12 +201,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStateProvider = context.read<AppStateProvider>();
-    
+
     // Call onAppStart after the app has been built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       onAppStart();
     });
-    
+
     return _MediaQueryWrapper(
       child: MaterialApp(
         navigatorKey: appStateProvider.navigatorKey,
@@ -261,7 +259,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 // Separate widget for MediaQuery modifications
 class _MediaQueryWrapper extends StatelessWidget {
   final Widget child;
@@ -272,15 +269,16 @@ class _MediaQueryWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get the screen size
     final screenSize = MediaQuery.of(context).size;
-    
+
     // Calculate base text scale based on screen width
     final baseTextScale = (screenSize.width / 375).clamp(0.8, 1.2);
-    
+
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
         // Combine device text scale with our responsive scale
         textScaler: TextScaler.linear(
-          baseTextScale * MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
+          baseTextScale *
+              MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
         ),
         viewInsets: MediaQuery.of(context).viewInsets.copyWith(
           bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,

@@ -7,11 +7,7 @@ class BrownButton extends StatelessWidget {
   final BrownButtonModel? model;
   final VoidCallback onPressed;
 
-  const BrownButton({
-    super.key,
-    this.model,
-    required this.onPressed,
-  });
+  const BrownButton({super.key, this.model, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +19,7 @@ class BrownButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: model?.backgroundColor ?? AppColors.brown,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 8,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -38,14 +31,16 @@ class BrownButton extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (model?.leftIconPath != null && model!.leftIconPath!.isNotEmpty)
+                if (model?.leftIconPath != null &&
+                    model!.leftIconPath!.isNotEmpty)
                   Transform.translate(
                     offset: Offset(-(model?.leftIconPadding ?? 0) * 0.5, 0),
                     child: _buildLeftIcon(),
                   )
                 else
                   const SizedBox(width: 24),
-                if (model?.rightIconPath != null && model!.rightIconPath!.isNotEmpty)
+                if (model?.rightIconPath != null &&
+                    model!.rightIconPath!.isNotEmpty)
                   _buildRightIcon()
                 else
                   const SizedBox(width: 24),
@@ -68,7 +63,7 @@ class BrownButton extends StatelessWidget {
     if (model?.leftIconPath?.startsWith('circle_icon:') ?? false) {
       final iconName = model!.leftIconPath!.split(':')[1];
       return Transform.translate(
-        offset: const Offset(0, 0),  // Changed from -3 to 3 to move right
+        offset: const Offset(0, 0), // Changed from -3 to 3 to move right
         child: CircleIconContainer(
           icon: _getIconData(iconName),
           iconColor: AppColors.brown,
@@ -88,12 +83,14 @@ class BrownButton extends StatelessWidget {
     if (model?.rightIconPath?.startsWith('circle_icon:') ?? false) {
       final iconName = model!.rightIconPath!.split(':')[1];
       return Transform.translate(
-        offset: const Offset(3, 0),  // Move 3px to the right
+        offset: const Offset(3, 0), // Move 3px to the right
         child: CircleIconContainer(
           icon: _getIconData(iconName),
           iconColor: AppColors.brown,
           size: model!.rightIconSize,
-          iconSize: (model!.rightIconSize) * 0.75,  // Increased from 0.6 to 0.75 for bigger arrows
+          iconSize:
+              (model!.rightIconSize) *
+              0.75, // Increased from 0.6 to 0.75 for bigger arrows
         ),
       );
     }
@@ -152,10 +149,3 @@ class BrownButton extends StatelessWidget {
     }
   }
 }
-
-
-
-
-
-
-

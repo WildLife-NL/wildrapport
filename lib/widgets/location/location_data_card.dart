@@ -30,7 +30,9 @@ class LocationDataCard extends StatelessWidget {
       parts.add(cityName!);
     }
     if (latitude != null && longitude != null) {
-      parts.add('(${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)})');
+      parts.add(
+        '(${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)})',
+      );
     }
     return parts.join(', ');
   }
@@ -55,9 +57,7 @@ class LocationDataCard extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
             Text('Locatie wordt geladen...'),
           ],
@@ -66,7 +66,8 @@ class LocationDataCard extends StatelessWidget {
     }
 
     final Color locationColor = isCurrentLocation ? Colors.blue : Colors.red;
-    final String titleText = isCurrentLocation ? 'Huidige Locatie' : 'Geselecteerde Locatie';
+    final String titleText =
+        isCurrentLocation ? 'Huidige Locatie' : 'Geselecteerde Locatie';
 
     return _buildCard(
       child: Column(
@@ -82,11 +83,7 @@ class LocationDataCard extends StatelessWidget {
                   color: locationColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.location_on,
-                  color: locationColor,
-                  size: 20,
-                ),
+                child: Icon(Icons.location_on, color: locationColor, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -125,10 +122,7 @@ class LocationDataCard extends StatelessWidget {
                     if (latitude != null && longitude != null)
                       Text(
                         '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: locationColor,
-                        ),
+                        style: TextStyle(fontSize: 12, color: locationColor),
                       ),
                     Row(
                       children: [
@@ -152,20 +146,14 @@ class LocationDataCard extends StatelessWidget {
                           ),
                         Text(
                           titleText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: locationColor,
-                          ),
+                          style: TextStyle(fontSize: 12, color: locationColor),
                         ),
                       ],
                     ),
                     if (cityName == null && streetName == null)
                       Text(
                         'Locatie niet beschikbaar',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: locationColor,
-                        ),
+                        style: TextStyle(fontSize: 14, color: locationColor),
                       ),
                   ],
                 ),
@@ -185,28 +173,16 @@ class LocationDataCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: child,
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-

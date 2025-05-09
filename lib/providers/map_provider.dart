@@ -11,12 +11,14 @@ class MapProvider extends ChangeNotifier {
   MapController? _mapController;
   bool _isLoading = false;
   bool _isDisposed = false;
-  
+
   bool get isLoading => _isLoading;
   bool get isInitialized => _mapController != null;
   MapController get mapController {
     if (_mapController == null) {
-      debugPrint('[MapProvider] Warning: Accessing uninitialized map controller, creating new instance');
+      debugPrint(
+        '[MapProvider] Warning: Accessing uninitialized map controller, creating new instance',
+      );
       _mapController = MapController();
     }
     return _mapController!;
@@ -69,16 +71,16 @@ class MapProvider extends ChangeNotifier {
 
   Future<void> updatePosition(Position position, String address) async {
     if (_isDisposed) return;
-    
+
     currentPosition = position;
     currentAddress = address;
-    
+
     // Only update selected position if it's not explicitly set to unknown
     if (selectedAddress != LocationType.unknown.displayText) {
       selectedPosition = position;
       selectedAddress = address;
     }
-    
+
     // Batch state updates
     Future.microtask(() {
       if (!_isDisposed) {
@@ -133,34 +135,17 @@ class MapProvider extends ChangeNotifier {
     debugPrint('[MapProvider] Resetting map state');
     _isLoading = true;
     notifyListeners();
-    
+
     // Reset any state but keep the controller
     selectedPosition = null;
     selectedAddress = '';
     currentPosition = null;
     currentAddress = '';
-    
+
     // Small delay to ensure UI updates
     await Future.delayed(const Duration(milliseconds: 50));
-    
+
     _isLoading = false;
     notifyListeners();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

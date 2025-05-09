@@ -79,17 +79,3 @@ abstract class AnimalSightingReportingInterface {
   /// Updates the dateTime model in the animalSighting
   AnimalSightingModel updateDateTimeModel(DateTimeModel dateTimeModel);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

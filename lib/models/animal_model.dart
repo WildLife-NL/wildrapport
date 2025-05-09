@@ -24,7 +24,9 @@ class AnimalModel {
   }
 
   ViewCountModel? get viewCount {
-    return genderViewCounts.isNotEmpty ? genderViewCounts.first.viewCount : null;
+    return genderViewCounts.isNotEmpty
+        ? genderViewCounts.first.viewCount
+        : null;
   }
 
   AnimalModel updateGender(AnimalGender newGender) {
@@ -32,7 +34,12 @@ class AnimalModel {
       animalId: animalId,
       animalImagePath: animalImagePath,
       animalName: animalName,
-      genderViewCounts: [AnimalGenderViewCount(gender: newGender, viewCount: viewCount ?? ViewCountModel())],
+      genderViewCounts: [
+        AnimalGenderViewCount(
+          gender: newGender,
+          viewCount: viewCount ?? ViewCountModel(),
+        ),
+      ],
       condition: condition,
     );
   }
@@ -42,9 +49,13 @@ class AnimalModel {
       animalId: animalId,
       animalImagePath: animalImagePath,
       animalName: animalName,
-      genderViewCounts: [AnimalGenderViewCount(gender: gender ?? AnimalGender.onbekend, viewCount: newViewCount)],
+      genderViewCounts: [
+        AnimalGenderViewCount(
+          gender: gender ?? AnimalGender.onbekend,
+          viewCount: newViewCount,
+        ),
+      ],
       condition: condition,
     );
   }
 }
-

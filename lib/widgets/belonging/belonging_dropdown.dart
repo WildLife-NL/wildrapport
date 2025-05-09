@@ -62,31 +62,43 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
   @override
   void initState() {
     super.initState();
-    selectedValue = widget.getSelectedValue.isNotEmpty ? widget.getSelectedValue : widget.defaultValue;
-    selectedText = widget.getSelectedText.isNotEmpty ? widget.getSelectedText : widget.defaultValue;
+    selectedValue =
+        widget.getSelectedValue.isNotEmpty
+            ? widget.getSelectedValue
+            : widget.defaultValue;
+    selectedText =
+        widget.getSelectedText.isNotEmpty
+            ? widget.getSelectedText
+            : widget.defaultValue;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    formProvider = Provider.of<BelongingDamageReportProvider>(context, listen: false);
+    formProvider = Provider.of<BelongingDamageReportProvider>(
+      context,
+      listen: false,
+    );
     formProvider.addListener(_onFormProviderChanged);
   }
 
   void _onFormProviderChanged() {
     debugPrint("$yellowLog _onFormProviderChanged");
     if (formProvider.expanded && isExpanded) {
-      debugPrint("$yellowLog [PossesionDropdown]: external tap detected, closing overlay");
+      debugPrint(
+        "$yellowLog [PossesionDropdown]: external tap detected, closing overlay",
+      );
       closeOverlay();
       // ✅ Reset to false to prevent re-triggering
       formProvider.updateExpanded(false);
     }
-}
+  }
 
   @override
   void didUpdateWidget(covariant BelongingDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.getSelectedValue != oldWidget.getSelectedValue && widget.getSelectedValue.isNotEmpty) {
+    if (widget.getSelectedValue != oldWidget.getSelectedValue &&
+        widget.getSelectedValue.isNotEmpty) {
       selectedValue = widget.getSelectedValue;
     }
   }
@@ -106,26 +118,29 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
         children: [
           widget.hasDropdownSideDescription
               ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(widget.dropdownSideDescriptionText ?? ''),
-                    const SizedBox(width: 10),
-                    buildMainButton(),
-                  ],
-                )
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(widget.dropdownSideDescriptionText ?? ''),
+                  const SizedBox(width: 10),
+                  buildMainButton(),
+                ],
+              )
               : buildMainButton(),
-          const SizedBox(height: 4), // small space between dropdown and error text
+          const SizedBox(
+            height: 4,
+          ), // small space between dropdown and error text
           AnimatedSize(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
             child: SizedBox(
               height: 16, // always reserve space for 1 line of error text
-              child: widget.hasError
-                  ? const Text(
-                      'This field is required',
-                      style: TextStyle(color: Colors.red, fontSize: 12),
-                    )
-                  : const SizedBox.shrink(), // invisible when no error
+              child:
+                  widget.hasError
+                      ? const Text(
+                        'This field is required',
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      )
+                      : const SizedBox.shrink(), // invisible when no error
             ),
           ),
         ],
@@ -159,18 +174,21 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
         decoration: BoxDecoration(
           color: const Color(0xFF6C452D),
           borderRadius: BorderRadius.circular(30),
-          border: widget.hasError
-              ? Border.all(color: Colors.red, width: 2.0)
-              : Border.all(color: Colors.transparent, width: 0),
+          border:
+              widget.hasError
+                  ? Border.all(color: Colors.red, width: 2.0)
+                  : Border.all(color: Colors.transparent, width: 0),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               offset: const Offset(0, 2),
               blurRadius: 4,
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20), // Ensure you know the padding
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+        ), // Ensure you know the padding
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -193,9 +211,13 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
     final overlay = Overlay.of(context);
 
     // Get the position and size of the dropdown button using the RenderBox
-    final RenderBox renderBox = _buttonKey.currentContext!.findRenderObject() as RenderBox;
-    final buttonPosition = renderBox.localToGlobal(Offset.zero); // Position relative to screen
-    final double buttonWidth = renderBox.size.width; // Get the actual width of the button
+    final RenderBox renderBox =
+        _buttonKey.currentContext!.findRenderObject() as RenderBox;
+    final buttonPosition = renderBox.localToGlobal(
+      Offset.zero,
+    ); // Position relative to screen
+    final double buttonWidth =
+        renderBox.size.width; // Get the actual width of the button
     final double top = buttonPosition.dy + renderBox.size.height;
 
     overlayEntry = OverlayEntry(
@@ -206,11 +228,12 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
           child: Material(
             color: Colors.transparent,
             child: Column(
-              children: widget.dropdownItems.asMap().entries.map((entry) {
-                int index = entry.key;
-                Map<String, String> item = entry.value;
-                return buildDropdownItem(item, buttonWidth, index);
-              }).toList(),
+              children:
+                  widget.dropdownItems.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    Map<String, String> item = entry.value;
+                    return buildDropdownItem(item, buttonWidth, index);
+                  }).toList(),
             ),
           ),
         );
@@ -219,22 +242,27 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
     overlay.insert(overlayEntry!);
   }
 
-  void setItemState(item){
-      debugPrint("$greenLog [PossesionDropdown]: line 197");
-        setState(() {
-          selectedValue = item['value']!;
-          selectedText = item['text']!;
-          widget.onChanged?.call(item['value']!);
-        });
+  void setItemState(item) {
+    debugPrint("$greenLog [PossesionDropdown]: line 197");
+    setState(() {
+      selectedValue = item['value']!;
+      selectedText = item['text']!;
+      widget.onChanged?.call(item['value']!);
+    });
   }
-  void closeOverlay(){
+
+  void closeOverlay() {
     debugPrint("$greenLog [PossesionDropdown]: line 205");
     isExpanded = false;
     overlayEntry?.remove();
     formProvider.updateExpanded(false);
   }
 
-  Widget buildDropdownItem(Map<String, String> item, double buttonWidth, int index) {
+  Widget buildDropdownItem(
+    Map<String, String> item,
+    double buttonWidth,
+    int index,
+  ) {
     return GestureDetector(
       onTap: () {
         setItemState(item);
@@ -249,7 +277,7 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               offset: const Offset(0, 2),
               blurRadius: 4,
             ),
@@ -266,7 +294,10 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
                   gewassIconList[index],
                   height: 20,
                   width: 20,
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             Center(

@@ -1,5 +1,1 @@
-enum InteractionType {
-  waarnemning,
-  gewasschade,
-  verkeersongeval
-}
+enum InteractionType { waarnemning, gewasschade, verkeersongeval }

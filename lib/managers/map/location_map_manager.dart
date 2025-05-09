@@ -7,17 +7,21 @@ import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 
-class LocationMapManager implements LocationServiceInterface, MapServiceInterface, MapStateInterface {
-
+class LocationMapManager
+    implements
+        LocationServiceInterface,
+        MapServiceInterface,
+        MapStateInterface {
   // Netherlands boundaries
-  static const double minLat = 50.75;  // Southern Netherlands border
-  static const double maxLat = 53.55;  // Northern Netherlands border
-  static const double minLng = 3.35;   // Western Netherlands border
-  static const double maxLng = 7.25; 
-  
+  static const double minLat = 50.75; // Southern Netherlands border
+  static const double maxLat = 53.55; // Northern Netherlands border
+  static const double minLng = 3.35; // Western Netherlands border
+  static const double maxLng = 7.25;
+
   static const LatLng denBoschCenter = LatLng(51.6988, 5.3041);
-  static const String standardTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String satelliteTileUrl = 
+  static const String standardTileUrl =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String satelliteTileUrl =
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
   @override
@@ -49,10 +53,7 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
       end: targetZoom,
     );
 
-    final controller = AnimationController(
-      duration: duration,
-      vsync: vsync,
-    );
+    final controller = AnimationController(duration: duration, vsync: vsync);
 
     final animation = CurvedAnimation(
       parent: controller,
@@ -61,16 +62,14 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
 
     controller.addListener(() {
       mapController.move(
-        LatLng(
-          latTween.evaluate(animation),
-          lngTween.evaluate(animation),
-        ),
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
         zoomTween.evaluate(animation),
       );
     });
 
     animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         controller.dispose();
       }
     });
@@ -105,8 +104,8 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
         return await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 5)
-          )
+            timeLimit: Duration(seconds: 5),
+          ),
         );
       } catch (e) {
         debugPrint('Falling back to reduced accuracy: $e');
@@ -114,8 +113,8 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
         return await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.reduced,
-            timeLimit: Duration(seconds: 3)
-          )
+            timeLimit: Duration(seconds: 3),
+          ),
         );
       }
     } catch (e) {
@@ -126,36 +125,40 @@ class LocationMapManager implements LocationServiceInterface, MapServiceInterfac
 
   @override
   Future<String> getAddressFromPosition(Position position) async {
-    return _placemarkToString(await placemarkFromCoordinates(position.latitude, position.longitude));
+    return _placemarkToString(
+      await placemarkFromCoordinates(position.latitude, position.longitude),
+    );
   }
 
   @override
   Future<String> getAddressFromLatLng(LatLng point) async {
-    return _placemarkToString(await placemarkFromCoordinates(point.latitude, point.longitude));
+    return _placemarkToString(
+      await placemarkFromCoordinates(point.latitude, point.longitude),
+    );
   }
 
   String _placemarkToString(List<Placemark> placemarks) {
     if (placemarks.isEmpty) return 'Address not found';
-    
+
     final place = placemarks.first;
     final List<String> addressParts = [];
-    
+
     if (place.street?.isNotEmpty ?? false) {
       addressParts.add(place.street!);
     }
-    
+
     if (place.subLocality?.isNotEmpty ?? false) {
       addressParts.add(place.subLocality!);
     }
-    
+
     if (place.locality?.isNotEmpty ?? false) {
       addressParts.add(place.locality!);
     }
-    
+
     if (place.postalCode?.isNotEmpty ?? false) {
       addressParts.add(place.postalCode!);
     }
-    
+
     return addressParts.join(', ');
   }
 

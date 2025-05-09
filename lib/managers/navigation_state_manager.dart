@@ -12,7 +12,9 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void dispose() {
-    debugPrint('$greenLog[NavigationStateManager] Disposing controllers: ${_controllers.length} controllers$resetLog');
+    debugPrint(
+      '$greenLog[NavigationStateManager] Disposing controllers: ${_controllers.length} controllers$resetLog',
+    );
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -22,9 +24,7 @@ class NavigationStateManager implements NavigationStateInterface {
   @override
   void resetToHome(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => const Rapporteren(),
-      ),
+      MaterialPageRoute(builder: (context) => const Rapporteren()),
       (route) => false,
     );
 
@@ -35,7 +35,8 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void clearApplicationState(BuildContext context) {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
     animalSightingManager.clearCurrentanimalSighting();
 
     final appStateProvider = context.read<AppStateProvider>();
@@ -53,35 +54,21 @@ class NavigationStateManager implements NavigationStateInterface {
   @override
   void pushReplacementForward(BuildContext context, Widget screen) {
     dispose();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => screen,
-      ),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => screen));
   }
 
   @override
   void pushReplacementBack(BuildContext context, Widget screen) {
     dispose();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => screen,
-      ),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => screen));
   }
 
   @override
   void pushForward(BuildContext context, Widget screen) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => screen,
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => screen));
   }
 }
-
-
-
-
-
-

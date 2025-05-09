@@ -12,85 +12,83 @@ class QuestionnaireHome extends StatelessWidget {
   const QuestionnaireHome({super.key, required this.nextScreen});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     final questionnaireManager = context.read<QuestionnaireInterface>();
 
-    return
-      Column(
-        children: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 100.0),            
-              child: Text(
-              "Wil je de natuur helpen door een paar vragen te beantwoorden?",
-              textAlign: TextAlign.center,
-              style: AppTextTheme.textTheme.titleLarge?.copyWith(
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha:0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 100.0,
+          ),
+          child: Text(
+            "Wil je de natuur helpen door een paar vragen te beantwoorden?",
+            textAlign: TextAlign.center,
+            style: AppTextTheme.textTheme.titleLarge?.copyWith(
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
             ),
           ),
-          Column(
-            children: [
-              Text(
-                "Totaal",
-                style: TextStyle(
-                  color: AppColors.darkGreen,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 32,
-                ).copyWith(
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha:0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
+        ),
+        Column(
+          children: [
+            Text(
+              "Totaal",
+              style: TextStyle(
+                color: AppColors.darkGreen,
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+              ).copyWith(
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
+                  ),
+                ],
               ),
-              Text(
-                "${questionnaireManager.getAmountOfQuestions(2)}",
-                style: TextStyle(
-                  color: AppColors.darkGreen,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 32,
-                ).copyWith(
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha:0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-              )
-            ],
-          ),
-          SizedBox(height: 40),
-          QuestionnaireHomeButtons(
-            onOverslaanPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OverzichtScreen(),
-                ),
-              );
-            },
-            onBewaarVoorLaterPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OverzichtScreen(),
-                ),
-              );
-            },
-            onVragenlijnstOpenenPressed: () => nextScreen(),
-          ),
-        ],
-      );
+            ),
+            Text(
+              "${questionnaireManager.getAmountOfQuestions(2)}",
+              style: TextStyle(
+                color: AppColors.darkGreen,
+                fontWeight: FontWeight.bold,
+                fontSize: 32,
+              ).copyWith(
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 40),
+        QuestionnaireHomeButtons(
+          onOverslaanPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OverzichtScreen()),
+            );
+          },
+          onBewaarVoorLaterPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OverzichtScreen()),
+            );
+          },
+          onVragenlijnstOpenenPressed: () => nextScreen(),
+        ),
+      ],
+    );
   }
 }

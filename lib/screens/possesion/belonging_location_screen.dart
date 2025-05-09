@@ -20,7 +20,8 @@ class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
 
   @override
-  State<BelongingLocationScreen> createState() => _BelongingLocationScreenState();
+  State<BelongingLocationScreen> createState() =>
+      _BelongingLocationScreenState();
 }
 
 class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
@@ -34,48 +35,63 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   late final MapProvider mapProvider;
   bool _isInitialized = false;
 
-  NavigationStateInterface get navigationManager => context.read<NavigationStateInterface>();
+  NavigationStateInterface get navigationManager =>
+      context.read<NavigationStateInterface>();
   late final QuestionnaireInterface _questionnaireManager;
 
   @override
   void initState() {
     super.initState();
-    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m");
+    debugPrint(
+      "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
+    );
     _questionnaireManager = context.read<QuestionnaireInterface>();
     _initializeScreen();
   }
 
   Future<void> _initializeScreen() async {
     if (!mounted) return;
-    
-    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing screen\x1B[0m");
-    
+
+    debugPrint(
+      "$yellowLog[BelongingLocationScreen] 🔄 Initializing screen\x1B[0m",
+    );
+
     try {
       _belongingManager = context.read<BelongingDamageReportInterface>();
       belongingProvider = context.read<BelongingDamageReportProvider>();
       mapProvider = context.read<MapProvider>();
-      
+
       if (!mapProvider.isInitialized) {
-        debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing map provider\x1B[0m");
+        debugPrint(
+          "$yellowLog[BelongingLocationScreen] 🔄 Initializing map provider\x1B[0m",
+        );
         await mapProvider.initialize();
       } else {
-        debugPrint("$greenLog[BelongingLocationScreen] ✅ Map provider already initialized\x1B[0m");
+        debugPrint(
+          "$greenLog[BelongingLocationScreen] ✅ Map provider already initialized\x1B[0m",
+        );
       }
-      
+
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-        debugPrint("$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m");
+        debugPrint(
+          "$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m",
+        );
       }
     } catch (e) {
-      debugPrint("$redLog[BelongingLocationScreen] ❌ Error initializing screen: $e\x1B[0m");
+      debugPrint(
+        "$redLog[BelongingLocationScreen] ❌ Error initializing screen: $e\x1B[0m",
+      );
     }
   }
 
   void _handleNextPressed() async {
-    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Next button pressed\x1B[0m");
-    
+    debugPrint(
+      "$yellowLog[BelongingLocationScreen] 🔄 Next button pressed\x1B[0m",
+    );
+
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
       await _initializeScreen();
@@ -83,20 +99,27 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         return;
       }
     }
-    
+
     // Reset map provider state
     final mapProvider = context.read<MapProvider>();
-   
-    
+
     final locationManager = context.read<LocationScreenInterface>();
     final locationInfo = await locationManager.getLocationAndDateTime(context);
-    
-    debugPrint("\n$blueLog[BelongingLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
-    debugPrint("$blueLog[BelongingLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
-    debugPrint("$blueLog[BelongingLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
+
+    debugPrint(
+      "\n$blueLog[BelongingLocationScreen] 📍 Location and DateTime Info:\x1B[0m",
+    );
+    debugPrint(
+      "$blueLog[BelongingLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m",
+    );
+    debugPrint(
+      "$blueLog[BelongingLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m",
+    );
 
     if (locationInfo['selectedLocation'] == null) {
-      debugPrint("$redLog[BelongingLocationScreen] ⚠️ No selected location found\x1B[0m");
+      debugPrint(
+        "$redLog[BelongingLocationScreen] ⚠️ No selected location found\x1B[0m",
+      );
       return;
     }
 
@@ -108,7 +131,9 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         longtitude: selectedLocation['longitude'],
       );
       _belongingManager.updateUserLocation(reportLocation);
-      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated user location\x1B[0m");
+      debugPrint(
+        "$greenLog[BelongingLocationScreen] ✅ Updated user location\x1B[0m",
+      );
     }
 
     if (locationInfo['currentGpsLocation'] != null) {
@@ -118,22 +143,25 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         longtitude: currentLocation['longitude'],
       );
       _belongingManager.updateSystemLocation(systemLocation);
-      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m");
+      debugPrint(
+        "$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m",
+      );
     }
-    
-    InteractionResponse? interactionResponseModel = await _belongingManager.postInteraction();
+
+    InteractionResponse? interactionResponseModel =
+        await _belongingManager.postInteraction();
 
     if (mounted) {
       navigationManager.pushReplacementForward(
         context,
         interactionResponseModel != null
-          ? QuestionnaireScreen(
+            ? QuestionnaireScreen(
               questionnaire: await _questionnaireManager.getQuestionnaire(),
               interactionID: interactionResponseModel.interactionID,
             )
-          : OverzichtScreen(),
-        );
-      }
+            : OverzichtScreen(),
+      );
+    }
     mapProvider.resetState();
   }
 
@@ -148,19 +176,30 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 leftIcon: Icons.arrow_back_ios,
                 centerText: 'Locatie',
                 rightIcon: Icons.menu,
-                onLeftIconPressed: () => navigationManager.pushReplacementBack(context, const Rapporteren()),
-                onRightIconPressed: () {/* Handle menu */},
+                onLeftIconPressed:
+                    () => navigationManager.pushReplacementBack(
+                      context,
+                      const Rapporteren(),
+                    ),
+                onRightIconPressed: () {
+                  /* Handle menu */
+                },
               ),
               Expanded(
-                child: _isInitialized
-                    ? const LocationScreenUIWidget()
-                    : const Center(child: CircularProgressIndicator()),
+                child:
+                    _isInitialized
+                        ? const LocationScreenUIWidget()
+                        : const Center(child: CircularProgressIndicator()),
               ),
             ],
           ),
         ),
         bottomNavigationBar: CustomBottomAppBar(
-          onBackPressed: () => navigationManager.pushReplacementBack(context, const Rapporteren()),
+          onBackPressed:
+              () => navigationManager.pushReplacementBack(
+                context,
+                const Rapporteren(),
+              ),
           onNextPressed: _handleNextPressed,
           showNextButton: true,
           showBackButton: true,
@@ -175,7 +214,3 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     super.dispose();
   }
 }
-
-
-
-

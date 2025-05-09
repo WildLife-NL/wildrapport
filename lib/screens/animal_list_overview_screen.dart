@@ -6,20 +6,19 @@ import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/screens/animal_counting_screen.dart';
 import 'package:wildrapport/screens/location_screen.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_list_table.dart';
 
-
 class AnimalListOverviewScreen extends StatelessWidget {
-   AnimalListOverviewScreen({super.key});
-  
+  AnimalListOverviewScreen({super.key});
+
   final _animalListTableKey = GlobalKey<AnimalListTableState>();
 
   @override
   Widget build(BuildContext context) {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
     animalSightingManager.getCurrentanimalSighting();
 
     return Scaffold(
@@ -31,7 +30,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
               centerText: 'Waarneming',
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                final navigationManager = context.read<NavigationStateInterface>();
+                final navigationManager =
+                    context.read<NavigationStateInterface>();
                 navigationManager.pushAndRemoveUntil(
                   context,
                   const AnimalCountingScreen(),
@@ -63,9 +63,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Expanded(
-                      child: AnimalListTable(key: _animalListTableKey),
-                    ),
+                    Expanded(child: AnimalListTable(key: _animalListTableKey)),
                   ],
                 ),
               ),
@@ -84,20 +82,29 @@ class AnimalListOverviewScreen extends StatelessWidget {
         onNextPressed: () async {
           // Save any pending changes before navigation
           _animalListTableKey.currentState?.saveChanges();
-          
+
           final permissionManager = context.read<PermissionInterface>();
           final navigationManager = context.read<NavigationStateInterface>();
-          final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+          final animalSightingManager =
+              context.read<AnimalSightingReportingInterface>();
 
           // Get the description from AnimalListTable
-          final description = _animalListTableKey.currentState?.getDescription() ?? '';
+          final description =
+              _animalListTableKey.currentState?.getDescription() ?? '';
           animalSightingManager.updateDescription(description);
-          
-          final currentSighting = animalSightingManager.getCurrentanimalSighting();
-          debugPrint('[AnimalListOverviewScreen] Current animal sighting state: ${currentSighting?.toJson()}');
 
-          final hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
-          debugPrint('[AnimalListOverviewScreen] Location permission status: $hasPermission');
+          final currentSighting =
+              animalSightingManager.getCurrentanimalSighting();
+          debugPrint(
+            '[AnimalListOverviewScreen] Current animal sighting state: ${currentSighting?.toJson()}',
+          );
+
+          final hasPermission = await permissionManager.isPermissionGranted(
+            PermissionType.location,
+          );
+          debugPrint(
+            '[AnimalListOverviewScreen] Location permission status: $hasPermission',
+          );
 
           if (context.mounted) {
             navigationManager.pushReplacementForward(
@@ -112,44 +119,3 @@ class AnimalListOverviewScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

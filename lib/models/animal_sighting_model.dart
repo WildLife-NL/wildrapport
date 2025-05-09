@@ -47,13 +47,21 @@ class AnimalSightingModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'animals': animals?.map((animal) => {
-            'animalId': animal.animalId,
-            'animalImagePath': animal.animalImagePath,
-            'animalName': animal.animalName,
-            'condition': animal.condition?.toString(),
-            'genderViewCounts': animal.genderViewCounts.map((gvc) => gvc.toJson()).toList(),
-          }).toList(),
+      'animals':
+          animals
+              ?.map(
+                (animal) => {
+                  'animalId': animal.animalId,
+                  'animalImagePath': animal.animalImagePath,
+                  'animalName': animal.animalName,
+                  'condition': animal.condition?.toString(),
+                  'genderViewCounts':
+                      animal.genderViewCounts
+                          .map((gvc) => gvc.toJson())
+                          .toList(),
+                },
+              )
+              .toList(),
       'category': category?.toString(),
       'description': description,
       'locations': locations?.map((loc) => loc.toJson()).toList(),
@@ -62,66 +70,80 @@ class AnimalSightingModel {
     };
   }
 
-  factory AnimalSightingModel.fromJson(Map<String, dynamic> json) => AnimalSightingModel(
-        animals: json['animals'] != null
+  factory AnimalSightingModel.fromJson(
+    Map<String, dynamic> json,
+  ) => AnimalSightingModel(
+    animals:
+        json['animals'] != null
             ? List<AnimalModel>.from(
-                json['animals'].map((x) => AnimalModel(
-                      animalId: x['animalId'],
-                      animalImagePath: x['animalImagePath'],
-                      animalName: x['animalName'],
-                      condition: x['condition'] != null
+              json['animals'].map(
+                (x) => AnimalModel(
+                  animalId: x['animalId'],
+                  animalImagePath: x['animalImagePath'],
+                  animalName: x['animalName'],
+                  condition:
+                      x['condition'] != null
                           ? AnimalCondition.values.firstWhere(
-                              (e) => e.toString() == x['condition'],
-                              orElse: () => AnimalCondition.andere,
-                            )
+                            (e) => e.toString() == x['condition'],
+                            orElse: () => AnimalCondition.andere,
+                          )
                           : null,
-                      genderViewCounts: x['genderViewCounts'] != null
+                  genderViewCounts:
+                      x['genderViewCounts'] != null
                           ? List<AnimalGenderViewCount>.from(
-                              x['genderViewCounts'].map((gvc) => AnimalGenderViewCount.fromJson(gvc)),
-                            )
+                            x['genderViewCounts'].map(
+                              (gvc) => AnimalGenderViewCount.fromJson(gvc),
+                            ),
+                          )
                           : [],
-                    )),
-              )
+                ),
+              ),
+            )
             : null,
-        animalSelected: json['animalSelected'] != null
+    animalSelected:
+        json['animalSelected'] != null
             ? AnimalModel(
-                animalId: json['animalSelected']['animalId'],
-                animalImagePath: json['animalSelected']['animalImagePath'],
-                animalName: json['animalSelected']['animalName'],
-                condition: json['animalSelected']['condition'] != null
-                    ? AnimalCondition.values.firstWhere(
-                        (e) => e.toString() == json['animalSelected']['condition'],
+              animalId: json['animalSelected']['animalId'],
+              animalImagePath: json['animalSelected']['animalImagePath'],
+              animalName: json['animalSelected']['animalName'],
+              condition:
+                  json['animalSelected']['condition'] != null
+                      ? AnimalCondition.values.firstWhere(
+                        (e) =>
+                            e.toString() == json['animalSelected']['condition'],
                         orElse: () => AnimalCondition.andere,
                       )
-                    : null,
-                genderViewCounts: json['animalSelected']['genderViewCounts'] != null
-                    ? List<AnimalGenderViewCount>.from(
+                      : null,
+              genderViewCounts:
+                  json['animalSelected']['genderViewCounts'] != null
+                      ? List<AnimalGenderViewCount>.from(
                         json['animalSelected']['genderViewCounts'].map(
                           (gvc) => AnimalGenderViewCount.fromJson(gvc),
                         ),
                       )
-                    : [],
-              )
+                      : [],
+            )
             : null,
-        category: json['category'] != null
+    category:
+        json['category'] != null
             ? AnimalCategory.values.firstWhere(
-                (e) => e.toString() == json['category'],
-                orElse: () => AnimalCategory.andere,
-              )
+              (e) => e.toString() == json['category'],
+              orElse: () => AnimalCategory.andere,
+            )
             : null,
-        description: json['description'],
-        locations: json['locations'] != null // Updated to handle list of locations
+    description: json['description'],
+    locations:
+        json['locations'] !=
+                null // Updated to handle list of locations
             ? List<LocationModel>.from(
-                json['locations'].map((x) => LocationModel.fromJson(x)),
-              )
+              json['locations'].map((x) => LocationModel.fromJson(x)),
+            )
             : null,
-        dateTime: json['dateTime'] != null ? DateTimeModel.fromJson(json['dateTime']) : null,
-        images: json['images'] != null ? ImageListModel.fromJson(json['images']) : null,
-      );
+    dateTime:
+        json['dateTime'] != null
+            ? DateTimeModel.fromJson(json['dateTime'])
+            : null,
+    images:
+        json['images'] != null ? ImageListModel.fromJson(json['images']) : null,
+  );
 }
-
-
-
-
-
-

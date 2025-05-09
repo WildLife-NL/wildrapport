@@ -3,7 +3,7 @@ import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/beta_models/sighted_animal_model.dart';
 
-class SightingReport implements Reportable, CommonReportFields{
+class SightingReport implements Reportable, CommonReportFields {
   final List<SightedAnimal> animals;
   final String? sightingReportID;
   @override
@@ -39,23 +39,29 @@ class SightingReport implements Reportable, CommonReportFields{
       "involvedAnimals": listAnimals,
     };
   }
+
   factory SightingReport.fromJson(Map<String, dynamic> json) => SightingReport(
-      sightingReportID: json["sightingReportID"],
-      description: json["description"],
-      suspectedSpeciesID: json["suspectedSpeciesID"],
-      userSelectedLocation: json["userSelectedLocation"] != null 
-          ? ReportLocation.fromJson(json["userSelectedLocation"])
-          : null,
-      systemLocation: json["systemLocation"] != null 
-          ? ReportLocation.fromJson(json["systemLocation"])
-          : null,
-      userSelectedDateTime: json["userSelectedDateTime"] != null 
-          ? DateTime.parse(json["userSelectedDateTime"])
-          : null,
-      systemDateTime: DateTime.parse(json["systemDateTime"]),
-      animals: json["animals"] != null 
-          ? List<SightedAnimal>.from(
-              json["animals"].map((x) => SightedAnimal.fromJson(x)))
-          : [],
-    );
+    sightingReportID: json["sightingReportID"],
+    description: json["description"],
+    suspectedSpeciesID: json["suspectedSpeciesID"],
+    userSelectedLocation:
+        json["userSelectedLocation"] != null
+            ? ReportLocation.fromJson(json["userSelectedLocation"])
+            : null,
+    systemLocation:
+        json["systemLocation"] != null
+            ? ReportLocation.fromJson(json["systemLocation"])
+            : null,
+    userSelectedDateTime:
+        json["userSelectedDateTime"] != null
+            ? DateTime.parse(json["userSelectedDateTime"])
+            : null,
+    systemDateTime: DateTime.parse(json["systemDateTime"]),
+    animals:
+        json["animals"] != null
+            ? List<SightedAnimal>.from(
+              json["animals"].map((x) => SightedAnimal.fromJson(x)),
+            )
+            : [],
+  );
 }

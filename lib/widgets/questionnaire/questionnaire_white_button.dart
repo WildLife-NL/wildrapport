@@ -27,7 +27,7 @@ class QuestionnaireWhiteButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.25),
+            color: Colors.black.withValues(alpha: 0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -39,8 +39,8 @@ class QuestionnaireWhiteButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
           onTap: onPressed,
-          splashColor: AppColors.brown.withValues(alpha:0.1),
-          highlightColor: AppColors.brown.withValues(alpha:0.05),
+          splashColor: AppColors.brown.withValues(alpha: 0.1),
+          highlightColor: AppColors.brown.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Stack(
@@ -53,23 +53,20 @@ class QuestionnaireWhiteButton extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.brown,
                       fontWeight: FontWeight.normal,
-                      fontSize: 20).copyWith(
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha:0.25),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
+                      fontSize: 20,
+                    ).copyWith(
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (rightWidget != null)
-                  Positioned(
-                    top: 4, 
-                    right: 0,  
-                    child: rightWidget!,
-                  ),
+                  Positioned(top: 4, right: 0, child: rightWidget!),
               ],
             ),
           ),

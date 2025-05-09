@@ -1,6 +1,1 @@
-enum AnimalCategory {
-  andere,
-  evenhoevigen,
-  knaagdieren,
-  roofdieren
-}
+enum AnimalCategory { andere, evenhoevigen, knaagdieren, roofdieren }

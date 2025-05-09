@@ -7,9 +7,7 @@ class AppConfig {
   static AppConfig shared = AppConfig.create();
 
   factory AppConfig.create() {
-    return shared = AppConfig(
-      ApiClient(dotenv.get('DEV_BASE_URL'))
-    );
+    return shared = AppConfig(ApiClient(dotenv.get('DEV_BASE_URL')));
   }
   AppConfig(this.apiClient);
 }

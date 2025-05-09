@@ -6,12 +6,12 @@ import 'package:flutter/services.dart';
 
 class CustomTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;
-  final DateTime selectedDate;  // Add this parameter
+  final DateTime selectedDate; // Add this parameter
 
   const CustomTimePickerDialog({
     super.key,
     required this.initialTime,
-    required this.selectedDate,  // Add this parameter
+    required this.selectedDate, // Add this parameter
   });
 
   @override
@@ -25,7 +25,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   late TimeOfDay _currentTime;
   bool _isEditing = false;
   String? _errorMessage;
-  
+
   // Add scroll controllers for the wheels
   FixedExtentScrollController? _hourScrollController;
   FixedExtentScrollController? _minuteScrollController;
@@ -34,14 +34,18 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   void initState() {
     super.initState();
     _currentTime = TimeOfDay.now();
-    
+
     _selectedHour = widget.initialTime.hour;
     _selectedMinute = widget.initialTime.minute;
-    
+
     // Initialize scroll controllers
-    _hourScrollController = FixedExtentScrollController(initialItem: _selectedHour);
-    _minuteScrollController = FixedExtentScrollController(initialItem: _selectedMinute);
-    
+    _hourScrollController = FixedExtentScrollController(
+      initialItem: _selectedHour,
+    );
+    _minuteScrollController = FixedExtentScrollController(
+      initialItem: _selectedMinute,
+    );
+
     _updateTimeDisplay();
   }
 
@@ -49,32 +53,38 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     // Only check for future time if the selected date is today
     if (_isToday(widget.selectedDate)) {
       if (hour > _currentTime.hour) return false;
-      if (hour == _currentTime.hour && minute > _currentTime.minute) return false;
+      if (hour == _currentTime.hour && minute > _currentTime.minute) {
+        return false;
+      }
     }
     return true;
   }
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
-    return date.year == now.year && 
-           date.month == now.month && 
-           date.day == now.day;
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   void _updateTimeDisplay() {
-    _timeController.text = '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
+    _timeController.text =
+        '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
   }
 
   void _handleTimeInput(String value) {
     // Remove any non-digit characters
     String digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     if (digitsOnly.length >= 2) {
       // Insert colon after first two digits
       String hours = digitsOnly.substring(0, 2);
-      String minutes = digitsOnly.length > 2 ? digitsOnly.substring(2, min(4, digitsOnly.length)) : '';
+      String minutes =
+          digitsOnly.length > 2
+              ? digitsOnly.substring(2, min(4, digitsOnly.length))
+              : '';
       String formattedTime = '$hours:$minutes';
-      
+
       // Update the text field without triggering onChanged
       _timeController.value = TextEditingValue(
         text: formattedTime,
@@ -99,18 +109,20 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       if (digitsOnly.length >= 4) {
         final hours = int.tryParse(digitsOnly.substring(0, 2));
         final minutes = int.tryParse(digitsOnly.substring(2, 4));
-        
-        if (hours != null && minutes != null && 
-            hours >= 0 && hours < 24 && 
-            minutes >= 0 && minutes < 60) {
-          
+
+        if (hours != null &&
+            minutes != null &&
+            hours >= 0 &&
+            hours < 24 &&
+            minutes >= 0 &&
+            minutes < 60) {
           // Check if the entered time is valid (not in the future)
           if (_isValidTime(hours, minutes)) {
             setState(() {
               _selectedHour = hours;
               _selectedMinute = minutes;
-              _errorMessage = null;  // Clear error message on valid input
-            
+              _errorMessage = null; // Clear error message on valid input
+
               // Update wheel positions to match typed time
               _updateWheelPositions();
             });
@@ -128,7 +140,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         selection: TextSelection.collapsed(offset: digitsOnly.length),
       );
       setState(() {
-        _errorMessage = null;  // Clear error when starting new input
+        _errorMessage = null; // Clear error when starting new input
       });
     }
   }
@@ -142,7 +154,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         curve: Curves.easeInOut,
       );
     }
-    
+
     if (_minuteScrollController != null) {
       _minuteScrollController!.animateToItem(
         _selectedMinute,
@@ -197,58 +209,66 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           onTap: () {
             setState(() {
               _isEditing = true;
-              _errorMessage = null;  // Clear error when starting to edit
+              _errorMessage = null; // Clear error when starting to edit
               _timeController.clear();
             });
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
-              color: AppColors.brown.withValues(alpha:0.1),
+              color: AppColors.brown.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
-              border: _errorMessage != null 
-                  ? Border.all(color: Colors.red, width: 1.0)
-                  : null,
+              border:
+                  _errorMessage != null
+                      ? Border.all(color: Colors.red, width: 1.0)
+                      : null,
             ),
-            child: _isEditing
-                ? TextField(
-                    controller: _timeController,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: _errorMessage != null ? Colors.red : AppColors.brown,
+            child:
+                _isEditing
+                    ? TextField(
+                      controller: _timeController,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            _errorMessage != null
+                                ? Colors.red
+                                : AppColors.brown,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(4),
+                      ],
+                      onChanged: _handleTimeInput,
+                      onSubmitted: (_) {
+                        setState(() {
+                          _isEditing = false;
+                          if (_timeController.text.isEmpty) {
+                            _updateTimeDisplay();
+                            _errorMessage = null;
+                          }
+                        });
+                      },
+                      autofocus: true,
+                    )
+                    : Text(
+                      '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            _errorMessage != null
+                                ? Colors.red
+                                : AppColors.brown,
+                      ),
                     ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(4),
-                    ],
-                    onChanged: _handleTimeInput,
-                    onSubmitted: (_) {
-                      setState(() {
-                        _isEditing = false;
-                        if (_timeController.text.isEmpty) {
-                          _updateTimeDisplay();
-                          _errorMessage = null;
-                        }
-                      });
-                    },
-                    autofocus: true,
-                  )
-                : Text(
-                    '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: _errorMessage != null ? Colors.red : AppColors.brown,
-                    ),
-                  ),
           ),
         ),
         if (_errorMessage != null)
@@ -256,10 +276,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               _errorMessage!,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
       ],
@@ -272,7 +289,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       decoration: BoxDecoration(
         color: AppColors.offWhite,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.brown.withValues(alpha:0.1)),
+        border: Border.all(color: AppColors.brown.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -284,7 +301,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               setState(() {
                 _selectedHour = value;
                 // Adjust minutes if necessary
-                if (_isToday(widget.selectedDate) && value == _currentTime.hour && _selectedMinute > _currentTime.minute) {
+                if (_isToday(widget.selectedDate) &&
+                    value == _currentTime.hour &&
+                    _selectedMinute > _currentTime.minute) {
                   _selectedMinute = _currentTime.minute;
                   _minuteScrollController?.animateToItem(
                     _selectedMinute,
@@ -312,10 +331,15 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           ),
           _buildWheel(
             value: _selectedMinute,
-            maxValue: _isToday(widget.selectedDate) && _selectedHour == _currentTime.hour ? 
-              _currentTime.minute : 59,
+            maxValue:
+                _isToday(widget.selectedDate) &&
+                        _selectedHour == _currentTime.hour
+                    ? _currentTime.minute
+                    : 59,
             onChanged: (value) {
-              if (_isToday(widget.selectedDate) && _selectedHour == _currentTime.hour && value > _currentTime.minute) {
+              if (_isToday(widget.selectedDate) &&
+                  _selectedHour == _currentTime.hour &&
+                  value > _currentTime.minute) {
                 return;
               }
               setState(() {
@@ -358,9 +382,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             overAndUnderCenterOpacity: 0.7,
             magnification: 1.2,
             useMagnifier: true,
-            controller: controller ?? FixedExtentScrollController(
-              initialItem: initialScrollIndex,
-            ),
+            controller:
+                controller ??
+                FixedExtentScrollController(initialItem: initialScrollIndex),
             onSelectedItemChanged: (index) => onChanged(index * step),
             childDelegate: ListWheelChildBuilderDelegate(
               childCount: (maxValue ~/ step) + 1,
@@ -372,14 +396,14 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     duration: const Duration(milliseconds: 200),
                     style: TextStyle(
                       fontSize: isSelected ? 20 : 16,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected 
-                          ? AppColors.brown 
-                          : AppColors.brown.withValues(alpha:0.5),
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color:
+                          isSelected
+                              ? AppColors.brown
+                              : AppColors.brown.withValues(alpha: 0.5),
                     ),
-                    child: Text(
-                      number.toString().padLeft(2, '0'),
-                    ),
+                    child: Text(number.toString().padLeft(2, '0')),
                   ),
                 );
               },
@@ -390,7 +414,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: AppColors.brown.withValues(alpha:0.6),
+            color: AppColors.brown.withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -403,16 +427,14 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       children: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            'Annuleren',
-            style: TextStyle(color: AppColors.brown),
-          ),
+          child: Text('Annuleren', style: TextStyle(color: AppColors.brown)),
         ),
         const SizedBox(width: 8),
         ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(
-            TimeOfDay(hour: _selectedHour, minute: _selectedMinute),
-          ),
+          onPressed:
+              () => Navigator.of(
+                context,
+              ).pop(TimeOfDay(hour: _selectedHour, minute: _selectedMinute)),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.brown,
             shape: RoundedRectangleBorder(
@@ -428,29 +450,3 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

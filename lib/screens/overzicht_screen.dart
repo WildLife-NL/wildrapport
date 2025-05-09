@@ -34,7 +34,10 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     final navigationManager = context.read<NavigationStateInterface>();
     final screenSize = MediaQuery.of(context).size;
 
-    final double topContainerHeight = (screenSize.height * 0.4).clamp(180.0, 300.0);
+    final double topContainerHeight = (screenSize.height * 0.4).clamp(
+      180.0,
+      300.0,
+    );
     final double welcomeFontSize = (screenSize.width * 0.045).clamp(14.0, 24.0);
     final double usernameFontSize = (screenSize.width * 0.06).clamp(18.0, 28.0);
     final double buttonHeight = (screenSize.height * 0.18).clamp(100.0, 160.0);

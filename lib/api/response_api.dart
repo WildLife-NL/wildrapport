@@ -14,23 +14,26 @@ class ResponseApi implements ResponseApiInterface {
   final yellowLog = '\x1B[93m';
 
   @override
-  Future<bool> addReponse(String interactionID, String questionID, String? answerID, String? text) async {
-    http.Response response = await client.post(
-      'response/',
-      {
-        "answerID": answerID,
-        "interactionID": interactionID,
-        "questionID": questionID,
-        "text": text,
-      },
-      authenticated: true,
-    );
-    
+  Future<bool> addReponse(
+    String interactionID,
+    String questionID,
+    String? answerID,
+    String? text,
+  ) async {
+    http.Response response = await client.post('response/', {
+      "answerID": answerID,
+      "interactionID": interactionID,
+      "questionID": questionID,
+      "text": text,
+    }, authenticated: true);
+
     if (response.statusCode == HttpStatus.ok) {
       debugPrint("$greenLog [ResponseApi]: Answer submitted successfully");
       return true;
     } else {
-      debugPrint("$redLog [ResponseApi]: Answer could NOT be submitted, status code: ${response.statusCode}");
+      debugPrint(
+        "$redLog [ResponseApi]: Answer could NOT be submitted, status code: ${response.statusCode}",
+      );
       debugPrint("$redLog [ResponseApi]: Response body: ${response.body}");
       return false;
     }

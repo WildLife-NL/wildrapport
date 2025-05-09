@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
@@ -6,14 +5,18 @@ import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 
-class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterface, AnimalManagerInterface {
+class AnimalManager
+    implements
+        AnimalRepositoryInterface,
+        AnimalSelectionInterface,
+        AnimalManagerInterface {
   final _listeners = <Function()>[];
   String _selectedFilter = 'Filteren';
   final SpeciesApiInterface _speciesApi;
   final FilterInterface _filterManager;
   List<AnimalModel>? _cachedAnimals;
   String? _currentSearchTerm;
-  
+
   AnimalManager(this._speciesApi, this._filterManager);
 
   @override
@@ -24,21 +27,28 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
       }
 
       final species = await _speciesApi.getAllSpecies();
-      _cachedAnimals = species.map((s) => AnimalModel(
-        animalId: s.id,  // Added animalId from species
-        animalImagePath: 'assets/wolf.png',
-        animalName: s.commonName,
-        genderViewCounts: [], // Initialize with empty list
-      )).toList();
+      _cachedAnimals =
+          species
+              .map(
+                (s) => AnimalModel(
+                  animalId: s.id, // Added animalId from species
+                  animalImagePath: 'assets/wolf.png',
+                  animalName: s.commonName,
+                  genderViewCounts: [], // Initialize with empty list
+                ),
+              )
+              .toList();
 
       // Add the "Unknown" option with no image
-      _cachedAnimals!.add(AnimalModel(
-        animalId: 'unknown',  // Added default ID for unknown
-        animalImagePath: null,
-        animalName: 'Onbekend',
-        genderViewCounts: [], // Initialize with empty list
-      ));
-      
+      _cachedAnimals!.add(
+        AnimalModel(
+          animalId: 'unknown', // Added default ID for unknown
+          animalImagePath: null,
+          animalName: 'Onbekend',
+          genderViewCounts: [], // Initialize with empty list
+        ),
+      );
+
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
       debugPrint('[AnimalManager] Error fetching animals: $e');
@@ -51,15 +61,14 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
       // Apply search if there's a search term, regardless of filter
       return _filterManager.searchAnimals(animals, _currentSearchTerm!);
     }
-    
+
     if (_selectedFilter == FilterType.alphabetical.displayText) {
       return _filterManager.filterAnimalsAlphabetically(animals);
-    } 
-    else if (_selectedFilter == FilterType.mostViewed.displayText) {
+    } else if (_selectedFilter == FilterType.mostViewed.displayText) {
       // Temporarily disabled - return unfiltered list
       return animals;
     }
-    
+
     return animals;
   }
 
@@ -80,7 +89,7 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
 
   void updateSearchTerm(String searchTerm) {
     _currentSearchTerm = searchTerm;
-    _notifyListeners();  // Make sure this is called to trigger UI updates
+    _notifyListeners(); // Make sure this is called to trigger UI updates
   }
 
   @override
@@ -99,30 +108,3 @@ class AnimalManager implements AnimalRepositoryInterface, AnimalSelectionInterfa
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

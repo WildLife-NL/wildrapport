@@ -26,10 +26,17 @@ class VerificationCodeInput extends StatefulWidget {
   State<VerificationCodeInput> createState() => _VerificationCodeInputState();
 }
 
-class _VerificationCodeInputState extends State<VerificationCodeInput> with SingleTickerProviderStateMixin {
-  final List<TextEditingController> controllers = List.generate(6, (index) => TextEditingController());
+class _VerificationCodeInputState extends State<VerificationCodeInput>
+    with SingleTickerProviderStateMixin {
+  final List<TextEditingController> controllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
-  final LoginInterface loginManager = LoginManager(AuthApi(AppConfig.shared.apiClient), ProfileApi(AppConfig.shared.apiClient));
+  final LoginInterface loginManager = LoginManager(
+    AuthApi(AppConfig.shared.apiClient),
+    ProfileApi(AppConfig.shared.apiClient),
+  );
   late final AnimationController _animationController;
   bool isLoading = false;
   bool isError = false;
@@ -62,9 +69,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
 
       if (mounted && verifiedUser != null) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (_) => const OverzichtScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const OverzichtScreen()),
           (route) => false,
         );
       }
@@ -89,15 +94,18 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
       width: 45,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: isError ? Colors.red.shade50.withValues(alpha:0.9) : Colors.white,
-        border: isError
-            ? Border.all(color: Colors.red.shade300, width: 1.0)
-            : Border.all(color: Colors.grey[300]!),
+        color:
+            isError ? Colors.red.shade50.withValues(alpha: 0.9) : Colors.white,
+        border:
+            isError
+                ? Border.all(color: Colors.red.shade300, width: 1.0)
+                : Border.all(color: Colors.grey[300]!),
         boxShadow: [
           BoxShadow(
-            color: isError
-                ? Colors.red.withValues(alpha:0.1)
-                : Colors.black.withValues(alpha:0.25),
+            color:
+                isError
+                    ? Colors.red.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.25),
             spreadRadius: 0,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -196,7 +204,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
                 color: AppColors.brown,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withValues(alpha:0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     offset: const Offset(0, 2),
                     blurRadius: 4,
                   ),
@@ -279,22 +287,19 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
     try {
       await loginManager.resendCode(widget.email);
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Verificatiecode opnieuw verzonden')),
       );
     } catch (e) {
       debugPrint("Error resending code: $e");
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kon code niet verzenden. Probeer het later opnieuw.')),
+        const SnackBar(
+          content: Text('Kon code niet verzenden. Probeer het later opnieuw.'),
+        ),
       );
     }
   }
 }
-
-
-
-
-
