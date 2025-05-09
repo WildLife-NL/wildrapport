@@ -32,9 +32,12 @@ class AnimalListTableState extends State<AnimalListTable> {
   @override
   void initState() {
     super.initState();
+    debugPrint('AnimalListTable - initState');
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        debugPrint('Adding listener to animalSightingManager');
         _animalSightingManager.addListener(_handleStateChange);
       }
     });
@@ -59,6 +62,7 @@ class AnimalListTableState extends State<AnimalListTable> {
 
   void _handleStateChange() {
     if (mounted) {
+      debugPrint('_handleStateChange called - rebuilding table with new values');
       setState(() {
         // This will trigger a rebuild of the table with new values
       });
@@ -66,15 +70,18 @@ class AnimalListTableState extends State<AnimalListTable> {
   }
 
   void _toggleEditMode() {
-    setState(() {
-      _isEditing = !_isEditing;
-      if (!_isEditing) {
-        // Only update the UI state when exiting edit mode
-        // Don't save to the manager here
-        _tempCounts.clear();
-        _controllers.clear();
-      }
-    });
+    debugPrint('_toggleEditMode: changing from $_isEditing to ${!_isEditing}');
+    
+    if (_isEditing) {
+      // If we're currently in edit mode and toggling out, save the changes
+      debugPrint('Exiting edit mode - saving changes');
+      _saveChanges();
+    } else {
+      // Just entering edit mode, no need to save
+      setState(() {
+        _isEditing = true;
+      });
+    }
   }
 
   void saveChanges() {
@@ -124,6 +131,7 @@ class AnimalListTableState extends State<AnimalListTable> {
         );
         
         // Update the animal in the manager
+        debugPrint('Calling updateAnimal on manager with updated animal');
         animalSightingManager.updateAnimal(updatedAnimal);
       }
     }
@@ -202,6 +210,7 @@ class AnimalListTableState extends State<AnimalListTable> {
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     
     if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
+      debugPrint('_getCountForAgeAndGender: No animals in sighting');
       return 0;
     }
 
@@ -215,16 +224,24 @@ class AnimalListTableState extends State<AnimalListTable> {
     );
 
     // Return the count for the specified age
+    int count = 0;
     switch (age) {
       case AnimalAge.pasGeboren:
-        return genderViewCount.viewCount.pasGeborenAmount;
+        count = genderViewCount.viewCount.pasGeborenAmount;
+        break;
       case AnimalAge.onvolwassen:
-        return genderViewCount.viewCount.onvolwassenAmount;
+        count = genderViewCount.viewCount.onvolwassenAmount;
+        break;
       case AnimalAge.volwassen:
-        return genderViewCount.viewCount.volwassenAmount;
+        count = genderViewCount.viewCount.volwassenAmount;
+        break;
       case AnimalAge.onbekend:
-        return genderViewCount.viewCount.unknownAmount;
+        count = genderViewCount.viewCount.unknownAmount;
+        break;
     }
+    
+    debugPrint('_getCountForAgeAndGender: ${animal.animalName}, Age: ${age.name}, Gender: ${gender.name}, Count: $count');
+    return count;
   }
 
   // Get or create controller for a specific cell
@@ -241,16 +258,21 @@ class AnimalListTableState extends State<AnimalListTable> {
     final key = '${age.name}_${gender.name}';
     if (_isEditing) {
       // During editing, prefer temp counts but fall back to actual counts
-      return _tempCounts[key] ?? _getCountForAgeAndGender(age, gender, context);
+      final count = _tempCounts[key] ?? _getCountForAgeAndGender(age, gender, context);
+      debugPrint('_getCurrentCount for $key (editing mode): $count');
+      return count;
     }
-    return _getCountForAgeAndGender(age, gender, context);
+    final count = _getCountForAgeAndGender(age, gender, context);
+    debugPrint('_getCurrentCount for $key (view mode): $count');
+    return count;
   }
 
   // _handleNextPressed method has been removed
 
   @override
   Widget build(BuildContext context) {
-    final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+    // Watch for changes in the animal sighting manager
+    final animalSightingManager = context.watch<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     final usedGenders = _getUsedGenders(context);
     
@@ -419,6 +441,9 @@ class AnimalListTableState extends State<AnimalListTable> {
   }
 
   TableCell _buildDataCell(AnimalAge age, AnimalGender gender, BuildContext context) {
+    final count = _getCurrentCount(age, gender);
+    debugPrint('Building cell for Age: ${age.name}, Gender: ${gender.name}, Count: $count, IsEditing: $_isEditing');
+    
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: SizedBox(
@@ -427,7 +452,7 @@ class AnimalListTableState extends State<AnimalListTable> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: _isEditing
-                ? TextFormField( // Changed to TextFormField for better control
+                ? TextFormField(
                     controller: _getController(age, gender),
                     textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
@@ -436,6 +461,17 @@ class AnimalListTableState extends State<AnimalListTable> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                       border: UnderlineInputBorder(),
                     ),
+                    onTap: () {
+                      // Clear the text when tapped
+                      final controller = _getController(age, gender);
+                      final key = '${age.name}_${gender.name}';
+                      // Store the current value in tempCounts before clearing
+                      if (!_tempCounts.containsKey(key)) {
+                        _tempCounts[key] = int.tryParse(controller.text) ?? 0;
+                      }
+                      // Clear the text
+                      controller.text = "";
+                    },
                     onChanged: (value) {
                       if (!mounted) return;
                       final count = int.tryParse(value) ?? 0;
@@ -445,7 +481,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                     },
                 )
                 : Text(
-                    _getCurrentCount(age, gender).toString(),
+                    count.toString(),
                     style: const TextStyle(fontSize: 16),
                   ),
           ),
@@ -540,6 +576,12 @@ class AnimalListTableState extends State<AnimalListTable> {
     manager.addListener(_handleStateChange);
   }
 }
+
+
+
+
+
+
 
 
 
