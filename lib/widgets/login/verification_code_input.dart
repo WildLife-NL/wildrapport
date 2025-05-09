@@ -60,10 +60,10 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
 
       // Ensure animation plays at least one full cycle
       if (_animationController.duration != null) {
-        // Reset animation to start
-        _animationController.reset();
-        // Start animation
-        _animationController.forward();
+        // Make sure animation is running
+        if (!_animationController.isAnimating) {
+          _animationController.repeat();
+        }
         // Wait for one full cycle
         await Future.delayed(_animationController.duration!);
       } else {
@@ -185,7 +185,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
             controller: _animationController,
             onLoaded: (composition) {
               _animationController.duration = composition.duration;
-              _animationController.forward();
+              _animationController.repeat(); // Add this line to make it repeat
             },
           ),
         ),
@@ -301,6 +301,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput> with Sing
     super.dispose();
   }
 }
+
 
 
 

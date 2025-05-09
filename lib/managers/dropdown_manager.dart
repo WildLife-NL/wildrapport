@@ -117,6 +117,28 @@ class DropdownManager implements DropdownInterface {
                 ),
               );
             }
+            
+            // Special handling for "Meest gezien" option
+            if (filterModel.text == FilterType.mostViewed.displayText) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: BrownButton(
+                  model: filterModel,
+                  onPressed: () {
+                    // Show snackbar but don't select this option
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Deze functie komt binnenkort beschikbaar'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    // Don't close dropdown or update selection
+                  },
+                ),
+              );
+            }
+            
+            // Normal handling for other options
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: BrownButton(
@@ -283,6 +305,7 @@ class DropdownManager implements DropdownInterface {
     }
   }
 }
+
 
 
 
