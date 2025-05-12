@@ -28,7 +28,7 @@ class InteractionApi implements InteractionApiInterface {
       http.Response response;
 
       switch (interaction.interactionType) {
-        case InteractionType.waarnemning:
+        case InteractionType.waarneming:
           debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
           if (interaction.report is AnimalSightingReportWrapper) {
             final apiPayload =
@@ -150,7 +150,7 @@ class InteractionApi implements InteractionApiInterface {
       http.Response response;
 
       switch (interaction.interactionType) {
-        case InteractionType.waarnemning:
+        case InteractionType.waarneming:
           debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
           if (interaction.report is AnimalSightingReportWrapper) {
             final apiPayload =

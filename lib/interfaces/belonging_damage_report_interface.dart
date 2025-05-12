@@ -14,5 +14,5 @@ abstract class BelongingDamageReportInterface {
   void updateSuspectedAnimal(String value);
   void updateSystemLocation(ReportLocation value);
   void updateUserLocation(ReportLocation value);
-  BelongingDamageReport buildBelongingReport();
+  BelongingDamageReport? buildBelongingReport();
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
+import 'package:wildrapport/models/beta_models/belonging_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
@@ -14,12 +16,18 @@ import 'package:wildrapport/widgets/belonging/suspected_animal.dart';
 
 class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionApiInterface interactionAPI;
+  final BelongingApiInterface belongingAPI;
   final BelongingDamageReportProvider formProvider;
   final MapProvider mapProvider;
   final InteractionInterface interactionManager;
 
+  List<Belonging> belongings = [];
+
+  //⌄ This needs to be refactored to use the new Belongings in the new API
+
   BelongingDamageReportManager({
     required this.interactionAPI,
+    required this.belongingAPI,
     required this.formProvider,
     required this.mapProvider,
     required this.interactionManager,
@@ -29,6 +37,68 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
 
+  void init() async {
+    final List<Map<String, String>> allBelongings = 
+      [
+        {
+          "ID": "61726f48-066b-46b6-84cd-6fee993e4c74",
+          "name": "Bieten",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "086001b5-126b-44ba-bc81-ab2f9416ab58",
+          "name": "Bloementeelt",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "0bf4e74c-b196-436a-9166-8fa4d9dd5db9",
+          "name": "Boomteelt",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "db9c7716-ec68-499c-9528-a3ab58607b3c",
+          "name": "Granen",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "5013a551-21d9-4874-af7e-b60800329e91",
+          "name": "Grasvelden",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "aef8950b-c7aa-42c6-848e-1d72d0636a64",
+          "name": "Maïs",
+          "category": "Gewassen"
+        },
+        {
+          "ID": "0dc5864b-6fd7-4703-a41b-7e45a0c4b558",
+          "name": "Tuinbouw",
+          "category": "Gewassen"
+        }
+      ];
+      final response = await belongingAPI.getAllBelongings();
+      
+      if(response.isEmpty) {debugPrint("$redLog EEEEEEEEEEEE");}
+
+      //printing where the value came from
+      response.isEmpty 
+        ? debugPrint("$greenLog [BelongingDamageReportManager]: Using fallback values!") 
+        : debugPrint("$yellowLog [BelongingDamageReportManager]: Using backend values!");
+
+      belongings = (response.isEmpty)
+          ? allBelongings.map(_mapToBelonging).toList()
+          : response;
+  }
+
+  Belonging _mapToBelonging(Map<String, String> map) {
+    debugPrint("$redLog EEEEEEEEEEEEEEEE");
+    return Belonging(
+      ID: map['ID'] ?? '',
+      name: map['name'] ?? '',
+      category: map['category'] ?? '',
+    );
+  }
+
   @override
   List<dynamic> buildPossesionWidgetList() {
     return [BelongingCropsDetails(), SuspectedAnimal()];
@@ -36,12 +106,15 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
 
   @override
   Future<InteractionResponse?> postInteraction() async {
-    final InteractionResponse? interactionResponseModel =
+    BelongingDamageReport? belongingDamageReport = buildBelongingReport();
+    InteractionResponse? interactionResponseModel;
+    if(belongingDamageReport != null){
+      interactionResponseModel =
         await interactionManager.postInteraction(
-          buildBelongingReport(),
+          belongingDamageReport,
           InteractionType.gewasschade,
         );
-
+      }
     if (interactionResponseModel != null) {
       debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
 
@@ -147,7 +220,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   }
 
   @override
-  BelongingDamageReport buildBelongingReport() {
+  BelongingDamageReport? buildBelongingReport() {
     debugPrint("✅ buildReportTesting called");
     try {
       // Log provider state
@@ -198,23 +271,23 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
       if (impactedAreaType == "vierkante meters") {
         impactedAreaType = "square-meters";
       }
-      final report = BelongingDamageReport(
-        possesion: Possesion(
-          possesionID: "3c6c44fc-06da-4530-ab27-3974e6090d7d",
-          possesionName: formProvider.impactedCrop,
-          category: "gewassen",
-        ),
-        impactedAreaType: impactedAreaType,
-        impactedArea: impactedArea,
-        currentImpactDamages: formProvider.currentDamage,
-        estimatedTotalDamages: formProvider.expectedDamage,
-        description: formProvider.description,
-        suspectedSpeciesID: formProvider.suspectedSpeciesID,
-        userSelectedDateTime: DateTime.now(),
-        systemDateTime: DateTime.now(),
-        systemLocation: systemReportLocation,
-        userSelectedLocation: userReportLocation,
-      );
+      Possesion? pos = _getCorrectPossesion(formProvider.impactedCrop);
+      BelongingDamageReport? report;
+      if(pos != null){
+        report = BelongingDamageReport(
+          possesion: pos,
+          impactedAreaType: impactedAreaType,
+          impactedArea: impactedArea,
+          currentImpactDamages: formProvider.currentDamage,
+          estimatedTotalDamages: formProvider.expectedDamage,
+          description: formProvider.description,
+          suspectedSpeciesID: formProvider.suspectedSpeciesID,
+          userSelectedDateTime: DateTime.now(),
+          systemDateTime: DateTime.now(),
+          systemLocation: systemReportLocation,
+          userSelectedLocation: userReportLocation,
+        );
+      }
 
       debugPrint("✅ Report created: $report");
       return report;
@@ -223,5 +296,20 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
       debugPrint("🔍 Stack trace: $stackTrace");
       rethrow;
     }
+  }
+
+  //⌄ This needs to be refactored to use the new Belongings in the new API
+  Possesion? _getCorrectPossesion(String name){
+    for(Belonging belonging in belongings){
+      if(belonging.name.toLowerCase() == name){
+        Possesion correctPossesion = Possesion(
+          possesionID: belonging.ID!,
+          possesionName: belonging.name,
+          category: belonging.category,
+        );
+        return correctPossesion;
+      }
+    }
+      return null;
   }
 }

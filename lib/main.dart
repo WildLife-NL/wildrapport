@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/api/belonging_api.dart';
 import 'package:wildrapport/api/response_api.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/auth_api.dart';
@@ -11,6 +12,7 @@ import 'package:wildrapport/api/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
@@ -75,6 +77,7 @@ void main() async {
   final interactionApi = InteractionApi(apiClient);
   final questionnaireAPI = QuestionaireApi(apiClient);
   final responseAPI = ResponseApi(apiClient);
+  final belongingApi = BelongingApi(apiClient);
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -94,10 +97,12 @@ void main() async {
 
   final belongingManager = BelongingDamageReportManager(
     interactionAPI: interactionApi,
+    belongingAPI: belongingApi,
     formProvider: belongingDamageFormProvider,
     mapProvider: mapProvider,
     interactionManager: interactionManager,
   );
+  belongingManager.init();
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
 
@@ -107,10 +112,10 @@ void main() async {
 
   // Check for existing token
   final String? token = prefs.getString('bearer_token');
+  prefs.setStringList('interaction_cache', []);
 
   final Widget initialScreen =
       token != null ? const OverzichtScreen() : const LoginScreen();
-
   // Start the app
   runApp(
     MultiProvider(
@@ -126,6 +131,7 @@ void main() async {
         Provider<AuthApiInterface>.value(value: authApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<InteractionApiInterface>.value(value: interactionApi),
+        Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),

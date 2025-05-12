@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/api/api_client.dart';
@@ -23,7 +24,8 @@ class BelongingApi implements BelongingApiInterface {
       final json = jsonDecode(response.body) as List;
       return json.map((e) => Belonging.fromJson(e)).toList();
     } else {
-      throw Exception(json ?? "Failed to get belongings!");
+        debugPrint("Failed to get belongings!");
+        return [];
     }
   }
 }

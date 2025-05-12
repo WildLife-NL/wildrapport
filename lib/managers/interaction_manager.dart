@@ -181,11 +181,14 @@ class InteractionManager implements InteractionInterface {
   }
 
   Future<void> _cacheInteraction(Interaction interaction) async {
+    debugPrint("[InteractionManager]: Starting Cache Process");
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final List<Interaction> interactions =
         await _getAlreadyStoredInteractions();
+    debugPrint("[InteractionManager]: Got aready stored interactions");
     interactions.add(interaction);
+    debugPrint("[InteractionManager]: Added interaction to cache list");
 
     List<String> interactionJson =
         interactions.map((obj) => jsonEncode(obj.toJson())).toList();

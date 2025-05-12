@@ -6,8 +6,13 @@ import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/managers/map/location_screen_manager.dart';
+import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
+import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/beta_models/sighted_animal_model.dart';
+import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
@@ -293,11 +298,76 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 }
 
+SightingReport _convertToSightingReport(AnimalSightingModel model) {
+  // Extract locations
+  final systemLoc = model.locations?.firstWhere(
+    (loc) => loc.source == LocationSource.system,
+  );
+  final userLoc = model.locations?.firstWhere(
+    (loc) => loc.source == LocationSource.manual,
+  );
+
+  // Convert locations to ReportLocation
+  ReportLocation? toReportLocation(LocationModel? loc) {
+    if (loc == null) return null;
+    return ReportLocation(
+      latitude: loc.latitude,
+      longtitude: loc.longitude,
+      cityName: loc.cityName,
+      streetName: loc.streetName,
+      houseNumber: loc.houseNumber,
+    );
+  }
+
+  // Convert animals
+  List<SightedAnimal> convertAnimals(List<AnimalModel>? animalModels) {
+    if (animalModels == null) return [];
+
+    final List<SightedAnimal> result = [];
+
+    for (final animal in animalModels) {
+      for (final genderGroup in animal.genderViewCounts) {
+        final gender = genderGroup.gender.toString().split('.').last;
+        final countModel = genderGroup.viewCount;
+
+        void addAnimals(String lifeStage, int count) {
+          for (int i = 0; i < count; i++) {
+            result.add(SightedAnimal(
+              condition: animal.condition.toString().split('.').last,
+              lifeStage: lifeStage,
+              sex: gender,
+            ));
+          }
+        }
+
+        final age = countModel;
+        addAnimals("pasGeboren", age.pasGeborenAmount);
+        addAnimals("onvolwassen", age.onvolwassenAmount);
+        addAnimals("volwassen", age.volwassenAmount);
+        addAnimals("onbekend", age.unknownAmount);
+      }
+    }
+
+    return result;
+  }
+
+  return SightingReport(
+    animals: convertAnimals(model.animals),
+    description: model.description,
+    suspectedSpeciesID: model.animalSelected?.animalId,
+    userSelectedLocation: toReportLocation(userLoc),
+    systemLocation: toReportLocation(systemLoc),
+    userSelectedDateTime: model.dateTime?.dateTime,
+    systemDateTime: DateTime.now(),
+  );
+}
+
+
 Future<InteractionResponse?> submitReport(BuildContext context) async {
   try {
     final animalSightingManager =
         context.read<AnimalSightingReportingInterface>();
-    final currentSighting = animalSightingManager.getCurrentanimalSighting();
+    final currentSighting = _convertToSightingReport(animalSightingManager.getCurrentanimalSighting()!);
 
     if (currentSighting == null) {
       throw StateError('No active animal sighting found');
@@ -306,11 +376,11 @@ Future<InteractionResponse?> submitReport(BuildContext context) async {
     // Create the interaction object using the wrapper
     final InteractionInterface interactionManager =
         context.read<InteractionInterface>();
-
+    
     final InteractionResponse? response = await interactionManager
         .postInteraction(
-          AnimalSightingReportWrapper(currentSighting),
-          InteractionType.waarnemning,
+          currentSighting,
+          InteractionType.waarneming,
         );
     if (response != null) {
       // Log questionnaire details for debugging
