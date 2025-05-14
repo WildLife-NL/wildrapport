@@ -47,7 +47,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
-import 'package:wildrapport/screens/login_screen.dart';
+import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {

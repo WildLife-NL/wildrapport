@@ -4,7 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
-import 'package:wildrapport/screens/map_screen.dart';
+import 'package:wildrapport/screens/location/map_screen.dart';
 import 'package:provider/provider.dart';
 
 class LivingLabSelector extends StatefulWidget {

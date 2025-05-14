@@ -15,6 +15,7 @@ import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/permission_gate.dart';
+import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
@@ -152,11 +153,22 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         await _belongingManager.postInteraction();
 
     if (mounted) {
+
+      if (interactionResponseModel == null) {
+        // 🔔 Show snackbar toast when offline
+        SnackBarWithProgressBar.show(
+          context: context,
+          message: "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel",
+          duration: const Duration(seconds: 3),
+        );
+        await Future.delayed(const Duration(seconds: 3));
+      }
+
       navigationManager.pushReplacementForward(
         context,
         interactionResponseModel != null
             ? QuestionnaireScreen(
-              questionnaire: await _questionnaireManager.getQuestionnaire(),
+              questionnaire: interactionResponseModel.questionnaire,
               interactionID: interactionResponseModel.interactionID,
             )
             : OverzichtScreen(),

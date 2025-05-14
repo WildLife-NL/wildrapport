@@ -8,7 +8,7 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 import 'package:wildrapport/widgets/counter_widget.dart';
 import 'package:wildrapport/widgets/error_overlay.dart';
-import 'package:wildrapport/widgets/snack_bar_with_progress.dart';
+import 'package:wildrapport/widgets/toasts/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 

@@ -20,130 +20,6 @@ class InteractionApi implements InteractionApiInterface {
   InteractionApi(this.client);
 
   @override
-  Future<Questionnaire> sendInteractionDeprecated(
-    Interaction interaction,
-  ) async {
-    try {
-      debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
-      http.Response response;
-
-      switch (interaction.interactionType) {
-        case InteractionType.waarneming:
-          debugPrint("$yellowLog[InteractionAPI]: Report is waarneming");
-          if (interaction.report is AnimalSightingReportWrapper) {
-            final apiPayload =
-                interaction.report
-                    .toJson(); // Use the wrapper's toJson directly
-            response = await client.post(
-              'interaction/',
-              apiPayload,
-              authenticated: true,
-            );
-          } else {
-            throw Exception(
-              "Invalid report type for waarnemning: ${interaction.report.runtimeType}",
-            );
-          }
-          break;
-        case InteractionType.gewasschade:
-          debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
-          if (interaction.report is PossesionReportFields) {
-            final report = interaction.report as PossesionReportFields;
-            response = await client.post('interaction/', {
-              "description": report.description ?? '',
-              "location": {
-                "latitude": report.systemLocation?.latitude,
-                "longitude": report.systemLocation?.longtitude,
-              },
-              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-              "place": {
-                "latitude": report.userSelectedLocation?.latitude,
-                "longitude": report.userSelectedLocation?.longtitude,
-              },
-              "reportOfDamage": {
-                "belonging": report.possesion.toJson(),
-                "estimatedDamage": report.currentImpactDamages,
-                "estimatedLoss": report.estimatedTotalDamages,
-                "impactType": report.impactedAreaType,
-                "impactValue": report.impactedArea,
-              },
-              "speciesID": report.suspectedSpeciesID,
-              "typeID": 2,
-            }, authenticated: true);
-          } else {
-            throw Exception(
-              "Invalid report type for gewasschade: ${interaction.report.runtimeType}",
-            );
-          }
-          break;
-        case InteractionType.verkeersongeval:
-          debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
-          if (interaction.report is CommonReportFields) {
-            final report = interaction.report as CommonReportFields;
-            response = await client.post('interaction/', {
-              "description": report.description ?? '',
-              "location": {
-                "latitude": report.systemLocation?.latitude,
-                "longitude": report.systemLocation?.longtitude,
-              },
-              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-              "place": {
-                "latitude": report.userSelectedLocation?.latitude,
-                "longitude": report.userSelectedLocation?.longtitude,
-              },
-              "reportOfCollision": interaction.report.toJson(),
-              "speciesID": report.suspectedSpeciesID,
-              "typeID": 3,
-            }, authenticated: true);
-          } else {
-            throw Exception(
-              "Invalid report type for verkeersongeval: ${interaction.report.runtimeType}",
-            );
-          }
-          break;
-      }
-
-      debugPrint(
-        "$greenLog[InteractionAPI] Response code: ${response.statusCode}",
-      );
-      debugPrint("$greenLog[InteractionAPI] Response body: ${response.body}");
-
-      if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body);
-        if (json == null) {
-          throw Exception("Empty response received from server");
-        }
-
-        final questionnaireJson = json['questionnaire'];
-        if (questionnaireJson == null) {
-          throw Exception("No questionnaire data in response");
-        }
-
-        try {
-          return Questionnaire.fromJson(questionnaireJson);
-        } catch (e) {
-          debugPrint("$redLog Error parsing questionnaire: $e");
-          throw Exception("Invalid questionnaire format: $e");
-        }
-      } else {
-        final errorBody = jsonDecode(response.body);
-        final errorMessages =
-            (errorBody['errors'] as List?)
-                ?.map((e) => e['message'])
-                .join('; ') ??
-            errorBody['detail'] ??
-            'Unknown error';
-        throw Exception(
-          "API request failed with status ${response.statusCode}: $errorMessages",
-        );
-      }
-    } catch (e) {
-      debugPrint("$redLog[InteractionAPI] Error: $e");
-      throw Exception("Failed to send interaction: $e");
-    }
-  }
-
-  @override
   Future<InteractionResponse> sendInteraction(Interaction interaction) async {
     try {
       debugPrint("$yellowLog[InteractionAPI]: Starting sendInteraction");
@@ -237,14 +113,18 @@ class InteractionApi implements InteractionApiInterface {
         }
 
         final questionnaireJson = json['questionnaire'];
+        debugPrint("$questionnaireJson");
         final String interactionID = json['ID'];
         if (questionnaireJson == null) {
-          throw Exception("No questionnaire data in response");
+          debugPrint("$redLog[InteractionAPI]: No questionnaire data in response");
+          debugPrint("$yellowLog[InteractionAPI]: Using the fallback questionnaire!");
         }
 
         try {
           return InteractionResponse(
-            questionnaire: Questionnaire.fromJson(questionnaireJson),
+            questionnaire: questionnaireJson == null 
+              ? await _getQuestionnaireByID("2945a01b-b59d-4cc3-989d-3176de1a54d3") 
+              : Questionnaire.fromJson(questionnaireJson),
             interactionID: interactionID,
           );
         } catch (e) {
@@ -266,6 +146,23 @@ class InteractionApi implements InteractionApiInterface {
     } catch (e) {
       debugPrint("$redLog[InteractionAPI] Error: $e");
       throw Exception("Failed to send interaction: $e");
+    }
+  }
+  //Temp, only here because of issues with the backend returning code 500 instead of expected response
+  Future<Questionnaire> _getQuestionnaireByID(String id) async {
+    http.Response response = await client.get(
+      '/questionnaire/$id',
+      authenticated: true,
+    );
+
+    Map<String, dynamic>? json;
+
+    if (response.statusCode == HttpStatus.ok) {
+      json = jsonDecode(response.body);
+      Questionnaire questionnaire = Questionnaire.fromJson(json!);
+      return questionnaire;
+    } else {
+      throw Exception(json ?? "Failed to get questionnaire");
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/models/api_models/question.dart';
+import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
 
 class QuestionnaireOpenResponse extends StatefulWidget {
   final Question question;
@@ -46,68 +47,69 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-            child: Text(
-              'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.brown,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-            child: Text(
-              widget.question.text,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.brown,
-              ),
-            ),
-          ),
-          const SizedBox(height: 1),
-          if (widget.question.description.isNotEmpty)
+      body: SharedWhiteBackground(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.only(top: 16.0, left: 12.0),
               child: Text(
-                widget.question.description,
+                'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
                 textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.brown,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0, left: 12.0),
+              child: Text(
+                widget.question.text,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.brown,
+                ),
+              ),
+            ),
+            const SizedBox(height: 1),
+            if (widget.question.description.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  widget.question.description,
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(fontSize: 18, color: AppColors.brown),
+                ),
+              ),
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: TextField(
+                controller: _responseController,
+                onChanged: (value) {
+                  responseProvider.setText(value);
+                },
+                maxLines: 10,
+                decoration: InputDecoration(
+                  hintText: 'Schrijf hier uw antwoord...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
                 style: const TextStyle(fontSize: 18, color: AppColors.brown),
               ),
             ),
-          const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: TextField(
-              controller: _responseController,
-              onChanged: (value) {
-                responseProvider.setText(value);
-                responseProvider.buildResponse();
-              },
-              maxLines: 10,
-              decoration: InputDecoration(
-                hintText: 'Schrijf hier uw antwoord...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              style: const TextStyle(fontSize: 18, color: AppColors.brown),
-            ),
-          ),
-          Expanded(child: Container()),
-          CustomBottomAppBar(
-            onNextPressed: widget.onNextPressed,
-            onBackPressed: widget.onBackPressed,
-          ),
-        ],
+            Expanded(child: Container()),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomBottomAppBar(
+        onNextPressed: widget.onNextPressed,
+        onBackPressed: widget.onBackPressed,
       ),
     );
   }

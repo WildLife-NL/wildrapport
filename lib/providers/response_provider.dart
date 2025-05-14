@@ -28,6 +28,11 @@ class ResponseProvider extends ChangeNotifier {
     answerID = value;
     notifyListeners();
   }
+  void clearAnswerID(){
+    debugPrint("$yellowLog [ResponseProvider]: clearing the answerID");
+    answerID = null;
+    notifyListeners();
+  }
 
   void setInteractionID(String value) {
     debugPrint(

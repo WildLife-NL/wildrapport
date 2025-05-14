@@ -5,6 +5,7 @@ import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
 
 class QuestionnaireMultipleChoice extends StatefulWidget {
   final Question question;
@@ -45,7 +46,8 @@ class _QuestionnaireMultipleChoiceState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: SharedWhiteBackground(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Display question index and total questions
@@ -95,15 +97,19 @@ class _QuestionnaireMultipleChoiceState
                     ),
                     value: _selectedAnswers.contains(answer.id),
                     onChanged: (bool? value) {
+                      debugPrint("onChanged!");
                       setState(() {
                         if (value == true) {
-                          _selectedAnswers.add(answer.id);
+                          _selectedAnswers = [answer.id]; // Only allow one selection
+                          responseProvider.setAnswerID(answer.id); // ✅ Update provider
                         } else {
-                          _selectedAnswers.remove(answer.id);
+                          _selectedAnswers.clear(); // Unselect all if unchecked
+                          responseProvider.clearAnswerID(); // ✅ Clear provider
                         }
                       });
                     },
                   )
+
                   : RadioListTile<String>(
                     title: Text(
                       answer.text,
@@ -118,8 +124,8 @@ class _QuestionnaireMultipleChoiceState
                             ? _selectedAnswers.first
                             : null,
                     onChanged: (String? value) {
+                      debugPrint("onChanged!");
                       setState(() {
-                        debugPrint("onChanged!");
                         _selectedAnswers = value != null ? [value] : [];
                         responseProvider.setAnswerID(answer.id);
                       });
@@ -134,6 +140,7 @@ class _QuestionnaireMultipleChoiceState
             onBackPressed: widget.onBackPressed,
           ),
         ],
+        ),
       ),
     );
   }

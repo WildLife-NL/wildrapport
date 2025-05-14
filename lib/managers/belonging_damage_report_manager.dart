@@ -21,8 +21,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final MapProvider mapProvider;
   final InteractionInterface interactionManager;
 
-  List<Belonging> belongings = [];
-
+  List<Map<String, String>> belongings = [];
   //⌄ This needs to be refactored to use the new Belongings in the new API
 
   BelongingDamageReportManager({
@@ -38,6 +37,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final yellowLog = '\x1B[93m';
 
   void init() async {
+    debugPrint("[BelongingDamageReportManager]: Initializing!");
     final List<Map<String, String>> allBelongings = 
       [
         {
@@ -82,21 +82,37 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
 
       //printing where the value came from
       response.isEmpty 
-        ? debugPrint("$greenLog [BelongingDamageReportManager]: Using fallback values!") 
-        : debugPrint("$yellowLog [BelongingDamageReportManager]: Using backend values!");
+        ? debugPrint("$yellowLog [BelongingDamageReportManager]: Using fallback values!") 
+        : debugPrint("$greenLog [BelongingDamageReportManager]: Using backend values!");
 
       belongings = (response.isEmpty)
-          ? allBelongings.map(_mapToBelonging).toList()
-          : response;
+          ? allBelongings
+          : _mapToMapString3x(response);
   }
 
-  Belonging _mapToBelonging(Map<String, String> map) {
-    debugPrint("$redLog EEEEEEEEEEEEEEEE");
-    return Belonging(
-      ID: map['ID'] ?? '',
-      name: map['name'] ?? '',
-      category: map['category'] ?? '',
-    );
+  List<Belonging> _mapToListOfBelonging(List<Map<String, String>> maps) {
+    List<Belonging> mappedBelongings = [];
+    for(Map<String, String> map in maps){
+      mappedBelongings.add(
+        Belonging(      
+          ID: map['ID'] ?? '',
+          name: map['name'] ?? '',
+          category: map['category'] ?? '',)
+      );
+    }
+    return mappedBelongings;
+  }
+  //Higly suggest refactoring the flow to just use List<Belonging> everywhere
+  List<Map<String, String>> _mapToMapString3x(List<Belonging> allBelongings){
+    List<Map<String, String>> resultMap = [];
+    for(Belonging belonging in allBelongings){
+      resultMap.add({
+        'ID': belonging.ID ?? '',
+        'name': belonging.name,
+        'category': belonging.category,
+      });
+    }
+    return resultMap;
   }
 
   @override
@@ -300,7 +316,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
 
   //⌄ This needs to be refactored to use the new Belongings in the new API
   Possesion? _getCorrectPossesion(String name){
-    for(Belonging belonging in belongings){
+    for(Belonging belonging in _mapToListOfBelonging(belongings)){
       if(belonging.name.toLowerCase() == name){
         Possesion correctPossesion = Possesion(
           possesionID: belonging.ID!,

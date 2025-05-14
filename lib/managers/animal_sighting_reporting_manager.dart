@@ -12,8 +12,7 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 
-class AnimalSightingReportingManager
-    implements AnimalSightingReportingInterface {
+class AnimalSightingReportingManager implements AnimalSightingReportingInterface {
   final List<VoidCallback> _listeners = [];
   AnimalSightingModel? _currentanimalSighting;
 

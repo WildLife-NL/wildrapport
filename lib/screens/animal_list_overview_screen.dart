@@ -5,7 +5,7 @@ import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart'
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/screens/animal_counting_screen.dart';
-import 'package:wildrapport/screens/location_screen.dart';
+import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animal_list_table.dart';

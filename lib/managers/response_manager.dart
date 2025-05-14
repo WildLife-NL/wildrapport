@@ -135,6 +135,7 @@ class ResponseManager implements ResponseInterface {
       List<String> jsonStringList =
           responses.map((obj) => jsonEncode(obj.toJson())).toList();
       await prefs.setStringList('responses', jsonStringList);
+      responseProvider.clearResponse();
     } catch (e, stackTrace) {
       debugPrint(e.toString());
       debugPrint(stackTrace.toString());

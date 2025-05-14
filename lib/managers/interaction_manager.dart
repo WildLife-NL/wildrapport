@@ -26,6 +26,7 @@ class InteractionManager implements InteractionInterface {
   final yellowLog = '\x1B[93m';
 
   void init() {
+    debugPrint("[InteractionManager]: Initializing!");
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
     );

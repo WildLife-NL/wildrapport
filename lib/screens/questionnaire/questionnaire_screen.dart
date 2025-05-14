@@ -37,6 +37,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   void nextScreen() {
+    debugPrint("${responseProvider.answerID}");
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
       _responseManager.storeResponse(
@@ -54,8 +55,19 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     }
   }
 
-  void lastNextScreen() {
-    _responseManager.submitResponses();
+  void lastNextScreen() async {
+    if (responseProvider.interactionID != null &&
+        responseProvider.questionID != null) {
+      responseProvider.clearAnswerID();
+      await _responseManager.storeResponse(
+        responseProvider.buildResponse(),
+        widget.questionnaire.id,
+        responseProvider.questionID!,
+      );
+    }
+
+    await _responseManager.submitResponses();
+
     context.read<NavigationStateInterface>().pushAndRemoveUntil(
       context,
       OverzichtScreen(),

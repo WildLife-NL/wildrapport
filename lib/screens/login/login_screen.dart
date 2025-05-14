@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
-import 'package:wildrapport/screens/login_overlay.dart';
+import 'package:wildrapport/screens/login/login_overlay.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/widgets/verification_code_input.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';

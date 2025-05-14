@@ -1,13 +1,13 @@
 import '../models/beta_models/response_model.dart';
 
 abstract class ResponseInterface {
-  void storeResponse(
+  Future<void> storeResponse(
     Response response,
     String questionaireID,
     String questionID,
   );
-  void submitResponses();
-  void updateResponse(
+  Future<void> submitResponses();
+  Future<void> updateResponse(
     Response response,
     String questionaireID,
     String questionID,
