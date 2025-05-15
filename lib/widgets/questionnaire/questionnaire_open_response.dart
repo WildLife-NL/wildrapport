@@ -1,7 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/models/api_models/question.dart';
@@ -13,6 +15,7 @@ class QuestionnaireOpenResponse extends StatefulWidget {
   final String interactionID;
   final VoidCallback onNextPressed;
   final VoidCallback onBackPressed;
+  final int index;
 
   final redLog = '\x1B[31m';
 
@@ -23,6 +26,7 @@ class QuestionnaireOpenResponse extends StatefulWidget {
     required this.interactionID,
     required this.onNextPressed,
     required this.onBackPressed,
+    required this.index,
   });
 
   @override
@@ -31,7 +35,8 @@ class QuestionnaireOpenResponse extends StatefulWidget {
 }
 
 class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
-  final TextEditingController _responseController = TextEditingController();
+  Response? existingResponse;  
+  TextEditingController _responseController = TextEditingController();
   late final ResponseProvider responseProvider;
 
   @override
@@ -41,6 +46,12 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       responseProvider = context.read<ResponseProvider>();
       responseProvider.setInteractionID(widget.interactionID);
       responseProvider.setQuestionID(widget.question.id);
+      existingResponse = responseProvider.responses.firstWhereOrNull(
+      (response) => response.questionID == widget.question.id,
+      );
+      _responseController = TextEditingController(
+        text: existingResponse?.text ?? '',
+      );
     });
   }
 
@@ -91,8 +102,19 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               child: TextField(
                 controller: _responseController,
                 onChanged: (value) {
-                  responseProvider.setText(value);
-                },
+                  setState(() {
+                    if (existingResponse != null) {
+                      responseProvider.setUpdatingResponse(true);
+                      responseProvider.updateResponse(
+                        existingResponse?.copyWith(text: value),
+                      );
+                    } else {
+                      responseProvider.addResponse(
+                        Response(interactionID: widget.interactionID, questionID: widget.question.id, text: value),
+                      );
+                    }
+                });
+              },
                 maxLines: 10,
                 decoration: InputDecoration(
                   hintText: 'Schrijf hier uw antwoord...',

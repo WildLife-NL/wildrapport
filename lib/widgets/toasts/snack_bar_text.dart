@@ -12,22 +12,34 @@ class SnackBarText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.check_circle, color: Colors.green, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            message,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Arimo',
-            ),
-          ),
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.8, // limit width to 80% of screen
         ),
-        if (trailing != null) trailing!,
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle, color: Colors.green, size: 24),
+            const SizedBox(width: 12),
+            Flexible(  // Flexible lets text wrap and limits width within Row
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Arimo',
+                ),
+              ),
+            ),
+            if (trailing != null) ...[
+              const SizedBox(width: 12),
+              trailing!,
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

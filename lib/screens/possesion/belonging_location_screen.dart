@@ -153,16 +153,14 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         await _belongingManager.postInteraction();
 
     if (mounted) {
-
-      if (interactionResponseModel == null) {
-        // 🔔 Show snackbar toast when offline
-        SnackBarWithProgressBar.show(
-          context: context,
-          message: "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel",
-          duration: const Duration(seconds: 3),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      }
+      SnackBarWithProgressBar.show(
+        context: context,
+        message: (interactionResponseModel == null) 
+          ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel" 
+          : "interactie succesvol verstuurd",
+        duration: const Duration(seconds: 3),
+      );
+      await Future.delayed(const Duration(seconds: 3));
 
       navigationManager.pushReplacementForward(
         context,
@@ -188,11 +186,13 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 leftIcon: Icons.arrow_back_ios,
                 centerText: 'Locatie',
                 rightIcon: Icons.menu,
-                onLeftIconPressed:
-                    () => navigationManager.pushReplacementBack(
+                onLeftIconPressed: () {
+                    belongingProvider.clearStateOfValues();
+                    navigationManager.pushReplacementForward(
                       context,
                       const Rapporteren(),
-                    ),
+                    );
+                  },
                 onRightIconPressed: () {
                   /* Handle menu */
                 },

@@ -14,7 +14,8 @@ class BelongingCropsDetails extends StatefulWidget {
 }
 
 class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
-  final TextEditingController _responseController = TextEditingController();
+  final TextEditingController _impactValueController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   late final BelongingDamageReportInterface _belongingDamageReportManager;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -27,7 +28,11 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
         context.read<BelongingDamageReportInterface>();
 
     // Initialize the controller with the value from the provider
-    _responseController.text = formatImpactAreaString();
+    _impactValueController.text = formatImpactAreaString();
+    
+    final belongingDamageReportProvider =
+      Provider.of<BelongingDamageReportProvider>(context, listen: false);
+    _descriptionController.text = belongingDamageReportProvider.description;
   }
 
   String capitalize(String s) {
@@ -79,9 +84,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
 
       final impacted = belongingDamageReportProvider.impactedArea!;
       if (impacted == impacted.roundToDouble()) {
-        _responseController.text = impacted.round().toString();
+        _impactValueController.text = impacted.round().toString();
       } else {
-        _responseController.text = impacted.toString();
+        _impactValueController.text = impacted.toString();
       }
     }
   }
@@ -162,9 +167,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                     );
 
                     // If impactedArea is not null or empty, validate the input
-                    if (_responseController.text.isNotEmpty) {
+                    if (_impactValueController.text.isNotEmpty) {
                       final areaType = value;
-                      String cleanedValue = _responseController.text.replaceAll(
+                      String cleanedValue = _impactValueController.text.replaceAll(
                         ',',
                         '.',
                       );
@@ -175,8 +180,8 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       if (areaType == "vierkante meters") {
                         // Only allow full integers
                         final intRegex = RegExp(r'^\d+$');
-                        if (intRegex.hasMatch(_responseController.text)) {
-                          parsed = double.tryParse(_responseController.text);
+                        if (intRegex.hasMatch(_impactValueController.text)) {
+                          parsed = double.tryParse(_impactValueController.text);
                           isValid = parsed != null;
                         }
                       } else if (areaType == "hectare") {
@@ -254,7 +259,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           ],
                         ),
                         child: TextField(
-                          controller: _responseController,
+                          controller: _impactValueController,
                           onChanged: (value) {
                             debugPrint(value);
                             final areaType =
@@ -488,6 +493,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                     child: TextField(
+                      controller: _descriptionController,
                       onChanged:
                           (val) => _belongingDamageReportManager
                               .updateDescription(val),

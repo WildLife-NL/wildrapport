@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
@@ -40,10 +41,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     debugPrint("${responseProvider.answerID}");
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
-      _responseManager.storeResponse(
-        responseProvider.buildResponse(),
-        widget.questionnaire.id,
-        responseProvider.questionID!,
+          _responseManager.storeResponse(
+            responseProvider.responses.last,
+            widget.questionnaire.id,
+            responseProvider.questionID!,
       );
     }
     debugPrint("Next Screen");
@@ -57,15 +58,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void lastNextScreen() async {
     if (responseProvider.interactionID != null &&
-        responseProvider.questionID != null) {
-      responseProvider.clearAnswerID();
-      await _responseManager.storeResponse(
-        responseProvider.buildResponse(),
-        widget.questionnaire.id,
-        responseProvider.questionID!,
-      );
-    }
-
+      responseProvider.questionID != null) {
+        await _responseManager.storeResponse(
+          responseProvider.responses.last,
+          widget.questionnaire.id,
+          responseProvider.questionID!,
+        );
+      }
     await _responseManager.submitResponses();
 
     context.read<NavigationStateInterface>().pushAndRemoveUntil(
@@ -86,7 +85,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   Future<void> _loadQuestionnaire() async {
     final questionnaireScreens = await _questionnaireManager
-        .buildQuestionnaireLayoutFromExisting(
+        .buildQuestionnaireLayout(
           widget.questionnaire,
           widget.interactionID,
           nextScreen,

@@ -8,6 +8,7 @@ class ResponseProvider extends ChangeNotifier {
   String? text;
   Response? response;
   List<Response> responses = [];
+  bool updatingResponse = false;
 
   final yellowLog = '\x1B[93m';
 
@@ -16,11 +17,25 @@ class ResponseProvider extends ChangeNotifier {
   }
 
   void addResponse(Response value) {
+    debugPrint("$yellowLog [ResponseProvider]: Adding Response");
     responses.add(value);
   }
 
   void removeResponse(Response value) {
     responses.remove(value);
+  }
+
+  void setUpdatingResponse(bool value){
+    debugPrint("$yellowLog [ResponseProvider]: Updating Response");
+    updatingResponse = value;
+    notifyListeners();
+  }
+  void updateResponse(Response? value) {
+    final index = responses.indexWhere((r) => r.questionID == value?.questionID);
+    if (index != -1) {
+      responses[index] = value!;
+      notifyListeners();
+    }
   }
 
   void setAnswerID(String value) {
@@ -69,7 +84,10 @@ class ResponseProvider extends ChangeNotifier {
     interactionID = null;
     questionID = null;
     text = null;
-    responses = [];
+    updatingResponse = false;
     notifyListeners();
+  }
+  void clearResponsesList(){
+    responses = [];
   }
 }

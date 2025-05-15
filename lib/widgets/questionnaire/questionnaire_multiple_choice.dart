@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
@@ -13,6 +15,7 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
   final String interactionID;
   final VoidCallback onNextPressed;
   final VoidCallback onBackPressed;
+  final int index;
 
   const QuestionnaireMultipleChoice({
     super.key,
@@ -21,6 +24,7 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
     required this.interactionID,
     required this.onNextPressed,
     required this.onBackPressed,
+    required this.index,
   });
 
   @override
@@ -32,6 +36,9 @@ class _QuestionnaireMultipleChoiceState
     extends State<QuestionnaireMultipleChoice> {
   List<String> _selectedAnswers = [];
   late final ResponseProvider responseProvider;
+  Response? existingResponse;  
+  String? selectedAnswerID;
+  List<String> selectedAnswerIDs = [];
 
   @override
   void initState() {
@@ -40,6 +47,13 @@ class _QuestionnaireMultipleChoiceState
       responseProvider = context.read<ResponseProvider>();
       responseProvider.setInteractionID(widget.interactionID);
       responseProvider.setQuestionID(widget.question.id);
+      existingResponse = responseProvider.responses.firstWhereOrNull(
+        (response) => response.questionID == widget.question.id,
+      );
+      setState(() {
+        selectedAnswerID = existingResponse?.answerID;
+        selectedAnswerIDs = existingResponse?.answerID?.split(',') ?? [];
+      });
     });
   }
 
@@ -88,29 +102,37 @@ class _QuestionnaireMultipleChoiceState
             ...widget.question.answers!.map((answer) {
               return widget.question.allowMultipleResponse
                   ? CheckboxListTile(
-                    title: Text(
-                      answer.text,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: AppColors.brown,
-                      ),
-                    ),
-                    value: _selectedAnswers.contains(answer.id),
-                    onChanged: (bool? value) {
-                      debugPrint("onChanged!");
+                    value: selectedAnswerIDs.contains(answer.id),
+                    title: Text(answer.text),
+                    onChanged: (checked) {
                       setState(() {
-                        if (value == true) {
-                          _selectedAnswers = [answer.id]; // Only allow one selection
-                          responseProvider.setAnswerID(answer.id); // ✅ Update provider
+                        if (checked == true) {
+                          selectedAnswerIDs.add(answer.id);
                         } else {
-                          _selectedAnswers.clear(); // Unselect all if unchecked
-                          responseProvider.clearAnswerID(); // ✅ Clear provider
+                          selectedAnswerIDs.remove(answer.id);
+                        }
+
+                        final updatedAnswerID = selectedAnswerIDs.join(',');
+
+                        if (existingResponse != null) {
+                          responseProvider.setUpdatingResponse(true);
+                          responseProvider.updateResponse(
+                            existingResponse!.copyWith(answerID: updatedAnswerID),
+                          );
+                        } else {
+                          final newResponse = Response(
+                            answerID: updatedAnswerID,
+                            interactionID: widget.interactionID,
+                            questionID: widget.question.id,
+                          );
+                          responseProvider.addResponse(newResponse);
+                          existingResponse = newResponse; // Important to keep updating it
                         }
                       });
                     },
                   )
-
-                  : RadioListTile<String>(
+                  : 
+                  RadioListTile<String>(
                     title: Text(
                       answer.text,
                       style: const TextStyle(
@@ -124,13 +146,20 @@ class _QuestionnaireMultipleChoiceState
                             ? _selectedAnswers.first
                             : null,
                     onChanged: (String? value) {
-                      debugPrint("onChanged!");
                       setState(() {
-                        _selectedAnswers = value != null ? [value] : [];
-                        responseProvider.setAnswerID(answer.id);
-                      });
-                    },
-                  );
+                        if (existingResponse != null) {
+                          responseProvider.setUpdatingResponse(true);
+                          responseProvider.updateResponse(
+                            existingResponse?.copyWith(answerID: value),
+                          );
+                        } else {
+                          responseProvider.addResponse(
+                            Response(answerID: value, interactionID: widget.interactionID, questionID: widget.question.id),
+                          );
+                        }
+                    });
+                  }
+                );
             }),
           Expanded(
             child: Container(), // This will take up remaining space

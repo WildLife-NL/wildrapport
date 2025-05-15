@@ -8,8 +8,9 @@ import 'package:wildrapport/widgets/questionnaire/questionnaire_home_buttons.dar
 
 class QuestionnaireHome extends StatelessWidget {
   final VoidCallback nextScreen;
+  final int amountOfQuestions;
 
-  const QuestionnaireHome({super.key, required this.nextScreen});
+  const QuestionnaireHome({super.key, required this.nextScreen, required this.amountOfQuestions});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class QuestionnaireHome extends StatelessWidget {
               ),
             ),
             Text(
-              "${questionnaireManager.getAmountOfQuestions(2)}",
+              "$amountOfQuestions",
               style: TextStyle(
                 color: AppColors.darkGreen,
                 fontWeight: FontWeight.bold,

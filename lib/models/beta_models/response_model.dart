@@ -24,4 +24,16 @@ class Response {
     "questionID": questionID,
     "text": text,
   };
+    Response copyWith({
+    String? questionID,
+    String? text,
+    String? answerID,
+  }) {
+    return Response(
+      answerID: answerID ?? this.answerID,
+      interactionID: interactionID ?? this.interactionID,
+      questionID: questionID ?? this.questionID,
+      text: text ?? this.text,
+    );
+  }
 }

@@ -90,21 +90,13 @@ class ResponseManager implements ResponseInterface {
   ) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      debugPrint(
-        "$yellowLog [ResponseManager]: Getting already stored responses!",
-      );
+      debugPrint("$yellowLog [ResponseManager]: Getting already stored responses!");
+
       List<ResponsesListObject>? storedResponsesList =
           await _getAlreadyStoredresponseListObjects();
 
-      // If no existing data, initialize empty list
       List<ResponsesListObject> responses = storedResponsesList ?? [];
 
-      ResponseObject newResponse = ResponseObject(
-        questionID: questionID,
-        response: response,
-      );
-
-      // There should only be one ReponseListObject in practice if you store all answers under one wrapper
       ResponsesListObject responsesListObject;
       if (responses.isEmpty) {
         responsesListObject = ResponsesListObject(responses: []);
@@ -113,25 +105,53 @@ class ResponseManager implements ResponseInterface {
         responsesListObject = responses[0];
       }
 
+      List<ResponseObject> responseObjects = [];
+
+      // Check for multiple answerIDs (e.g., comma-separated)
+      if (response.answerID != null){
+        if (response.answerID!.contains(',')) {
+          List<String> answerIDs = response.answerID!.split(',');
+          for (String id in answerIDs) {
+            responseObjects.add(
+              ResponseObject(
+                questionID: questionID,
+                response: Response(
+                  interactionID: response.interactionID,
+                  questionID: response.questionID,
+                  answerID: id.trim(),
+                  text: response.text,
+                ),
+              ),
+            );
+          }
+        }
+      } else {
+        // Only one answerID
+        responseObjects.add(
+          ResponseObject(
+            questionID: questionID,
+            response: response,
+          ),
+        );
+      }
+
       bool found = false;
 
-      // Loop through all maps to find if questionaireID already exists
+      // Try to find existing entry
       for (var entry in responsesListObject.responses) {
         if (entry.containsKey(questionaireID)) {
-          entry[questionaireID]!.add(newResponse);
+          entry[questionaireID]!.addAll(responseObjects);
           found = true;
           break;
         }
       }
 
-      // If questionaireID was not found, add a new map entry
       if (!found) {
         responsesListObject.responses.add({
-          questionaireID: [newResponse],
+          questionaireID: responseObjects,
         });
       }
 
-      // Convert back to JSON strings and store
       List<String> jsonStringList =
           responses.map((obj) => jsonEncode(obj.toJson())).toList();
       await prefs.setStringList('responses', jsonStringList);
@@ -310,6 +330,8 @@ class ResponseManager implements ResponseInterface {
           "Some responses failed to submit; remaining ones kept in storage.",
         );
       }
+      responseProvider.clearResponsesList();
+      responseProvider.clearResponse();
     }
   }
 }

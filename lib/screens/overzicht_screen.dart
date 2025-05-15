@@ -5,6 +5,7 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
@@ -78,7 +79,13 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   text: 'RapportenKaart',
                                   icon: Icons.map,
                                   imagePath: null,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    SnackBarWithProgressBar.show(
+                                      context: context,
+                                      message: "Deze functie is nog niet toegevoegd",
+                                      duration: const Duration(seconds: 2),
+                                    );
+                                  },
                                 ),
                                 (
                                   text: 'Rapporteren',
@@ -95,7 +102,13 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   text: 'Mijn Rapporten',
                                   icon: Icons.description,
                                   imagePath: null,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    SnackBarWithProgressBar.show(
+                                      context: context,
+                                      message: "Deze functie is nog niet toegevoegd",
+                                      duration: const Duration(seconds: 2),
+                                    );
+                                  },
                                 ),
                               ],
                               iconSize: iconSize,
