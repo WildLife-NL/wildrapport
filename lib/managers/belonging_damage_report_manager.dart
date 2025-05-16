@@ -216,7 +216,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
 
   //we only use vierkante meters and unit, unit as in number of sheep in the future
   String getCorrectImpactAreaType() {
-    return "vierkante meters";
+    return "square-meters";
   }
 
   String getCorrectImpactArea() {
@@ -283,16 +283,12 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
       if (impactedArea == null) {
         throw Exception("Invalid impacted area: ${formProvider.impactedArea}");
       }
-      String impactedAreaType = formProvider.impactedAreaType;
-      if (impactedAreaType == "vierkante meters") {
-        impactedAreaType = "square-meters";
-      }
       Possesion? pos = _getCorrectPossesion(formProvider.impactedCrop);
       BelongingDamageReport? report;
       if(pos != null){
         report = BelongingDamageReport(
           possesion: pos,
-          impactedAreaType: impactedAreaType,
+          impactedAreaType: "square-meters",
           impactedArea: impactedArea,
           currentImpactDamages: formProvider.currentDamage,
           estimatedTotalDamages: formProvider.expectedDamage,

@@ -115,9 +115,9 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     hasErrorImpactedCrop = false;
     hasErrorImpactedAreaType = false;
     hasErrorImpactedArea = false;
+    selectedText = null;
     resetInputErrorImpactArea();
     notifyListeners();
-    selectedText = null;
   }
 
   void resetErrors() {

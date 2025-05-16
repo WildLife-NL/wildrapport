@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
+import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
 import 'package:wildrapport/widgets/app_bar.dart';
 import 'package:wildrapport/widgets/bottom_app_bar.dart';
@@ -113,12 +114,12 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
 
   void nextScreen() {
     if (validateForm()) {
-      final formProvider = Provider.of<BelongingDamageReportProvider>(
+      final provider = Provider.of<BelongingDamageReportProvider>(
         context,
         listen: false,
       );
-      formProvider.resetInputErrorImpactArea();
-      formProvider.hasErrorImpactedArea = false;
+      provider.resetInputErrorImpactArea();
+      provider.hasErrorImpactedArea = false;
       debugPrint("Form is valid!");
       if (currentIndex < maxIndex) {
         setState(() {
@@ -140,6 +141,20 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
         currentIndex--;
       });
     }
+    else{
+      final provider = Provider.of<BelongingDamageReportProvider>(
+        context,
+        listen: false,
+      );      
+      final navigationManager = context.read<NavigationStateInterface>();
+      provider.clearStateOfValues();
+      provider.resetErrors();
+      navigationManager.pushReplacementForward(
+        context,
+        OverzichtScreen(),
+      );
+
+    }
   }
 
   void _loadPossesionWidgets() {
@@ -151,8 +166,6 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<BelongingDamageReportProvider>(context);
-    final navigationManager = context.read<NavigationStateInterface>();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -162,11 +175,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
               centerText: "Gewasschade",
               rightIcon: Icons.menu,
               onLeftIconPressed: () {
-                provider.clearStateOfValues();
-                navigationManager.pushReplacementForward(
-                  context,
-                  const Rapporteren(),
-                );
+                previousScreen();
               },
               onRightIconPressed: () {
                 // Handle menu
@@ -177,7 +186,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,
               showNextButton: currentIndex < 1,
-              showBackButton: currentIndex > 0,
+              showBackButton: false,
             ),
             const InvisibleMapPreloader(),
           ],
