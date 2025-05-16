@@ -34,7 +34,7 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
 
 class _QuestionnaireMultipleChoiceState
     extends State<QuestionnaireMultipleChoice> {
-  List<String> _selectedAnswers = [];
+  final List<String> _selectedAnswers = [];
   late final ResponseProvider responseProvider;
   Response? existingResponse;  
   String? selectedAnswerID;

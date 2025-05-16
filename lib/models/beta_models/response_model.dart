@@ -25,9 +25,10 @@ class Response {
     "text": text,
   };
     Response copyWith({
+    String? answerID,
+    String? interactionID,
     String? questionID,
     String? text,
-    String? answerID,
   }) {
     return Response(
       answerID: answerID ?? this.answerID,

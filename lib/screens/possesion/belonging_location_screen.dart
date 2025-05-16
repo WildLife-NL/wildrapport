@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
-import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
@@ -38,7 +37,6 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
 
   NavigationStateInterface get navigationManager =>
       context.read<NavigationStateInterface>();
-  late final QuestionnaireInterface _questionnaireManager;
 
   @override
   void initState() {
@@ -46,7 +44,6 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     debugPrint(
       "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
     );
-    _questionnaireManager = context.read<QuestionnaireInterface>();
     _initializeScreen();
   }
 
