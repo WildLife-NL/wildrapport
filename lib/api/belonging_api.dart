@@ -18,8 +18,6 @@ class BelongingApi implements BelongingApiInterface {
       authenticated: true,
     );
 
-    Map<String, dynamic>? json;
-
     if (response.statusCode == HttpStatus.ok) {
       final json = jsonDecode(response.body) as List;
       return json.map((e) => Belonging.fromJson(e)).toList();
