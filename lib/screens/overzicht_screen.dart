@@ -92,10 +92,20 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   icon: Icons.edit_note,
                                   imagePath: null,
                                   onPressed: () {
-                                    navigationManager.pushReplacementForward(
-                                      context,
-                                      const Rapporteren(),
-                                    );
+                                    try {
+                                      navigationManager.pushReplacementForward(
+                                        context,
+                                        const Rapporteren(),
+                                      );
+                                    } catch (e) {
+                                      // Show error message using SnackBar
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Er is een fout opgetreden bij het navigeren'),
+                                          duration: const Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
                                   },
                                 ),
                                 (
@@ -132,3 +142,4 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     );
   }
 }
+
