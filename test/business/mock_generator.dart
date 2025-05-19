@@ -31,6 +31,8 @@ import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 
 
 // API interfaces Mocks
@@ -71,6 +73,12 @@ import 'package:wildrapport/interfaces/screen_state_interface.dart';
 @GenerateMocks([QuestionnaireInterface])
 @GenerateMocks([ResponseInterface])
 @GenerateMocks([ScreenStateInterface])
+
+//Provider Mocks
+@GenerateMocks([AppStateProvider])
+@GenerateMocks([MapProvider])
+
+
 
 
 

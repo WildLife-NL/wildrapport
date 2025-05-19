@@ -46,52 +46,55 @@ class ReportButton extends StatelessWidget {
             Center(
               child: Padding(
                 padding: EdgeInsets.all(screenSize.width * 0.04),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: iconSize,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                child: SingleChildScrollView( // Add this to make content scrollable
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min, // Add this to prevent overflow
+                    children: [
+                      SizedBox(
+                        height: iconSize,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.25),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          icon != null
-                              ? Icon(
-                                icon,
-                                size: iconSize * 0.6,
-                                color: AppColors.brown,
-                              )
-                              : Image.asset(image!, fit: BoxFit.contain),
-                        ],
+                            icon != null
+                                ? Icon(
+                                  icon,
+                                  size: iconSize * 0.6,
+                                  color: AppColors.brown,
+                                )
+                                : Image.asset(image!, fit: BoxFit.contain),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: screenSize.height * 0.02),
-                    Text(
-                      text,
-                      style: AppTextTheme.textTheme.titleMedium?.copyWith(
-                        fontSize: 15,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
+                      SizedBox(height: screenSize.height * 0.02),
+                      Text(
+                        text,
+                        style: AppTextTheme.textTheme.titleMedium?.copyWith(
+                          fontSize: 15,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              offset: const Offset(0, 2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -120,3 +123,4 @@ class ReportButton extends StatelessWidget {
     );
   }
 }
+
