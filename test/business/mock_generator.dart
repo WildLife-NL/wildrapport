@@ -33,7 +33,8 @@ import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // API interfaces Mocks
 @GenerateMocks([AuthApiInterface])
@@ -79,8 +80,8 @@ import 'package:wildrapport/providers/map_provider.dart';
 @GenerateMocks([MapProvider])
 @GenerateMocks([AnimalManagerInterface])
 
-
-
-
+// Add these new mocks
+@GenerateMocks([BuildContext])
+@GenerateMocks([SharedPreferences])
 
 void main() {} // required for code generation
