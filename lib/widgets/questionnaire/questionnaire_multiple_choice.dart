@@ -68,7 +68,7 @@ class _QuestionnaireMultipleChoiceState
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 12.0),
             child: Text(
-              'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
+              'Vraag ${widget.index + 1} van ${widget.questionnaire.questions?.length}',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

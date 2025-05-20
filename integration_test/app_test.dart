@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/profile_api.dart';
-import './flows/belonging_damage_flow.dart' as gewasschade;
+import './flows/belonging_damage_flow.dart' as belonging_damage_flow;
+import './flows/waarneming_flow.dart' as waarneming_flow_flow;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +21,7 @@ void main() {
     final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
     final profileApi = ProfileApi(apiClient);
     profileApi.setProfileDataInDeviceStorage();
-    
+
     // Request location permission
     final permissionStatus = await Permission.location.request();
     if (!permissionStatus.isGranted) {
@@ -33,6 +34,7 @@ void main() {
     await Future.delayed(const Duration(seconds: 5));
   });
 
-  // Run Gewasschade tests
-  gewasschade.runTests();
+  // Run tests
+  belonging_damage_flow.runTests();
+  waarneming_flow_flow.runTests();
 }

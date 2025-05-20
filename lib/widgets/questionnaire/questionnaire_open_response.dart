@@ -59,74 +59,78 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SharedWhiteBackground(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-              child: Text(
-                'Vraag ${widget.question.index} van ${widget.questionnaire.questions?.length}',
-                textAlign: TextAlign.left,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.brown,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0, left: 12.0),
-              child: Text(
-                widget.question.text,
-                textAlign: TextAlign.left,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.brown,
-                ),
-              ),
-            ),
-            const SizedBox(height: 1),
-            if (widget.question.description.isNotEmpty)
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16.0), // optional padding
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.only(left: 12.0),
                 child: Text(
-                  widget.question.description,
+                  'Vraag ${widget.index + 1} van ${widget.questionnaire.questions?.length}',
                   textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.brown,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0, left: 12.0),
+                child: Text(
+                  widget.question.text,
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.brown,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 1),
+              if (widget.question.description.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(
+                    widget.question.description,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 18, color: AppColors.brown),
+                  ),
+                ),
+              const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: TextField(
+                  key: Key('questionnaire-description'),
+                  controller: _responseController,
+                  onChanged: (value) {
+                    setState(() {
+                      if (existingResponse != null) {
+                        responseProvider.setUpdatingResponse(true);
+                        responseProvider.updateResponse(
+                          existingResponse?.copyWith(text: value),
+                        );
+                      } else {
+                        responseProvider.addResponse(
+                          Response(interactionID: widget.interactionID, questionID: widget.question.id, text: value),
+                        );
+                      }
+                    });
+                  },
+                  maxLines: 10,
+                  decoration: InputDecoration(
+                    hintText: 'Schrijf hier uw antwoord...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                   style: const TextStyle(fontSize: 18, color: AppColors.brown),
                 ),
               ),
-            const SizedBox(height: 32),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: TextField(
-                controller: _responseController,
-                onChanged: (value) {
-                  setState(() {
-                    if (existingResponse != null) {
-                      responseProvider.setUpdatingResponse(true);
-                      responseProvider.updateResponse(
-                        existingResponse?.copyWith(text: value),
-                      );
-                    } else {
-                      responseProvider.addResponse(
-                        Response(interactionID: widget.interactionID, questionID: widget.question.id, text: value),
-                      );
-                    }
-                });
-              },
-                maxLines: 10,
-                decoration: InputDecoration(
-                  hintText: 'Schrijf hier uw antwoord...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                style: const TextStyle(fontSize: 18, color: AppColors.brown),
-              ),
-            ),
-            Expanded(child: Container()),
-          ],
+              // Remove Expanded(child: Container()) — no longer needed
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(

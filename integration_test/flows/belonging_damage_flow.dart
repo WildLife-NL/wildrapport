@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
+import '../tests/questionnaire_flow.dart' as questionnaire_flow;
 import 'package:wildrapport/main.dart' as app;
 
 void runTests() {
@@ -19,7 +20,7 @@ void runTests() {
       app.main();
 
       // Wait for the app to settle (main.dart has run)
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Debug widget tree
       print(tester.allWidgets.map((w) => w.toString()).toList());
@@ -30,12 +31,12 @@ void runTests() {
       // Step 1: Verify and tap 'Rapporteren'
       expect(find.byKey(const Key('rapporteren_button')), findsOneWidget, reason: 'Rapporteren button should be visible');
       await tester.tap(find.byKey(const Key('rapporteren_button')));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 2: Verify Rapporteren screen and tap 'Gewasschade'
-      expect(find.text('Rapporteren'), findsOneWidget);
+      expect(find.text('Gewasschade'), findsOneWidget);
       await tester.tap(find.text('Gewasschade'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 3: Verify BelongingDamagesScreen with BelongingCropsDetails
       expect(find.byKey(const Key('impacted-crop')), findsOneWidget);
@@ -84,7 +85,7 @@ void runTests() {
       // Step 11: Verify Wisent is displayed and tap on it
       expect(find.text('Wisent'), findsOneWidget);
       await tester.tap(find.text('Wisent'));
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 12: Verify Huidige locatie is displayed and tap on it
       expect(find.text('Huidige locatie'), findsOneWidget);
@@ -94,28 +95,26 @@ void runTests() {
       // Step 13: Verify Zuid-Kennemerland is displayed and tap on it
       expect(find.text('Zuid-Kennemerland'), findsOneWidget);
       await tester.tap(find.text('Zuid-Kennemerland'));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 14: tap on center of the screen to select location
       final screenSize = tester.view.physicalSize / tester.view.devicePixelRatio;
       final center = Offset(screenSize.width / 2, screenSize.height / 2);
       await tester.tapAt(center);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 15: Verify Bevestig is displayed and tap on it
       expect(find.text('Bevestig'), findsOneWidget);
       await tester.tap(find.text('Bevestig'));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
       
       // Step 16: Verify Volgende is displayed and tap on it
       expect(find.text('Volgende'), findsOneWidget);
       await tester.tap(find.text('Volgende'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
-      // Step 17: Verify Overslaan is displayed and tap on it
-      expect(find.text('Overslaan'), findsOneWidget);
-      await tester.tap(find.text('Overslaan'));
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Step 17: Test questionnaire flow
+      await questionnaire_flow.runQuestionnaireSteps(tester);
 
       // Step 18: Test completed
       expect(true, isTrue, reason: 'Test completed successfully despite overflow');

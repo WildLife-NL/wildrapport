@@ -34,55 +34,51 @@ class _SuspectedAnimalState extends State<SuspectedAnimal> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05,
-          vertical: MediaQuery.of(context).size.height * 0.02,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildButton(
-              text: "Onbekend",
-              image: Image.asset(
-                "assets/icons/questionnaire/arrow_forward.png",
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.05,
+            vertical: MediaQuery.of(context).size.height * 0.02,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40), // Optional spacing at top
+              _buildButton(
+                text: "Onbekend",
+                image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
+                height: 63,
+                width: 200,
+                onPressed: () => pressed("Onbekend"),
               ),
-              height: 63,
-              width: 200,
-              onPressed: () => pressed("Onbekend"),
-            ),
-            SizedBox(height: 24),
-            _buildButton(
-              text: "Vogels",
-              image: Image.asset(
-                "assets/icons/questionnaire/arrow_forward.png",
+              const SizedBox(height: 24),
+              _buildButton(
+                text: "Vogels",
+                image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
+                height: 63,
+                width: 277,
+                onPressed: () => pressed("Vogels"),
               ),
-              height: 63,
-              width: 277,
-              onPressed: () => pressed("Vogels"),
-            ),
-            SizedBox(height: 24),
-            _buildButton(
-              text: "Knaagdieren",
-              image: Image.asset(
-                "assets/icons/questionnaire/arrow_forward.png",
+              const SizedBox(height: 24),
+              _buildButton(
+                text: "Knaagdieren",
+                image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
+                height: 70,
+                width: 339,
+                onPressed: () => pressed("Knaagdieren"),
               ),
-              height: 70,
-              width: 339,
-              onPressed: () => pressed("Knaagdieren"),
-            ),
-            SizedBox(height: 24),
-            _buildButton(
-              text: "Evenhoevigen",
-              image: Image.asset(
-                "assets/icons/questionnaire/arrow_forward.png",
+              const SizedBox(height: 24),
+              _buildButton(
+                text: "Evenhoevigen",
+                image: Image.asset("assets/icons/questionnaire/arrow_forward.png"),
+                height: 70,
+                width: 339,
+                onPressed: () => pressed("Evenhoevigen"),
               ),
-              height: 70,
-              width: 339,
-              onPressed: () => pressed("Evenhoevigen"),
-            ),
-          ],
+              const SizedBox(height: 40), // Optional bottom spacing
+            ],
+          ),
         ),
       ),
     );
