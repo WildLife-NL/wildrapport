@@ -3,40 +3,42 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
+/// Abstract base class to manage per-screen persistent state using AppStateProvider.
 abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
     implements ScreenStateInterface {
+  late AppStateProvider _provider;
+
   @override
   void initState() {
     super.initState();
-    // Schedule loading screen state after the first frame to ensure context is available
+    // Cache the provider after the first frame so context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      _provider = context.read<AppStateProvider>();
       loadScreenState();
     });
   }
 
   @override
   void dispose() {
-    // Save screen state before disposing to persist user's settings
+    // Use cached provider instead of context to avoid lookup errors
     saveScreenState();
     super.dispose();
   }
 
-  // Abstract methods that screens must implement
-  // Returns the default state values for this screen
+  /// Returns the default state values for this screen.
   Map<String, dynamic> getInitialState();
-  // Returns the unique identifier for this screen
+
+  /// A unique identifier for the screen (used for persisting values).
   String get screenName;
 
   @override
   void loadScreenState() {
-    // Loads saved state from AppStateProvider and updates the current screen state
-    final provider = context.read<AppStateProvider>();
     final initialState = getInitialState();
     final currentState = getCurrentState();
 
     initialState.forEach((key, defaultValue) {
-      final savedValue = provider.getScreenState<dynamic>(screenName, key);
+      final savedValue = _provider.getScreenState<dynamic>(screenName, key);
       final value = savedValue ?? defaultValue;
       if (currentState[key] != value) {
         updateState(key, value);
@@ -46,26 +48,23 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
 
   @override
   void saveScreenState() {
-    // Persists the current screen state to AppStateProvider
-    final provider = context.read<AppStateProvider>();
     final currentState = getCurrentState();
-
     currentState.forEach((key, value) {
-      provider.setScreenState(screenName, key, value);
+      _provider.setScreenState(screenName, key, value);
     });
   }
 
+  /// Updates a specific state key with a new value.
   @override
-  // Updates a specific state key with a new value
   void updateState(String key, dynamic value);
 
+  /// Returns the current state values for this screen.
   @override
-  // Returns the current state map for this screen
   Map<String, dynamic> getCurrentState();
 
+  /// Calls setState safely only if the widget is still mounted.
   @override
   void safeSetState(VoidCallback fn) {
-    // Safely calls setState only if the widget is still mounted
     if (mounted) {
       setState(fn);
     }
