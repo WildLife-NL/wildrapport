@@ -104,7 +104,6 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        debugPrint("$greenLog [GewasschadeDetails]: Line 47");
         belongingDamageReportProvider.updateExpanded(true);
         FocusScope.of(context).unfocus();
       },
@@ -116,6 +115,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 BelongingDropdown(
+                  key: const Key('impacted-crop'),
                   onChanged: (value) {
                     _belongingDamageReportManager.updateImpactedCrop(value);
                     belongingDamageReportProvider.setErrorState(
@@ -147,6 +147,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                 const SizedBox(height: 10),
 
                 BelongingDropdown(
+                  key: const Key('impacted-area-type'),
                   onChanged: (value) {
                     // Update the impacted area type
                     switch (value) {
@@ -259,6 +260,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           ],
                         ),
                         child: TextField(
+                          key: const Key('area-value'),
                           controller: _impactValueController,
                           onChanged: (value) {
                             debugPrint(value);
@@ -426,6 +428,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                     child: Slider(
+                      key: const Key('estimated-damage'),
                       value: belongingDamageReportProvider.currentDamage,
                       onChanged:
                           (value) => _belongingDamageReportManager
@@ -464,6 +467,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                     child: Slider(
+                      key: const Key('estimated-future-damage'),
                       value: belongingDamageReportProvider.expectedDamage,
                       onChanged:
                           (value) => _belongingDamageReportManager
@@ -493,6 +497,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                     child: TextField(
+                      key: const Key('description'),
                       controller: _descriptionController,
                       onChanged:
                           (val) => _belongingDamageReportManager

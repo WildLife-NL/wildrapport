@@ -79,6 +79,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   text: 'RapportenKaart',
                                   icon: Icons.map,
                                   imagePath: null,
+                                  key: Key('rapporten_kaart_button'),
                                   onPressed: () {
                                     SnackBarWithProgressBar.show(
                                       context: context,
@@ -91,6 +92,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   text: 'Rapporteren',
                                   icon: Icons.edit_note,
                                   imagePath: null,
+                                  key: Key('rapporteren_button'),
                                   onPressed: () {
                                     try {
                                       navigationManager.pushReplacementForward(
@@ -98,7 +100,6 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                         const Rapporteren(),
                                       );
                                     } catch (e) {
-                                      // Show error message using SnackBar
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Er is een fout opgetreden bij het navigeren'),
@@ -112,6 +113,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   text: 'Mijn Rapporten',
                                   icon: Icons.description,
                                   imagePath: null,
+                                  key: Key('mijn_rapporten_button'),
                                   onPressed: () {
                                     SnackBarWithProgressBar.show(
                                       context: context,
@@ -142,4 +144,3 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     );
   }
 }
-

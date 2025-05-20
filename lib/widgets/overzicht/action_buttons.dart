@@ -5,9 +5,13 @@ import 'package:wildrapport/constants/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
   final List<
-    ({String text, IconData? icon, String? imagePath, VoidCallback? onPressed})
-  >
-  buttons;
+      ({
+        String text,
+        IconData? icon,
+        String? imagePath,
+        VoidCallback? onPressed,
+        Key? key // Add key field
+      })> buttons;
   final double? verticalPadding;
   final double? horizontalPadding;
   final double? buttonSpacing;
@@ -36,8 +40,7 @@ class ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal:
-            horizontalPadding ?? 8, // <-- Only small margin on left/right
+        horizontal: horizontalPadding ?? 8,
         vertical: verticalPadding ?? 0,
       ),
       child: Column(
@@ -46,13 +49,13 @@ class ActionButtons extends StatelessWidget {
           for (var button in buttons) ...[
             SizedBox(
               height: buttonHeight,
-              width:
-                  double.infinity, // <-- Force button to be as wide as possible
+              width: double.infinity,
               child: _buildButton(
                 text: button.text,
                 icon: button.icon,
                 imagePath: button.imagePath,
                 onPressed: button.onPressed,
+                key: button.key, // Pass key to _buildButton
               ),
             ),
             if (button != buttons.last) SizedBox(height: buttonSpacing ?? 0),
@@ -67,6 +70,7 @@ class ActionButtons extends StatelessWidget {
     IconData? icon,
     String? imagePath,
     VoidCallback? onPressed,
+    Key? key, // Add key parameter
   }) {
     Widget? leftWidget;
 
@@ -75,14 +79,13 @@ class ActionButtons extends StatelessWidget {
     final bool useCircle = useCircleIconsForIndices.contains(buttonIndex);
 
     if (icon != null) {
-      leftWidget =
-          useCircle
-              ? CircleIconContainer(
-                icon: icon,
-                iconColor: iconColor,
-                size: iconSize,
-              )
-              : Icon(icon, color: iconColor, size: iconSize);
+      leftWidget = useCircle
+          ? CircleIconContainer(
+              icon: icon,
+              iconColor: iconColor,
+              size: iconSize,
+            )
+          : Icon(icon, color: iconColor, size: iconSize);
     } else if (imagePath != null) {
       leftWidget = Image.asset(
         imagePath,
@@ -93,6 +96,7 @@ class ActionButtons extends StatelessWidget {
     }
 
     return WhiteBulkButton(
+      key: key, // Apply key to WhiteBulkButton
       text: text,
       leftWidget: leftWidget,
       rightWidget: Icon(
@@ -110,7 +114,6 @@ class ActionButtons extends StatelessWidget {
       onPressed: onPressed,
       height: buttonHeight,
       fontSize: buttonFontSize,
-      // No width passed here - WhiteBulkButton defaults to full width
     );
   }
 }
