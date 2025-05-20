@@ -13,6 +13,8 @@ abstract class AnimalManagerInterface {
   AnimalModel handleAnimalSelection(AnimalModel selectedAnimal);
   String getSelectedFilter();
   void updateFilter(String filter);
+  void updateSearchTerm(String searchTerm);
   void addListener(Function() listener);
   void removeListener(Function() listener);
 }
+
