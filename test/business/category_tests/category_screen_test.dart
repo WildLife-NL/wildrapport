@@ -72,9 +72,9 @@ void main() {
   testWidgets('CategoryScreen renders and category buttons are clickable',
       (WidgetTester tester) async {
     // Fix layout overflow by increasing test screen size
-    tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(() => tester.binding.window.clearPhysicalSizeTestValue());
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
 
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
@@ -96,9 +96,9 @@ void main() {
 
   testWidgets('Back button clears state and navigates to Rapporteren',
       (WidgetTester tester) async {
-    tester.binding.window.physicalSizeTestValue = const Size(1080, 1920);
-    tester.binding.window.devicePixelRatioTestValue = 1.0;
-    addTearDown(() => tester.binding.window.clearPhysicalSizeTestValue());
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
 
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
@@ -121,6 +121,10 @@ void main() {
     verify(mockNavigationInterface.pushAndRemoveUntil(any, any)).called(1);
   });
 }
+
+
+
+
 
 
 

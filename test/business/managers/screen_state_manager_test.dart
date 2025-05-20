@@ -11,7 +11,7 @@ class TestScreen extends StatefulWidget {
   final Function(Map<String, dynamic>)? onStateLoaded;
   final Function(Map<String, dynamic>)? onStateSaved;
 
-  const TestScreen({Key? key, this.onStateLoaded, this.onStateSaved}) : super(key: key);
+  const TestScreen({super.key, this.onStateLoaded, this.onStateSaved});
 
   @override
   TestScreenState createState() => TestScreenState();
@@ -70,10 +70,10 @@ class TestWrapper extends StatelessWidget {
   final AppStateProvider appStateProvider;
 
   const TestWrapper({
-    Key? key,
+    super.key,
     required this.child,
     required this.appStateProvider,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

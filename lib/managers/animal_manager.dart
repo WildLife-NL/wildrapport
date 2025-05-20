@@ -87,6 +87,7 @@ class AnimalManager
     _notifyListeners();
   }
 
+  @override
   void updateSearchTerm(String searchTerm) {
     _currentSearchTerm = searchTerm;
     _notifyListeners(); // Make sure this is called to trigger UI updates

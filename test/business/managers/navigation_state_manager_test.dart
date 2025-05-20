@@ -10,7 +10,7 @@ import '../mock_generator.mocks.dart';
 
 // Mock screen for testing navigation
 class MockScreen extends StatelessWidget {
-  const MockScreen({Key? key}) : super(key: key);
+  const MockScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class MockScreen extends StatelessWidget {
 
 // Mock home screen to avoid provider dependencies
 class MockHomeScreen extends StatelessWidget {
-  const MockHomeScreen({Key? key}) : super(key: key);
+  const MockHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
