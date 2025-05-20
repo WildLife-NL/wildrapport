@@ -77,7 +77,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 //Provider Mocks
 @GenerateMocks([AppStateProvider])
 @GenerateMocks([MapProvider])
-
+@GenerateMocks([AnimalManagerInterface])
 
 
 
