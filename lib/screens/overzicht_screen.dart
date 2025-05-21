@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/rapporteren.dart';
@@ -14,12 +15,13 @@ class OverzichtScreen extends StatefulWidget {
   State<OverzichtScreen> createState() => _OverzichtScreenState();
 }
 
-class _OverzichtScreenState extends State<OverzichtScreen> {
+class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecker<OverzichtScreen> {
   String userName = "Joe Doe";
 
   @override
   void initState() {
     super.initState();
+    initiatePermissionCheck();
     _loadUserName();
   }
 
@@ -42,7 +44,6 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     final double welcomeFontSize = (screenSize.width * 0.045).clamp(14.0, 24.0);
     final double usernameFontSize = (screenSize.width * 0.06).clamp(18.0, 28.0);
     final double buttonHeight = (screenSize.height * 0.18).clamp(100.0, 160.0);
-    (screenSize.width * 0.8).clamp(250.0, 400.0);
     final double spacing = (screenSize.height * 0.02).clamp(8.0, 24.0);
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);

@@ -10,7 +10,7 @@ class MapProvider extends ChangeNotifier {
   String currentAddress = '';
   MapController? _mapController;
   bool _isLoading = false;
-  bool _isDisposed = false;
+  final bool _isDisposed = false;
 
   bool get isLoading => _isLoading;
   bool get isInitialized => _mapController != null;

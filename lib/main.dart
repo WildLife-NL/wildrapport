@@ -35,7 +35,7 @@ import 'package:wildrapport/managers/map/location_screen_manager.dart';
 import 'package:wildrapport/managers/login_manager.dart';
 import 'package:wildrapport/managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/overzicht_manager.dart';
-import 'package:wildrapport/managers/permission_manager.dart';
+import 'package:wildrapport/managers/permission/permission_manager.dart';
 import 'package:wildrapport/managers/belonging_damage_report_manager.dart';
 import 'package:wildrapport/managers/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -53,9 +53,9 @@ import 'package:wildrapport/screens/overzicht_screen.dart';
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
   if (token != null) {
-    return OverzichtScreen();
+    return const OverzichtScreen();
   } else {
-    return LoginScreen();
+    return const LoginScreen();
   }
 }
 
@@ -64,7 +64,7 @@ void main() async {
 
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
-  final permissionManager = PermissionManager(prefs);
+  final permissionManager = PermissionManager();
 
   await dotenv.load(fileName: ".env");
 
@@ -110,13 +110,12 @@ void main() async {
 
   final locationScreenManager = LocationScreenManager();
 
-  // Check for existing token
   final String? token = prefs.getString('bearer_token');
   prefs.setStringList('interaction_cache', []);
 
   final Widget initialScreen =
       token != null ? const OverzichtScreen() : const LoginScreen();
-  // Start the app
+
   runApp(
     MultiProvider(
       providers: [
@@ -157,31 +156,6 @@ void main() async {
       ],
       child: MyApp(
         initialScreen: initialScreen,
-        onAppStart: () async {
-          // Check if we already have permission
-          bool hasPermission = await permissionManager.isPermissionGranted(
-            PermissionType.location,
-          );
-
-          if (!hasPermission) {
-            // Get the context after the app has started
-            final context = appStateProvider.navigatorKey.currentContext;
-            if (context != null) {
-              hasPermission = await permissionManager.requestPermission(
-                context,
-                PermissionType.location,
-                showRationale: true,
-              );
-            }
-          }
-
-          if (hasPermission) {
-            await appStateProvider.updateLocationCache();
-            appStateProvider.startLocationUpdates();
-          } else {
-            debugPrint('\x1B[31m[Main] Location permission denied\x1B[0m');
-          }
-        },
       ),
     ),
   );
@@ -196,26 +170,17 @@ Future<String?> _getToken() async {
 
 class MyApp extends StatelessWidget {
   final Widget initialScreen;
-  final Future<void> Function() onAppStart;
 
   const MyApp({
     super.key,
     required this.initialScreen,
-    required this.onAppStart,
   });
 
   @override
   Widget build(BuildContext context) {
-    final appStateProvider = context.read<AppStateProvider>();
-
-    // Call onAppStart after the app has been built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      onAppStart();
-    });
-
     return _MediaQueryWrapper(
       child: MaterialApp(
-        navigatorKey: appStateProvider.navigatorKey,
+        navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'WildRapport',
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.lightMintGreen,
@@ -265,7 +230,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Separate widget for MediaQuery modifications
 class _MediaQueryWrapper extends StatelessWidget {
   final Widget child;
 
@@ -273,15 +237,11 @@ class _MediaQueryWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the screen size
     final screenSize = MediaQuery.of(context).size;
-
-    // Calculate base text scale based on screen width
     final baseTextScale = (screenSize.width / 375).clamp(0.8, 1.2);
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        // Combine device text scale with our responsive scale
         textScaler: TextScaler.linear(
           baseTextScale *
               MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),

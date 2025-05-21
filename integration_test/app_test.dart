@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -25,7 +26,7 @@ void main() {
     // Request location permission
     final permissionStatus = await Permission.location.request();
     if (!permissionStatus.isGranted) {
-      print('Warning: Location permission not granted.');
+      debugPrint('Warning: Location permission not granted.');
     }
   });
 

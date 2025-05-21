@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:wildrapport/interfaces/permission_interface.dart';
 
 class PermissionManager implements PermissionInterface {
-  final SharedPreferences _prefs;
-
-  PermissionManager(this._prefs);
+  PermissionManager();
 
   @override
   Future<bool> isPermissionGranted(PermissionType permission) async {
