@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
-import 'package:wildrapport/interfaces/api/profile_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/api_models/user.dart';

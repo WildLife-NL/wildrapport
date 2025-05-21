@@ -9,8 +9,8 @@ import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
-import 'package:wildrapport/widgets/brown_button.dart';
-import 'package:wildrapport/widgets/circle_icon_container.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/circle_icon_container.dart';
 
 class DropdownManager implements DropdownInterface {
   final FilterInterface _filterManager;

@@ -7,13 +7,13 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/widgets/bottom_app_bar.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
-import 'package:wildrapport/widgets/permission_gate.dart';
+import 'package:wildrapport/widgets/location/permission_gate.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class BelongingLocationScreen extends StatefulWidget {

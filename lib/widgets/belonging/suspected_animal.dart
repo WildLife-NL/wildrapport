@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
 import 'package:wildrapport/screens/possesion/belonging_animal_screen.dart';
-import 'package:wildrapport/widgets/white_bulk_button.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 
 class SuspectedAnimal extends StatefulWidget {
   const SuspectedAnimal({super.key});

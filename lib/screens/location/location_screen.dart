@@ -13,12 +13,12 @@ import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/animal_list_overview_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 
 class LocationScreen extends StatefulWidget {

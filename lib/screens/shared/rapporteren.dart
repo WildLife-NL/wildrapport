@@ -5,13 +5,13 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
-import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/screens/shared/category_screen.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/possesion/belonging_damages_screen.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
-import 'package:wildrapport/widgets/report_button.dart';
+import 'package:wildrapport/widgets/questionnaire/report_button.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});

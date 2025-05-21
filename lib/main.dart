@@ -11,10 +11,10 @@ import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
-import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
-import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
-import 'package:wildrapport/interfaces/api/species_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
@@ -48,7 +48,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();

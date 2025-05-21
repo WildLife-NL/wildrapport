@@ -11,7 +11,7 @@ import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import '../mock_generator.mocks.dart';
 
 void main() {

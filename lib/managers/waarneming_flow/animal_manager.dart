@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/interfaces/api/species_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 

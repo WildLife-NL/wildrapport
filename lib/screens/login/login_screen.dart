@@ -5,10 +5,10 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
-import 'package:wildrapport/widgets/brown_button.dart';
-import 'package:wildrapport/widgets/verification_code_input.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
+import 'package:wildrapport/widgets/login/verification_code_input.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
-import 'package:wildrapport/widgets/error_overlay.dart';
+import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

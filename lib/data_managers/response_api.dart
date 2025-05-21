@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/api/response_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 
 class ResponseApi implements ResponseApiInterface {
   final ApiClient client;

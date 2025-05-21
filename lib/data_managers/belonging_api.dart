@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
 import 'package:wildrapport/models/beta_models/belonging_model.dart';
 
 class BelongingApi implements BelongingApiInterface {

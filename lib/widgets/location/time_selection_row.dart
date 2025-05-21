@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/widgets/time_picker_dialog.dart';
+import 'package:wildrapport/widgets/location/time_picker_dialog.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class TimeSelectionRow extends StatefulWidget {

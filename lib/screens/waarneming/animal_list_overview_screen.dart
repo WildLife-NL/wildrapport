@@ -4,11 +4,11 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/screens/animal_counting_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import 'package:wildrapport/screens/location/location_screen.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/animal_list_table.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/animals/animal_list_table.dart';
 
 class AnimalListOverviewScreen extends StatelessWidget {
   AnimalListOverviewScreen({super.key});

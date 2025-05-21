@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
 
 class NavigationStateManager implements NavigationStateInterface {
   final List<TextEditingController> _controllers = [];

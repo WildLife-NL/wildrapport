@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
-import 'package:wildrapport/widgets/circle_icon_container.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/circle_icon_container.dart';
 
 class BrownButton extends StatelessWidget {
   final BrownButtonModel? model;

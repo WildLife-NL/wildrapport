@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import '../tests/questionnaire_flow.dart' as questionnaire_flow;
 import 'package:wildrapport/main.dart' as app;
 

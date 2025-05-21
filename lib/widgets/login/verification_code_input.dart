@@ -6,9 +6,9 @@ import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/managers/other/login_manager.dart';
-import 'package:wildrapport/widgets/brown_button.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import 'package:lottie/lottie.dart';
 
@@ -61,25 +61,13 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
 
     try {
       User response = await loginManager.verifyCode(widget.email, code);
-
       debugPrint("verified!!");
       verifiedUser = response;
 
-      // Ensure animation plays at least one full cycle
-      if (_animationController.duration != null) {
-        // Make sure animation is running
-        if (!_animationController.isAnimating) {
-          _animationController.repeat();
-        }
-        // Wait for one full cycle
-        await Future.delayed(_animationController.duration!);
-      } else {
-        // Fallback if animation duration isn't set
-        await Future.delayed(const Duration(milliseconds: 1500));
-      }
+      // Wait for at least one full animation cycle
+      await Future.delayed(const Duration(milliseconds: 1500));
 
       if (mounted && verifiedUser != null) {
-        if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const OverzichtScreen()),
           (route) => false,
@@ -193,7 +181,7 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
             controller: _animationController,
             onLoaded: (composition) {
               _animationController.duration = composition.duration;
-              _animationController.repeat(); // Add this line to make it repeat
+              _animationController.forward();
             },
           ),
         ),
@@ -265,35 +253,15 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
         const SizedBox(height: 15),
         Center(
           child: TextButton(
-            onPressed: () async {
-              debugPrint("Resend code button tapped");
-              try {
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
-                await loginManager.resendCode(widget.email);
-                if (mounted) {
-                  scaffoldMessenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Verificatiecode opnieuw verzonden'),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (mounted && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Kon code niet verzenden. Probeer het later opnieuw.',
-                      ),
-                    ),
-                  );
-                }
-              }
+            onPressed: () {
+              debugPrint("Resend code button pressed");
+              _resendCode();
             },
             child: const Text(
               'Code niet ontvangen? Stuur opnieuw',
               style: TextStyle(
-                decoration: TextDecoration.underline,
                 color: AppColors.brown,
+                decoration: TextDecoration.underline,
               ),
             ),
           ),
@@ -313,5 +281,25 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
       node.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _resendCode() async {
+    try {
+      await loginManager.resendCode(widget.email);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verificatiecode opnieuw verzonden')),
+      );
+    } catch (e) {
+      debugPrint("Error resending code: $e");
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kon code niet verzenden. Probeer het later opnieuw.'),
+        ),
+      );
+    }
   }
 }

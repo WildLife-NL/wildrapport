@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/api/species_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/models/api_models/species.dart';
 
 class SpeciesApi implements SpeciesApiInterface {

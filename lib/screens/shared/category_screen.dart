@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
-import 'package:wildrapport/widgets/bottom_app_bar.dart';
-import 'package:wildrapport/widgets/selection_button_group.dart';
-import 'package:wildrapport/screens/animals_screen.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/location/selection_button_group.dart';
+import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});

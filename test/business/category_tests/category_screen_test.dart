@@ -9,8 +9,8 @@ import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/category_screen.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:wildrapport/screens/shared/category_screen.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 import '../mock_generator.mocks.dart';
 

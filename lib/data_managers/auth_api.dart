@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/api/auth_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 
 class AuthApi implements AuthApiInterface {

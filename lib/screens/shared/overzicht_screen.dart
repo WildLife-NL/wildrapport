@@ -5,7 +5,7 @@ import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
-import 'package:wildrapport/screens/rapporteren.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class OverzichtScreen extends StatefulWidget {

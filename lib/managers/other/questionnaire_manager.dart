@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart';
 import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home.dart';

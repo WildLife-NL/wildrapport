@@ -17,16 +17,16 @@ import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i64;
 import 'package:wildrapport/interfaces/animal_interface.dart' as _i31;
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart'
     as _i32;
-import 'package:wildrapport/interfaces/api/auth_api_interface.dart' as _i13;
-import 'package:wildrapport/interfaces/api/belonging_api_interface.dart'
+import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart' as _i13;
+import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart'
     as _i15;
-import 'package:wildrapport/interfaces/api/interaction_api_interface.dart'
+import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart'
     as _i17;
-import 'package:wildrapport/interfaces/api/profile_api_interface.dart' as _i19;
-import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart'
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart' as _i19;
+import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart'
     as _i20;
-import 'package:wildrapport/interfaces/api/response_api_interface.dart' as _i21;
-import 'package:wildrapport/interfaces/api/species_api_interface.dart' as _i22;
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart' as _i21;
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart' as _i22;
 import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart'
     as _i40;
 import 'package:wildrapport/interfaces/belonging_manager_interface.dart'

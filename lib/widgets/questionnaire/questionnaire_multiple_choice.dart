@@ -6,7 +6,7 @@ import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
-import 'package:wildrapport/widgets/bottom_app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
 
 class QuestionnaireMultipleChoice extends StatefulWidget {

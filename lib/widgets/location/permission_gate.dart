@@ -8,7 +8,7 @@ class PermissionGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('[PermissionGate] Widget rendered');
-    // Since LocationScreen can only be reached after permission is granted,
+    // Keep in mind that since LocationScreen can only be reached after permission is granted,
     // we can directly return the child
     return child;
   }

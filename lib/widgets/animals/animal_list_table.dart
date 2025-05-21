@@ -9,7 +9,7 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/view_count_model.dart';
-import 'package:wildrapport/widgets/brown_button.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 
 class AnimalListTable extends StatefulWidget {
   const AnimalListTable({super.key});

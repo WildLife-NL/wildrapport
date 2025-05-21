@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 
 class QuestionaireApi implements QuestionnaireApiInterface {

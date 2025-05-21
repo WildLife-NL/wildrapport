@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/interfaces/api/species_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';

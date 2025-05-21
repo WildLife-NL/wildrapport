@@ -5,8 +5,8 @@ import 'package:wildrapport/interfaces/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/providers/response_provider.dart';
-import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/widgets/app_bar.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   final Questionnaire questionnaire;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/white_bulk_button.dart';
-import 'package:wildrapport/widgets/circle_icon_container.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/circle_icon_container.dart';
 
 class SelectionButtonGroup extends StatelessWidget {
   final Function(String) onStatusSelected;

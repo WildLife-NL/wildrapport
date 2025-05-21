@@ -12,7 +12,7 @@ import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/models/view_count_model.dart';
 
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/animal_counting_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import '../mock_generator.mocks.dart';
 
 void main() {

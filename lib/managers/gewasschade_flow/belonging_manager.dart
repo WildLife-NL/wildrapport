@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/belonging_manager_interface.dart';
 import 'package:wildrapport/models/beta_models/belonging_model.dart';
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/interaction_interface.dart';
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';

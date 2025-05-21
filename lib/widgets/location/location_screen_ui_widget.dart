@@ -17,7 +17,7 @@ import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/livinglab_map_widget.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
-import 'package:wildrapport/widgets/time_selection_row.dart';
+import 'package:wildrapport/widgets/location/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
 
