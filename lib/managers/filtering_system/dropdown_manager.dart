@@ -4,7 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
-import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';

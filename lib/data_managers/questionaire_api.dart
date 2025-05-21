@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-import 'package:wildrapport/api/api_client.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/api/questionnaire_api_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 

@@ -3,7 +3,7 @@ import 'package:mockito/mockito.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/api/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
-import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/animal_sighting_model.dart';
 import 'package:wildrapport/models/api_models/species.dart';

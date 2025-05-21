@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
-import 'package:wildrapport/managers/login_manager.dart';
+import 'package:wildrapport/managers/other/login_manager.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import '../mock_generator.mocks.dart';
 

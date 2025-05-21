@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:wildrapport/api/api_client.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/api/belonging_api_interface.dart';
 import 'package:wildrapport/models/beta_models/belonging_model.dart';
 

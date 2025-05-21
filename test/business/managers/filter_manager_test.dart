@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
-import 'package:wildrapport/managers/filter_manager.dart';
+import 'package:wildrapport/managers/filtering_system/filter_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:wildrapport/api/api_client.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/api/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/reporting/common_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';

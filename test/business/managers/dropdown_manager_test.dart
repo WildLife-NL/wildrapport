@@ -4,7 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/filter_interface.dart';
-import 'package:wildrapport/managers/dropdown_manager.dart';
+import 'package:wildrapport/managers/filtering_system/dropdown_manager.dart';
 import 'package:wildrapport/models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';

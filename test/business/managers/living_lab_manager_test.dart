@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/interfaces/living_lab_interface.dart';
-import 'package:wildrapport/managers/living_lab_manager.dart';
+import 'package:wildrapport/managers/map/living_lab_manager.dart';
 
 void main() {
   late LivingLabInterface livingLabManager;

@@ -1,7 +1,7 @@
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
-import 'package:wildrapport/managers/overzicht_manager.dart';
+import 'package:wildrapport/managers/other/overzicht_manager.dart';
 import '../mock_generator.mocks.dart';
 
 class OverzichtHelpers {

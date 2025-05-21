@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/managers/screen_state_manager.dart';
+import 'package:wildrapport/managers/state_managers/screen_state_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import '../mock_generator.mocks.dart';
 

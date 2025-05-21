@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/managers/animal_manager.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import '../helpers/animal_helpers.dart';

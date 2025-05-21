@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wildrapport/managers/questionnaire_manager.dart';
+import 'package:wildrapport/managers/other/questionnaire_manager.dart';
 import 'package:wildrapport/models/api_models/experiment.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';

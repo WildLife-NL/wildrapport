@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/models/animal_model.dart';
 import 'package:wildrapport/models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';

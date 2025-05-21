@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wildrapport/api/auth_api.dart';
-import 'package:wildrapport/api/profile_api.dart';
+import 'package:wildrapport/data_managers/auth_api.dart';
+import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
-import 'package:wildrapport/managers/login_manager.dart';
+import 'package:wildrapport/managers/other/login_manager.dart';
 import 'package:wildrapport/widgets/brown_button.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import 'package:lottie/lottie.dart';

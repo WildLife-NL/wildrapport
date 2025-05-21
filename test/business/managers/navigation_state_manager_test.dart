@@ -4,7 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/managers/navigation_state_manager.dart';
+import 'package:wildrapport/managers/state_managers/navigation_state_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import '../mock_generator.mocks.dart';
 

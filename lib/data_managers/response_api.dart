@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 
-import 'package:wildrapport/api/api_client.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/api/response_api_interface.dart';
 
 class ResponseApi implements ResponseApiInterface {
