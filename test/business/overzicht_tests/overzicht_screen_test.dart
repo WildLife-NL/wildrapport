@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/api/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/overzicht_interface.dart';
+import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/overzicht_screen.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
@@ -15,6 +17,8 @@ void main() {
   late MockNavigationStateInterface mockNavigationManager;
   late MockOverzichtInterface mockOverzichtManager;
   late MockProfileApiInterface mockProfileApi;
+  late MockPermissionInterface mockPermissionInterface;
+  late MockAppStateProvider mockAppStateProvider;
 
   setUpAll(() async {
     // Setup environment for all tests
@@ -25,12 +29,24 @@ void main() {
     mockNavigationManager = OverzichtHelpers.getMockNavigationManager();
     mockOverzichtManager = OverzichtHelpers.getMockOverzichtManager();
     mockProfileApi = MockProfileApiInterface();
+    mockPermissionInterface = MockPermissionInterface();
+    mockAppStateProvider = MockAppStateProvider();
     
     // Setup successful navigation by default
     OverzichtHelpers.setupSuccessfulNavigation(mockNavigationManager);
     
     // Setup user data loading by default
     OverzichtHelpers.setupUserDataLoading(mockOverzichtManager, mockProfileApi);
+    
+    // Setup permission checks to return true by default
+    when(mockPermissionInterface.isPermissionGranted(any))
+        .thenAnswer((_) async => true);
+    when(mockPermissionInterface.requestPermission(any, any, showRationale: anyNamed('showRationale')))
+        .thenAnswer((_) async => true);
+    
+    // Setup AppStateProvider methods that might be called
+    when(mockAppStateProvider.getScreenState<dynamic>(any, any)).thenReturn(null);
+    when(mockAppStateProvider.setScreenState(any, any, any)).thenReturn(null);
   });
 
   Widget createOverzichtScreen() {
@@ -39,6 +55,8 @@ void main() {
         Provider<NavigationStateInterface>.value(value: mockNavigationManager),
         Provider<OverzichtInterface>.value(value: mockOverzichtManager),
         Provider<ProfileApiInterface>.value(value: mockProfileApi),
+        Provider<PermissionInterface>.value(value: mockPermissionInterface),
+        ChangeNotifierProvider<AppStateProvider>.value(value: mockAppStateProvider),
       ],
       child: const MaterialApp(
         home: OverzichtScreen(),
@@ -117,4 +135,7 @@ void main() {
     });
   });
 }
+
+
+
 

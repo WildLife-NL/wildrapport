@@ -5,6 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/login_interface.dart';
 import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/widgets/error_overlay.dart' show ErrorOverlay;
 import 'package:wildrapport/widgets/verification_code_input.dart';
@@ -13,6 +14,7 @@ import '../mock_generator.mocks.dart';
 void main() {
   late MockLoginInterface mockLoginInterface;
   late MockPermissionInterface mockPermissionInterface;
+  late MockAppStateProvider mockAppStateProvider;
 
   setUpAll(() async {
     // ✅ Load environment variables for widget tests
@@ -22,6 +24,16 @@ void main() {
   setUp(() {
     mockLoginInterface = MockLoginInterface();
     mockPermissionInterface = MockPermissionInterface();
+    mockAppStateProvider = MockAppStateProvider();
+    
+    // Add stub for isPermissionGranted method
+    when(mockPermissionInterface.isPermissionGranted(any)).thenAnswer((_) async => true);
+    
+    // Setup necessary methods on the AppStateProvider mock
+    when(mockAppStateProvider.updateLocationCache()).thenAnswer((_) async => null);
+    when(mockAppStateProvider.startLocationUpdates()).thenReturn(null);
+    when(mockAppStateProvider.getScreenState<dynamic>(any, any)).thenReturn(null);
+    when(mockAppStateProvider.setScreenState(any, any, any)).thenReturn(null);
   });
 
   Widget createLoginScreen() {
@@ -29,6 +41,7 @@ void main() {
       providers: [
         Provider<LoginInterface>.value(value: mockLoginInterface),
         Provider<PermissionInterface>.value(value: mockPermissionInterface),
+        ChangeNotifierProvider<AppStateProvider>.value(value: mockAppStateProvider),
       ],
       child: const MaterialApp(
         home: LoginScreen(),
@@ -53,7 +66,7 @@ void main() {
     await tester.enterText(find.byType(TextField), 'invalid-email');
     await tester.tap(find.text('Login'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300)); // Wait for dialog
+    await tester.pumpAndSettle(); // Wait for dialog
 
     // Verify error dialog is shown
     expect(find.text('Ongeldig e-mailadres'), findsOneWidget);
@@ -85,7 +98,7 @@ void main() {
     await tester.tap(find.text('Login'));
     
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300)); // Wait for verification screen
+    await tester.pumpAndSettle(); // Wait for verification screen
 
     // Instead of looking for "Verificatiecode" text, check if the verification widget is shown
     // This is more reliable as it doesn't depend on the exact text
@@ -103,7 +116,7 @@ void main() {
     await tester.tap(find.text('Login'));
     
     await tester.pump();
-    await tester.pump(const Duration(seconds: 1)); // Wait for API call to complete
+    await tester.pumpAndSettle(); // Wait for API call to complete
 
     // Verify error dialog is shown
     expect(find.text('Login mislukt. Probeer het later opnieuw.'), findsOneWidget);
@@ -131,7 +144,7 @@ void main() {
     expect(find.byType(VerificationCodeInput), findsOneWidget);
     
     // Pump again to process the exception and UI update
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
     
     // After the exception, we should be back to the login screen
     expect(find.byType(TextField), findsOneWidget);
@@ -163,7 +176,7 @@ void main() {
     expect(find.byType(VerificationCodeInput), findsOneWidget);
     
     // Pump again to process the exception
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
     
     // Now verify that either:
     // 1. We're back to the login screen (if error handling works correctly)
@@ -181,9 +194,6 @@ void main() {
     }
   });
 }
-
-
-
 
 
 

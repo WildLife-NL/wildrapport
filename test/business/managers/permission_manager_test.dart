@@ -8,8 +8,9 @@ import '../mock_generator.mocks.dart';
 
 // Create a testable version of PermissionManager
 class TestablePermissionManager extends PermissionManager {
-  TestablePermissionManager(super.prefs);
+  TestablePermissionManager(this.mockPrefs);
   
+  final SharedPreferences mockPrefs;
   bool mockPermissionGranted = false;
   
   @override
@@ -154,3 +155,4 @@ void main() {
 
 // Mock BuildContext for testing
 class MockBuildContext extends Mock implements BuildContext {}
+
