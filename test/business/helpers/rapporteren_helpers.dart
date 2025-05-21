@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import '../mock_generator.mocks.dart';
 
 class RapporterenHelpers {

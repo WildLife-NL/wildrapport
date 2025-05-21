@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
-import 'package:wildrapport/interfaces/interaction_interface.dart';
-import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
+import 'package:wildrapport/interfaces/reporting/interaction_interface.dart';
+import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/models/beta_models/belonging_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';

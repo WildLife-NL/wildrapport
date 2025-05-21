@@ -1,4 +1,4 @@
-import '../models/beta_models/response_model.dart';
+import '../../models/beta_models/response_model.dart';
 
 abstract class ResponseInterface {
   Future<void> storeResponse(

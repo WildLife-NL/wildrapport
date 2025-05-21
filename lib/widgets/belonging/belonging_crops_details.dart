@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart';
+import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/belonging/belonging_dropdown.dart';
 

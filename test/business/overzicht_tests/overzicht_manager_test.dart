@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wildrapport/interfaces/overzicht_interface.dart';
+import 'package:wildrapport/interfaces/other/overzicht_interface.dart';
 import '../helpers/overzicht_helpers.dart';
 import '../mock_generator.mocks.dart';
 import 'package:shared_preferences/shared_preferences.dart';

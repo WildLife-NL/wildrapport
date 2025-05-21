@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_sighting_reporting_manager.dart';
-import 'package:wildrapport/models/animal_model.dart';
-import 'package:wildrapport/models/date_time_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
+import 'package:wildrapport/models/ui_models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
-import 'package:wildrapport/models/location_model.dart';
+import 'package:wildrapport/models/beta_models/location_model.dart';
 
 class _CustomMockAnimalManager implements AnimalManagerInterface {
   final AnimalModel animalToReturn;

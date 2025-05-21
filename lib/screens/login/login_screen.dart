@@ -7,7 +7,7 @@ import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 import 'package:wildrapport/widgets/login/verification_code_input.dart';
-import 'package:wildrapport/interfaces/login_interface.dart';
+import 'package:wildrapport/interfaces/other/login_interface.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 
 class LoginScreen extends StatefulWidget {

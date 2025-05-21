@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wildrapport/exceptions/validation_exception.dart';
-import 'package:wildrapport/interfaces/login_interface.dart';
+import 'package:wildrapport/interfaces/other/login_interface.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import '../helpers/login_helpers.dart';
 import '../mock_generator.mocks.dart';

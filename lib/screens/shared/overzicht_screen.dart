@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';

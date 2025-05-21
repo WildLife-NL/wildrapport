@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:provider/provider.dart';
 

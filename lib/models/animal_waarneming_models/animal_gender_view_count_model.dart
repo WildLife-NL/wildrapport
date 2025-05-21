@@ -1,4 +1,4 @@
-import 'package:wildrapport/models/view_count_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 
 class AnimalGenderViewCount {

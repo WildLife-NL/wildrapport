@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/interfaces/questionnaire_interface.dart';
-import 'package:wildrapport/interfaces/response_interface.dart';
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
+import 'package:wildrapport/interfaces/reporting/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';

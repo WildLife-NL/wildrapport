@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/interfaces/dropdown_interface.dart';
-import 'package:wildrapport/interfaces/filter_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
+import 'package:wildrapport/interfaces/filters/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
-import 'package:wildrapport/models/brown_button_model.dart';
+import 'package:wildrapport/models/ui_models/brown_button_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/location_type.dart';

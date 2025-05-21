@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/managers/permission/permission_manager.dart';
 import '../mock_generator.mocks.dart';
 

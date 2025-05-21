@@ -1,4 +1,4 @@
-import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 
 class AnimalSightingConvertor {
   /// Converts an AnimalSightingModel to the format required by the API

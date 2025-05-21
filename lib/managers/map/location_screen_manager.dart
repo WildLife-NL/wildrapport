@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wildrapport/interfaces/location_screen_interface.dart';
+import 'package:wildrapport/interfaces/location/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/enums/location_type.dart';

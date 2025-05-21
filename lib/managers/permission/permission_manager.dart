@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:wildrapport/interfaces/permission_interface.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 
 class PermissionManager implements PermissionInterface {
   PermissionManager();

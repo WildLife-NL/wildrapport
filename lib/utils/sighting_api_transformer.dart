@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/models/animal_sighting_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/beta_models/sighted_animal_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'dart:convert';

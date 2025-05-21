@@ -14,8 +14,8 @@ import 'package:latlong2/latlong.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i25;
 import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i64;
-import 'package:wildrapport/interfaces/animal_interface.dart' as _i31;
-import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart'
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart' as _i31;
+import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
     as _i32;
 import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart' as _i13;
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart'
@@ -27,35 +27,35 @@ import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dar
     as _i20;
 import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart' as _i21;
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart' as _i22;
-import 'package:wildrapport/interfaces/belonging_damage_report_interface.dart'
+import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart'
     as _i40;
-import 'package:wildrapport/interfaces/belonging_manager_interface.dart'
+import 'package:wildrapport/interfaces/other/belonging_manager_interface.dart'
     as _i42;
-import 'package:wildrapport/interfaces/dropdown_interface.dart' as _i43;
-import 'package:wildrapport/interfaces/edit_state_interface.dart' as _i45;
-import 'package:wildrapport/interfaces/filter_interface.dart' as _i46;
-import 'package:wildrapport/interfaces/interaction_interface.dart' as _i48;
-import 'package:wildrapport/interfaces/living_lab_interface.dart' as _i50;
-import 'package:wildrapport/interfaces/location_screen_interface.dart' as _i52;
-import 'package:wildrapport/interfaces/login_interface.dart' as _i53;
+import 'package:wildrapport/interfaces/filters/dropdown_interface.dart' as _i43;
+import 'package:wildrapport/interfaces/state/edit_state_interface.dart' as _i45;
+import 'package:wildrapport/interfaces/filters/filter_interface.dart' as _i46;
+import 'package:wildrapport/interfaces/reporting/interaction_interface.dart' as _i48;
+import 'package:wildrapport/interfaces/location/living_lab_interface.dart' as _i50;
+import 'package:wildrapport/interfaces/location/location_screen_interface.dart' as _i52;
+import 'package:wildrapport/interfaces/other/login_interface.dart' as _i53;
 import 'package:wildrapport/interfaces/map/location_service_interface.dart'
     as _i23;
 import 'package:wildrapport/interfaces/map/map_service_interface.dart' as _i26;
 import 'package:wildrapport/interfaces/map/map_state_interface.dart' as _i27;
-import 'package:wildrapport/interfaces/navigation_state_interface.dart' as _i54;
-import 'package:wildrapport/interfaces/overzicht_interface.dart' as _i55;
-import 'package:wildrapport/interfaces/permission_interface.dart' as _i56;
-import 'package:wildrapport/interfaces/questionnaire_interface.dart' as _i57;
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart' as _i54;
+import 'package:wildrapport/interfaces/other/overzicht_interface.dart' as _i55;
+import 'package:wildrapport/interfaces/other/permission_interface.dart' as _i56;
+import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart' as _i57;
 import 'package:wildrapport/interfaces/reporting/common_report_fields.dart'
     as _i28;
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart'
     as _i29;
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart'
     as _i30;
-import 'package:wildrapport/interfaces/response_interface.dart' as _i58;
-import 'package:wildrapport/interfaces/screen_state_interface.dart' as _i60;
-import 'package:wildrapport/models/animal_model.dart' as _i11;
-import 'package:wildrapport/models/animal_sighting_model.dart' as _i8;
+import 'package:wildrapport/interfaces/reporting/response_interface.dart' as _i58;
+import 'package:wildrapport/interfaces/state/screen_state_interface.dart' as _i60;
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart' as _i11;
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart' as _i8;
 import 'package:wildrapport/models/api_models/questionaire.dart' as _i4;
 import 'package:wildrapport/models/api_models/species.dart' as _i5;
 import 'package:wildrapport/models/api_models/user.dart' as _i2;
@@ -67,17 +67,17 @@ import 'package:wildrapport/models/beta_models/possesion_model.dart' as _i7;
 import 'package:wildrapport/models/beta_models/report_location_model.dart'
     as _i41;
 import 'package:wildrapport/models/beta_models/response_model.dart' as _i59;
-import 'package:wildrapport/models/brown_button_model.dart' as _i47;
-import 'package:wildrapport/models/date_time_model.dart' as _i39;
+import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i47;
+import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i39;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i34;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i36;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i33;
 import 'package:wildrapport/models/enums/dropdown_type.dart' as _i44;
 import 'package:wildrapport/models/enums/interaction_type.dart' as _i49;
 import 'package:wildrapport/models/enums/report_type.dart' as _i62;
-import 'package:wildrapport/models/living_lab_area.dart' as _i51;
-import 'package:wildrapport/models/location_model.dart' as _i38;
-import 'package:wildrapport/models/view_count_model.dart' as _i35;
+import 'package:wildrapport/models/ui_models/living_lab_area.dart' as _i51;
+import 'package:wildrapport/models/beta_models/location_model.dart' as _i38;
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart' as _i35;
 import 'package:wildrapport/providers/app_state_provider.dart' as _i61;
 import 'package:wildrapport/providers/map_provider.dart' as _i63;
 

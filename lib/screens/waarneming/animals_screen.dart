@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/animal_interface.dart';
-import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/dropdown_interface.dart';
-import 'package:wildrapport/interfaces/navigation_state_interface.dart';
-import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
+import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/interfaces/filters/dropdown_interface.dart';
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/enums/dropdown_type.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import 'package:wildrapport/screens/shared/category_screen.dart';

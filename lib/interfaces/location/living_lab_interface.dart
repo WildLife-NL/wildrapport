@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:wildrapport/models/living_lab_area.dart';
+import 'package:wildrapport/models/ui_models/living_lab_area.dart';
 
 abstract class LivingLabInterface {
   List<LivingLabArea> getAllLivingLabs();

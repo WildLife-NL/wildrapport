@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/models/animal_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalTile extends StatelessWidget {
