@@ -26,12 +26,12 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   bool _isExpanded = false;
   List<AnimalModel> _animals = [];
   bool _isLoading = true;
+  String? _pendingSnackBarMessage;
 
   @override
   void initState() {
     super.initState();
-    _belongingDamageReportProvider =
-        context.read<BelongingDamageReportProvider>();
+    _belongingDamageReportProvider = context.read<BelongingDamageReportProvider>();
     _loadAnimals();
   }
 
@@ -68,6 +68,18 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
     });
   }
 
+  void _handlePendingSnackBar() {
+    if (_pendingSnackBarMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_pendingSnackBarMessage!),
+          backgroundColor: Colors.red,
+        ),
+      );
+      _pendingSnackBarMessage = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dropdownInterface = context.read<DropdownInterface>();
@@ -91,8 +103,7 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
               padding: const EdgeInsets.all(20.0),
               child: dropdownInterface.buildDropdown(
                 type: DropdownType.filter,
-                selectedValue:
-                    context.read<AnimalManagerInterface>().getSelectedFilter(),
+                selectedValue: context.read<AnimalManagerInterface>().getSelectedFilter(),
                 isExpanded: _isExpanded,
                 onExpandChanged: (_) => _toggleExpanded(),
                 onOptionSelected: (value) {
@@ -109,62 +120,36 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
               onAnimalSelected: (AnimalModel selectedAnimal) async {
                 debugPrint('[BelongingAnimalScreen] Next button pressed');
                 final permissionManager = context.read<PermissionInterface>();
-                final navigationManager =
-                    context.read<NavigationStateInterface>();
+                final navigationManager = context.read<NavigationStateInterface>();
 
                 // Check if location permission is already granted
-                final hasPermission = await permissionManager
-                    .isPermissionGranted(PermissionType.location);
-                debugPrint(
-                  '[BelongingAnimalScreen] Location permission status: $hasPermission',
-                );
+                final hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
+                debugPrint('[BelongingAnimalScreen] Location permission status: $hasPermission');
 
                 if (!hasPermission) {
-                  debugPrint(
-                    '[BelongingAnimalScreen] Requesting location permission',
-                  );
-                  // Request permission if not granted
-                  final permissionGranted = await permissionManager
-                      .requestPermission(
-                        context,
-                        PermissionType.location,
-                        showRationale: true, // Explicitly show rationale
-                      );
-                  debugPrint(
-                    '[BelongingAnimalScreen] Permission request result: $permissionGranted',
-                  );
-                  if (!permissionGranted) {
-                    debugPrint(
-                      '[BelongingAnimalScreen] Permission denied, showing error',
+                  debugPrint('[BelongingAnimalScreen] Requesting location permission');
+                  bool permissionGranted = false;
+                  if (context.mounted) {
+                    permissionGranted = await permissionManager.requestPermission(
+                      context,
+                      PermissionType.location,
+                      showRationale: true,
                     );
-                    // If permission denied, show error message and stay on current screen
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Locatie toegang is nodig om door te gaan',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
+                  }
+                  debugPrint('[BelongingAnimalScreen] Permission request result: $permissionGranted');
+                  if (!permissionGranted) {
+                    debugPrint('[BelongingAnimalScreen] Permission denied, setting pending snackbar');
+                    _pendingSnackBarMessage = 'Locatie toegang is nodig om door te gaan';
+                    WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingSnackBar());
                     return;
                   }
                 }
                 // Navigate to LocationScreen if permission is granted
-                debugPrint(
-                  '[BelongingAnimalScreen] Navigating to LocationScreen',
-                );
+                debugPrint('[BelongingAnimalScreen] Navigating to LocationScreen');
+                debugPrint('[BelongingAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
+                debugPrint('[BelongingAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}');
+                _belongingDamageReportProvider.setSuspectedAnimal(selectedAnimal.animalId!);
                 if (context.mounted) {
-                  debugPrint(
-                    '[BelongingAnimalScreen] Selected animal name: ${selectedAnimal.animalName}',
-                  );
-                  debugPrint(
-                    '[BelongingAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}',
-                  );
-                  _belongingDamageReportProvider.setSuspectedAnimal(
-                    selectedAnimal.animalId!,
-                  );
                   navigationManager.pushReplacementForward(
                     context,
                     const BelongingLocationScreen(),

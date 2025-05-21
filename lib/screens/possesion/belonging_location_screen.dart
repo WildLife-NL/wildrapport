@@ -20,8 +20,7 @@ class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
 
   @override
-  State<BelongingLocationScreen> createState() =>
-      _BelongingLocationScreenState();
+  State<BelongingLocationScreen> createState() => _BelongingLocationScreenState();
 }
 
 class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
@@ -34,25 +33,22 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   late final BelongingDamageReportProvider belongingProvider;
   late final MapProvider mapProvider;
   bool _isInitialized = false;
+  String? _pendingSnackBarMessage;
+  Widget? _pendingNavigationScreen;
 
-  NavigationStateInterface get navigationManager =>
-      context.read<NavigationStateInterface>();
+  NavigationStateInterface get navigationManager => context.read<NavigationStateInterface>();
 
   @override
   void initState() {
     super.initState();
-    debugPrint(
-      "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
-    );
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m");
     _initializeScreen();
   }
 
   Future<void> _initializeScreen() async {
     if (!mounted) return;
 
-    debugPrint(
-      "$yellowLog[BelongingLocationScreen] 🔄 Initializing screen\x1B[0m",
-    );
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing screen\x1B[0m");
 
     try {
       _belongingManager = context.read<BelongingDamageReportInterface>();
@@ -60,64 +56,74 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
       mapProvider = context.read<MapProvider>();
 
       if (!mapProvider.isInitialized) {
-        debugPrint(
-          "$yellowLog[BelongingLocationScreen] 🔄 Initializing map provider\x1B[0m",
-        );
+        debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Initializing map provider\x1B[0m");
         await mapProvider.initialize();
       } else {
-        debugPrint(
-          "$greenLog[BelongingLocationScreen] ✅ Map provider already initialized\x1B[0m",
-        );
+        debugPrint("$greenLog[BelongingLocationScreen] ✅ Map provider already initialized\x1B[0m");
       }
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
-        debugPrint(
-          "$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m",
-        );
+        debugPrint("$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m");
       }
     } catch (e) {
-      debugPrint(
-        "$redLog[BelongingLocationScreen] ❌ Error initializing screen: $e\x1B[0m",
-      );
+      debugPrint("$redLog[BelongingLocationScreen] ❌ Error initializing screen: $e\x1B[0m");
     }
   }
 
+  void _handlePendingActions() {
+    if (_pendingSnackBarMessage != null) {
+      SnackBarWithProgressBar.show(
+        context: context,
+        message: _pendingSnackBarMessage!,
+        duration: const Duration(seconds: 3),
+      );
+    }
+    if (_pendingNavigationScreen != null) {
+      navigationManager.pushReplacementForward(context, _pendingNavigationScreen!);
+    }
+    _pendingSnackBarMessage = null;
+    _pendingNavigationScreen = null;
+  }
+
   void _handleNextPressed() async {
-    debugPrint(
-      "$yellowLog[BelongingLocationScreen] 🔄 Next button pressed\x1B[0m",
-    );
+    debugPrint("$yellowLog[BelongingLocationScreen] 🔄 Next button pressed\x1B[0m");
+
+    // Cache providers before async calls
+    final mapProvider = context.read<MapProvider>();
+    final locationManager = context.read<LocationScreenInterface>();
+    final belongingManager = _belongingManager;
 
     // Force reinitialize map provider if needed
     if (!_isInitialized) {
       await _initializeScreen();
       if (!_isInitialized) {
+        _pendingSnackBarMessage = 'Scherm niet geïnitialiseerd';
+        WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
         return;
       }
     }
 
-    // Reset map provider state
-    final mapProvider = context.read<MapProvider>();
+    // Fetch location
+    Map<String, dynamic>? locationInfo;
+    if (context.mounted) {
+      locationInfo = await locationManager.getLocationAndDateTime(context);
+    } else {
+      _pendingSnackBarMessage = 'Scherm niet langer beschikbaar';
+      WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
+      return;
+    }
 
-    final locationManager = context.read<LocationScreenInterface>();
-    final locationInfo = await locationManager.getLocationAndDateTime(context);
-
-    debugPrint(
-      "\n$blueLog[BelongingLocationScreen] 📍 Location and DateTime Info:\x1B[0m",
-    );
-    debugPrint(
-      "$blueLog[BelongingLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m",
-    );
-    debugPrint(
-      "$blueLog[BelongingLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m",
-    );
+    debugPrint("\n$blueLog[BelongingLocationScreen] 📍 Location and DateTime Info:\x1B[0m");
+    debugPrint("$blueLog[BelongingLocationScreen] Current GPS Location: ${locationInfo['currentGpsLocation']}\x1B[0m");
+    debugPrint("$blueLog[BelongingLocationScreen] Selected Location: ${locationInfo['selectedLocation']}\x1B[0m");
 
     if (locationInfo['selectedLocation'] == null) {
-      debugPrint(
-        "$redLog[BelongingLocationScreen] ⚠️ No selected location found\x1B[0m",
-      );
+      debugPrint("$redLog[BelongingLocationScreen] ⚠️ No selected location found\x1B[0m");
+      _pendingSnackBarMessage = 'Selecteer een locatie';
+      WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
       return;
     }
 
@@ -128,10 +134,8 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         latitude: selectedLocation['latitude'],
         longtitude: selectedLocation['longitude'],
       );
-      _belongingManager.updateUserLocation(reportLocation);
-      debugPrint(
-        "$greenLog[BelongingLocationScreen] ✅ Updated user location\x1B[0m",
-      );
+      belongingManager.updateUserLocation(reportLocation);
+      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated user location\x1B[0m");
     }
 
     if (locationInfo['currentGpsLocation'] != null) {
@@ -140,35 +144,26 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         latitude: currentLocation['latitude'],
         longtitude: currentLocation['longitude'],
       );
-      _belongingManager.updateSystemLocation(systemLocation);
-      debugPrint(
-        "$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m",
-      );
+      belongingManager.updateSystemLocation(systemLocation);
+      debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m");
     }
 
-    InteractionResponse? interactionResponseModel =
-        await _belongingManager.postInteraction();
+    InteractionResponse? interactionResponseModel = await belongingManager.postInteraction();
 
-    if (mounted) {
-      SnackBarWithProgressBar.show(
-        context: context,
-        message: (interactionResponseModel == null) 
-          ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel" 
-          : "interactie succesvol verstuurd",
-        duration: const Duration(seconds: 3),
-      );
-      await Future.delayed(const Duration(seconds: 3));
+    _pendingSnackBarMessage = interactionResponseModel == null
+        ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel"
+        : "interactie succesvol verstuurd";
+    _pendingNavigationScreen = interactionResponseModel != null
+        ? QuestionnaireScreen(
+            questionnaire: interactionResponseModel.questionnaire,
+            interactionID: interactionResponseModel.interactionID,
+          )
+        : const OverzichtScreen();
 
-      navigationManager.pushReplacementForward(
-        context,
-        interactionResponseModel != null
-            ? QuestionnaireScreen(
-              questionnaire: interactionResponseModel.questionnaire,
-              interactionID: interactionResponseModel.interactionID,
-            )
-            : OverzichtScreen(),
-      );
-    }
+    // Delay to match snackbar duration
+    await Future.delayed(const Duration(seconds: 3));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
+
     mapProvider.resetState();
   }
 
@@ -184,31 +179,29 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 centerText: 'Locatie',
                 rightIcon: Icons.menu,
                 onLeftIconPressed: () {
-                    belongingProvider.clearStateOfValues();
-                    navigationManager.pushReplacementForward(
-                      context,
-                      const Rapporteren(),
-                    );
-                  },
+                  belongingProvider.clearStateOfValues();
+                  navigationManager.pushReplacementForward(
+                    context,
+                    const Rapporteren(),
+                  );
+                },
                 onRightIconPressed: () {
                   /* Handle menu */
                 },
               ),
               Expanded(
-                child:
-                    _isInitialized
-                        ? const LocationScreenUIWidget()
-                        : const Center(child: CircularProgressIndicator()),
+                child: _isInitialized
+                    ? const LocationScreenUIWidget()
+                    : const Center(child: CircularProgressIndicator()),
               ),
             ],
           ),
         ),
         bottomNavigationBar: CustomBottomAppBar(
-          onBackPressed:
-              () => navigationManager.pushReplacementBack(
-                context,
-                const Rapporteren(),
-              ),
+          onBackPressed: () => navigationManager.pushReplacementBack(
+            context,
+            const Rapporteren(),
+          ),
           onNextPressed: _handleNextPressed,
           showNextButton: true,
           showBackButton: true,
