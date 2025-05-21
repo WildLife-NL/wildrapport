@@ -19,7 +19,7 @@ class LivingLabMapScreen extends StatefulWidget {
   final double boundaryOffset;
   final LocationMapManager? locationService; // For testing
   final LocationMapManager? mapService; // For testing
-  final bool isFromPossession; // Add this parameter
+  final bool isFromPossession;
 
   const LivingLabMapScreen({
     super.key,
@@ -28,7 +28,7 @@ class LivingLabMapScreen extends StatefulWidget {
     this.boundaryOffset = 0.018,
     this.locationService,
     this.mapService,
-    this.isFromPossession = false, // Default to false
+    this.isFromPossession = false,
   });
 
   @override
@@ -58,7 +58,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   String _markedAddress = '';
   bool _isLoading = true;
   bool _isSatelliteView = false;
-  bool _isDisposed = false;
+  bool _shouldNavigate = false;
+  String? _navigateToScreen;
 
   @override
   void initState() {
@@ -66,7 +67,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     debugPrint('[LivingLabMapScreen] Initializing screen');
     _initializeServices();
     _initializeBoundaries();
-    // Move this to initState directly instead of using post-frame callback
     _quickLocationCheck();
   }
 
@@ -101,12 +101,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     _mapProvider.mapController.move(widget.labCenter, 15);
   }
 
-  // Update this method to avoid setState during build
   Future<void> _quickLocationCheck() async {
-    if (_isDisposed) return;
     _isLoading = true;
 
-    // Try cached location first
     final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
       debugPrint(
@@ -116,9 +113,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       return;
     }
 
-    // Fall back to last known position
     final lastPosition = await Geolocator.getLastKnownPosition();
-    if (_isDisposed || !mounted) return;
+    if (!mounted) return;
 
     if (lastPosition != null) {
       await _handleUserLocation(lastPosition, animate: false);
@@ -153,8 +149,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   @override
   void dispose() {
-    // Remove disposal logic
-    // _mapProvider.dispose(); // Remove this line
     super.dispose();
   }
 
@@ -162,22 +156,21 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     Position position, {
     bool animate = true,
   }) async {
-    if (_isDisposed) return;
-
-    bool isInBounds =
-        position.latitude >= minLat &&
+    bool isInBounds = position.latitude >= minLat &&
         position.latitude <= maxLat &&
         position.longitude >= minLng &&
         position.longitude <= maxLng;
 
-    setState(() {
-      _isLoading = false;
-      _currentPosition = position;
-      _markedLocation = null;
-      _markedAddress = '';
-      _currentAddress =
-          isInBounds ? 'Fetching address...' : 'Buiten het onderzoeksgebied';
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _currentPosition = position;
+        _markedLocation = null;
+        _markedAddress = '';
+        _currentAddress =
+            isInBounds ? 'Fetching address...' : 'Buiten het onderzoeksgebied';
+      });
+    }
 
     if (isInBounds && animate) {
       _mapProvider.mapController.move(
@@ -189,14 +182,11 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     }
 
     if (isInBounds) {
-      _updateAddress(position);
+      await _updateAddress(position);
     }
   }
 
   Future<void> _initLocation() async {
-    if (_isDisposed) return;
-
-    // Try to use cached location first
     final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
       debugPrint(
@@ -214,7 +204,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         ),
       );
 
-      if (_isDisposed || !mounted) return;
+      if (!mounted) return;
 
       await _handleUserLocation(position, animate: false);
     } catch (e) {
@@ -224,8 +214,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   }
 
   Future<void> _getReducedAccuracyLocation() async {
-    if (_isDisposed) return;
-
     try {
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
@@ -233,7 +221,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         ),
       );
 
-      if (_isDisposed || !mounted) return;
+      if (!mounted) return;
 
       await _handleUserLocation(position, animate: false);
     } catch (e) {
@@ -248,10 +236,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   }
 
   Future<void> _updateAddress(Position position) async {
-    if (_isDisposed) return;
-
     final address = await _locationService.getAddressFromPosition(position);
-    if (_isDisposed || !mounted) return;
+    if (!mounted) return;
 
     setState(() {
       _currentAddress = address;
@@ -259,8 +245,6 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
   }
 
   Future<void> _handleTap(TapPosition tapPosition, LatLng point) async {
-    if (_isDisposed) return;
-
     if (point.latitude >= minLat &&
         point.latitude <= maxLat &&
         point.longitude >= minLng &&
@@ -275,7 +259,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
       try {
         final address = await _mapService.getAddressFromLatLng(point);
-        if (_isDisposed || !mounted) return;
+        if (!mounted) return;
 
         setState(() {
           _markedAddress = address;
@@ -293,6 +277,37 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_shouldNavigate) {
+      debugPrint(
+        '[LivingLabMapScreen] Handling navigation in build: _navigateToScreen= $_navigateToScreen',
+      );
+      final navTarget = _navigateToScreen;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final navigationManager = context.read<NavigationStateInterface>();
+          if (navTarget == 'possession') {
+            debugPrint(
+              '[LivingLabMapScreen] Navigating to BelongingLocationScreen',
+            );
+            navigationManager.pushReplacementBack(
+              context,
+              const BelongingLocationScreen(),
+            );
+          } else if(navTarget == 'location') {
+            debugPrint(
+              '[LivingLabMapScreen] Navigating to LocationScreen',
+            );
+            navigationManager.pushReplacementBack(
+              context,
+              const LocationScreen(),
+            );
+          }
+        }
+      });
+      _shouldNavigate = false;
+      _navigateToScreen = null;
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Consumer<MapProvider>(
@@ -329,9 +344,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          _isSatelliteView
-                              ? _satelliteTileUrl
-                              : _standardTileUrl,
+                          _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
                       userAgentPackageName: 'com.wildrapport.app',
                     ),
                     PolygonLayer(
@@ -352,25 +365,20 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   left: 16,
                   right: 16,
                   child: LocationDataCard(
-                    cityName:
-                        _markedLocation != null
-                            ? _getLocationCity(_markedAddress)
-                            : _getLocationCity(_currentAddress),
-                    streetName:
-                        _markedLocation != null
-                            ? _getLocationStreet(_markedAddress)
-                            : _getLocationStreet(_currentAddress),
-                    houseNumber:
-                        _markedLocation != null
-                            ? _getLocationHouseNumber(_markedAddress)
-                            : _getLocationHouseNumber(_currentAddress),
+                    cityName: _markedLocation != null
+                        ? _getLocationCity(_markedAddress)
+                        : _getLocationCity(_currentAddress),
+                    streetName: _markedLocation != null
+                        ? _getLocationStreet(_markedAddress)
+                        : _getLocationStreet(_currentAddress),
+                    houseNumber: _markedLocation != null
+                        ? _getLocationHouseNumber(_markedAddress)
+                        : _getLocationHouseNumber(_currentAddress),
                     isLoading: _isLoading,
                     isCurrentLocation: _markedLocation == null,
-                    latitude:
-                        _markedLocation?.latitude ?? _currentPosition?.latitude,
+                    latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
                     longitude:
-                        _markedLocation?.longitude ??
-                        _currentPosition?.longitude,
+                        _markedLocation?.longitude ?? _currentPosition?.longitude,
                   ),
                 ),
                 if (_isLoading)
@@ -436,63 +444,52 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                 _buildNavButton(
                   icon: Icons.check_circle,
                   label: 'Bevestig',
-                  onPressed:
-                      _markedLocation != null
-                          ? () async {
-                            // Add explicit debug logging
+                  onPressed: _markedLocation != null
+                      ? () async {
+                          debugPrint(
+                            '[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}',
+                          );
+
+                          final position = Position(
+                            latitude: _markedLocation!.latitude,
+                            longitude: _markedLocation!.longitude,
+                            timestamp: DateTime.now(),
+                            accuracy: 0,
+                            altitude: 0,
+                            altitudeAccuracy: 0,
+                            heading: 0,
+                            headingAccuracy: 0,
+                            speed: 0,
+                            speedAccuracy: 0,
+                            isMocked: false,
+                          );
+
+                          final mapProvider = context.read<MapProvider>();
+                          debugPrint(
+                              '[LivingLabMapScreen] Setting selected location');
+                          mapProvider.setSelectedLocation(
+                            position,
+                            _markedAddress,
+                          );
+
+                          if (!widget.isFromPossession) {
+                            final locationManager =
+                                context.read<LocationScreenInterface>();
                             debugPrint(
-                              '[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}',
-                            );
-
-                            final position = Position(
-                              latitude: _markedLocation!.latitude,
-                              longitude: _markedLocation!.longitude,
-                              timestamp: DateTime.now(),
-                              accuracy: 0,
-                              altitude: 0,
-                              altitudeAccuracy: 0,
-                              heading: 0,
-                              headingAccuracy: 0,
-                              speed: 0,
-                              speedAccuracy: 0,
-                              isMocked: false,
-                            );
-
-                            final mapProvider = context.read<MapProvider>();
-                            mapProvider.setSelectedLocation(
-                              position,
-                              _markedAddress,
-                            );
-
-                            final navigationManager =
-                                context.read<NavigationStateInterface>();
-
-                            // Use the widget property directly
-                            if (widget.isFromPossession) {
-                              debugPrint(
-                                '[LivingLabMapScreen] Navigating back to PossesionLocationScreen',
-                              );
-                              navigationManager.pushReplacementBack(
-                                context,
-                                const BelongingLocationScreen(),
-                              );
-                            } else {
-                              debugPrint(
-                                '[LivingLabMapScreen] Navigating back to LocationScreen',
-                              );
-                              final locationManager =
-                                  context.read<LocationScreenInterface>();
-                              await locationManager.getLocationAndDateTime(
-                                context,
-                              );
-
-                              navigationManager.pushReplacementBack(
-                                context,
-                                const LocationScreen(),
-                              );
-                            }
+                                '[LivingLabMapScreen] Calling getLocationAndDateTime');
+                            await locationManager.getLocationAndDateTime(context);
                           }
-                          : null,
+
+                          debugPrint(
+                              '[LivingLabMapScreen] Setting _shouldNavigate to true');
+                          setState(() {
+                            _shouldNavigate = true;
+                            _navigateToScreen = widget.isFromPossession
+                                ? 'possession'
+                                : 'location';
+                          });
+                        }
+                      : null,
                   isEnabled: _markedLocation != null,
                 ),
               ],
@@ -549,10 +546,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         )) {
       markers.add(
         Marker(
-          point: LatLng(
-            _currentPosition!.latitude,
-            _currentPosition!.longitude,
-          ),
+          point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
           width: 40,
           height: 40,
           child: Stack(

@@ -145,11 +145,12 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                   }
                 }
                 // Navigate to LocationScreen if permission is granted
-                debugPrint('[BelongingAnimalScreen] Navigating to LocationScreen');
-                debugPrint('[BelongingAnimalScreen] Selected animal name: ${selectedAnimal.animalName}');
-                debugPrint('[BelongingAnimalScreen] Selected animal ID: ${selectedAnimal.animalId!}');
+                debugPrint('[BelongingAnimalScreen]: Navigating to LocationScreen');
+                debugPrint('[BelongingAnimalScreen]: Selected animal name: ${selectedAnimal.animalName}');
+                debugPrint('[BelongingAnimalScreen]: Selected animal ID: ${selectedAnimal.animalId!}');
                 _belongingDamageReportProvider.setSuspectedAnimal(selectedAnimal.animalId!);
                 if (context.mounted) {
+                  debugPrint("[BelongingAnimalScreen]: to LocationScreen");
                   navigationManager.pushReplacementForward(
                     context,
                     const BelongingLocationScreen(),

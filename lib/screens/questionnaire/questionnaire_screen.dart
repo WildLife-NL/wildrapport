@@ -27,6 +27,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   late final ResponseInterface _responseManager;
   late List<dynamic> questionnaireScreensList = [];
   int currentQuestionnaireIndex = 0;
+  bool _shouldNavigate = false;
 
   @override
   void initState() {
@@ -40,10 +41,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     debugPrint("${responseProvider.answerID}");
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
-          _responseManager.storeResponse(
-            responseProvider.responses.last,
-            widget.questionnaire.id,
-            responseProvider.questionID!,
+      _responseManager.storeResponse(
+        responseProvider.responses.last,
+        widget.questionnaire.id,
+        responseProvider.questionID!,
       );
     }
     debugPrint("Next Screen");
@@ -57,19 +58,18 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void lastNextScreen() async {
     if (responseProvider.interactionID != null &&
-      responseProvider.questionID != null) {
-        await _responseManager.storeResponse(
-          responseProvider.responses.last,
-          widget.questionnaire.id,
-          responseProvider.questionID!,
-        );
-      }
+        responseProvider.questionID != null) {
+      await _responseManager.storeResponse(
+        responseProvider.responses.last,
+        widget.questionnaire.id,
+        responseProvider.questionID!,
+      );
+    }
     await _responseManager.submitResponses();
 
-    context.read<NavigationStateInterface>().pushAndRemoveUntil(
-      context,
-      OverzichtScreen(),
-    );
+    setState(() {
+      _shouldNavigate = true;
+    });
   }
 
   void previousScreen() {
@@ -83,25 +83,40 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    final questionnaireScreens = await _questionnaireManager
-        .buildQuestionnaireLayout(
-          widget.questionnaire,
-          widget.interactionID,
-          nextScreen,
-          lastNextScreen,
-          previousScreen,
-        );
-
-    setState(() {
-      questionnaireScreensList = questionnaireScreens;
-    });
-    debugPrint(
-      'Loaded questionnaireScreensList: ${questionnaireScreensList.length}',
+    final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayout(
+      widget.questionnaire,
+      widget.interactionID,
+      nextScreen,
+      lastNextScreen,
+      previousScreen,
     );
+
+    if (mounted) {
+      setState(() {
+        questionnaireScreensList = questionnaireScreens;
+      });
+      debugPrint(
+        'Loaded questionnaireScreensList: ${questionnaireScreensList.length}',
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Handle navigation in build when _shouldNavigate is true
+    if (_shouldNavigate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<NavigationStateInterface>().pushAndRemoveUntil(
+            context,
+            OverzichtScreen(),
+          );
+        }
+      });
+      // Reset _shouldNavigate to prevent repeated navigation
+      _shouldNavigate = false;
+    }
+
     if (questionnaireScreensList.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -115,13 +130,12 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 leftIcon: Icons.arrow_back_ios,
                 centerText: "Vragenlijst",
                 rightIcon: Icons.menu,
-                onLeftIconPressed:
-                    () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OverzichtScreen(),
-                      ),
-                    ),
+                onLeftIconPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OverzichtScreen(),
+                  ),
+                ),
                 onRightIconPressed: () {
                   /* Handle menu */
                 },

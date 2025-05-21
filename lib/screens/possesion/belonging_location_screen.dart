@@ -109,8 +109,18 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     // Fetch location
     Map<String, dynamic>? locationInfo;
     if (context.mounted) {
-      locationInfo = await locationManager.getLocationAndDateTime(context);
+      debugPrint("$blueLog[BelongingLocationScreen] 📍 Fetching location with valid context\x1B[0m");
+      try {
+        // ignore: use_build_context_synchronously
+        locationInfo = await locationManager.getLocationAndDateTime(context);
+      } catch (e) {
+        debugPrint("$redLog[BelongingLocationScreen] ❌ Error fetching location: $e\x1B[0m");
+        _pendingSnackBarMessage = 'Kan locatie niet ophalen';
+        WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
+        return;
+      }
     } else {
+      debugPrint("$redLog[BelongingLocationScreen] ⚠️ Widget unmounted, skipping location fetch\x1B[0m");
       _pendingSnackBarMessage = 'Scherm niet langer beschikbaar';
       WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
       return;
@@ -160,8 +170,6 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
           )
         : const OverzichtScreen();
 
-    // Delay to match snackbar duration
-    await Future.delayed(const Duration(seconds: 3));
     WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
 
     mapProvider.resetState();
