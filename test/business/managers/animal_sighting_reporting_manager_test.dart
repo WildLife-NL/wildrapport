@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:wildrapport/interfaces/animal_interface.dart';
 import 'package:wildrapport/interfaces/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/managers/animal_sighting_reporting_manager.dart';
@@ -28,16 +27,9 @@ class _CustomMockAnimalManager implements AnimalManagerInterface {
 
 void main() {
   late AnimalSightingReportingInterface reportingManager;
-  late _CustomMockAnimalManager mockAnimalManager;
 
   setUp(() {
     reportingManager = AnimalSightingReportingManager();
-    mockAnimalManager = _CustomMockAnimalManager(AnimalModel(
-      animalId: '1',
-      animalName: 'Wolf',
-      animalImagePath: 'path/to/wolf.png',
-      genderViewCounts: [],
-    ));
   });
 
   group('AnimalSightingReportingManager', () {
@@ -282,7 +274,7 @@ void main() {
       reportingManager.updateSelectedAnimal(animal);
       
       // Act
-      final result = reportingManager.handleGenderSelection(AnimalGender.vrouwelijk);
+      reportingManager.handleGenderSelection(AnimalGender.vrouwelijk);
       
       // Assert
       // The implementation might be returning false, let's adjust our expectation

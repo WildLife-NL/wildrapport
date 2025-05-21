@@ -77,7 +77,7 @@ void main() {
     test('should filter items by category', () {
       // Arrange
       final items = ['Apple', 'Banana', 'Cherry'];
-      final filterFunction = (String item, String category) => item.startsWith(category);
+      filterFunction(String item, String category) => item.startsWith(category);
       
       // Act
       final filteredItems = filterManager.filterByCategory(items, 'A', filterFunction);
@@ -90,7 +90,7 @@ void main() {
     test('should return all items when category is empty', () {
       // Arrange
       final items = ['Apple', 'Banana', 'Cherry'];
-      final filterFunction = (String item, String category) => item.startsWith(category);
+      filterFunction(String item, String category) => item.startsWith(category);
       
       // Act
       final filteredItems = filterManager.filterByCategory(items, '', filterFunction);
