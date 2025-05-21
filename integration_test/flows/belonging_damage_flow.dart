@@ -23,7 +23,7 @@ void runTests() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Debug widget tree
-      print(tester.allWidgets.map((w) => w.toString()).toList());
+      debugPrint(tester.allWidgets.map((w) => w.toString()).toList().join('\n'));
 
       // Verify OverzichtScreen is displayed
       expect(find.byType(OverzichtScreen), findsOneWidget, reason: 'OverzichtScreen should be displayed after login or app start');

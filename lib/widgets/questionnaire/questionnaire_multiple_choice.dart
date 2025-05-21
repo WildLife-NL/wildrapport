@@ -32,9 +32,7 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
       _QuestionnaireMultipleChoiceState();
 }
 
-class _QuestionnaireMultipleChoiceState
-    extends State<QuestionnaireMultipleChoice> {
-  final List<String> _selectedAnswers = [];
+class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoice> {
   late final ResponseProvider responseProvider;
   Response? existingResponse;  
   String? selectedAnswerID;
@@ -64,7 +62,6 @@ class _QuestionnaireMultipleChoiceState
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Display question index and total questions
           Padding(
             padding: const EdgeInsets.only(top: 16.0, left: 12.0),
             child: Text(
@@ -126,7 +123,7 @@ class _QuestionnaireMultipleChoiceState
                             questionID: widget.question.id,
                           );
                           responseProvider.addResponse(newResponse);
-                          existingResponse = newResponse; // Important to keep updating it
+                          existingResponse = newResponse;
                         }
                       });
                     },
@@ -145,7 +142,6 @@ class _QuestionnaireMultipleChoiceState
                     onChanged: (String? value) {
                       setState(() {
                         selectedAnswerID = value;
-                        debugPrint('Selected Answer ID: $selectedAnswerID'); // Debug print
                         if (existingResponse != null) {
                           responseProvider.setUpdatingResponse(true);
                           responseProvider.updateResponse(
@@ -165,7 +161,7 @@ class _QuestionnaireMultipleChoiceState
                   );
             }),
           Expanded(
-            child: Container(), // This will take up remaining space
+            child: Container(),
           ),
           CustomBottomAppBar(
             onNextPressed: widget.onNextPressed,
