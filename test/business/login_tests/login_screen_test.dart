@@ -30,7 +30,7 @@ void main() {
     when(mockPermissionInterface.isPermissionGranted(any)).thenAnswer((_) async => true);
     
     // Setup necessary methods on the AppStateProvider mock
-    when(mockAppStateProvider.updateLocationCache()).thenAnswer((_) async => null);
+    when(mockAppStateProvider.updateLocationCache()).thenAnswer((_) async {});
     when(mockAppStateProvider.startLocationUpdates()).thenReturn(null);
     when(mockAppStateProvider.getScreenState<dynamic>(any, any)).thenReturn(null);
     when(mockAppStateProvider.setScreenState(any, any, any)).thenReturn(null);
