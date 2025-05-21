@@ -141,25 +141,28 @@ class _QuestionnaireMultipleChoiceState
                       ),
                     ),
                     value: answer.id,
-                    groupValue:
-                        _selectedAnswers.isNotEmpty
-                            ? _selectedAnswers.first
-                            : null,
+                    groupValue: selectedAnswerID,
                     onChanged: (String? value) {
                       setState(() {
+                        selectedAnswerID = value;
+                        debugPrint('Selected Answer ID: $selectedAnswerID'); // Debug print
                         if (existingResponse != null) {
                           responseProvider.setUpdatingResponse(true);
                           responseProvider.updateResponse(
-                            existingResponse?.copyWith(answerID: value),
+                            existingResponse!.copyWith(answerID: value),
                           );
                         } else {
-                          responseProvider.addResponse(
-                            Response(answerID: value, interactionID: widget.interactionID, questionID: widget.question.id),
+                          final newResponse = Response(
+                            answerID: value,
+                            interactionID: widget.interactionID,
+                            questionID: widget.question.id,
                           );
+                          responseProvider.addResponse(newResponse);
+                          existingResponse = newResponse;
                         }
-                    });
-                  }
-                );
+                      });
+                    },
+                  );
             }),
           Expanded(
             child: Container(), // This will take up remaining space
