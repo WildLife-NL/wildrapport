@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mockito/mockito.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
 // Mock Position for testing
-class MockPosition extends Mock implements Position {
+class MockPosition implements Position {
   final double lat;
   final double lng;
   final DateTime time;
@@ -26,6 +24,49 @@ class MockPosition extends Mock implements Position {
 
   @override
   DateTime get timestamp => time;
+
+  @override
+  double get accuracy => 0;
+
+  @override
+  double get altitude => 0;
+
+  @override
+  double get altitudeAccuracy => 0;
+
+  @override
+  double get heading => 0;
+
+  @override
+  double get headingAccuracy => 0;
+
+  @override
+  double get speed => 0;
+
+  @override
+  double get speedAccuracy => 0;
+
+  @override
+  bool get isMocked => true;
+
+  @override
+  int? get floor => null;
+
+  @override
+  Map<String, dynamic> toJson() => {
+    'latitude': latitude,
+    'longitude': longitude,
+    'timestamp': timestamp.toIso8601String(),
+    'accuracy': accuracy,
+    'altitude': altitude,
+    'altitudeAccuracy': altitudeAccuracy,
+    'heading': heading,
+    'headingAccuracy': headingAccuracy,
+    'speed': speed,
+    'speedAccuracy': speedAccuracy,
+    'floor': floor,
+    'isMocked': isMocked,
+  };
 }
 
 void main() {
@@ -160,5 +201,8 @@ void main() {
     });
   });
 }
+
+
+
 
 

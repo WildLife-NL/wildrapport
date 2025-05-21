@@ -7,6 +7,7 @@ import 'package:wildrapport/api/api_client.dart';
 import 'package:wildrapport/api/profile_api.dart';
 import './flows/belonging_damage_flow.dart' as belonging_damage_flow;
 import './flows/waarneming_flow.dart' as waarneming_flow_flow;
+import 'package:flutter/foundation.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,9 @@ void main() {
     // Request location permission
     final permissionStatus = await Permission.location.request();
     if (!permissionStatus.isGranted) {
-      print('Warning: Location permission not granted.');
+      if (kDebugMode) {
+        print('Warning: Location permission not granted.');
+      }
     }
   });
 
