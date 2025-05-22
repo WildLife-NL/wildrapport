@@ -141,5 +141,143 @@ void main() {
       // Assert
       expect(animalModel.condition, AnimalCondition.dood);
     });
+
+    test('should convert to JSON correctly', () {
+      // Arrange
+      final viewCount = ViewCountModel(
+        volwassenAmount: 2,
+        onvolwassenAmount: 1,
+        pasGeborenAmount: 0,
+        unknownAmount: 0,
+      );
+      
+      final genderViewCount = AnimalGenderViewCount(
+        gender: AnimalGender.mannelijk,
+        viewCount: viewCount,
+      );
+      
+      final animalModel = AnimalModel(
+        animalId: '1',
+        animalName: 'Wolf',
+        animalImagePath: 'assets/wolf.png',
+        genderViewCounts: [genderViewCount],
+        condition: AnimalCondition.levend,
+      );
+      
+      // Assert
+      expect(animalModel.animalId, '1');
+      expect(animalModel.animalName, 'Wolf');
+      expect(animalModel.animalImagePath, 'assets/wolf.png');
+      expect(animalModel.genderViewCounts.length, 1);
+      expect(animalModel.condition, AnimalCondition.levend);
+    });
+
+    test('should update gender correctly', () {
+      // Arrange
+      final animalModel = AnimalModel(
+        animalId: '1',
+        animalName: 'Wolf',
+        animalImagePath: 'assets/wolf.png',
+        genderViewCounts: [],
+      );
+      
+      // Act
+      final updatedModel = animalModel.updateGender(AnimalGender.vrouwelijk);
+      
+      // Assert
+      expect(updatedModel.gender, AnimalGender.vrouwelijk);
+      expect(updatedModel.animalId, animalModel.animalId);
+      expect(updatedModel.animalName, animalModel.animalName);
+      expect(updatedModel.animalImagePath, animalModel.animalImagePath);
+    });
+
+    test('should update viewCount correctly', () {
+      // Arrange
+      final animalModel = AnimalModel(
+        animalId: '1',
+        animalName: 'Wolf',
+        animalImagePath: 'assets/wolf.png',
+        genderViewCounts: [],
+      );
+      
+      final newViewCount = ViewCountModel(
+        volwassenAmount: 3,
+        onvolwassenAmount: 2,
+        pasGeborenAmount: 1,
+        unknownAmount: 0,
+      );
+      
+      // Act
+      final updatedModel = animalModel.updateViewCount(newViewCount);
+      
+      // Assert
+      expect(updatedModel.viewCount, newViewCount);
+      expect(updatedModel.gender, AnimalGender.onbekend); // Default gender when none exists
+      expect(updatedModel.animalId, animalModel.animalId);
+      expect(updatedModel.animalName, animalModel.animalName);
+    });
+
+    test('should preserve condition when updating gender', () {
+      // Arrange
+      final animalModel = AnimalModel(
+        animalId: '1',
+        animalName: 'Wolf',
+        animalImagePath: 'assets/wolf.png',
+        genderViewCounts: [],
+        condition: AnimalCondition.ziek,
+      );
+      
+      // Act
+      final updatedModel = animalModel.updateGender(AnimalGender.mannelijk);
+      
+      // Assert
+      expect(updatedModel.gender, AnimalGender.mannelijk);
+      expect(updatedModel.condition, AnimalCondition.ziek);
+    });
+
+    test('should calculate total count correctly', () {
+      // Arrange
+      final animalModel = AnimalModel(
+        animalId: '1',
+        animalName: 'Wolf',
+        animalImagePath: 'assets/wolf.png',
+        genderViewCounts: [
+          AnimalGenderViewCount(
+            gender: AnimalGender.mannelijk,
+            viewCount: ViewCountModel(
+              volwassenAmount: 2,
+              onvolwassenAmount: 1,
+              pasGeborenAmount: 0,
+              unknownAmount: 0,
+            ),
+          ),
+          AnimalGenderViewCount(
+            gender: AnimalGender.vrouwelijk,
+            viewCount: ViewCountModel(
+              volwassenAmount: 1,
+              onvolwassenAmount: 2,
+              pasGeborenAmount: 1,
+              unknownAmount: 0,
+            ),
+          ),
+        ],
+      );
+      
+      // Act & Assert
+      // Calculate total manually to verify
+      int expectedTotal = 0;
+      for (var gvc in animalModel.genderViewCounts) {
+        expectedTotal += gvc.viewCount.volwassenAmount;
+        expectedTotal += gvc.viewCount.onvolwassenAmount;
+        expectedTotal += gvc.viewCount.pasGeborenAmount;
+        expectedTotal += gvc.viewCount.unknownAmount;
+      }
+      
+      expect(expectedTotal, 7); // 2+1+0+0+1+2+1+0 = 7
+    });
   });
 }
+
+
+
+

@@ -22,6 +22,23 @@ void main() {
       // Assert
       expect(genderViewCount.gender, AnimalGender.mannelijk);
       expect(genderViewCount.viewCount, viewCount);
+      expect(genderViewCount.viewCount.volwassenAmount, 2);
+      expect(genderViewCount.viewCount.onvolwassenAmount, 1);
+    });
+    
+    test('should initialize with default ViewCountModel', () {
+      // Arrange & Act
+      final genderViewCount = AnimalGenderViewCount(
+        gender: AnimalGender.vrouwelijk,
+        viewCount: ViewCountModel(),
+      );
+      
+      // Assert
+      expect(genderViewCount.gender, AnimalGender.vrouwelijk);
+      expect(genderViewCount.viewCount.volwassenAmount, 0);
+      expect(genderViewCount.viewCount.onvolwassenAmount, 0);
+      expect(genderViewCount.viewCount.pasGeborenAmount, 0);
+      expect(genderViewCount.viewCount.unknownAmount, 0);
     });
     
     test('should convert to JSON correctly', () {
@@ -47,6 +64,8 @@ void main() {
       expect(json['viewCount'], isA<Map<String, dynamic>>());
       expect(json['viewCount']['volwassenAmount'], 2);
       expect(json['viewCount']['onvolwassenAmount'], 1);
+      expect(json['viewCount']['pasGeborenAmount'], 0);
+      expect(json['viewCount']['unknownAmount'], 0);
     });
     
     test('should create from JSON correctly', () {
@@ -90,5 +109,47 @@ void main() {
       // Assert
       expect(genderViewCount.gender, AnimalGender.onbekend); // Should default to unknown
     });
+    
+    test('should handle missing viewCount in fromJson', () {
+      // Arrange
+      final Map<String, dynamic> json = {
+        'gender': 'AnimalGender.mannelijk',
+        // Missing viewCount field
+      };
+      
+      // Act
+      final genderViewCount = AnimalGenderViewCount.fromJson(json);
+      
+      // Assert
+      expect(genderViewCount.gender, AnimalGender.mannelijk);
+      // Should create a default ViewCountModel when viewCount is missing
+      expect(genderViewCount.viewCount, isA<ViewCountModel>());
+      expect(genderViewCount.viewCount.volwassenAmount, 0);
+      expect(genderViewCount.viewCount.onvolwassenAmount, 0);
+      expect(genderViewCount.viewCount.pasGeborenAmount, 0);
+      expect(genderViewCount.viewCount.unknownAmount, 0);
+    });
+    
+    test('should handle null viewCount in fromJson', () {
+      // Arrange
+      final Map<String, dynamic> json = {
+        'gender': 'AnimalGender.vrouwelijk',
+        'viewCount': null,
+      };
+      
+      // Act
+      final genderViewCount = AnimalGenderViewCount.fromJson(json);
+      
+      // Assert
+      expect(genderViewCount.gender, AnimalGender.vrouwelijk);
+      // Should create a default ViewCountModel when viewCount is null
+      expect(genderViewCount.viewCount, isA<ViewCountModel>());
+      expect(genderViewCount.viewCount.volwassenAmount, 0);
+      expect(genderViewCount.viewCount.onvolwassenAmount, 0);
+      expect(genderViewCount.viewCount.pasGeborenAmount, 0);
+      expect(genderViewCount.viewCount.unknownAmount, 0);
+    });
   });
 }
+
+
