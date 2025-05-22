@@ -18,12 +18,16 @@ class Response {
     text: json["text"],
   );
 
-  Map<String, dynamic> toJson() => {
-    "answerID": answerID,
-    "interactionID": interactionID,
-    "questionID": questionID,
-    "text": text,
-  };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['interactionID'] = interactionID;
+    data['questionID'] = questionID;
+    data['answerID'] = answerID;
+    if (text != null) {
+      data['text'] = text;
+    }
+    return data;
+  }
     Response copyWith({
     String? answerID,
     String? interactionID,

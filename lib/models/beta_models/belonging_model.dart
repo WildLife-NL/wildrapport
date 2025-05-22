@@ -5,7 +5,15 @@ class Belonging {
   String category;
   String name;
 
-  Belonging({this.ID, required this.category, required this.name});
+  Belonging({
+    this.ID, 
+    required this.category, 
+    required this.name
+  }) {
+    // Convert empty strings to null
+    if (name.isEmpty) name = '';
+    if (category.isEmpty) category = '';
+  }
 
   Map<String, dynamic> toJson() => {
     'ID': ID,
@@ -13,6 +21,10 @@ class Belonging {
     'name': name,
   };
   factory Belonging.fromJson(Map<String, dynamic> json) =>
-      Belonging(ID: json['ID'], category: json['category'], name: json['name']);
+      Belonging(
+        ID: json['ID'], 
+        category: json['category'] ?? '', 
+        name: json['name'] ?? ''
+      );
 }
   
