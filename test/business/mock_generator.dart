@@ -36,6 +36,16 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
+import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/api_models/species.dart';
+import 'package:wildrapport/models/api_models/user.dart';
+import 'package:wildrapport/models/beta_models/belonging_model.dart';
+import 'package:wildrapport/models/beta_models/interaction_model.dart';
+import 'package:wildrapport/models/beta_models/possesion_model.dart';
+import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
 
 // API interfaces Mocks
 @GenerateMocks([AuthApiInterface])
@@ -85,5 +95,17 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 @GenerateMocks([BuildContext])
 @GenerateMocks([SharedPreferences])
 @GenerateMocks([Connectivity])
+
+// Model Mocks
+@GenerateMocks([AnimalModel])
+@GenerateMocks([AnimalSightingModel])
+@GenerateMocks([Questionnaire])
+@GenerateMocks([Species])
+@GenerateMocks([User])
+@GenerateMocks([Belonging])
+@GenerateMocks([Interaction])
+@GenerateMocks([Possesion])
+@GenerateMocks([ReportLocation])
+@GenerateMocks([Response])
 
 void main() {} // required for code generation
