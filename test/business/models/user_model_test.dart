@@ -32,7 +32,7 @@ void main() {
     test('User Model should create from JSON correctly', () {
       // Arrange
       final Map<String, dynamic> userData = {
-        'id': '123',
+        'userID': '123',  // Changed from 'id' to 'userID'
         'name': 'Test User',
         'email': 'test@example.com',
         // Add any other required fields
@@ -64,3 +64,6 @@ void main() {
     });
   });
 }
+
+
+

@@ -92,7 +92,7 @@ void main() {
           'name': 'Test Experiment',
           'start': '2023-01-01T00:00:00.000',
           'user': {
-            'id': 'user-123',
+            'userID': 'user-123',
             'email': 'test@example.com',
             'name': 'Test User',
           },
@@ -216,7 +216,7 @@ void main() {
           'name': 'Test Experiment',
           'start': '2023-01-01T00:00:00.000',
           'user': {
-            'id': 'user-123',
+            'userID': 'user-123',
             'email': 'test@example.com',
             'name': 'Test User',
           },
@@ -275,4 +275,7 @@ void main() {
     });
   });
 }
+
+
+
 
