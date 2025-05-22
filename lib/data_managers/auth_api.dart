@@ -57,6 +57,7 @@ class AuthApi implements AuthApiInterface {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('bearer_token', json!["token"]);
       debugPrint("Code stored in shared prefrences");
+      debugPrint(json.toString());
       User user = User.fromJson(json);
       return user;
     } else {

@@ -87,7 +87,9 @@ class LoginManager implements LoginInterface {
       User response = await authApi.authorize(email, code);
       await profileApi.setProfileDataInDeviceStorage();
       return response;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[LoginManager]: ${e.toString()}");
+      debugPrint("[LoginManager]: ${stackTrace.toString()}");
       // Handle specific error types
       if (e.toString().contains('Unauthorized') ||
           e.toString().contains('401')) {
