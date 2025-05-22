@@ -8,19 +8,24 @@ import 'dart:ui' as _i10;
 
 import 'package:flutter/material.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart' as _i11;
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart'
+    as _i14;
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart'
+    as _i11;
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
     as _i4;
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart' as _i14;
-import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart' as _i5;
-import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart' as _i2;
-import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i13;
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart'
+    as _i5;
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart'
+    as _i2;
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
+    as _i8;
+import 'package:wildrapport/models/beta_models/location_model.dart' as _i12;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i7;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i9;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i6;
 import 'package:wildrapport/models/enums/report_type.dart' as _i16;
-import 'package:wildrapport/models/beta_models/location_model.dart' as _i12;
-import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart' as _i8;
+import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i13;
 import 'package:wildrapport/providers/app_state_provider.dart' as _i15;
 
 // ignore_for_file: type=lint

@@ -6,6 +6,9 @@
 import 'dart:async' as _i14;
 import 'dart:ui' as _i37;
 
+import 'package:connectivity_plus/connectivity_plus.dart' as _i65;
+import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart'
+    as _i66;
 import 'package:flutter/foundation.dart' as _i12;
 import 'package:flutter/material.dart' as _i9;
 import 'package:flutter_map/flutter_map.dart' as _i10;
@@ -14,48 +17,64 @@ import 'package:latlong2/latlong.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i25;
 import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i64;
-import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart' as _i31;
-import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
-    as _i32;
-import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart' as _i13;
+import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart'
+    as _i13;
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart'
     as _i15;
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart'
     as _i17;
-import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart' as _i19;
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart'
+    as _i19;
 import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart'
     as _i20;
-import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart' as _i21;
-import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart' as _i22;
-import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart'
-    as _i40;
-import 'package:wildrapport/interfaces/other/belonging_manager_interface.dart'
-    as _i42;
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart'
+    as _i21;
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart'
+    as _i22;
 import 'package:wildrapport/interfaces/filters/dropdown_interface.dart' as _i43;
-import 'package:wildrapport/interfaces/state/edit_state_interface.dart' as _i45;
 import 'package:wildrapport/interfaces/filters/filter_interface.dart' as _i46;
-import 'package:wildrapport/interfaces/reporting/interaction_interface.dart' as _i48;
-import 'package:wildrapport/interfaces/location/living_lab_interface.dart' as _i50;
-import 'package:wildrapport/interfaces/location/location_screen_interface.dart' as _i52;
-import 'package:wildrapport/interfaces/other/login_interface.dart' as _i53;
+import 'package:wildrapport/interfaces/location/living_lab_interface.dart'
+    as _i50;
+import 'package:wildrapport/interfaces/location/location_screen_interface.dart'
+    as _i52;
 import 'package:wildrapport/interfaces/map/location_service_interface.dart'
     as _i23;
 import 'package:wildrapport/interfaces/map/map_service_interface.dart' as _i26;
 import 'package:wildrapport/interfaces/map/map_state_interface.dart' as _i27;
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart' as _i54;
+import 'package:wildrapport/interfaces/other/belonging_manager_interface.dart'
+    as _i42;
+import 'package:wildrapport/interfaces/other/login_interface.dart' as _i53;
 import 'package:wildrapport/interfaces/other/overzicht_interface.dart' as _i55;
 import 'package:wildrapport/interfaces/other/permission_interface.dart' as _i56;
-import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart' as _i57;
+import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart'
+    as _i40;
 import 'package:wildrapport/interfaces/reporting/common_report_fields.dart'
     as _i28;
+import 'package:wildrapport/interfaces/reporting/interaction_interface.dart'
+    as _i48;
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart'
     as _i29;
+import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart'
+    as _i57;
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart'
     as _i30;
-import 'package:wildrapport/interfaces/reporting/response_interface.dart' as _i58;
-import 'package:wildrapport/interfaces/state/screen_state_interface.dart' as _i60;
-import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart' as _i11;
-import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart' as _i8;
+import 'package:wildrapport/interfaces/reporting/response_interface.dart'
+    as _i58;
+import 'package:wildrapport/interfaces/state/edit_state_interface.dart' as _i45;
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart'
+    as _i54;
+import 'package:wildrapport/interfaces/state/screen_state_interface.dart'
+    as _i60;
+import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart'
+    as _i31;
+import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
+    as _i32;
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart'
+    as _i11;
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart'
+    as _i8;
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
+    as _i35;
 import 'package:wildrapport/models/api_models/questionaire.dart' as _i4;
 import 'package:wildrapport/models/api_models/species.dart' as _i5;
 import 'package:wildrapport/models/api_models/user.dart' as _i2;
@@ -63,21 +82,20 @@ import 'package:wildrapport/models/beta_models/belonging_model.dart' as _i16;
 import 'package:wildrapport/models/beta_models/interaction_model.dart' as _i18;
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart'
     as _i3;
+import 'package:wildrapport/models/beta_models/location_model.dart' as _i38;
 import 'package:wildrapport/models/beta_models/possesion_model.dart' as _i7;
 import 'package:wildrapport/models/beta_models/report_location_model.dart'
     as _i41;
 import 'package:wildrapport/models/beta_models/response_model.dart' as _i59;
-import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i47;
-import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i39;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i34;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i36;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i33;
 import 'package:wildrapport/models/enums/dropdown_type.dart' as _i44;
 import 'package:wildrapport/models/enums/interaction_type.dart' as _i49;
 import 'package:wildrapport/models/enums/report_type.dart' as _i62;
+import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i47;
+import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i39;
 import 'package:wildrapport/models/ui_models/living_lab_area.dart' as _i51;
-import 'package:wildrapport/models/beta_models/location_model.dart' as _i38;
-import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart' as _i35;
 import 'package:wildrapport/providers/app_state_provider.dart' as _i61;
 import 'package:wildrapport/providers/map_provider.dart' as _i63;
 
@@ -2200,4 +2218,31 @@ class MockSharedPreferences extends _i1.Mock implements _i64.SharedPreferences {
             returnValueForMissingStub: _i14.Future<void>.value(),
           )
           as _i14.Future<void>);
+}
+
+/// A class which mocks [Connectivity].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockConnectivity extends _i1.Mock implements _i65.Connectivity {
+  MockConnectivity() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i14.Stream<List<_i66.ConnectivityResult>> get onConnectivityChanged =>
+      (super.noSuchMethod(
+            Invocation.getter(#onConnectivityChanged),
+            returnValue: _i14.Stream<List<_i66.ConnectivityResult>>.empty(),
+          )
+          as _i14.Stream<List<_i66.ConnectivityResult>>);
+
+  @override
+  _i14.Future<List<_i66.ConnectivityResult>> checkConnectivity() =>
+      (super.noSuchMethod(
+            Invocation.method(#checkConnectivity, []),
+            returnValue: _i14.Future<List<_i66.ConnectivityResult>>.value(
+              <_i66.ConnectivityResult>[],
+            ),
+          )
+          as _i14.Future<List<_i66.ConnectivityResult>>);
 }

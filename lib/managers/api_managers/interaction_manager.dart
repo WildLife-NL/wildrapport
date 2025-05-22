@@ -13,13 +13,16 @@ import 'package:wildrapport/utils/connection_checker.dart';
 
 class InteractionManager implements InteractionInterface {
   final InteractionApiInterface interactionAPI;
-  final Connectivity _connectivity = Connectivity();
+  final Connectivity _connectivity;
   late final StreamSubscription<List<ConnectivityResult>>
   _connectivitySubscription;
 
   bool _isRetryingSend = false;
 
-  InteractionManager({required this.interactionAPI});
+  InteractionManager({
+    required this.interactionAPI, 
+    Connectivity? connectivity,
+  }) : _connectivity = connectivity ?? Connectivity();
 
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -201,3 +204,4 @@ class InteractionManager implements InteractionInterface {
     await prefs.setStringList('interaction_cache', interactionJson);
   }
 }
+
