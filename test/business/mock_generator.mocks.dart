@@ -77,8 +77,10 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_mode
     as _i8;
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
     as _i38;
+import 'package:wildrapport/models/api_models/answer.dart' as _i72;
 import 'package:wildrapport/models/api_models/experiment.dart' as _i13;
 import 'package:wildrapport/models/api_models/interaction_type.dart' as _i14;
+import 'package:wildrapport/models/api_models/living_labs.dart' as _i73;
 import 'package:wildrapport/models/api_models/question.dart' as _i71;
 import 'package:wildrapport/models/api_models/questionaire.dart' as _i4;
 import 'package:wildrapport/models/api_models/species.dart' as _i5;
@@ -2783,4 +2785,292 @@ class MockResponse extends _i1.Mock implements _i16.Response {
             ),
           )
           as _i16.Response);
+}
+
+/// A class which mocks [InteractionType].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockInteractionType extends _i1.Mock implements _i14.InteractionType {
+  MockInteractionType() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  int get id =>
+      (super.noSuchMethod(Invocation.getter(#id), returnValue: 0) as int);
+
+  @override
+  String get name =>
+      (super.noSuchMethod(
+            Invocation.getter(#name),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#name),
+            ),
+          )
+          as String);
+
+  @override
+  String get description =>
+      (super.noSuchMethod(
+            Invocation.getter(#description),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#description),
+            ),
+          )
+          as String);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+}
+
+/// A class which mocks [Question].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockQuestion extends _i1.Mock implements _i71.Question {
+  MockQuestion() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get id =>
+      (super.noSuchMethod(
+            Invocation.getter(#id),
+            returnValue: _i29.dummyValue<String>(this, Invocation.getter(#id)),
+          )
+          as String);
+
+  @override
+  bool get allowMultipleResponse =>
+      (super.noSuchMethod(
+            Invocation.getter(#allowMultipleResponse),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get allowOpenResponse =>
+      (super.noSuchMethod(
+            Invocation.getter(#allowOpenResponse),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  String get description =>
+      (super.noSuchMethod(
+            Invocation.getter(#description),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#description),
+            ),
+          )
+          as String);
+
+  @override
+  int get index =>
+      (super.noSuchMethod(Invocation.getter(#index), returnValue: 0) as int);
+
+  @override
+  String get text =>
+      (super.noSuchMethod(
+            Invocation.getter(#text),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#text),
+            ),
+          )
+          as String);
+
+  @override
+  set id(String? _id) => super.noSuchMethod(
+    Invocation.setter(#id, _id),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set allowMultipleResponse(bool? _allowMultipleResponse) => super.noSuchMethod(
+    Invocation.setter(#allowMultipleResponse, _allowMultipleResponse),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set allowOpenResponse(bool? _allowOpenResponse) => super.noSuchMethod(
+    Invocation.setter(#allowOpenResponse, _allowOpenResponse),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set answers(List<_i72.Answer>? _answers) => super.noSuchMethod(
+    Invocation.setter(#answers, _answers),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set description(String? _description) => super.noSuchMethod(
+    Invocation.setter(#description, _description),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set index(int? _index) => super.noSuchMethod(
+    Invocation.setter(#index, _index),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set openResponseFormat(String? _openResponseFormat) => super.noSuchMethod(
+    Invocation.setter(#openResponseFormat, _openResponseFormat),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set text(String? _text) => super.noSuchMethod(
+    Invocation.setter(#text, _text),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  Map<String, dynamic> toJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+}
+
+/// A class which mocks [Experiment].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockExperiment extends _i1.Mock implements _i13.Experiment {
+  MockExperiment() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  String get id =>
+      (super.noSuchMethod(
+            Invocation.getter(#id),
+            returnValue: _i29.dummyValue<String>(this, Invocation.getter(#id)),
+          )
+          as String);
+
+  @override
+  String get description =>
+      (super.noSuchMethod(
+            Invocation.getter(#description),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#description),
+            ),
+          )
+          as String);
+
+  @override
+  String get name =>
+      (super.noSuchMethod(
+            Invocation.getter(#name),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#name),
+            ),
+          )
+          as String);
+
+  @override
+  DateTime get start =>
+      (super.noSuchMethod(
+            Invocation.getter(#start),
+            returnValue: _FakeDateTime_5(this, Invocation.getter(#start)),
+          )
+          as DateTime);
+
+  @override
+  _i2.User get user =>
+      (super.noSuchMethod(
+            Invocation.getter(#user),
+            returnValue: _FakeUser_0(this, Invocation.getter(#user)),
+          )
+          as _i2.User);
+
+  @override
+  set id(String? _id) => super.noSuchMethod(
+    Invocation.setter(#id, _id),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set description(String? _description) => super.noSuchMethod(
+    Invocation.setter(#description, _description),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set end(DateTime? _end) => super.noSuchMethod(
+    Invocation.setter(#end, _end),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set livingLab(_i73.LivingLabs? _livingLab) => super.noSuchMethod(
+    Invocation.setter(#livingLab, _livingLab),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set messageActivity(int? _messageActivity) => super.noSuchMethod(
+    Invocation.setter(#messageActivity, _messageActivity),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set name(String? _name) => super.noSuchMethod(
+    Invocation.setter(#name, _name),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set numberOfMessages(int? _numberOfMessages) => super.noSuchMethod(
+    Invocation.setter(#numberOfMessages, _numberOfMessages),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set numberOfQuestionnaires(int? _numberOfQuestionnaires) =>
+      super.noSuchMethod(
+        Invocation.setter(#numberOfQuestionnaires, _numberOfQuestionnaires),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set questionnaireActivity(int? _questionnaireActivity) => super.noSuchMethod(
+    Invocation.setter(#questionnaireActivity, _questionnaireActivity),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set start(DateTime? _start) => super.noSuchMethod(
+    Invocation.setter(#start, _start),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set user(_i2.User? _user) => super.noSuchMethod(
+    Invocation.setter(#user, _user),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  Map<String, dynamic> toJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
 }
