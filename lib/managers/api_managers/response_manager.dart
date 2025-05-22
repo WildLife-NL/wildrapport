@@ -13,7 +13,7 @@ class ResponseManager implements ResponseInterface {
   ResponseApiInterface responseAPI;
   final ResponseProvider responseProvider;
 
-  final Connectivity _connectivity = Connectivity();
+  final Connectivity _connectivity;
   late final StreamSubscription<List<ConnectivityResult>>
   _connectivitySubscription;
 
@@ -23,7 +23,11 @@ class ResponseManager implements ResponseInterface {
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
 
-  ResponseManager({required this.responseAPI, required this.responseProvider});
+  ResponseManager({
+    required this.responseAPI, 
+    required this.responseProvider,
+    Connectivity? connectivity,
+  }) : _connectivity = connectivity ?? Connectivity();
 
   void init() {
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
