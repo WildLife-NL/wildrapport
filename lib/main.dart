@@ -181,7 +181,7 @@ class MyApp extends StatelessWidget {
     return _MediaQueryWrapper(
       child: MaterialApp(
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
-        title: 'WildRapport',
+        title: 'Wild Rapport',
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.lightMintGreen,
           colorScheme: ColorScheme.fromSeed(

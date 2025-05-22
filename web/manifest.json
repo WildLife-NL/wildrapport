@@ -1,6 +1,6 @@
 {
-    "name": "wildrapport",
-    "short_name": "wildrapport",
+    "name": "Wild Rapport",
+    "short_name": "Wild Rapport",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

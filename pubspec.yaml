@@ -36,6 +36,21 @@ dev_dependencies:
   mockito: ^5.4.6
   build_runner: ^2.4.15
   test: ^1.24.9
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/app_logo.png"
+  web:
+    generate: true
+    image_path: "assets/app_logo.png"
+  windows:
+    generate: true
+    image_path: "assets/app_logo.png"
+  macos:
+    generate: true
+    image_path: "assets/app_logo.png"
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -44,6 +59,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/app_logo.png
     - assets/loaders/loading_paw.json
     - assets/LogoWildlifeNL.png
     - assets/LogoHeadWildlifeNL.png
