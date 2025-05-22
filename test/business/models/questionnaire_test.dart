@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/api_models/experiment.dart';
@@ -162,7 +163,9 @@ void main() {
       final json = questionnaire.toJson();
       
       // Debug
-      print('JSON output: ${json['interactionType']}');
+      if (kDebugMode) {
+        print('JSON output: ${json['interactionType']}');
+      }
       
       // Assert
       expect(json['ID'], 'quest-123');

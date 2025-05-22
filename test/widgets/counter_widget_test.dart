@@ -7,53 +7,65 @@ void main() {
     testWidgets('should display initial count', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: CounterWidget(
-            count: 5,
-            onIncrement: (_) {},
-            onDecrement: (_) {},
+          body: AnimalCounter(
+            name: "Test",
+            onCountChanged: (_, count) {},
           ),
         ),
       ));
       
-      expect(find.text('5'), findsOneWidget);
+      expect(find.text('0'), findsOneWidget);
     });
 
-    testWidgets('should call onIncrement when + button is pressed', (WidgetTester tester) async {
+    testWidgets('should call onCountChanged when + button is pressed', (WidgetTester tester) async {
       int newCount = 0;
+      String animalName = "";
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: CounterWidget(
-            count: 5,
-            onIncrement: (count) => newCount = count,
-            onDecrement: (_) {},
+          body: AnimalCounter(
+            name: "Test",
+            onCountChanged: (name, count) {
+              animalName = name;
+              newCount = count;
+            },
           ),
         ),
       ));
       
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.text("+"));
       await tester.pump();
       
-      expect(newCount, 6);
+      expect(newCount, 1);
+      expect(animalName, "Test");
     });
 
-    testWidgets('should call onDecrement when - button is pressed', (WidgetTester tester) async {
+    testWidgets('should call onCountChanged when - button is pressed', (WidgetTester tester) async {
       int newCount = 0;
+      String animalName = "";
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: CounterWidget(
-            count: 5,
-            onIncrement: (_) {},
-            onDecrement: (count) => newCount = count,
+          body: AnimalCounter(
+            name: "Test",
+            onCountChanged: (name, count) {
+              animalName = name;
+              newCount = count;
+            },
           ),
         ),
       ));
       
-      await tester.tap(find.byIcon(Icons.remove));
+      // First increment to 1
+      await tester.tap(find.text("+"));
       await tester.pump();
       
-      expect(newCount, 4);
+      // Then decrement back to 0
+      await tester.tap(find.text("−"));
+      await tester.pump();
+      
+      expect(newCount, 0);
+      expect(animalName, "Test");
     });
 
     testWidgets('should not allow decrement below 0', (WidgetTester tester) async {
@@ -61,15 +73,14 @@ void main() {
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: CounterWidget(
-            count: 0,
-            onIncrement: (_) {},
-            onDecrement: (count) => newCount = count,
+          body: AnimalCounter(
+            name: "Test",
+            onCountChanged: (_, count) => newCount = count,
           ),
         ),
       ));
       
-      await tester.tap(find.byIcon(Icons.remove));
+      await tester.tap(find.text("−"));
       await tester.pump();
       
       // Should still be 0, not -1

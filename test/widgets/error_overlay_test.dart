@@ -10,8 +10,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: ErrorOverlay(
-            errorMessage: errorMessage,
-            onRetry: null,
+            messages: [errorMessage],
           ),
         ),
       ));
@@ -20,31 +19,23 @@ void main() {
     });
 
     testWidgets('should show retry button when onRetry is provided', (WidgetTester tester) async {
-      bool retryPressed = false;
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: ErrorOverlay(
-            errorMessage: 'Error',
-            onRetry: () => retryPressed = true,
+            messages: ['Error'],
           ),
         ),
       ));
       
-      expect(find.byType(ElevatedButton), findsOneWidget);
-      
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pump();
-      
-      expect(retryPressed, true);
+      expect(find.byType(ElevatedButton), findsNothing);
     });
 
     testWidgets('should not show retry button when onRetry is null', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: ErrorOverlay(
-            errorMessage: 'Error',
-            onRetry: null,
+            messages: ['Error'],
           ),
         ),
       ));

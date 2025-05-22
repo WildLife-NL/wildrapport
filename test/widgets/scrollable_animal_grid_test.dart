@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lottie/lottie.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 
@@ -23,16 +24,22 @@ void main() {
     testWidgets('should display loading indicator when isLoading is true', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: ScrollableAnimalGrid(
-            animals: null,
-            isLoading: true,
-            error: null,
-            onAnimalSelected: (_) {},
+          body: Column(
+            children: [
+              ScrollableAnimalGrid(
+                animals: null,
+                isLoading: true,
+                error: null,
+                scrollController: ScrollController(),
+                onAnimalSelected: (_) {},
+              ),
+            ],
           ),
         ),
       ));
       
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Look for Lottie animation
+      expect(find.byType(Lottie), findsOneWidget);
     });
 
     testWidgets('should display error message when error is provided', (WidgetTester tester) async {
@@ -40,11 +47,16 @@ void main() {
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: ScrollableAnimalGrid(
-            animals: null,
-            isLoading: false,
-            error: errorMessage,
-            onAnimalSelected: (_) {},
+          body: Column(
+            children: [
+              ScrollableAnimalGrid(
+                animals: null,
+                isLoading: false,
+                error: errorMessage,
+                scrollController: ScrollController(),
+                onAnimalSelected: (_) {},
+              ),
+            ],
           ),
         ),
       ));
@@ -57,12 +69,17 @@ void main() {
       
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: ScrollableAnimalGrid(
-            animals: null,
-            isLoading: false,
-            error: 'Error',
-            onRetry: () => retryPressed = true,
-            onAnimalSelected: (_) {},
+          body: Column(
+            children: [
+              ScrollableAnimalGrid(
+                animals: null,
+                isLoading: false,
+                error: 'Error',
+                scrollController: ScrollController(),
+                onRetry: () => retryPressed = true,
+                onAnimalSelected: (_) {},
+              ),
+            ],
           ),
         ),
       ));
@@ -76,11 +93,16 @@ void main() {
     testWidgets('should display animals when provided', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: ScrollableAnimalGrid(
-            animals: testAnimals,
-            isLoading: false,
-            error: null,
-            onAnimalSelected: (_) {},
+          body: Column(
+            children: [
+              ScrollableAnimalGrid(
+                animals: testAnimals,
+                isLoading: false,
+                error: null,
+                scrollController: ScrollController(),
+                onAnimalSelected: (_) {},
+              ),
+            ],
           ),
         ),
       ));
@@ -92,11 +114,16 @@ void main() {
     testWidgets('should display empty message when animals list is empty', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: ScrollableAnimalGrid(
-            animals: [],
-            isLoading: false,
-            error: null,
-            onAnimalSelected: (_) {},
+          body: Column(
+            children: [
+              ScrollableAnimalGrid(
+                animals: [],
+                isLoading: false,
+                error: null,
+                scrollController: ScrollController(),
+                onAnimalSelected: (_) {},
+              ),
+            ],
           ),
         ),
       ));
@@ -105,3 +132,4 @@ void main() {
     });
   });
 }
+
