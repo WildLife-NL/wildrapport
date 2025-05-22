@@ -29,21 +29,23 @@ void main() {
       expect(json['name'], 'Test User');
     });
     
-    test('should create from JSON correctly', () {
+    test('User Model should create from JSON correctly', () {
       // Arrange
-      final json = {
+      final Map<String, dynamic> userData = {
         'id': '123',
-        'email': 'test@example.com',
         'name': 'Test User',
+        'email': 'test@example.com',
+        // Add any other required fields
       };
       
       // Act
-      final user = User.fromJson(json);
+      final user = User.fromJson(userData);
       
       // Assert
       expect(user.id, '123');
-      expect(user.email, 'test@example.com');
       expect(user.name, 'Test User');
+      expect(user.email, 'test@example.com');
+      // Add assertions for other fields
     });
     
     test('mock user should return expected values', () {

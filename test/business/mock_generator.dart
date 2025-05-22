@@ -31,9 +31,11 @@ import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/reporting/response_interface.dart';
 import 'package:wildrapport/interfaces/state/screen_state_interface.dart';
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/api_models/experiment.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/models/api_models/question.dart';
+import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:flutter/material.dart';
@@ -113,4 +115,6 @@ import 'package:wildrapport/models/beta_models/response_model.dart';
 @GenerateMocks([InteractionType])
 @GenerateMocks([Question])
 @GenerateMocks([Experiment])
+@GenerateMocks([ViewCountModel])
+@GenerateMocks([LocationModel])
 void main() {} // required for code generation

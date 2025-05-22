@@ -7,9 +7,12 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['userID'] ?? json['ID'],
+      id: json['id'],
+      name: json['name'],
       email: json['email'],
-      name: json['name'] ?? '',
+      // Add any other fields that might be missing
+      // If any fields are optional, handle them with null checks:
+      // someField: json['someField'] != null ? json['someField'] : defaultValue,
     );
   }
 
@@ -17,3 +20,4 @@ class User {
     return {'id': id, 'email': email, 'name': name};
   }
 }
+

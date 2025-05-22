@@ -99,6 +99,7 @@ import 'package:wildrapport/models/enums/animal_category.dart' as _i39;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i36;
 import 'package:wildrapport/models/enums/dropdown_type.dart' as _i47;
 import 'package:wildrapport/models/enums/interaction_type.dart' as _i52;
+import 'package:wildrapport/models/enums/location_source.dart' as _i74;
 import 'package:wildrapport/models/enums/report_type.dart' as _i64;
 import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i50;
 import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i42;
@@ -3065,6 +3066,100 @@ class MockExperiment extends _i1.Mock implements _i13.Experiment {
     Invocation.setter(#user, _user),
     returnValueForMissingStub: null,
   );
+
+  @override
+  Map<String, dynamic> toJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+}
+
+/// A class which mocks [ViewCountModel].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockViewCountModel extends _i1.Mock implements _i38.ViewCountModel {
+  MockViewCountModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  int get pasGeborenAmount =>
+      (super.noSuchMethod(Invocation.getter(#pasGeborenAmount), returnValue: 0)
+          as int);
+
+  @override
+  int get onvolwassenAmount =>
+      (super.noSuchMethod(Invocation.getter(#onvolwassenAmount), returnValue: 0)
+          as int);
+
+  @override
+  int get volwassenAmount =>
+      (super.noSuchMethod(Invocation.getter(#volwassenAmount), returnValue: 0)
+          as int);
+
+  @override
+  int get unknownAmount =>
+      (super.noSuchMethod(Invocation.getter(#unknownAmount), returnValue: 0)
+          as int);
+
+  @override
+  set pasGeborenAmount(int? _pasGeborenAmount) => super.noSuchMethod(
+    Invocation.setter(#pasGeborenAmount, _pasGeborenAmount),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set onvolwassenAmount(int? _onvolwassenAmount) => super.noSuchMethod(
+    Invocation.setter(#onvolwassenAmount, _onvolwassenAmount),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set volwassenAmount(int? _volwassenAmount) => super.noSuchMethod(
+    Invocation.setter(#volwassenAmount, _volwassenAmount),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set unknownAmount(int? _unknownAmount) => super.noSuchMethod(
+    Invocation.setter(#unknownAmount, _unknownAmount),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i37.AnimalAge getAge() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAge, []),
+            returnValue: _i37.AnimalAge.pasGeboren,
+          )
+          as _i37.AnimalAge);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
+}
+
+/// A class which mocks [LocationModel].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLocationModel extends _i1.Mock implements _i41.LocationModel {
+  MockLocationModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i74.LocationSource get source =>
+      (super.noSuchMethod(
+            Invocation.getter(#source),
+            returnValue: _i74.LocationSource.manual,
+          )
+          as _i74.LocationSource);
 
   @override
   Map<String, dynamic> toJson() =>
