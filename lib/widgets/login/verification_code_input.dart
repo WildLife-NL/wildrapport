@@ -11,6 +11,7 @@ import 'package:wildrapport/managers/other/login_manager.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
@@ -74,17 +75,35 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
         );
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        isError = true;
-        verifiedUser = null;
-      });
-
-      if (context.mounted) {
-        for (var controller in controllers) {
-          controller.clear();
+      debugPrint("Verification error: $e");
+      
+      // Double-check if token was actually saved despite the error
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('bearer_token');
+      
+      if (token != null) {
+        // Token exists, so verification actually succeeded
+        debugPrint("Token exists despite error, proceeding to main screen");
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+            (route) => false,
+          );
         }
-        focusNodes[0].requestFocus();
+      } else {
+        // Genuine error, show error state
+        setState(() {
+          isLoading = false;
+          isError = true;
+          verifiedUser = null;
+        });
+
+        if (context.mounted) {
+          for (var controller in controllers) {
+            controller.clear();
+          }
+          focusNodes[0].requestFocus();
+        }
       }
     }
   }
@@ -303,3 +322,4 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
     }
   }
 }
+
