@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart';
 import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_multiple_choice.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_open_response.dart';
@@ -18,14 +19,16 @@ class QuestionnaireManager implements QuestionnaireInterface {
 
   @override
   Future<List<dynamic>> buildQuestionnaireLayout(
+    ResponseProvider responseProvider,
     Questionnaire questionnaire,
     String interactionID,
     VoidCallback nextScreen,
     VoidCallback lastNextScreen,
     VoidCallback previousScreen,
+    VoidCallback openQuestionnaire,
   ) async {
     final List<Widget> questionnaireWidgets = [];
-    questionnaireWidgets.add(QuestionnaireHome(nextScreen: nextScreen, amountOfQuestions: questionnaire.questions!.length));
+    questionnaireWidgets.add(QuestionnaireHome(nextScreen: openQuestionnaire, amountOfQuestions: questionnaire.questions!.length));
 
     final int length = questionnaire.questions!.length;
 
@@ -36,16 +39,23 @@ class QuestionnaireManager implements QuestionnaireInterface {
         debugPrint("index: $index");
         debugPrint("length: $length");
 
+        VoidCallback buttonAction;
+
         if (index == length - 1) {
-          nextScreen = lastNextScreen;
+          debugPrint("using lastNextScreen");
+          buttonAction = lastNextScreen;
+        } else {
+          debugPrint("using nextScreen");
+          buttonAction = nextScreen;
         }
 
         if (!question.allowOpenResponse) {
           questionnaireWidgets.add(
             QuestionnaireMultipleChoice(
+              responseProvider: responseProvider,
               question: question,
               questionnaire: questionnaire,
-              onNextPressed: nextScreen,
+              onNextPressed: buttonAction,
               onBackPressed: previousScreen,
               interactionID: interactionID,
               index: index,
@@ -54,17 +64,25 @@ class QuestionnaireManager implements QuestionnaireInterface {
         } else {
           questionnaireWidgets.add(
             QuestionnaireOpenResponse(
+              responseProvider: responseProvider,
               question: question,
               questionnaire: questionnaire,
-              onNextPressed: nextScreen,
+              onNextPressed: buttonAction, // Use buttonAction here
               onBackPressed: previousScreen,
               interactionID: interactionID,
-              index: index, 
+              index: index,
             ),
           );
         }
       }
     }
+
+    // Set the initial questionID for the first question (after the home screen)
+    if (questionnaire.questions!.isNotEmpty) {
+      responseProvider.setQuestionID(questionnaire.questions!.first.id);
+      debugPrint("[QuestionnaireManager]: Set initial questionID to ${questionnaire.questions!.first.id}");
+    }
+
     return questionnaireWidgets;
   }
 }

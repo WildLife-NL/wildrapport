@@ -36,7 +36,7 @@ import 'package:wildrapport/managers/other/login_manager.dart';
 import 'package:wildrapport/managers/state_managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/other/overzicht_manager.dart';
 import 'package:wildrapport/managers/permission/permission_manager.dart';
-import 'package:wildrapport/managers/gewasschade_flow/belonging_damage_report_manager.dart';
+import 'package:wildrapport/managers/belonging_damage_report_flow/belonging_damage_report_manager.dart';
 import 'package:wildrapport/managers/other/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';

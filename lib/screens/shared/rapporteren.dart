@@ -8,7 +8,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/screens/shared/category_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
-import 'package:wildrapport/screens/possesion/belonging_damages_screen.dart';
+import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';

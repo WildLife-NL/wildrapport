@@ -10,6 +10,7 @@ import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
 
 class QuestionnaireOpenResponse extends StatefulWidget {
+  final ResponseProvider responseProvider;
   final Question question;
   final Questionnaire questionnaire;
   final String interactionID;
@@ -21,6 +22,7 @@ class QuestionnaireOpenResponse extends StatefulWidget {
 
   const QuestionnaireOpenResponse({
     super.key,
+    required this.responseProvider,
     required this.question,
     required this.questionnaire,
     required this.interactionID,
@@ -35,19 +37,17 @@ class QuestionnaireOpenResponse extends StatefulWidget {
 }
 
 class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
-  Response? existingResponse;  
+  Response? existingResponse;
   TextEditingController _responseController = TextEditingController();
-  late final ResponseProvider responseProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      responseProvider = context.read<ResponseProvider>();
-      responseProvider.setInteractionID(widget.interactionID);
-      responseProvider.setQuestionID(widget.question.id);
-      existingResponse = responseProvider.responses.firstWhereOrNull(
-      (response) => response.questionID == widget.question.id,
+      widget.responseProvider.setInteractionID(widget.interactionID);
+      widget.responseProvider.setQuestionID(widget.question.id);
+      existingResponse = widget.responseProvider.responses.firstWhereOrNull(
+        (response) => response.questionID == widget.question.id,
       );
       _responseController = TextEditingController(
         text: existingResponse?.text ?? '',
@@ -60,7 +60,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     return Scaffold(
       body: SharedWhiteBackground(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16.0), // optional padding
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -102,20 +102,26 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: TextField(
-                  key: Key('questionnaire-description'),
+                  key: const Key('questionnaire-description'),
                   controller: _responseController,
                   onChanged: (value) {
                     setState(() {
                       if (existingResponse != null) {
-                        responseProvider.setUpdatingResponse(true);
-                        responseProvider.updateResponse(
-                          existingResponse?.copyWith(text: value),
+                        widget.responseProvider.setUpdatingResponse(true);
+                        widget.responseProvider.updateResponse(
+                          existingResponse!.copyWith(text: value),
                         );
                       } else {
-                        responseProvider.addResponse(
-                          Response(interactionID: widget.interactionID, questionID: widget.question.id, text: value),
+                        widget.responseProvider.addResponse(
+                          Response(
+                            interactionID: widget.interactionID,
+                            questionID: widget.question.id,
+                            text: value,
+                          ),
                         );
                       }
+                      // Reset error state when user types
+                      widget.responseProvider.setErrorState('text', value.isEmpty);
                     });
                   },
                   maxLines: 10,
@@ -123,19 +129,46 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
                     hintText: 'Schrijf hier uw antwoord...',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.0),
+                      borderSide: widget.responseProvider.hasErrorText
+                          ? const BorderSide(color: Colors.red, width: 2.0)
+                          : BorderSide.none,
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: widget.responseProvider.hasErrorText
+                          ? const BorderSide(color: Colors.red, width: 2.0)
+                          : BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                      borderSide: widget.responseProvider.hasErrorText
+                          ? const BorderSide(color: Colors.red, width: 2.0)
+                          : BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                   style: const TextStyle(fontSize: 18, color: AppColors.brown),
                 ),
               ),
-              // Remove Expanded(child: Container()) — no longer needed
+              if (widget.responseProvider.hasErrorText)
+                const Padding(
+                  padding: EdgeInsets.only(left: 12.0, top: 8.0),
+                  child: Text(
+                    'Vul een antwoord in',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
             ],
           ),
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onNextPressed: widget.onNextPressed,
-        onBackPressed: widget.onBackPressed,
+      onNextPressed: () { 
+        widget.responseProvider.setQuestionID(widget.question.id);
+        widget.onNextPressed();   
+      },        
+      onBackPressed: widget.onBackPressed,
       ),
     );
   }
