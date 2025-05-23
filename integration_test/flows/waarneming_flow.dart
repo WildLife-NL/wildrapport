@@ -40,10 +40,12 @@ void runTests() {
 
       expect(find.text('Evenhoevigen'), findsOneWidget);
       await tester.tap(find.text('Evenhoevigen'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Evenhoevigen");
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Wisent'), findsOneWidget);
       await tester.tap(find.text('Wisent'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Wisent");
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Volwassen'), findsOneWidget);
@@ -52,30 +54,38 @@ void runTests() {
       expect(find.text('Voeg toe aan de lijst'), findsOneWidget);
 
       await tester.tap(find.text('Volwassen'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Volwassen");
       await tester.pumpAndSettle(const Duration(seconds: 1));
       await tester.tap(find.text('Mannelijk'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Mannelijk");
       await tester.pumpAndSettle(const Duration(seconds: 1));
       await tester.tap(find.text('+'));
+      debugPrint("[WaarnemingFlowTest]: Tapped +");
       await tester.pumpAndSettle(const Duration(seconds: 1));
       await tester.tap(find.text('Voeg toe aan de lijst'));
+      debugPrint("[WaarnemingFlowTest]: Added animal to list");
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Volgende'), findsOneWidget);
       await tester.tap(find.text('Volgende'));
-      await tester.pumpAndSettle(const Duration(seconds: 1));
-
-      expect(find.text('Volgende'), findsOneWidget);
-      await tester.tap(find.text('Volgende'));
+      debugPrint("[WaarnemingFlowTest]: Pressed Next");
       await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      expect(find.text('Volgende'), findsOneWidget);
+      await tester.tap(find.text('Volgende'));
+      debugPrint("[WaarnemingFlowTest]: Pressed Next");
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // Step 12: Verify Huidige locatie is displayed and tap on it
       expect(find.text('Huidige locatie'), findsOneWidget);
       await tester.tap(find.text('Huidige locatie'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Huidige locatie");
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 13: Verify Zuid-Kennemerland is displayed and tap on it
       expect(find.text('Zuid-Kennemerland'), findsOneWidget);
       await tester.tap(find.text('Zuid-Kennemerland'));
+      debugPrint("[WaarnemingFlowTest]: Tapped Zuid-Kennemerland");
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       // Step 14: tap on center of the screen to select location
