@@ -7,7 +7,6 @@ import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
-import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});

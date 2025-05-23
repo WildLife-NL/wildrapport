@@ -8,7 +8,6 @@ import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   final Questionnaire questionnaire;

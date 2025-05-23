@@ -15,7 +15,6 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/location/permission_gate.dart';
-import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 
 class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
