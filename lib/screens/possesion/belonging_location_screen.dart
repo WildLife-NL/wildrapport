@@ -10,6 +10,7 @@ import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
@@ -75,11 +76,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
 
   void _handlePendingActions() {
     if (_pendingSnackBarMessage != null) {
-      SnackBarWithProgressBar.show(
-        context: context,
-        message: _pendingSnackBarMessage!,
-        duration: const Duration(seconds: 3),
-      );
+      ToastNotificationHandler.sendToastNotification(context, _pendingSnackBarMessage!);
     }
     if (_pendingNavigationScreen != null) {
       navigationManager.pushReplacementForward(context, _pendingNavigationScreen!);

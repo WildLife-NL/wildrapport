@@ -36,7 +36,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
         debugPrint("index: $index");
         debugPrint("length: $length");
 
-        if (index == length) {
+        if (index == length - 1) {
           nextScreen = lastNextScreen;
         }
 

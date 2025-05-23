@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/managers/permission/permission_checker.dart';
+import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
@@ -82,11 +83,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecke
                                   imagePath: null,
                                   key: Key('rapporten_kaart_button'),
                                   onPressed: () {
-                                    SnackBarWithProgressBar.show(
-                                      context: context,
-                                      message: "Deze functie is nog niet toegevoegd",
-                                      duration: const Duration(seconds: 2),
-                                    );
+                                    ToastNotificationHandler.sendToastNotification(context, "Deze functie is nog niet toegevoegd", 2);
                                   },
                                 ),
                                 (
@@ -115,12 +112,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecke
                                   icon: Icons.description,
                                   imagePath: null,
                                   key: Key('mijn_rapporten_button'),
-                                  onPressed: () {
-                                    SnackBarWithProgressBar.show(
-                                      context: context,
-                                      message: "Deze functie is nog niet toegevoegd",
-                                      duration: const Duration(seconds: 2),
-                                    );
+                                  onPressed: () {ToastNotificationHandler.sendToastNotification(context, "Deze functie is nog niet toegevoegd", 2);
                                   },
                                 ),
                               ],
