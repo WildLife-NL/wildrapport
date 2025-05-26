@@ -8,7 +8,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/location/location_screen.dart';
-import 'package:wildrapport/screens/possesion/belonging_location_screen.dart';
+import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
