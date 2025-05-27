@@ -55,8 +55,9 @@ class AccidentReport implements Reportable, CommonReportFields {
     damages: json["damages"],
     userSelectedLocation: ReportLocation.fromJson(json["userSelectedLocation"]),
     systemLocation: ReportLocation.fromJson(json["systemLocation"]),
-    userSelectedDateTime: json["userSelectedDateTime"],
-    systemDateTime: json["systemDateTime"],
+    userSelectedDateTime: json["userSelectedDateTime"] != null ? 
+        DateTime.parse(json["userSelectedDateTime"]) : null,
+    systemDateTime: DateTime.parse(json["systemDateTime"]),
     animals: List<SightedAnimal>.from(
       json["animals"].map((x) => SightedAnimal.fromJson(x)),
     ),
@@ -64,3 +65,4 @@ class AccidentReport implements Reportable, CommonReportFields {
     urgency: json["urgency"],
   );
 }
+

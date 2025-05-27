@@ -44,6 +44,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   });
   @override
   Map<String, dynamic> toJson() => {
+    "possesionDamageReportID": possesionDamageReportID,
     "belonging": {
       "ID": possesion.possesionID,
       "name": possesion.possesionName,
@@ -86,3 +87,4 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
         systemDateTime: DateTime.parse(json["systemDateTime"]),
       );
 }
+
