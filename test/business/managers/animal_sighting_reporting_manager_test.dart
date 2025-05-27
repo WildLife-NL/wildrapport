@@ -813,11 +813,10 @@ void main() {
       
       // Act - use the updateAnimal method to update the list
       // First, get the current list of animals
-      final currentSighting = reportingManager.getCurrentanimalSighting()!;
       
       // Then, update the list by updating the second animal
       // This will make it the selected animal and keep it in the list
-      final updatedSighting = reportingManager.updateAnimal(animal2);
+      reportingManager.updateAnimal(animal2);
       
       // Now, create a new animal sighting to reset the state
       reportingManager.createanimalSighting();

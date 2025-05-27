@@ -32,12 +32,14 @@ class SightingReport implements Reportable, CommonReportFields {
   @override
   Map<String, dynamic> toJson() {
     return {
+      "sightingReportID": sightingReportID,
       "description": description,
       "location": systemLocation?.toJson(),
-      "moment": systemDateTime.toIso8601String(),
+      "moment": userSelectedDateTime?.toIso8601String(),
+      "timestamp": systemDateTime.toIso8601String(),
       "place": userSelectedLocation?.toJson(),
       "involvedAnimals": animals.map((a) => a.toJson()).toList(),
-      "speciesID": suspectedSpeciesID,
+      "suspectedSpeciesID": suspectedSpeciesID,
       "typeID": 1,
     };
   }
@@ -68,3 +70,4 @@ class SightingReport implements Reportable, CommonReportFields {
               : [],
     );
 }
+
