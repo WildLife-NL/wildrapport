@@ -16,8 +16,9 @@ class SightedAnimal {
   };
 
   factory SightedAnimal.fromJson(Map<String, dynamic> json) => SightedAnimal(
-    condition: json['condition'],
-    lifeStage: json['lifeStage'],
-    sex: json['sex'],
+    condition: json['condition'] ?? '',
+    lifeStage: json['lifeStage'] ?? '',
+    sex: json['sex'] ?? '',
   );
 }
+
