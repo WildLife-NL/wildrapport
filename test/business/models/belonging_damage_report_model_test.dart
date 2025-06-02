@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
-import 'package:wildrapport/models/beta_models/belonging_model.dart';
-import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 
 void main() {
