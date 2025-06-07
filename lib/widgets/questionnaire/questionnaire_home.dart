@@ -12,18 +12,21 @@ class QuestionnaireHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    final screenSize = MediaQuery.of(context).size;
+    final verticalSpacing = screenSize.height * 0.05; // 5% of screen height
+    
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 100.0,
+          padding: EdgeInsets.symmetric(
+            horizontal: screenSize.width * 0.08, // 8% of screen width
+            vertical: screenSize.height * 0.08, // 8% of screen height
           ),
           child: Text(
             "Wil je de natuur helpen door een paar vragen te beantwoorden?",
             textAlign: TextAlign.center,
             style: AppTextTheme.textTheme.titleLarge?.copyWith(
+              fontSize: screenSize.width * 0.055, // Responsive font size
               shadows: [
                 Shadow(
                   color: Colors.black.withValues(alpha: 0.25),
@@ -41,7 +44,7 @@ class QuestionnaireHome extends StatelessWidget {
               style: TextStyle(
                 color: AppColors.darkGreen,
                 fontWeight: FontWeight.bold,
-                fontSize: 32,
+                fontSize: screenSize.width * 0.07, // Responsive font size
               ).copyWith(
                 shadows: [
                   Shadow(
@@ -57,7 +60,7 @@ class QuestionnaireHome extends StatelessWidget {
               style: TextStyle(
                 color: AppColors.darkGreen,
                 fontWeight: FontWeight.bold,
-                fontSize: 32,
+                fontSize: screenSize.width * 0.07, // Responsive font size
               ).copyWith(
                 shadows: [
                   Shadow(
@@ -70,7 +73,7 @@ class QuestionnaireHome extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 40),
+        SizedBox(height: verticalSpacing),
         QuestionnaireHomeButtons(
           onOverslaanPressed: () {
             Navigator.push(
@@ -90,3 +93,4 @@ class QuestionnaireHome extends StatelessWidget {
     );
   }
 }
+

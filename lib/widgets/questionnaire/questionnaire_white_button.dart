@@ -39,34 +39,31 @@ class QuestionnaireWhiteButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(25),
           onTap: onPressed,
-          splashColor: AppColors.brown.withValues(alpha: 0.1),
-          highlightColor: AppColors.brown.withValues(alpha: 0.05),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Stack(
-              alignment: Alignment.topRight,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
               children: [
-                Center(
-                  child: Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.brown,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 20,
-                    ).copyWith(
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          offset: const Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
+                // Expanded widget with centered text
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      text,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.brown,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
-                if (rightWidget != null)
-                  Positioned(top: 4, right: 0, child: rightWidget!),
+                // Right widget (icon) with some spacing
+                if (rightWidget != null) 
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: rightWidget!,
+                  ),
               ],
             ),
           ),
@@ -75,3 +72,5 @@ class QuestionnaireWhiteButton extends StatelessWidget {
     );
   }
 }
+
+

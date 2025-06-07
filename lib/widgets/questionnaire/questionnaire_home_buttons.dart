@@ -15,11 +15,15 @@ class QuestionnaireHomeButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final buttonWidth = screenSize.width * 0.8; // 80% of screen width
+    final buttonSpacing = screenSize.height * 0.02; // 2% of screen height
+    
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.05,
-          vertical: MediaQuery.of(context).size.height * 0.02,
+          horizontal: screenSize.width * 0.05,
+          vertical: screenSize.height * 0.02,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -27,26 +31,26 @@ class QuestionnaireHomeButtons extends StatelessWidget {
             _buildButton(
               text: "Overslaan",
               image: Image.asset("assets/icons/questionnaire/arrow.png"),
-              height: 63,
-              width: 200,
+              height: screenSize.height * 0.08, // Responsive height
+              width: buttonWidth * 0.6, // 60% of the buttonWidth
               onPressed: onOverslaanPressed,
             ),
-            SizedBox(height: 24),
+            SizedBox(height: buttonSpacing),
             _buildButton(
               text: "Bewaar voor later",
               image: Image.asset("assets/icons/questionnaire/save.png"),
-              height: 63,
-              width: 277,
+              height: screenSize.height * 0.08,
+              width: buttonWidth * 0.8, // 80% of the buttonWidth
               onPressed: onBewaarVoorLaterPressed,
             ),
-            SizedBox(height: 24),
+            SizedBox(height: buttonSpacing),
             _buildButton(
               text: "Vragenlijst Openen",
               image: Image.asset(
                 "assets/icons/questionnaire/arrow_forward.png",
               ),
-              height: 70,
-              width: 339,
+              height: screenSize.height * 0.09,
+              width: buttonWidth, // Full buttonWidth
               onPressed: onVragenlijnstOpenenPressed,
             ),
           ],
@@ -58,16 +62,22 @@ class QuestionnaireHomeButtons extends StatelessWidget {
   Widget _buildButton({
     required String text,
     required Image image,
-    double? height,
-    double? width,
-    VoidCallback? onPressed,
+    required double height,
+    required double width,
+    required Function() onPressed,
   }) {
     return QuestionnaireWhiteButton(
       text: text,
-      rightWidget: SizedBox(width: 24, height: 24, child: image),
       height: height,
       width: width,
+      rightWidget: SizedBox(
+        height: height * 0.4, // Reduced from 0.5 to make icons smaller
+        child: image,
+      ),
       onPressed: onPressed,
     );
   }
 }
+
+
+
