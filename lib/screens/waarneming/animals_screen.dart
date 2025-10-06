@@ -71,7 +71,14 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         _error = null;
       });
 
-      final animals = await _animalManager.getAnimals();
+      final selectedCategory =
+    _animalSightingManager.getCurrentanimalSighting()?.category;
+
+final animals = await _animalManager.getAnimalsByCategory(
+  category: selectedCategory,
+);
+
+
       debugPrint(
         '[AnimalsScreen] Successfully loaded ${animals.length} animals',
       );

@@ -7,6 +7,7 @@ import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
@@ -15,7 +16,8 @@ class OverzichtScreen extends StatefulWidget {
   State<OverzichtScreen> createState() => _OverzichtScreenState();
 }
 
-class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecker<OverzichtScreen> {
+class _OverzichtScreenState extends State<OverzichtScreen>
+    with PermissionChecker<OverzichtScreen> {
   String userName = "Joe Doe";
 
   @override
@@ -82,7 +84,11 @@ class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecke
                                   imagePath: null,
                                   key: Key('rapporten_kaart_button'),
                                   onPressed: () {
-                                    ToastNotificationHandler.sendToastNotification(context, "Deze functie is nog niet toegevoegd", 2);
+                                    ToastNotificationHandler.sendToastNotification(
+                                      context,
+                                      "Deze functie is nog niet toegevoegd",
+                                      2,
+                                    );
                                   },
                                 ),
                                 (
@@ -97,9 +103,13 @@ class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecke
                                         const Rapporteren(),
                                       );
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: Text('Er is een fout opgetreden bij het navigeren'),
+                                          content: Text(
+                                            'Er is een fout opgetreden bij het navigeren',
+                                          ),
                                           duration: const Duration(seconds: 3),
                                         ),
                                       );
@@ -111,7 +121,22 @@ class _OverzichtScreenState extends State<OverzichtScreen> with PermissionChecke
                                   icon: Icons.description,
                                   imagePath: null,
                                   key: Key('mijn_rapporten_button'),
-                                  onPressed: () {ToastNotificationHandler.sendToastNotification(context, "Deze functie is nog niet toegevoegd", 2);
+                                  onPressed: () {
+                                    ToastNotificationHandler.sendToastNotification(
+                                      context,
+                                      "Deze functie is nog niet toegevoegd",
+                                      2,
+                                    );
+                                  },
+                                ),
+
+                                (
+                                  text: 'Uitloggen',
+                                  icon: Icons.logout,
+                                  imagePath: null,
+                                  key: Key('uitloggen_button'),
+                                  onPressed: () {
+                                    context.read<AppStateProvider>().logout();
                                   },
                                 ),
                               ],

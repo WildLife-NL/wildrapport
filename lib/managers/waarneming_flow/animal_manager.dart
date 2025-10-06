@@ -4,6 +4,10 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
+import 'package:wildrapport/models/enums/animal_category.dart';
+import 'package:wildrapport/models/enums/animal_category.dart';
+
+
 
 class AnimalManager
     implements
@@ -20,7 +24,8 @@ class AnimalManager
   AnimalManager(this._speciesApi, this._filterManager);
 
   @override
-  Future<List<AnimalModel>> getAnimals() async {
+  Future<List<AnimalModel>> getAnimals({AnimalCategory? category}) async {
+
     try {
       if (_cachedAnimals != null) {
         return _getFilteredAnimals(_cachedAnimals!);
@@ -108,4 +113,27 @@ class AnimalManager
       listener();
     }
   }
+
+@override
+Future<List<AnimalModel>> getAnimalsByCategory({AnimalCategory? category}) async {
+  final animals = await getAnimals();
+  if (category == null) return animals;
+
+  return animals.where((a) {
+    final name = a.animalName.toLowerCase();
+
+    switch (category) {
+      case AnimalCategory.evenhoevigen:
+        return name.contains('ree') || name.contains('hert') || name.contains('zwijn');
+      case AnimalCategory.knaagdieren:
+        return name.contains('bever') || name.contains('rat') || name.contains('muis');
+      case AnimalCategory.roofdieren:
+        return name.contains('vos') || name.contains('wolf') || name.contains('das');
+      case AnimalCategory.andere:
+        return true;
+    }
+  }).toList();
+}
+
+
 }
