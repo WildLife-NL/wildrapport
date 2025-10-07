@@ -50,6 +50,9 @@ import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 
+// Import your demo screen
+import 'custom_demo_screen.dart';
+
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
   if (token != null) {
@@ -180,6 +183,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MediaQueryWrapper(
       child: MaterialApp(
+        // Add route for demo screen
+        routes: {
+          '/demo': (_) => const CustomDemoScreen(),
+        },
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'Wild Rapport',
         theme: ThemeData(
