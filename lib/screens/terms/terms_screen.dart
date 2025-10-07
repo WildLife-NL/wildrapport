@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/screens/login/login_screen.dart';
+import 'package:provider/provider.dart';
+
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 
 class TermsScreen extends StatefulWidget {
@@ -12,26 +13,36 @@ class TermsScreen extends StatefulWidget {
 
 class _TermsScreenState extends State<TermsScreen> {
   bool _checked = false;
+  bool _submitting = false;
 
   Future<void> _onAcceptPressed() async {
-    // 1) Save the acceptance flag
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasAcceptedTerms', true);
+    if (_submitting) return;
+    setState(() => _submitting = true);
 
-    // 2) Decide where to go next (login or home)
-    final String? token = prefs.getString('bearer_token');
+    try {
+      final profileApi = context.read<ProfileApiInterface>();
 
-    if (!mounted) return;
+      // 1) Persist acceptance on the server
+      await profileApi.updateReportAppTerms(true);
 
-    // 3) Replace Terms with the next screen (avoid black screen)
-    if (token == null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
+      // 2) (Optional) Pull fresh profile to update local cache
+      // If your API already caches in updateReportAppTerms, you can skip this.
+      await profileApi.setProfileDataInDeviceStorage();
+
+      if (!mounted) return;
+
+      // 3) Navigate to the home screen (no local flags involved)
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+        (_) => false,
       );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to accept terms: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -57,7 +68,9 @@ class _TermsScreenState extends State<TermsScreen> {
                 children: [
                   Checkbox(
                     value: _checked,
-                    onChanged: (v) => setState(() => _checked = v ?? false),
+                    onChanged: _submitting
+                        ? null
+                        : (v) => setState(() => _checked = v ?? false),
                   ),
                   const Expanded(
                     child: Text('I have read and accept the Terms & Conditions'),
@@ -68,8 +81,14 @@ class _TermsScreenState extends State<TermsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _checked ? _onAcceptPressed : null,
-                  child: const Text('Accept & Continue'),
+                  onPressed: (_checked && !_submitting) ? _onAcceptPressed : null,
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Accept & Continue'),
                 ),
               ),
             ],

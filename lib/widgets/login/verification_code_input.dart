@@ -12,6 +12,11 @@ import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/screens/terms/terms_screen.dart';
+
+
 
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
@@ -49,64 +54,89 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
     _animationController = AnimationController(vsync: this);
   }
 
-  Future<void> _verifyCode() async {
-    FocusScope.of(context).unfocus();
-
-    final code = controllers.map((c) => c.text).join();
-    debugPrint("Email: ${widget.email} & Code: $code");
-
-    setState(() {
-      isLoading = true;
-      isError = false;
-    });
-
+Future<void> _routeAfterLogin() async {
+  try {
+    // Try Provider first, fall back to a local instance so we don’t crash
+    ProfileApiInterface profileApi;
     try {
-      User response = await loginManager.verifyCode(widget.email, code);
-      debugPrint("verified!!");
-      verifiedUser = response;
+      profileApi = context.read<ProfileApiInterface>();
+    } catch (_) {
+      profileApi = ProfileApi(AppConfig.shared.apiClient);
+    }
 
-      // Wait for at least one full animation cycle
-      await Future.delayed(const Duration(milliseconds: 1500));
+    final profile = await profileApi.fetchMyProfile(); // also caches
+    if (!mounted) return;
 
-      if (mounted && verifiedUser != null) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const OverzichtScreen()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      debugPrint("Verification error: $e");
-      
-      // Double-check if token was actually saved despite the error
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('bearer_token');
-      
-      if (token != null) {
-        // Token exists, so verification actually succeeded
-        debugPrint("Token exists despite error, proceeding to main screen");
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const OverzichtScreen()),
-            (route) => false,
-          );
-        }
-      } else {
-        // Genuine error, show error state
-        setState(() {
-          isLoading = false;
-          isError = true;
-          verifiedUser = null;
-        });
+    if (profile.reportAppTerms == true) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+        (_) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const TermsScreen()),
+        (_) => false,
+      );
+    }
+  } catch (e) {
+    // If anything goes wrong, keep the OLD behavior: go to Overzicht
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+      (_) => false,
+    );
+  }
+}
 
-        if (context.mounted) {
-          for (var controller in controllers) {
-            controller.clear();
-          }
-          focusNodes[0].requestFocus();
-        }
+
+Future<void> _verifyCode() async {
+  FocusScope.of(context).unfocus();
+  final code = controllers.map((c) => c.text).join();
+
+  setState(() {
+    isLoading = true;
+    isError = false;
+  });
+
+  bool navigated = false;
+
+  try {
+    final response = await loginManager.verifyCode(widget.email, code);
+    verifiedUser = response;
+
+    // let the animation play once
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    if (mounted && verifiedUser != null) {
+      await _routeAfterLogin();
+      navigated = true;
+    }
+  } catch (e) {
+    // token-saved-despite-error fallback
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('bearer_token');
+
+    if (token != null && mounted) {
+      await _routeAfterLogin();
+      navigated = true;
+    } else {
+      setState(() {
+        isError = true;
+        verifiedUser = null;
+      });
+      if (context.mounted) {
+        for (var c in controllers) c.clear();
+        focusNodes[0].requestFocus();
       }
     }
+  } finally {
+    // if we didn’t navigate, stop the loader
+    if (mounted && !navigated) {
+      setState(() => isLoading = false);
+    }
   }
+}
+
 
   Widget _buildTextField(int index) {
     return Container(

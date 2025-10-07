@@ -49,6 +49,7 @@ import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
@@ -128,6 +129,7 @@ void main() async {
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
+        Provider<ProfileApiInterface>.value(value: profileApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
