@@ -8,6 +8,9 @@ import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/screens/login/login_screen.dart';
+
 class AppStateProvider with ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final Map<String, Map<String, dynamic>> _screenStates = {};
@@ -158,5 +161,31 @@ class AppStateProvider with ChangeNotifier {
 
   void startLocationUpdates() {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
+  }
+
+  Future<void> logout() async {
+    // 1) Remove persisted auth/session
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('bearer_token'); // stored by AuthApi.authorize(...)
+    } catch (e, st) {
+      debugPrint('[AppStateProvider] logout(): failed to clear token: $e\n$st');
+    }
+
+    // 2) Reset in-memory app state
+    _screenStates.clear();
+    _activeReports.clear();
+    _currentReportType = null;
+    _cachedPosition = null;
+    _cachedAddress = null;
+    _lastLocationUpdate = null;
+    notifyListeners();
+
+    // 3) Navigate to LoginScreen & clear back stack
+    // (Use navigatorKey directly; no named routes needed)
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
   }
 }

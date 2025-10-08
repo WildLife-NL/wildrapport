@@ -4,6 +4,8 @@ class Profile {
   String? gender;
   String userName;
   String? postcode;
+  bool? reportAppTerms;
+  bool? recreationAppTerms;
 
   Profile({
     required this.userID,
@@ -11,6 +13,8 @@ class Profile {
     this.gender,
     required this.userName,
     this.postcode,
+    this.reportAppTerms,
+    this.recreationAppTerms,
   });
   Map<String, dynamic> toJson() => {
     'ID': userID,
@@ -18,6 +22,8 @@ class Profile {
     'gender': gender,
     'name': userName,
     'postcode': postcode,
+    'reportAppTerms': reportAppTerms,
+    'recreationAppTerms': recreationAppTerms,
   };
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
     userID: json['ID'],
@@ -25,5 +31,7 @@ class Profile {
     gender: json['gender'],
     userName: json['name'],
     postcode: json['postcode'],
+    reportAppTerms: json['reportAppTerms'],
+    recreationAppTerms: json['recreationAppTerms'],
   );
 }

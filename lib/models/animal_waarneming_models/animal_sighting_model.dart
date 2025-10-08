@@ -5,7 +5,7 @@ import 'package:wildrapport/models/ui_models/image_list_model.dart';
 import 'package:wildrapport/models/ui_models/date_time_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
-
+  
 class AnimalSightingModel {
   final List<AnimalModel>? animals;
   final AnimalModel? animalSelected;
