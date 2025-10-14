@@ -20,6 +20,7 @@ import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
+import 'package:wildrapport/screens/questionnaire/questionnaire_intro_screen.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
