@@ -50,6 +50,9 @@ import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/data_managers/interaction_query_api.dart';
+import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
+
 
 Future<Widget> getHomepageBasedOnLoginStatus() async {
   String? token = await _getToken();
@@ -72,6 +75,8 @@ void main() async {
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
   final appConfig = AppConfig(apiClient);
 
+  final geoApiClient = ApiClient('https://test-api-geo-prd-wildlifenl.apps.cl01.cp.its.uu.nl');
+
   final authApi = AuthApi(apiClient);
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
@@ -86,6 +91,11 @@ void main() async {
   final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
   final responseProvider = ResponseProvider();
+
+final interactionQueryApi = InteractionQueryApi(geoApiClient);
+final interactionQueryManager = InteractionQueryManager(interactionQueryApi);
+mapProvider.setInteractionsManager(interactionQueryManager);
+
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();
@@ -154,7 +164,6 @@ void main() async {
         ),
         Provider<LocationScreenInterface>(create: (_) => locationScreenManager),
         Provider<PermissionInterface>(create: (_) => permissionManager),
-        ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
       child: MyApp(
         initialScreen: initialScreen,
