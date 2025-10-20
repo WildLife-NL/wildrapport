@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
+import 'package:wildrapport/models/api_models/interaction_query_result.dart';
+import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 
 class MapProvider extends ChangeNotifier {
+  // === Existing location state ===
   Position? selectedPosition;
   String selectedAddress = '';
   Position? currentPosition;
@@ -24,6 +27,23 @@ class MapProvider extends ChangeNotifier {
     return _mapController!;
   }
 
+  // === NEW: interactions state (R8) ===
+  final List<InteractionQueryResult> _interactions = [];
+  bool _interactionsLoading = false;
+  String? _interactionsError;
+
+  List<InteractionQueryResult> get interactions => List.unmodifiable(_interactions);
+  bool get interactionsLoading => _interactionsLoading;
+  String? get interactionsError => _interactionsError;
+  bool get hasInteractions => _interactions.isNotEmpty;
+
+  // We inject the manager via a setter to avoid breaking existing DI.
+  InteractionQueryManager? _interactionsManager;
+  void setInteractionsManager(InteractionQueryManager manager) {
+    _interactionsManager = manager;
+  }
+
+  // === Existing methods ===
   Future<void> initialize() async {
     if (_mapController != null) {
       debugPrint('[MapProvider] Map controller already initialized, skipping');
@@ -61,7 +81,6 @@ class MapProvider extends ChangeNotifier {
   void setLoading(bool loading) {
     if (_isDisposed) return;
     _isLoading = loading;
-    // Notify on next frame
     Future.microtask(() {
       if (!_isDisposed) {
         notifyListeners();
@@ -81,7 +100,6 @@ class MapProvider extends ChangeNotifier {
       selectedAddress = address;
     }
 
-    // Batch state updates
     Future.microtask(() {
       if (!_isDisposed) {
         setLoading(false);
@@ -107,12 +125,9 @@ class MapProvider extends ChangeNotifier {
 
   Future<void> resetToCurrentLocation(Position position, String address) async {
     setLoading(true);
-    // Clear selected location first
     selectedPosition = null;
     selectedAddress = '';
-    // Small delay to ensure UI updates
     await Future.delayed(const Duration(milliseconds: 50));
-    // Set new position
     selectedPosition = position;
     selectedAddress = address;
     currentPosition = position;
@@ -142,10 +157,61 @@ class MapProvider extends ChangeNotifier {
     currentPosition = null;
     currentAddress = '';
 
-    // Small delay to ensure UI updates
     await Future.delayed(const Duration(milliseconds: 50));
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+
+  /// Load interactions (others' reports) for a given center + radius.
+  Future<void> loadInteractions({
+    required double lat,
+    required double lon,
+    required int radiusMeters,
+    DateTime? after,
+    DateTime? before,
+  }) async {
+    if (_interactionsManager == null) {
+      debugPrint('[MapProvider] InteractionsManager not set. Call setInteractionsManager() first.');
+      return;
+    }
+
+    // UI flags
+    _interactionsLoading = true;
+    _interactionsError = null;
+    _interactions.clear();  
+    notifyListeners();
+
+    try {
+      final clamped = radiusMeters.clamp(250, 20000);
+      final results = await _interactionsManager!.loadNearby(
+        lat: lat,
+        lon: lon,
+        radiusMeters: clamped,
+        after: after,
+        before: before,
+      );
+
+      _interactions
+        ..clear()
+        ..addAll(results);
+
+      _interactionsLoading = false;
+      _interactionsError = null;
+      notifyListeners();
+    } catch (e) {
+      _interactionsLoading = false;
+      _interactionsError = e.toString();
+      notifyListeners();
+    }
+  }
+
+  /// Clear currently loaded interactions
+  void clearInteractions() {
+    _interactions.clear();
+    _interactionsError = null;
+    _interactionsLoading = false;
     notifyListeners();
   }
 }

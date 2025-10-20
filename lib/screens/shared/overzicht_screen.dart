@@ -8,6 +8,13 @@ import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
+import 'package:wildrapport/data_managers/interaction_query_api.dart';
+import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
+
+
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
@@ -78,19 +85,17 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                             SizedBox(height: spacing),
                             ActionButtons(
                               buttons: [
-                                (
-                                  text: 'RapportenKaart',
-                                  icon: Icons.map,
-                                  imagePath: null,
-                                  key: Key('rapporten_kaart_button'),
-                                  onPressed: () {
-                                    ToastNotificationHandler.sendToastNotification(
-                                      context,
-                                      "Deze functie is nog niet toegevoegd",
-                                      2,
-                                    );
-                                  },
-                                ),
+(
+  text: 'Kaart',
+  icon: Icons.map,
+  imagePath: null,
+  key: Key('rapporten_kaart_button'),
+onPressed: () {
+  context.read<NavigationStateInterface>()
+    .pushReplacementForward(context, const KaartOverviewScreen());
+}
+),
+
                                 (
                                   text: 'Rapporteren',
                                   icon: Icons.edit_note,
