@@ -40,10 +40,21 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void nextScreen() {
     debugPrint("${responseProvider.answerID}");
+    debugPrint("[QuestionnaireScreen] Total responses in provider: ${responseProvider.responses.length}");
+    
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
+      // Find the response for the current question instead of using .last
+      final currentResponse = responseProvider.responses.firstWhere(
+        (r) => r.questionID == responseProvider.questionID,
+        orElse: () => responseProvider.responses.last,
+      );
+      
+      debugPrint("[QuestionnaireScreen] Storing response for question: ${responseProvider.questionID}");
+      debugPrint("[QuestionnaireScreen] Answer: ${currentResponse.answerID}, Text: ${currentResponse.text}");
+      
       _responseManager.storeResponse(
-        responseProvider.responses.last,
+        currentResponse,
         widget.questionnaire.id,
         responseProvider.questionID!,
       );
@@ -58,14 +69,26 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   void lastNextScreen() async {
+    debugPrint("[QuestionnaireScreen] Final submit - Total responses: ${responseProvider.responses.length}");
+    
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
+      // Find the response for the last question
+      final lastResponse = responseProvider.responses.firstWhere(
+        (r) => r.questionID == responseProvider.questionID,
+        orElse: () => responseProvider.responses.last,
+      );
+      
+      debugPrint("[QuestionnaireScreen] Storing last response for question: ${responseProvider.questionID}");
+      
       await _responseManager.storeResponse(
-        responseProvider.responses.last,
+        lastResponse,
         widget.questionnaire.id,
         responseProvider.questionID!,
       );
     }
+    
+    debugPrint("[QuestionnaireScreen] Submitting all responses to backend...");
     await _responseManager.submitResponses();
     _sendToastNotification("Uw antwoorden zijn verstuurd");
 

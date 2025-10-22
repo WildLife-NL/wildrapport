@@ -20,15 +20,24 @@ class ResponseApi implements ResponseApiInterface {
     String? answerID,
     String? text,
   ) async {
-    http.Response response = await client.post('response/', {
+    // Log the payload being sent
+    final payload = {
       "answerID": answerID,
       "interactionID": interactionID,
       "questionID": questionID,
       "text": text,
-    }, authenticated: true);
+    };
+    
+    debugPrint("$yellowLog [ResponseApi]: Sending response...");
+    debugPrint("$yellowLog [ResponseApi]: Payload: $payload");
+    
+    http.Response response = await client.post('response/', payload, authenticated: true);
 
-    if (response.statusCode == HttpStatus.ok) {
-      debugPrint("$greenLog [ResponseApi]: Answer submitted successfully");
+    debugPrint("$yellowLog [ResponseApi]: Response status: ${response.statusCode}");
+    debugPrint("$yellowLog [ResponseApi]: Response body: ${response.body}");
+    
+    if (response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created) {
+      debugPrint("$greenLog [ResponseApi]: Answer submitted successfully (${response.statusCode})");
       return true;
     } else {
       debugPrint(

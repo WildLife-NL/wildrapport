@@ -10,8 +10,10 @@ import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.da
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
@@ -182,7 +184,7 @@ class _LocationScreenState extends State<LocationScreen> {
               debugPrint('\x1B[35m[LocationScreen] Final API format (detailed):\x1B[0m');
               debugPrint(const JsonEncoder.withIndent('  ').convert(apiFormat));
 
-              final responseModel = await submitReport(animalSightingManager, interactionManager);
+              final responseModel = await submitReport(animalSightingManager, interactionManager, context);
               if (responseModel != null) {
                 if (responseModel.questionnaire.questions == null || responseModel.questionnaire.questions!.isEmpty) {
                   debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
@@ -217,15 +219,31 @@ class _LocationScreenState extends State<LocationScreen> {
 Future<InteractionResponse?> submitReport(
   AnimalSightingReportingInterface animalSightingManager,
   InteractionInterface interactionManager,
+  BuildContext context,
 ) async {
   try {
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
     if (currentSighting == null) {
       throw StateError('No active animal sighting found');
     }
+    
+    // Get the current report type from app state
+    final appStateProvider = context.read<AppStateProvider>();
+    final reportType = appStateProvider.currentReportType;
+    
+    // Map ReportType to InteractionType
+    final interactionType = switch (reportType) {
+      ReportType.waarneming => InteractionType.waarneming,
+      ReportType.gewasschade => InteractionType.gewasschade,
+      ReportType.verkeersongeval => InteractionType.verkeersongeval,
+      null => InteractionType.waarneming, // Default fallback
+    };
+    
+    debugPrint('\x1B[36m[LocationScreen] Using report type: $reportType -> interaction type: $interactionType\x1B[0m');
+    
     final InteractionResponse? response = await interactionManager.postInteraction(
       AnimalSightingReportWrapper(currentSighting),
-      InteractionType.waarneming,
+      interactionType,
     );
     if (response != null) {
       if (response.questionnaire.questions != null && response.questionnaire.questions!.isNotEmpty) {
