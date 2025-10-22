@@ -80,6 +80,7 @@ class AppStateProvider with ChangeNotifier {
   }
 
   void initializeReport(ReportType reportType) {
+    debugPrint('\x1B[36m[AppStateProvider] 🔷 Initializing report with type: $reportType\x1B[0m');
     _currentReportType = reportType;
     final report = switch (reportType) {
       ReportType.waarneming => SightingReport(
@@ -103,6 +104,7 @@ class AppStateProvider with ChangeNotifier {
     };
 
     _activeReports['currentReport'] = report;
+    debugPrint('\x1B[36m[AppStateProvider] 🔷 Report initialized. Current type: $_currentReportType\x1B[0m');
     notifyListeners();
   }
 

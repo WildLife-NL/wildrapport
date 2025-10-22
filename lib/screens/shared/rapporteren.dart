@@ -49,18 +49,16 @@ class _RapporterenState extends State<Rapporteren> {
         _initializeMapInBackground();
         break;
       case 'Verkeersongeval':
-        // Temporarily disable this option
-        debugPrint(
-          '[Rapporteren] Verkeersongeval selected but temporarily disabled',
-        );
-        // Show a message to the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Deze functie is nog niet beschikbaar'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        return; // Return early without navigating
+        debugPrint('[Rapporteren] Verkeersongeval selected, initializing map');
+        selectedReportType = ReportType.verkeersongeval;
+        // Create animal sighting report and save it in provider
+        final animalSightingManagerVerkeer =
+            context.read<AnimalSightingReportingInterface>();
+        animalSightingManagerVerkeer.createanimalSighting();
+        // Skip condition screen and go directly to category screen
+        nextScreen = const CategoryScreen();
+        _initializeMapInBackground();
+        break;
       case 'Diergezondheid':
         debugPrint('[Rapporteren] Diergezondheid selected, initializing map');
         selectedReportType = ReportType.verkeersongeval;
