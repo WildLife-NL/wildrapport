@@ -10,6 +10,7 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
+import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 
 class AnimalListTable extends StatefulWidget {
   const AnimalListTable({super.key});
@@ -424,30 +425,26 @@ class AnimalListTableState extends State<AnimalListTable> {
     List<AnimalGender> usedGenders,
     BuildContext context,
   ) {
-    String firstColumnText;
     AnimalAge age;
 
     switch (index) {
       case 1:
-        firstColumnText = 'Pas geboren';
         age = AnimalAge.pasGeboren;
         break;
       case 2:
-        firstColumnText = 'Onvolwassen';
         age = AnimalAge.onvolwassen;
         break;
       case 3:
-        firstColumnText = 'Volwassen';
         age = AnimalAge.volwassen;
         break;
       case 4:
-        firstColumnText = 'Onbekend';
         age = AnimalAge.onbekend;
         break;
       default:
-        firstColumnText = '';
         age = AnimalAge.onbekend;
     }
+
+    final firstColumnText = age.label; // Use the extension's label
 
     return TableRow(
       children: [
@@ -460,15 +457,15 @@ class AnimalListTableState extends State<AnimalListTable> {
                 if (index != 0)
                   age == AnimalAge.onbekend
                       ? Image.asset(
-                        'assets/icons/gender/unknown_gender.png',
-                        height: _getIconSize(index),
-                        width: _getIconSize(index),
-                      )
+                          'assets/icons/gender/unknown_gender.png',
+                          height: _getIconSize(index),
+                          width: _getIconSize(index),
+                        )
                       : Icon(
-                        Icons.pets,
-                        size: _getIconSize(index),
-                        color: _getIconColor(index),
-                      ),
+                          Icons.pets,
+                          size: _getIconSize(index),
+                          color: _getIconColor(index),
+                        ),
                 const SizedBox(width: 8),
                 Expanded(child: Text(firstColumnText)),
               ],

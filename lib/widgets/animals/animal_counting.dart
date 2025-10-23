@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/widgets/animals/counter_widget.dart';
@@ -32,17 +33,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
       GlobalKey<AnimalCounterState>();
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
-    switch (ageString) {
-      case "<6 maanden":
-        return AnimalAge.pasGeboren;
-      case "Onvolwassen":
-        return AnimalAge.onvolwassen;
-      case "Volwassen":
-        return AnimalAge.volwassen;
-      case "Onbekend":
-      default:
-        return AnimalAge.onbekend;
-    }
+    return AnimalAgeExtensions.fromApiString(ageString);
   }
 
   AnimalGender _convertStringToAnimalGender(String genderString) {
@@ -463,7 +454,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
 
   List<Widget> _buildAgeButtonsWithSpacing() {
     final List<Widget> result = [];
-    final ageOptions = ["<6 maanden", "Onvolwassen", "Volwassen", "Onbekend"];
+    final ageOptions = [
+      AnimalAge.pasGeboren.label,
+      AnimalAge.onvolwassen.label,
+      AnimalAge.volwassen.label,
+      AnimalAge.onbekend.label,
+    ];
 
     // Count visible and hidden buttons
     int visibleCount = 0;
