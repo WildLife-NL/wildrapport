@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/models/enums/location_type.dart';
+
+// R8
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 
+// R7
+import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
+import 'package:wildrapport/models/api_models/detection_pin.dart';
+import 'package:wildrapport/managers/api_managers/animal_pins_manager.dart';
+import 'package:wildrapport/managers/api_managers/detection_pins_manager.dart';
+
 class MapProvider extends ChangeNotifier {
-  // === Existing location state ===
+  // ===== Location state =====
   Position? selectedPosition;
   String selectedAddress = '';
   Position? currentPosition;
@@ -20,49 +28,76 @@ class MapProvider extends ChangeNotifier {
   MapController get mapController {
     if (_mapController == null) {
       debugPrint(
-        '[MapProvider] Warning: Accessing uninitialized map controller, creating new instance',
+        '[MapProvider] Warning: accessing uninitialized map controller, creating new instance',
       );
       _mapController = MapController();
     }
     return _mapController!;
   }
 
-  // === NEW: interactions state (R8) ===
+  // ===== R7: Animals & Detections =====
+  final List<AnimalPin> _animalPins = [];
+  final List<DetectionPin> _detectionPins = [];
+
+  bool _animalPinsLoading = false;
+  bool _detectionPinsLoading = false;
+
+  String? _animalPinsError;
+  String? _detectionPinsError;
+
+  AnimalPinsManager? _animalPinsManager;
+  DetectionPinsManager? _detectionPinsManager;
+
+  void setAnimalPinsManager(AnimalPinsManager manager) {
+    _animalPinsManager = manager;
+  }
+
+  void setDetectionPinsManager(DetectionPinsManager manager) {
+    _detectionPinsManager = manager;
+  }
+
+  List<AnimalPin> get animalPins => List.unmodifiable(_animalPins);
+  List<DetectionPin> get detectionPins => List.unmodifiable(_detectionPins);
+
+  bool get animalPinsLoading => _animalPinsLoading;
+  bool get detectionPinsLoading => _detectionPinsLoading;
+
+  String? get animalPinsError => _animalPinsError;
+  String? get detectionPinsError => _detectionPinsError;
+
+  // ===== R8: Interactions =====
   final List<InteractionQueryResult> _interactions = [];
   bool _interactionsLoading = false;
   String? _interactionsError;
 
-  List<InteractionQueryResult> get interactions => List.unmodifiable(_interactions);
-  bool get interactionsLoading => _interactionsLoading;
-  String? get interactionsError => _interactionsError;
-  bool get hasInteractions => _interactions.isNotEmpty;
-
-  // We inject the manager via a setter to avoid breaking existing DI.
   InteractionQueryManager? _interactionsManager;
   void setInteractionsManager(InteractionQueryManager manager) {
     _interactionsManager = manager;
   }
 
-  // === Existing methods ===
+  List<InteractionQueryResult> get interactions =>
+      List.unmodifiable(_interactions);
+  bool get interactionsLoading => _interactionsLoading;
+  String? get interactionsError => _interactionsError;
+  bool get hasInteractions => _interactions.isNotEmpty;
+
+  int get totalPins =>
+      _animalPins.length + _detectionPins.length + _interactions.length;
+
+  // ===== Lifecycle / base map helpers =====
   Future<void> initialize() async {
     if (_mapController != null) {
       debugPrint('[MapProvider] Map controller already initialized, skipping');
       return;
     }
-
     try {
-      debugPrint('[MapProvider] Starting map controller initialization');
       _isLoading = true;
       notifyListeners();
-
       _mapController = MapController();
       await Future.delayed(const Duration(milliseconds: 100));
-
-      debugPrint('[MapProvider] Map controller initialized successfully');
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      debugPrint('[MapProvider] Error initializing map controller: $e');
       _isLoading = false;
       notifyListeners();
       throw Exception('Failed to initialize map controller: $e');
@@ -70,7 +105,6 @@ class MapProvider extends ChangeNotifier {
   }
 
   void setMapController(MapController controller) {
-    debugPrint('[MapProvider] Setting new map controller');
     if (_mapController != null && _mapController != controller) {
       _mapController?.dispose();
     }
@@ -82,19 +116,15 @@ class MapProvider extends ChangeNotifier {
     if (_isDisposed) return;
     _isLoading = loading;
     Future.microtask(() {
-      if (!_isDisposed) {
-        notifyListeners();
-      }
+      if (!_isDisposed) notifyListeners();
     });
   }
 
   Future<void> updatePosition(Position position, String address) async {
     if (_isDisposed) return;
-
     currentPosition = position;
     currentAddress = address;
 
-    // Only update selected position if it's not explicitly set to unknown
     if (selectedAddress != LocationType.unknown.displayText) {
       selectedPosition = position;
       selectedAddress = address;
@@ -118,7 +148,6 @@ class MapProvider extends ChangeNotifier {
     setLoading(true);
     selectedPosition = null;
     selectedAddress = LocationType.unknown.displayText;
-    // Don't clear current position/address
     notifyListeners();
     setLoading(false);
   }
@@ -147,24 +176,31 @@ class MapProvider extends ChangeNotifier {
   }
 
   Future<void> resetMapState() async {
-    debugPrint('[MapProvider] Resetting map state');
     _isLoading = true;
     notifyListeners();
 
-    // Reset any state but keep the controller
     selectedPosition = null;
     selectedAddress = '';
     currentPosition = null;
     currentAddress = '';
 
-    await Future.delayed(const Duration(milliseconds: 50));
+    // clear pins & errors
+    _animalPins.clear();
+    _detectionPins.clear();
+    _interactions.clear();
+    _animalPinsError = null;
+    _detectionPinsError = null;
+    _interactionsError = null;
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
 
+    await Future.delayed(const Duration(milliseconds: 50));
     _isLoading = false;
     notifyListeners();
   }
 
-
-  /// Load interactions (others' reports) for a given center + radius.
+  // ===== Loaders (R8) =====
   Future<void> loadInteractions({
     required double lat,
     required double lon,
@@ -173,14 +209,15 @@ class MapProvider extends ChangeNotifier {
     DateTime? before,
   }) async {
     if (_interactionsManager == null) {
-      debugPrint('[MapProvider] InteractionsManager not set. Call setInteractionsManager() first.');
+      debugPrint(
+        '[MapProvider] InteractionsManager not set. Call setInteractionsManager() first.',
+      );
       return;
     }
 
-    // UI flags
     _interactionsLoading = true;
     _interactionsError = null;
-    _interactions.clear();  
+    _interactions.clear();
     notifyListeners();
 
     try {
@@ -207,11 +244,148 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// Clear currently loaded interactions
   void clearInteractions() {
     _interactions.clear();
     _interactionsError = null;
     _interactionsLoading = false;
     notifyListeners();
+  }
+
+  // ===== Loaders (R7) =====
+  Future<void> loadAnimalPins({
+    required double lat,
+    required double lon,
+    required int radiusMeters,
+    DateTime? after,
+    DateTime? before,
+  }) async {
+    if (_animalPinsManager == null) {
+      debugPrint(
+        '[MapProvider] AnimalPinsManager not set. Call setAnimalPinsManager() first.',
+      );
+      return;
+    }
+
+    _animalPinsLoading = true;
+    _animalPinsError = null;
+    _animalPins.clear();
+    notifyListeners();
+
+    try {
+      final all = await _animalPinsManager!.loadAll();
+
+      final filtered =
+          all.where((pin) {
+            final d = Geolocator.distanceBetween(lat, lon, pin.lat, pin.lon);
+            if (d > radiusMeters) return false;
+
+            if (after != null && pin.seenAt.isBefore(after)) return false;
+            if (before != null && pin.seenAt.isAfter(before)) return false;
+
+            return true;
+          }).toList();
+
+      debugPrint(
+        '[R7/Animals] all=${all.length} kept=${filtered.length} '
+        '(r=${radiusMeters}m, after=$after, before=$before)'
+        '${filtered.isNotEmpty ? ' first=${filtered.first.speciesName} @ ${filtered.first.lat},${filtered.first.lon}' : ''}',
+      );
+
+      _animalPins
+        ..clear()
+        ..addAll(filtered);
+
+      _animalPinsLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _animalPinsLoading = false;
+      _animalPinsError = e.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadDetectionPins({
+    required double lat,
+    required double lon,
+    required int radiusMeters,
+    DateTime? after,
+    DateTime? before,
+  }) async {
+    if (_detectionPinsManager == null) {
+      debugPrint(
+        '[MapProvider] DetectionPinsManager not set. Call setDetectionPinsManager() first.',
+      );
+      return;
+    }
+
+    _detectionPinsLoading = true;
+    _detectionPinsError = null;
+    _detectionPins.clear();
+    notifyListeners();
+
+    try {
+      final all = await _detectionPinsManager!.loadAll();
+
+      final filtered =
+          all.where((pin) {
+            final d = Geolocator.distanceBetween(lat, lon, pin.lat, pin.lon);
+            if (d > radiusMeters) return false;
+
+            if (after != null && pin.detectedAt.isBefore(after)) return false;
+            if (before != null && pin.detectedAt.isAfter(before)) return false;
+
+            return true;
+          }).toList();
+
+      debugPrint(
+        '[R7/Detections] all=${all.length} kept=${filtered.length} '
+        '(r=${radiusMeters}m, after=$after, before=$before)'
+        '${filtered.isNotEmpty ? ' first @ ${filtered.first.lat},${filtered.first.lon} ts=${filtered.first.detectedAt.toIso8601String()}' : ''}',
+      );
+
+      _detectionPins
+        ..clear()
+        ..addAll(filtered);
+
+      _detectionPinsLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _detectionPinsLoading = false;
+      _detectionPinsError = e.toString();
+      notifyListeners();
+    }
+  }
+
+  /// Convenience to load everything for the current view
+  Future<void> loadAllPinsForView({
+    required double lat,
+    required double lon,
+    required int radiusMeters,
+    DateTime? after,
+    DateTime? before,
+  }) async {
+    await Future.wait([
+      loadAnimalPins(
+        lat: lat,
+        lon: lon,
+        radiusMeters: radiusMeters,
+        after: after,
+        before: before,
+      ),
+      loadDetectionPins(
+        lat: lat,
+        lon: lon,
+        radiusMeters: radiusMeters,
+        after: after,
+        before: before,
+      ),
+      loadInteractions(
+        lat: lat,
+        lon: lon,
+        radiusMeters: radiusMeters,
+        after: after,
+        before: before,
+      ),
+    ]);
   }
 }
