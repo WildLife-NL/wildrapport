@@ -403,7 +403,7 @@ AnimalSightingModel createanimalSighting() {
 @override
 void addObservedAnimal(ObservedAnimalEntry entry) {
   _observedAnimals.add(entry);
-  _notifyListeners();
+  _notifyListeners(); // trigger rebuilds for listeners (tables etc.)
 }
 
 @override

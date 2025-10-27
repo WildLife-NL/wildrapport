@@ -13,6 +13,9 @@ import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/managers/api_managers/animal_pins_manager.dart';
 import 'package:wildrapport/managers/api_managers/detection_pins_manager.dart';
 
+import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+
+
 class MapProvider extends ChangeNotifier {
   // ===== Location state =====
   Position? selectedPosition;
@@ -34,6 +37,32 @@ class MapProvider extends ChangeNotifier {
     }
     return _mapController!;
   }
+
+  TrackingApiInterface? _trackingApi;
+
+void setTrackingApi(TrackingApiInterface api) {
+  _trackingApi = api;
+}
+
+/// Call this to send the user's current GPS location to the backend.
+Future<void> sendTrackingPingFromPosition(Position pos) async {
+  if (_trackingApi == null) {
+    debugPrint('[MapProvider] TrackingApi not set');
+    return;
+  }
+
+  try {
+    await _trackingApi!.addTrackingReading(
+      lat: pos.latitude,
+      lon: pos.longitude,
+      timestampUtc: DateTime.now().toUtc(),
+    );
+    debugPrint('[MapProvider] tracking-reading sent OK');
+  } catch (e) {
+    debugPrint('[MapProvider] tracking-reading failed: $e');
+  }
+}
+
 
   // ===== R7: Animals & Detections =====
   final List<AnimalPin> _animalPins = [];

@@ -18,9 +18,7 @@ class ObservedAnimalEntry {
     required this.count,
   });
 
-  /// Build one backend animal object for this entry.
-  /// This returns the shape the backend expects for a *single* animal.
-  /// If `count` > 1, you'll duplicate this map `count` times when building the payload.
+  /// If `count` > 1, it will duplicate this map `count` times when building the payload.
   Map<String, dynamic> toBackendMapSingle() {
     return {
       'sex': gender.apiValue,          // "male" | "female" | "other"

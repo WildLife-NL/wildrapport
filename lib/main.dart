@@ -11,6 +11,7 @@ import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
 import 'package:wildrapport/data_managers/animals_api.dart';
 import 'package:wildrapport/data_managers/detections_api.dart';
+import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
@@ -106,6 +107,10 @@ void main() async {
   mapProvider.setInteractionsManager(interactionQueryManager);
   mapProvider.setDetectionPinsManager(detectionPinsManager);
   mapProvider.setAnimalPinsManager(animalPinsManager);
+
+  final trackingApi = TrackingApi(apiClient);
+mapProvider.setTrackingApi(trackingApi);
+
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();

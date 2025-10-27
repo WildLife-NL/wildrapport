@@ -116,6 +116,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // Set the position immediately
     await map.resetToCurrentLocation(pos, 'Locatie gevonden'); // fallback text
 
+// Send tracking ping once on first load (R2)
+    context.read<MapProvider>().sendTrackingPingFromPosition(pos);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         map.mapController.move(LatLng(pos!.latitude, pos.longitude), 15);
@@ -386,6 +389,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                 LatLng(fresh.latitude, fresh.longitude),
                 16,
               );
+
+              // 🔴 Send tracking ping when user recenters (R2)
+      context.read<MapProvider>().sendTrackingPingFromPosition(fresh);
               _queueFetch();
             }
           },
