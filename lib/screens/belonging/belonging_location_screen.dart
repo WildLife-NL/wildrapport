@@ -78,7 +78,8 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
       ToastNotificationHandler.sendToastNotification(context, _pendingSnackBarMessage!);
     }
     if (_pendingNavigationScreen != null) {
-      navigationManager.pushReplacementForward(context, _pendingNavigationScreen!);
+      // Use pushAndRemoveUntil to clear the navigation stack before showing questionnaire or overview
+      navigationManager.pushAndRemoveUntil(context, _pendingNavigationScreen!);
     }
     _pendingSnackBarMessage = null;
     _pendingNavigationScreen = null;

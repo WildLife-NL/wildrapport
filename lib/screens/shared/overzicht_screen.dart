@@ -57,8 +57,13 @@ class _OverzichtScreenState extends State<OverzichtScreen>
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);
 
-    return Scaffold(
-      body: LayoutBuilder(
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent back button from doing anything - user is on home screen
+        return false;
+      },
+      child: Scaffold(
+        body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
@@ -163,6 +168,7 @@ onPressed: () {
           );
         },
       ),
+      ), // Close WillPopScope
     );
   }
 }

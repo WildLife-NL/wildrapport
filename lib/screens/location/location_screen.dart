@@ -197,7 +197,7 @@ class _LocationScreenState extends State<LocationScreen> {
                     questionnaire: responseModel.questionnaire,
                     interactionID: responseModel.interactionID,
                   );
-                  _pendingRemoveUntil = false;
+                  _pendingRemoveUntil = true; // Clear all previous screens before showing questionnaire
                 }
                 WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
               }
