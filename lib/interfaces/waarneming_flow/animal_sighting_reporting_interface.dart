@@ -9,6 +9,8 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
+
 
 abstract class AnimalSightingReportingInterface {
   /// Creates a new animalSighting model with empty fields
@@ -78,4 +80,10 @@ abstract class AnimalSightingReportingInterface {
 
   /// Updates the dateTime model in the animalSighting
   AnimalSightingModel updateDateTimeModel(DateTimeModel dateTimeModel);
+
+  /// Each call represents something like "3 onvolwassen vrouwtjes, gewond".
+  void addObservedAnimal(ObservedAnimalEntry entry);
+
+  /// e.g. we will expand count into repeated items with sex/lifeStage/condition.
+  List<ObservedAnimalEntry> getObservedAnimals();
 }

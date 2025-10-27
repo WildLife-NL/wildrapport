@@ -1,11 +1,11 @@
 import 'package:wildrapport/models/enums/animal_age.dart';
 
 extension AnimalAgeExtensions on AnimalAge {
-  /// UI label (Dutch)
+  /// Label to show in the UI (Dutch)
   String get label {
     switch (this) {
       case AnimalAge.pasGeboren:
-        return 'Pas geboren';
+        return 'Pas geboren'; // was "<6 maanden"
       case AnimalAge.onvolwassen:
         return 'Onvolwassen';
       case AnimalAge.volwassen:
@@ -15,49 +15,45 @@ extension AnimalAgeExtensions on AnimalAge {
     }
   }
 
-  /// Convert various legacy/API/form strings to the canonical enum value.
-  static AnimalAge fromApiString(String? raw) {
-    if (raw == null) return AnimalAge.onbekend;
-    var s = raw.trim().toLowerCase();
-    // normalize: remove angle brackets and collapse punctuation/underscores/whitespace
-    s = s.replaceAll(RegExp(r'[<>]'), '');
-    s = s.replaceAll(RegExp(r'[_\-\s]+'), ' ').trim();
-
-    const Map<String, AnimalAge> _map = {
-      // recently born variants
-      '6 months': AnimalAge.pasGeboren,
-      '6 maanden': AnimalAge.pasGeboren,
-      'less than 6 months': AnimalAge.pasGeboren,
-      '6': AnimalAge.pasGeboren,
-      'pas geboren': AnimalAge.pasGeboren,
-      'recently born': AnimalAge.pasGeboren,
-      'kalf': AnimalAge.pasGeboren,
-      // juvenile / young
-      'onvolwassen': AnimalAge.onvolwassen,
-      'young': AnimalAge.onvolwassen,
-      'juvenile': AnimalAge.onvolwassen,
-      // adult
-      'volwassen': AnimalAge.volwassen,
-      'adult': AnimalAge.volwassen,
-      // unknown
-      'onbekend': AnimalAge.onbekend,
-      'unknown': AnimalAge.onbekend,
-    };
-
-    return _map[s] ?? AnimalAge.onbekend;
-  }
-
-  /// Canonical API value to send when submitting 
-  String toApiString() {
+  /// Exact string backend expects in lifeStage
+  String get apiValue {
     switch (this) {
       case AnimalAge.pasGeboren:
-        return 'recently_born';
+        return 'infant';
       case AnimalAge.onvolwassen:
-        return 'juvenile';
+        return 'adolescent';
       case AnimalAge.volwassen:
         return 'adult';
       case AnimalAge.onbekend:
         return 'unknown';
     }
+  }
+
+  /// If backend sends us strings, map them back to enum
+  static AnimalAge fromApiString(String? raw) {
+    if (raw == null) return AnimalAge.onbekend;
+
+    final s = raw.trim().toLowerCase();
+    const map = {
+      // backend → enum
+      'infant': AnimalAge.pasGeboren,
+      'adolescent': AnimalAge.onvolwassen,
+      'adult': AnimalAge.volwassen,
+      'unknown': AnimalAge.onbekend,
+
+      // old app values / shorthand
+      '<6 months': AnimalAge.pasGeboren,
+      '<6 maanden': AnimalAge.pasGeboren,
+      'pas geboren': AnimalAge.pasGeboren,
+      'recently born': AnimalAge.pasGeboren,
+      'recently_born': AnimalAge.pasGeboren,
+      'kalf': AnimalAge.pasGeboren,
+      'onvolwassen': AnimalAge.onvolwassen,
+      'young': AnimalAge.onvolwassen,
+      'juvenile': AnimalAge.onvolwassen,
+      'volwassen': AnimalAge.volwassen,
+      'onbekend': AnimalAge.onbekend,
+    };
+    return map[s] ?? AnimalAge.onbekend;
   }
 }
