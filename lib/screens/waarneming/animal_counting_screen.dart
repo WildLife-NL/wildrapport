@@ -11,16 +11,12 @@ import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
-
-// enums + extensions
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import 'package:wildrapport/models/enums/animal_gender_extensions.dart';
 import 'package:wildrapport/models/enums/animal_condition_extensions.dart';
-
-// new model we added
 import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
 
 class AnimalCountingScreen extends StatefulWidget {
@@ -82,9 +78,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
       // user hasn't filled everything
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Vul leeftijd, geslacht, conditie en aantal in.',
-          ),
+          content: Text('Vul leeftijd, geslacht, conditie en aantal in.'),
         ),
       );
       return;
@@ -98,9 +92,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     );
 
     // Save it into the reporting manager so it's part of this waarneming
-    context
-        .read<AnimalSightingReportingInterface>()
-        .addObservedAnimal(entry);
+    context.read<AnimalSightingReportingInterface>().addObservedAnimal(entry);
 
     // After adding one batch, we:
     // - allow "Next"
@@ -120,47 +112,49 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
       // warn before discarding
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Waarschuwing'),
-          content: const Text(
-            'Teruggaan zal de toegevoegde dieren verwijderen. Weet je zeker dat je terug wilt gaan?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-              },
-              child: const Text('Annuleren'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Waarschuwing'),
+              content: const Text(
+                'Teruggaan zal de toegevoegde dieren verwijderen. Weet je zeker dat je terug wilt gaan?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // close dialog
+                  },
+                  child: const Text('Annuleren'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // close dialog
+
+                    final animalSightingManager =
+                        context.read<AnimalSightingReportingInterface>();
+
+                    // start a fresh sighting (clears counts/entries)
+                    animalSightingManager.createanimalSighting();
+
+                    // clear cached screen state (you're already doing this)
+                    final appStateProvider = context.read<AppStateProvider>();
+                    appStateProvider.clearScreenState('AnimalCountingScreen');
+
+                    // navigate all the way back to "Selecteer Dier"
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => const AnimalsScreen(
+                              appBarTitle: 'Selecteer Dier',
+                            ),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Ja, ga terug'),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close dialog
-
-                final animalSightingManager =
-                    context.read<AnimalSightingReportingInterface>();
-
-                // start a fresh sighting (clears counts/entries)
-                animalSightingManager.createanimalSighting();
-
-                // clear cached screen state (you're already doing this)
-                final appStateProvider = context.read<AppStateProvider>();
-                appStateProvider.clearScreenState('AnimalCountingScreen');
-
-                // navigate all the way back to "Selecteer Dier"
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AnimalsScreen(
-                      appBarTitle: 'Selecteer Dier',
-                    ),
-                  ),
-                  (route) => false,
-                );
-              },
-              child: const Text('Ja, ga terug'),
-            ),
-          ],
-        ),
       );
     } else {
       // nothing added yet -> just pop
@@ -195,18 +189,19 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: AnimalAge.values.map((age) {
-            final selected = _selectedAge == age;
-            return _PillButton(
-              text: age.label, // from AnimalAgeExtensions
-              selected: selected,
-              onTap: () {
-                setState(() {
-                  _selectedAge = age;
-                });
-              },
-            );
-          }).toList(),
+          children:
+              AnimalAge.values.map((age) {
+                final selected = _selectedAge == age;
+                return _PillButton(
+                  text: age.label, // from AnimalAgeExtensions
+                  selected: selected,
+                  onTap: () {
+                    setState(() {
+                      _selectedAge = age;
+                    });
+                  },
+                );
+              }).toList(),
         ),
       ],
     );
@@ -235,18 +230,19 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: AnimalGender.values.map((gender) {
-            final selected = _selectedGender == gender;
-            return _PillButton(
-              text: gender.label, // from AnimalGenderExtensions
-              selected: selected,
-              onTap: () {
-                setState(() {
-                  _selectedGender = gender;
-                });
-              },
-            );
-          }).toList(),
+          children:
+              AnimalGender.values.map((gender) {
+                final selected = _selectedGender == gender;
+                return _PillButton(
+                  text: gender.label, // from AnimalGenderExtensions
+                  selected: selected,
+                  onTap: () {
+                    setState(() {
+                      _selectedGender = gender;
+                    });
+                  },
+                );
+              }).toList(),
         ),
       ],
     );
@@ -275,18 +271,19 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: AnimalCondition.values.map((condition) {
-            final selected = _selectedCondition == condition;
-            return _PillButton(
-              text: condition.label, // from AnimalConditionExtensions
-              selected: selected,
-              onTap: () {
-                setState(() {
-                  _selectedCondition = condition;
-                });
-              },
-            );
-          }).toList(),
+          children:
+              AnimalCondition.values.map((condition) {
+                final selected = _selectedCondition == condition;
+                return _PillButton(
+                  text: condition.label, // from AnimalConditionExtensions
+                  selected: selected,
+                  onTap: () {
+                    setState(() {
+                      _selectedCondition = condition;
+                    });
+                  },
+                );
+              }).toList(),
         ),
       ],
     );
@@ -460,10 +457,7 @@ class _PillButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(
-            color: AppColors.brown,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: AppColors.brown, fontWeight: FontWeight.w600),
         ),
       ),
     );
