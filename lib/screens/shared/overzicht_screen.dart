@@ -9,10 +9,6 @@ import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
-import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/data_managers/interaction_query_api.dart';
-import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 
 
 

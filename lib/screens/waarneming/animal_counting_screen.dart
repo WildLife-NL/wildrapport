@@ -4,10 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
@@ -108,58 +106,8 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
   }
 
   void _handleBackNavigation(BuildContext context) {
-    if (_hasAddedItems) {
-      // warn before discarding
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Waarschuwing'),
-              content: const Text(
-                'Teruggaan zal de toegevoegde dieren verwijderen. Weet je zeker dat je terug wilt gaan?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // close dialog
-                  },
-                  child: const Text('Annuleren'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // close dialog
-
-                    final animalSightingManager =
-                        context.read<AnimalSightingReportingInterface>();
-
-                    // start a fresh sighting (clears counts/entries)
-                    animalSightingManager.createanimalSighting();
-
-                    // clear cached screen state (you're already doing this)
-                    final appStateProvider = context.read<AppStateProvider>();
-                    appStateProvider.clearScreenState('AnimalCountingScreen');
-
-                    // navigate all the way back to "Selecteer Dier"
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => const AnimalsScreen(
-                              appBarTitle: 'Selecteer Dier',
-                            ),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                  child: const Text('Ja, ga terug'),
-                ),
-              ],
-            ),
-      );
-    } else {
-      // nothing added yet -> just pop
-      Navigator.pop(context);
-    }
+    // Remove confirmation popup and simply navigate back
+    Navigator.pop(context);
   }
 
   // ─────────────────────────────────────────────
