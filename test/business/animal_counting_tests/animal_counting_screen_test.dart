@@ -14,6 +14,8 @@ import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dar
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import '../mock_generator.mocks.dart';
+import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 
 void main() {
   late MockNavigationStateInterface mockNavigationManager;
@@ -100,9 +102,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - Check for age options
-      expect(find.text('Volwassen'), findsOneWidget);
-      expect(find.text('<6 maanden'), findsOneWidget);
-      expect(find.text('Onvolwassen'), findsOneWidget);
+  expect(find.text('Volwassen'), findsOneWidget);
+  expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
+  expect(find.text('Onvolwassen'), findsOneWidget);
 
       // Cleanup
       addTearDown(() => tester.view.resetPhysicalSize());

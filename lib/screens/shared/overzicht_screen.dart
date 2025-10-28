@@ -9,10 +9,6 @@ import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
-import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/data_managers/interaction_query_api.dart';
-import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 
 
 
@@ -57,8 +53,13 @@ class _OverzichtScreenState extends State<OverzichtScreen>
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);
 
-    return Scaffold(
-      body: LayoutBuilder(
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent back button from doing anything - user is on home screen
+        return false;
+      },
+      child: Scaffold(
+        body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
@@ -163,6 +164,7 @@ onPressed: () {
           );
         },
       ),
+      ), // Close WillPopScope
     );
   }
 }
