@@ -45,17 +45,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
-  int _radiusFromView({
-    required double zoom,
-    required double lat,
-    required double widthPx,
-  }) {
-    final metersPerPixel =
-        156543.03392 * math.cos(lat * math.pi / 180.0) / math.pow(2.0, zoom);
-    final halfWidthMeters = (widthPx / 2.0) * metersPerPixel;
-    return halfWidthMeters.round().clamp(250, 30000);
-  }
-
   Future<void> _fetchAllForView() async {
     final map = context.read<MapProvider>();
     final camera = map.mapController.camera;

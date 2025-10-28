@@ -12,8 +12,11 @@ class QuestionnaireManager implements QuestionnaireInterface {
 
   @override
   Future<Questionnaire> getQuestionnaire() async {
-    final String id = "5c5cd71a-ed88-4e18-8cd4-725a6c6fe4b1";
-    return await questionnaireAPI.getQuestionnaireByID(id);
+    // Deprecated: questionnaires are provided by backend when creating an interaction.
+    // This method should not be used without a backend-provided ID.
+    throw StateError(
+      'Questionnaires must be supplied by the backend interaction response. getQuestionnaire() is unsupported.',
+    );
   }
 
   @override
