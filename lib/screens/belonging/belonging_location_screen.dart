@@ -155,7 +155,13 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
       debugPrint("$greenLog[BelongingLocationScreen] ✅ Updated system location\x1B[0m");
     }
 
-    InteractionResponse? interactionResponseModel = await belongingManager.postInteraction();
+    InteractionResponse? interactionResponseModel;
+    try {
+      interactionResponseModel = await belongingManager.postInteraction();
+    } catch (e) {
+      debugPrint("$redLog[BelongingLocationScreen] ❌ Error posting interaction: $e\x1B[0m");
+      interactionResponseModel = null;
+    }
 
     _pendingSnackBarMessage = interactionResponseModel == null
         ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel"

@@ -113,18 +113,15 @@ class InteractionApi implements InteractionApiInterface {
         }
 
         final questionnaireJson = json['questionnaire'];
-        debugPrint("$questionnaireJson");
         final String interactionID = json['ID'];
         if (questionnaireJson == null) {
           debugPrint("$redLog[InteractionAPI]: No questionnaire data in response");
-          debugPrint("$yellowLog[InteractionAPI]: Using the fallback questionnaire!");
+          throw Exception("No questionnaire provided by backend");
         }
 
         try {
           return InteractionResponse(
-            questionnaire: questionnaireJson == null 
-              ? await _getQuestionnaireByID("a634c0b2-e0ab-40e9-b3a4-6b28b177a482") 
-              : Questionnaire.fromJson(questionnaireJson),
+            questionnaire: Questionnaire.fromJson(questionnaireJson),
             interactionID: interactionID,
           );
         } catch (e) {
@@ -148,21 +145,5 @@ class InteractionApi implements InteractionApiInterface {
       throw Exception("Failed to send interaction: $e");
     }
   }
-  //Temp, only here because of issues with the backend returning code 500 instead of expected response
-  Future<Questionnaire> _getQuestionnaireByID(String id) async {
-    http.Response response = await client.get(
-      '/questionnaire/$id',
-      authenticated: true,
-    );
-
-    Map<String, dynamic>? json;
-
-    if (response.statusCode == HttpStatus.ok) {
-      json = jsonDecode(response.body);
-      Questionnaire questionnaire = Questionnaire.fromJson(json!);
-      return questionnaire;
-    } else {
-      throw Exception(json ?? "Failed to get questionnaire");
-    }
-  }
+  // Removed fallback questionnaire fetch by hardcoded ID; questionnaires must come from backend response
 }
