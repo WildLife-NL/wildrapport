@@ -10,8 +10,6 @@ import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 
-
-
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
 
