@@ -38,13 +38,17 @@ class AccidentReport implements Reportable, CommonReportFields {
 
   @override
   Map<String, dynamic> toJson() {
-    List<dynamic>? listAnimals;
-    listAnimals = List<dynamic>.from(animals!.map((x) => x.toJson()));
+    List<dynamic> listAnimals = [];
+    if (animals != null && animals!.isNotEmpty) {
+      listAnimals = List<dynamic>.from(animals!.map((x) => x.toJson()));
+    }
 
     return {
       "accidentReportID": accidentReportID,
       "estimatedDamage": damages,
+      "intensity": intensity,
       "involvedAnimals": listAnimals,
+      "urgency": urgency,
     };
   }
 

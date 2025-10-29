@@ -5,10 +5,12 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/providers/interaction_type_provider.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/screens/shared/category_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
+import 'package:wildrapport/screens/traffic_accident/traffic_accident_details_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';
@@ -23,15 +25,17 @@ class Rapporteren extends StatefulWidget {
 class _RapporterenState extends State<Rapporteren> {
   String selectedCategory = '';
 
-  void _handleReportTypeSelection(String reportType) {
+  void _handleReportTypeSelection(int interactionTypeId, String displayName) {
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
 
     Widget nextScreen;
     ReportType selectedReportType;
 
-    switch (reportType) {
-      case 'animalSightingen':
+    // Map interaction type ID to internal logic
+    // ID 1 = Waarneming, ID 2 = Gewasschade, ID 3 = Verkeersongeval
+    switch (interactionTypeId) {
+      case 1: // Waarneming / Animal Sightings
         debugPrint('[Rapporteren] Animal sighting selected, initializing map');
         selectedReportType = ReportType.waarneming;
         // Create animal sighting report and save it in provider
@@ -42,33 +46,27 @@ class _RapporterenState extends State<Rapporteren> {
         nextScreen = const CategoryScreen();
         _initializeMapInBackground();
         break;
-      case 'Gewasschade':
+      case 2: // Gewasschade / Crop Damage
         debugPrint('[Rapporteren] Gewasschade selected, initializing map');
         selectedReportType = ReportType.gewasschade;
         nextScreen = BelongingDamagesScreen();
         _initializeMapInBackground();
         break;
-      case 'Verkeersongeval':
-        // Temporarily disable this option
-        debugPrint(
-          '[Rapporteren] Verkeersongeval selected but temporarily disabled',
-        );
-        // Show a message to the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Deze functie is nog niet beschikbaar'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        return; // Return early without navigating
-      case 'Diergezondheid':
-        debugPrint('[Rapporteren] Diergezondheid selected, initializing map');
+      case 3: // Verkeersongeval / Traffic Accident
+        debugPrint('[Rapporteren] Verkeersongeval selected, initializing map');
         selectedReportType = ReportType.verkeersongeval;
-        nextScreen = AnimalsScreen(appBarTitle: reportType);
+        // Navigate to traffic accident details screen first
+        nextScreen = const TrafficAccidentDetailsScreen();
+        _initializeMapInBackground();
+        break;
+      case 4: // Diergezondheid / Animal Health (if exists)
+        debugPrint('[Rapporteren] $displayName selected, initializing map');
+        selectedReportType = ReportType.verkeersongeval;
+        nextScreen = AnimalsScreen(appBarTitle: displayName);
         _initializeMapInBackground();
         break;
       default:
-        throw Exception('Unknown report type: $reportType');
+        throw Exception('Unknown interaction type ID: $interactionTypeId');
     }
 
     // Initialize the report in the app state
@@ -123,6 +121,8 @@ class _RapporterenState extends State<Rapporteren> {
     final double horizontalPadding = screenSize.width * 0.05;
     context.read<NavigationStateInterface>();
 
+    final interactionTypeProvider = context.watch<InteractionTypeProvider>();
+
     return Scaffold(
       body: Column(
         children: [
@@ -144,71 +144,135 @@ class _RapporterenState extends State<Rapporteren> {
                   horizontal: horizontalPadding,
                   vertical: verticalPadding,
                 ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ReportButton(
-                              image: 'assets/icons/rapporteren/crop_icon.png',
-                              text: 'Gewasschade',
-                              onPressed:
-                                  () =>
-                                      _handleReportTypeSelection('Gewasschade'),
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.02),
-                          Expanded(
-                            child: ReportButton(
-                              image: 'assets/icons/rapporteren/health_icon.png',
-                              text: 'Diergezondheid',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'Diergezondheid',
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: screenSize.height * 0.02),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ReportButton(
-                              image:
-                                  'assets/icons/rapporteren/sighting_icon.png',
-                              text: 'Waarnemingen',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'animalSightingen',
-                                  ),
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.02),
-                          Expanded(
-                            child: ReportButton(
-                              image:
-                                  'assets/icons/rapporteren/accident_icon.png',
-                              text: 'Verkeersongeval',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'Verkeersongeval',
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: _buildContent(
+                  context,
+                  screenSize,
+                  interactionTypeProvider,
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    Size screenSize,
+    InteractionTypeProvider provider,
+  ) {
+    if (provider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: ${provider.error}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Retry loading - would need to add retry method to manager
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please restart the app to retry'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (provider.interactionTypes.isEmpty) {
+      return const Center(child: Text('No interaction types available'));
+    }
+
+    // Map icon paths for each interaction type ID
+    final Map<int, String> iconPaths = {
+      1: 'assets/icons/rapporteren/sighting_icon.png', // Waarneming
+      2: 'assets/icons/rapporteren/crop_icon.png', // Gewasschade
+      3: 'assets/icons/rapporteren/accident_icon.png', // Verkeersongeval
+      4: 'assets/icons/rapporteren/health_icon.png', // Diergezondheid (if exists)
+    };
+
+    // Build grid of buttons dynamically
+    final types = provider.interactionTypes;
+    return Column(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              if (types.length > 0)
+                Expanded(
+                  child: ReportButton(
+                    image: iconPaths[types[0].id] ??
+                        'assets/icons/rapporteren/sighting_icon.png',
+                    text: types[0].name,
+                    onPressed: () => _handleReportTypeSelection(
+                      types[0].id,
+                      types[0].name,
+                    ),
+                  ),
+                ),
+              if (types.length > 1) ...[
+                SizedBox(width: screenSize.width * 0.02),
+                Expanded(
+                  child: ReportButton(
+                    image: iconPaths[types[1].id] ??
+                        'assets/icons/rapporteren/crop_icon.png',
+                    text: types[1].name,
+                    onPressed: () => _handleReportTypeSelection(
+                      types[1].id,
+                      types[1].name,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (types.length > 2) SizedBox(height: screenSize.height * 0.02),
+        if (types.length > 2)
+          Expanded(
+            child: Row(
+              children: [
+                if (types.length > 2)
+                  Expanded(
+                    child: ReportButton(
+                      image: iconPaths[types[2].id] ??
+                          'assets/icons/rapporteren/accident_icon.png',
+                      text: types[2].name,
+                      onPressed: () => _handleReportTypeSelection(
+                        types[2].id,
+                        types[2].name,
+                      ),
+                    ),
+                  ),
+                if (types.length > 3) ...[
+                  SizedBox(width: screenSize.width * 0.02),
+                  Expanded(
+                    child: ReportButton(
+                      image: iconPaths[types[3].id] ??
+                          'assets/icons/rapporteren/health_icon.png',
+                      text: types[3].name,
+                      onPressed: () => _handleReportTypeSelection(
+                        types[3].id,
+                        types[3].name,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

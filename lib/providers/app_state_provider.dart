@@ -115,6 +115,35 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
+  void setTrafficAccidentDetails({
+    required double estimatedDamage,
+    required String intensity,
+    required String urgency,
+  }) {
+    final report = _activeReports['currentReport'];
+    if (report is AccidentReport) {
+      // Update the accident report with the collected details
+      final updatedReport = AccidentReport(
+        accidentReportID: report.accidentReportID,
+        description: report.description,
+        damages: estimatedDamage.toString(),
+        animals: report.animals,
+        suspectedSpeciesID: report.suspectedSpeciesID,
+        userSelectedLocation: report.userSelectedLocation,
+        systemLocation: report.systemLocation,
+        userSelectedDateTime: report.userSelectedDateTime,
+        systemDateTime: report.systemDateTime,
+        intensity: intensity,
+        urgency: urgency,
+      );
+      _activeReports['currentReport'] = updatedReport;
+      debugPrint('[AppStateProvider] Traffic accident details set: damage=$estimatedDamage, intensity=$intensity, urgency=$urgency');
+      notifyListeners();
+    } else {
+      debugPrint('[AppStateProvider] Warning: Attempted to set traffic accident details but current report is not an AccidentReport');
+    }
+  }
+
   void resetApplicationState(BuildContext context, {Widget? destination}) {
     _screenStates.clear();
     _activeReports.clear();

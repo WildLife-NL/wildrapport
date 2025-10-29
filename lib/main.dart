@@ -6,6 +6,7 @@ import 'package:wildrapport/data_managers/response_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/data_managers/auth_api.dart';
 import 'package:wildrapport/data_managers/interaction_api.dart';
+import 'package:wildrapport/data_managers/interaction_type_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
@@ -28,6 +29,8 @@ import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/reporting/response_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_sighting_reporting_manager.dart';
+import 'package:wildrapport/managers/api_managers/interaction_type_manager.dart';
+import 'package:wildrapport/providers/interaction_type_provider.dart';
 import 'package:wildrapport/managers/api_managers/interaction_manager.dart';
 import 'package:wildrapport/managers/api_managers/response_manager.dart';
 import 'package:wildrapport/managers/filtering_system/dropdown_manager.dart';
@@ -78,6 +81,7 @@ void main() async {
   final questionnaireAPI = QuestionaireApi(apiClient);
   final responseAPI = ResponseApi(apiClient);
   final belongingApi = BelongingApi(apiClient);
+  final interactionTypeApi = InteractionTypeApi(apiClient);
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -85,9 +89,17 @@ void main() async {
   final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
   final responseProvider = ResponseProvider();
+  final interactionTypeProvider = InteractionTypeProvider();
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();
+
+  final interactionTypeManager = InteractionTypeManager(
+    interactionTypeApi: interactionTypeApi,
+    provider: interactionTypeProvider,
+  );
+  // Load interaction types at startup
+  await interactionTypeManager.loadInteractionTypes();
 
   final responseManager = ResponseManager(
     responseAPI: responseAPI,
@@ -125,6 +137,7 @@ void main() async {
         ),
         ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
+        ChangeNotifierProvider<InteractionTypeProvider>.value(value: interactionTypeProvider),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
