@@ -11,6 +11,8 @@ import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
+    as cl;
 
 class KaartOverviewScreen extends StatefulWidget {
   const KaartOverviewScreen({super.key});
@@ -25,6 +27,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   Timer? _debounce;
   static const _debounceMs = 450;
+
+  bool _useClusters = true; // clusters when zoomed out
+  static const double _clusterUntilZoom = 16.0; // threshold
 
   @override
   void initState() {
@@ -105,7 +110,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // Set the position immediately
     await map.resetToCurrentLocation(pos, 'Locatie gevonden'); // fallback text
 
-// Send tracking ping once on first load (R2)
+    // Send tracking ping once on first load (R2)
     context.read<MapProvider>().sendTrackingPingFromPosition(pos);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -139,6 +144,56 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     } catch (e) {
       debugPrint('[Kaart] Reverse geocoding failed on web: $e');
     }
+  }
+
+  Widget _clusterBadge({
+    required IconData icon,
+    required int count,
+    required Color color,
+  }) {
+    // circular icon with a small count badge
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.95),
+            shape: BoxShape.circle,
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 6,
+                spreadRadius: 1,
+                offset: Offset(0, 2),
+                color: Colors.black26,
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, size: 22, color: Colors.white),
+        ),
+        Positioned(
+          right: -6,
+          top: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -185,44 +240,205 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         interactionOptions: const fm.InteractionOptions(
                           flags: fm.InteractiveFlag.all,
                         ),
-                        onMapEvent: (evt) => _queueFetch(),
+                        onMapEvent: (evt) {
+                          _queueFetch();
+                          final z = map.mapController.camera.zoom;
+                          final next = z < _clusterUntilZoom; // e.g. 16.0
+                          if (next != _useClusters && mounted) {
+                            setState(() => _useClusters = next);
+                          }
+                        },
                       ),
                       children: [
                         fm.TileLayer(
                           urlTemplate: LocationMapManager.standardTileUrl,
                           userAgentPackageName: 'com.wildrapport.app',
                         ),
-                        // animal pins
-                        fm.MarkerLayer(
-                          markers:
-                              map.animalPins.map((pin) {
-                                return fm.Marker(
-                                  point: LatLng(pin.lat, pin.lon),
-                                  width: 32,
-                                  height: 32,
-                                  child: const Icon(
-                                    Icons.pets,
-                                    size: 28,
-                                  ),
-                                );
-                              }).toList(),
-                        ),
 
-                        // detection pins
-                        fm.MarkerLayer(
-                          markers:
-                              map.detectionPins.map((pin) {
-                                return fm.Marker(
-                                  point: LatLng(pin.lat, pin.lon),
-                                  width: 40,
-                                  height: 40,
-                                  child: const Icon(
-                                    Icons.sensors,
-                                    size: 34,
-                                  ),
-                                );
-                              }).toList(),
-                        ),
+                        // ── ANIMALS ───────────────────────────────────────────────────────────────
+                        _useClusters
+                            ? cl.MarkerClusterLayerWidget(
+                              options: cl.MarkerClusterLayerOptions(
+                                markers:
+                                    map.animalPins
+                                        .map(
+                                          (pin) => fm.Marker(
+                                            point: LatLng(pin.lat, pin.lon),
+                                            width: 32,
+                                            height: 32,
+                                            child: const Icon(
+                                              Icons.pets,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                maxClusterRadius: 60,
+                                disableClusteringAtZoom: 99,
+                                padding: const EdgeInsets.all(40),
+                                maxZoom: 17.0,
+                                polygonOptions: const cl.PolygonOptions(
+                                  borderColor: Colors.transparent,
+                                ),
+                                zoomToBoundsOnClick: true,
+                                markerChildBehavior: true,
+                                builder:
+                                    (context, markers) => _clusterBadge(
+                                      icon: Icons.pets,
+                                      count: markers.length,
+                                      color: Colors.teal,
+                                    ),
+                              ),
+                            )
+                            : fm.MarkerLayer(
+                              markers:
+                                  map.animalPins
+                                      .map(
+                                        (pin) => fm.Marker(
+                                          point: LatLng(pin.lat, pin.lon),
+                                          width:
+                                              44, // bigger, easier tap target
+                                          height: 44,
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder:
+                                                    (_) => Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16,
+                                                          ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          const Text(
+                                                            'Dier',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
+                                                          Text(
+                                                            '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.pets,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
+
+                        // ── DETECTIONS ────────────────────────────────────────────────────────────
+                        _useClusters
+                            ? cl.MarkerClusterLayerWidget(
+                              options: cl.MarkerClusterLayerOptions(
+                                markers:
+                                    map.detectionPins
+                                        .map(
+                                          (pin) => fm.Marker(
+                                            point: LatLng(pin.lat, pin.lon),
+                                            width: 40,
+                                            height: 40,
+                                            child: const Icon(
+                                              Icons.sensors,
+                                              size: 34,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                maxClusterRadius: 60,
+                                disableClusteringAtZoom: 99,
+                                padding: const EdgeInsets.all(40),
+                                maxZoom: 17.0,
+                                polygonOptions: const cl.PolygonOptions(
+                                  borderColor: Colors.transparent,
+                                ),
+                                zoomToBoundsOnClick: true,
+                                markerChildBehavior: true,
+                                builder:
+                                    (context, markers) => _clusterBadge(
+                                      icon: Icons.sensors,
+                                      count: markers.length,
+                                      color: Colors.indigo,
+                                    ),
+                              ),
+                            )
+                            : fm.MarkerLayer(
+                              markers:
+                                  map.detectionPins
+                                      .map(
+                                        (pin) => fm.Marker(
+                                          point: LatLng(pin.lat, pin.lon),
+                                          width: 44,
+                                          height: 44,
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder:
+                                                    (_) => Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16,
+                                                          ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          const Text(
+                                                            'Detectie',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
+                                                          Text(
+                                                            '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.sensors,
+                                              size: 34,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
+
+                        // ── CURRENT POSITION ─────────────────────────────────────────────────────
                         fm.MarkerLayer(
                           markers: [
                             fm.Marker(
@@ -233,67 +449,176 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             ),
                           ],
                         ),
-                        // interaction pins
-                        fm.MarkerLayer(
-                          markers:
-                              map.interactions.map((
-                                InteractionQueryResult itx,
-                              ) {
-                                return fm.Marker(
-                                  point: LatLng(itx.lat, itx.lon),
-                                  width: 36,
-                                  height: 36,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        builder:
-                                            (_) => Padding(
-                                              padding: const EdgeInsets.all(16),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    itx.speciesName ??
-                                                        itx.typeName ??
-                                                        'Interactie',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.description ??
-                                                        'Geen omschrijving',
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.moment
-                                                        .toLocal()
-                                                        .toString(),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                  ),
-                                                ],
+
+                        // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
+                        _useClusters
+                            ? cl.MarkerClusterLayerWidget(
+                              options: cl.MarkerClusterLayerOptions(
+                                markers:
+                                    map.interactions
+                                        .map(
+                                          (itx) => fm.Marker(
+                                            point: LatLng(itx.lat, itx.lon),
+                                            width: 44, // easier tap target
+                                            height: 44,
+                                            child: GestureDetector(
+                                              behavior: HitTestBehavior.opaque,
+                                              onTap: () {
+                                                showModalBottomSheet(
+                                                  context: context,
+                                                  builder:
+                                                      (_) => Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              16,
+                                                            ),
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              itx.speciesName ??
+                                                                  itx.typeName ??
+                                                                  'Interactie',
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 6,
+                                                            ),
+                                                            Text(
+                                                              itx.description ??
+                                                                  'Geen omschrijving',
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 6,
+                                                            ),
+                                                            Text(
+                                                              itx.moment
+                                                                  .toLocal()
+                                                                  .toString(),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 6,
+                                                            ),
+                                                            Text(
+                                                              '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                );
+                                              },
+                                              child: const Icon(
+                                                Icons.place,
+                                                size: 28,
                                               ),
                                             ),
-                                      );
-                                    },
-                                    child: const Icon(Icons.place, size: 28),
-                                  ),
-                                );
-                              }).toList(),
-                        ),
+                                          ),
+                                        )
+                                        .toList(),
+                                maxClusterRadius: 60,
+                                disableClusteringAtZoom: 99,
+                                padding: const EdgeInsets.all(40),
+                                maxZoom: 17.0,
+                                polygonOptions: const cl.PolygonOptions(
+                                  borderColor: Colors.transparent,
+                                ),
+                                zoomToBoundsOnClick: true,
+                                markerChildBehavior:
+                                    true, // let child handle taps
+                                builder:
+                                    (context, markers) => _clusterBadge(
+                                      icon: Icons.place,
+                                      count: markers.length,
+                                      color: Colors.deepOrange,
+                                    ),
+                              ),
+                            )
+                            : fm.MarkerLayer(
+                              markers:
+                                  map.interactions
+                                      .map(
+                                        (itx) => fm.Marker(
+                                          point: LatLng(itx.lat, itx.lon),
+                                          width: 44,
+                                          height: 44,
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder:
+                                                    (_) => Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16,
+                                                          ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            itx.speciesName ??
+                                                                itx.typeName ??
+                                                                'Interactie',
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
+                                                          Text(
+                                                            itx.description ??
+                                                                'Geen omschrijving',
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
+                                                          Text(
+                                                            itx.moment
+                                                                .toLocal()
+                                                                .toString(),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
+                                                          Text(
+                                                            '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              );
+                                            },
+                                            child: const Icon(
+                                              Icons.place,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
                       ],
                     ),
 
-                    // ── Status chips: one per layer ────────────────────────────────────────────────
+                    // ── Status chips ────────────────────────────────────────────────────────────
                     Positioned(
                       top: 8,
                       right: 8,
@@ -380,7 +705,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               );
 
               // Send tracking ping when user recenters (R2)
-      context.read<MapProvider>().sendTrackingPingFromPosition(fresh);
+              context.read<MapProvider>().sendTrackingPingFromPosition(fresh);
               _queueFetch();
             }
           },

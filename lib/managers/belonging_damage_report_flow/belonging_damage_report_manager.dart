@@ -13,7 +13,6 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/belonging/belonging_crops_details.dart';
 import 'package:wildrapport/widgets/belonging/suspected_animal.dart';
-import 'package:wildrapport/models/beta_models/belonging_damage_report_wrapper.dart';
 
 class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionApiInterface interactionAPI;
@@ -23,7 +22,6 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionInterface interactionManager;
 
   List<Map<String, String>> belongings = [];
-  //⌄ This needs to be refactored to use the new Belongings in the new API
 
   BelongingDamageReportManager({
     required this.interactionAPI,
