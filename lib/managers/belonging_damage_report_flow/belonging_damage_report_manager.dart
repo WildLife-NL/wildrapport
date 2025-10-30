@@ -13,6 +13,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/belonging/belonging_crops_details.dart';
 import 'package:wildrapport/widgets/belonging/suspected_animal.dart';
+import 'package:wildrapport/models/beta_models/belonging_damage_report_wrapper.dart';
 
 class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final InteractionApiInterface interactionAPI;
@@ -120,38 +121,41 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
     return [BelongingCropsDetails(), SuspectedAnimal()];
   }
 
-  @override
-  Future<InteractionResponse?> postInteraction() async {
-    BelongingDamageReport? belongingDamageReport = buildBelongingReport();
-    InteractionResponse? interactionResponseModel;
-    if(belongingDamageReport != null){
-      interactionResponseModel =
-        await interactionManager.postInteraction(
-          belongingDamageReport,
-          InteractionType.gewasschade,
-        );
-      }
-    if (interactionResponseModel != null) {
-      debugPrint("$greenLog${interactionResponseModel.questionnaire.name}");
+@override
+Future<InteractionResponse?> postInteraction() async {
+  final BelongingDamageReport? report = buildBelongingReport();
 
-      // Add null check before accessing questions
-      if (interactionResponseModel.questionnaire.questions != null &&
-          interactionResponseModel.questionnaire.questions!.isNotEmpty) {
-        debugPrint(
-          "$greenLog${interactionResponseModel.questionnaire.questions![0].description}",
-        );
-      } else {
-        debugPrint("${greenLog}No questions available in questionnaire");
-      }
-
-      //Clearing the provider of it's value
-      formProvider.clearStateOfValues();
-
-      return interactionResponseModel;
-    } else {
-      return null;
-    }
+  if (report == null) {
+    debugPrint('[BelongingDamageReportManager] buildBelongingReport() returned null, aborting send');
+    return null;
   }
+
+  InteractionResponse? interactionResponseModel;
+  try {
+    interactionResponseModel = await interactionManager.postInteraction(
+      report, // <- this is now fine because toJson() matches API
+      InteractionType.gewasschade,
+    );
+  } catch (e, stackTrace) {
+    debugPrint('[BelongingDamageReportManager] Error posting interaction: $e');
+    debugPrint(stackTrace.toString());
+    interactionResponseModel = null;
+  }
+
+  if (interactionResponseModel != null) {
+    debugPrint('[BelongingDamageReportManager] ✅ Interaction posted successfully.');
+    // you can keep your questionnaire logging here
+    formProvider.clearStateOfValues();
+  } else {
+    debugPrint('[BelongingDamageReportManager] ❌ No response (probably offline).');
+    // keep provider so user can retry
+  }
+
+  return interactionResponseModel;
+}
+
+
+
 
   @override
   void updateSystemLocation(ReportLocation value) {
@@ -238,15 +242,18 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   @override
   BelongingDamageReport? buildBelongingReport() {
     debugPrint("✅ buildReportTesting called");
+    _ensureBelongingsLoaded();
     try {
       // Log provider state
       debugPrint(
-        "📍 formProvider location state: selectedPosition=${formProvider.userLocation}, currentPosition=${formProvider.systemLocation}",
+        "📍 formProvider location state: "
+        "selectedPosition=${formProvider.userLocation}, "
+        "currentPosition=${formProvider.systemLocation}",
       );
       debugPrint(
         "📋 formProvider state: "
         "impactedCrop=${formProvider.impactedCrop}, "
-        "impactedAreaType=$getCorrectImpactAreaType()"
+        "impactedAreaType=${getCorrectImpactAreaType()}, "
         "impactedArea=${getCorrectImpactArea()}, "
         "currentDamage=${formProvider.currentDamage}, "
         "expectedDamage=${formProvider.expectedDamage}, "
@@ -254,25 +261,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         "suspectedSpeciesID=${formProvider.suspectedSpeciesID}",
       );
 
-      // Validate positions
-      if (formProvider.userLocation == null ||
-          formProvider.systemLocation == null) {
-        debugPrint(
-          "❗ One or both positions are null: "
-          "selectedPosition=${formProvider.userLocation}, "
-          "currentPosition=${formProvider.systemLocation}",
-        );
-      }
-
-      // Use actual positions if available, fallback to defaults
-      final systemReportLocation =
-          formProvider.systemLocation ??
-          ReportLocation(latitude: 20.0, longtitude: 20.0);
-      final userReportLocation =
-          formProvider.userLocation ??
-          ReportLocation(latitude: 20.0, longtitude: 20.0);
-
-      // Validate formProvider inputs
+      // --- validation of required fields ---
       if (formProvider.impactedCrop.isEmpty) {
         throw Exception("Impacted crop is empty");
       }
@@ -283,23 +272,42 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
       if (impactedArea == null) {
         throw Exception("Invalid impacted area: ${formProvider.impactedArea}");
       }
-      Possesion? pos = _getCorrectPossesion(formProvider.impactedCrop);
-      BelongingDamageReport? report;
-      if(pos != null){
-        report = BelongingDamageReport(
-          possesion: pos,
-          impactedAreaType: "square-meters",
-          impactedArea: impactedArea,
-          currentImpactDamages: formProvider.currentDamage,
-          estimatedTotalDamages: formProvider.expectedDamage,
-          description: formProvider.description,
-          suspectedSpeciesID: formProvider.suspectedSpeciesID,
-          userSelectedDateTime: DateTime.now(),
-          systemDateTime: DateTime.now(),
-          systemLocation: systemReportLocation,
-          userSelectedLocation: userReportLocation,
+
+      // --- map selected crop name -> Possesion model (what got damaged) ---
+      final Possesion? pos = _getCorrectPossesion(formProvider.impactedCrop);
+
+      if (pos == null) {
+        debugPrint(
+          "$redLog[BelongingDamageReportManager] Could not resolve possesion from '${formProvider.impactedCrop}'$yellowLog",
         );
+        // If we can't resolve the crop to a backend ID, we *must* stop,
+        // because the API needs a real belonging.
+        return null;
       }
+
+      // -- locations (we prefer real values but fall back to dummy coords) --
+      final systemReportLocation =
+          formProvider.systemLocation ??
+          ReportLocation(latitude: 20.0, longtitude: 20.0);
+
+      final userReportLocation =
+          formProvider.userLocation ??
+          ReportLocation(latitude: 20.0, longtitude: 20.0);
+
+      // --- actually build the report we will send ---
+      final report = BelongingDamageReport(
+        possesion: pos,
+        impactedAreaType: "square-meters", // API expects "square-meters"
+        impactedArea: impactedArea,
+        currentImpactDamages: formProvider.currentDamage,
+        estimatedTotalDamages: formProvider.expectedDamage,
+        description: formProvider.description,
+        suspectedSpeciesID: formProvider.suspectedSpeciesID,
+        userSelectedDateTime: DateTime.now(),
+        systemDateTime: DateTime.now(),
+        systemLocation: systemReportLocation,
+        userSelectedLocation: userReportLocation,
+      );
 
       debugPrint("✅ Report created: $report");
       return report;
@@ -310,18 +318,101 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
     }
   }
 
-  //⌄ This needs to be refactored to use the new Belongings in the new API
-  Possesion? _getCorrectPossesion(String name){
-    for(Belonging belonging in _mapToListOfBelonging(belongings)){
-      if(belonging.name.toLowerCase() == name){
-        Possesion correctPossesion = Possesion(
-          possesionID: belonging.ID!,
+  String _normalize(String input) {
+    return input
+        .toLowerCase()
+        .replaceAll('ï', 'i')
+        .replaceAll('í', 'i')
+        .replaceAll('ì', 'i')
+        .replaceAll('î', 'i')
+        .replaceAll('ë', 'e')
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('á', 'a')
+        .replaceAll('à', 'a')
+        .replaceAll('ä', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('ó', 'o')
+        .replaceAll('ò', 'o')
+        .replaceAll('ö', 'o')
+        .replaceAll('ô', 'o')
+        .replaceAll('ü', 'u')
+        .replaceAll('ú', 'u')
+        .replaceAll('ù', 'u')
+        .replaceAll('û', 'u')
+        .trim();
+  }
+
+  // -------------------------------
+  // map the user's picked crop name (UI text) -> backend Possesion
+  // -------------------------------
+  Possesion? _getCorrectPossesion(String pickedName) {
+    final normalizedPicked = _normalize(pickedName);
+
+    // try to find exact match after normalization
+    for (final belonging in _mapToListOfBelonging(belongings)) {
+      final normalizedBelongingName = _normalize(belonging.name);
+      if (normalizedBelongingName == normalizedPicked) {
+        return Possesion(
+          possesionID: belonging.ID ?? '',
           possesionName: belonging.name,
           category: belonging.category,
         );
-        return correctPossesion;
       }
     }
-      return null;
+
+    // if we didn't find a normalized match, log + return null
+    debugPrint(
+      "$yellowLog[BelongingDamageReportManager] No match for '$pickedName' in belongings list$redLog",
+    );
+    return null;
   }
+
+
+  void _ensureBelongingsLoaded() {
+  if (belongings.isNotEmpty) return;
+
+  // fallback list (same as in init())
+  belongings = [
+    {
+      "ID": "61726f48-066b-46b6-84cd-6fee993e4c74",
+      "name": "Bieten",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "086001b5-126b-44ba-bc81-ab2f9416ab58",
+      "name": "Bloementeelt",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "0bf4e74c-b196-436a-9166-8fa4d9dd5db9",
+      "name": "Boomteelt",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "db9c7716-ec68-499c-9528-a3ab58607b3c",
+      "name": "Granen",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "5013a551-21d9-4874-af7e-b60800329e91",
+      "name": "Grasvelden",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "aef8950b-c7aa-42c6-848e-1d72d0636a64",
+      "name": "Maïs",
+      "category": "Gewassen"
+    },
+    {
+      "ID": "0dc5864b-6fd7-4703-a41b-7e45a0c4b558",
+      "name": "Tuinbouw",
+      "category": "Gewassen"
+    }
+  ];
+
+  debugPrint('[BelongingDamageReportManager] 🔄 belongings loaded via fallback (${belongings.length} items)');
+}
+
 }
