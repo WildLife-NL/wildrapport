@@ -111,17 +111,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.darkGreen,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(75),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.zero,
               ),
               child: Stack(
                 clipBehavior: Clip.none,
@@ -136,11 +126,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                   Positioned(
                     bottom: -20,
                     right: -10,
-                    child: Image.asset(
-                      'assets/gifs/login.gif',
-                      width: screenWidth * 0.35,
-                      fit: BoxFit.contain,
-                    ),
+                    child: SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -161,23 +147,17 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                     )
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Voer uw e-mailadres in',
+                          textAlign: TextAlign.center,
                           style: AppTextTheme.textTheme.titleMedium?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                offset: const Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 12),
                         if (isError) ...[
                           Padding(
                             padding: const EdgeInsets.only(
@@ -193,19 +173,14 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                               ),
                             ),
                           ),
+                          const SizedBox(height: 8),
                         ],
+                        const SizedBox(height: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: AppColors.offWhite,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(25),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                spreadRadius: 0,
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            border: Border.all(color: AppColors.brown, width: 1.5),
                           ),
                           child: TextField(
                             controller: emailController,
@@ -222,14 +197,14 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         BrownButton(
                           model: ButtonModelFactory.createLoginButton(
                             text: 'Login',
                           ),
                           onPressed: _handleLogin,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         Center(
                           child: InkWell(
                             onTap: () {
@@ -244,13 +219,6 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                                 color: AppColors.brown,
                                 decoration: TextDecoration.underline,
                                 decorationColor: AppColors.brown,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withValues(alpha: 0.25),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                  ),
-                                ],
                               ),
                             ),
                           ),
