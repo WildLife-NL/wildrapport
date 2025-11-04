@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
@@ -225,6 +227,24 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               }
             },
           ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0, top: 6.0),
+              child: IconButton(
+                icon: const Icon(Icons.person),
+                color: AppColors.brown,
+                iconSize: 22.0,
+                onPressed: () {
+                  debugPrint('[KaartOverviewScreen] profile icon pressed');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
         body:
             pos == null

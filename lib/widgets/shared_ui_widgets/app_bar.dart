@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/screens/profile/profile_screen.dart';
 
 class CustomAppBar extends StatelessWidget {
   final IconData? leftIcon;
@@ -9,6 +10,8 @@ class CustomAppBar extends StatelessWidget {
   final IconData? rightIcon;
   final VoidCallback? onLeftIconPressed;
   final VoidCallback? onRightIconPressed;
+  final bool showUserIcon;
+  final VoidCallback? onUserIconPressed;
   final bool preserveState;
 
   const CustomAppBar({
@@ -19,6 +22,8 @@ class CustomAppBar extends StatelessWidget {
     this.onLeftIconPressed,
     this.onRightIconPressed,
     this.preserveState = true,
+    this.showUserIcon = true,
+    this.onUserIconPressed,
   });
 
   @override
@@ -47,6 +52,8 @@ class CustomAppBar extends StatelessWidget {
     final double minIconSize = 24.0;
     final double maxIconSize = 32.0;
     final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
+  // Slightly smaller icon for the user/person glyph so it sits better visually
+  final double userIconSize = finalIconSize * 0.85;
 
     return Container(
       height: finalHeight,
@@ -113,9 +120,30 @@ class CustomAppBar extends StatelessWidget {
                     child: GestureDetector(
                       onTap: onRightIconPressed,
                       child: Icon(
-                        Icons.menu,
+                        rightIcon,
                         color: AppColors.brown,
                         size: finalIconSize,
+                      ),
+                    ),
+                  )
+                else if (showUserIcon)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      right: screenSize.width * 0.04, // 4% of screen width
+                      top: screenSize.height * 0.006, // nudge slightly downward
+                    ),
+                    child: GestureDetector(
+                      onTap: onUserIconPressed ?? () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ProfileScreen(),
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        Icons.person,
+                        color: AppColors.brown,
+                        size: userIconSize,
                       ),
                     ),
                   ),
