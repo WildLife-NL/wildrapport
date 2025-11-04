@@ -195,6 +195,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MediaQueryWrapper(
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'Wild Rapport',
         theme: ThemeData(
