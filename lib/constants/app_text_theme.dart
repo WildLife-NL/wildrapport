@@ -7,11 +7,13 @@ class AppTextTheme {
       fontSize: 24,
       fontWeight: FontWeight.bold,
       color: AppColors.brown,
+      fontFamily: 'Overpass',
     ),
     titleMedium: TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: AppColors.brown,
+      fontFamily: 'Overpass',
     ),
     bodyMedium: TextStyle(fontSize: 16, color: AppColors.brown),
   );

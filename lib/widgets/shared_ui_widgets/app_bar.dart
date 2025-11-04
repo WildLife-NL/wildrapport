@@ -90,7 +90,7 @@ class CustomAppBar extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.brown,
                   fontSize: finalFontSize,
-                  fontFamily: 'Arimo',
+                  fontFamily: 'Roboto',
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,

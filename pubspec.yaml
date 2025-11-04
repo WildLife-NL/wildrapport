@@ -100,23 +100,14 @@ flutter:
     - .env
 
   fonts:
-    - family: Arimo
+    - family: Overpass
       fonts:
-        - asset: assets/fonts/Arimo-Regular.ttf
-        - asset: assets/fonts/Arimo-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Arimo-Italic.ttf
+        - asset: assets/fonts/Overpass-VariableFont_wght.ttf
+        - asset: assets/fonts/Overpass-Italic-VariableFont_wght.ttf
           style: italic
-        - asset: assets/fonts/Arimo-BoldItalic.ttf
-          weight: 700
-          style: italic
-        - asset: assets/fonts/Arimo-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Arimo-MediumItalic.ttf
-          weight: 500
-          style: italic
-        - asset: assets/fonts/Arimo-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Arimo-SemiBoldItalic.ttf
-          weight: 600
+
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-VariableFont_wdth,wght.ttf
+        - asset: assets/fonts/Roboto-Italic-VariableFont_wdth,wght.ttf
           style: italic

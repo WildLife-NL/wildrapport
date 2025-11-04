@@ -205,13 +205,13 @@ class MyApp extends StatelessWidget {
             surface: AppColors.lightMintGreen,
           ),
           textTheme: AppTextTheme.textTheme,
-          fontFamily: 'Arimo',
+          fontFamily: 'Roboto',
           snackBarTheme: const SnackBarThemeData(
             backgroundColor: AppColors.brown300,
             behavior: SnackBarBehavior.floating,
             contentTextStyle: TextStyle(
               color: Colors.black,
-              fontFamily: 'Arimo',
+              fontFamily: 'Roboto',
             ),
           ),
         ),

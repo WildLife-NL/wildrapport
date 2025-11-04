@@ -4,8 +4,7 @@ class AppColors {
   // Private constructor to prevent instantiation
   AppColors._();
 
-  // Main colors (replaced with user-provided hex list)
-  // Main colors (semantic names mapped to the provided hex list)
+  // Main colors 
   static const Color black = Color(0xFF000000);
   static const Color lightGreen = Color(0xFF1F4A14);
   static const Color lightMintGreen = Color(0xFFF1F5F2);
@@ -18,7 +17,6 @@ class AppColors {
   static const Color brown300 = Color(0xFFEBC4A6);
   static const Color brownDark = Color(0xFF683615);
   static const Color timber300 = Color(0xFF20352E);
-  static const Color lightGreenAlt = Color(0xFF1F4A14); // duplicate value from list
   static const Color darkGreen = Color(0xFF1C4620);
   static const Color brown600 = Color(0xFF543B20);
 }
