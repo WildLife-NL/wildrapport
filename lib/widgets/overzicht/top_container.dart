@@ -22,73 +22,36 @@ class TopContainer extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.darkGreen,
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(75)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.zero, // straight bottom edge to match mock
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width * 0.05,
-              top: height * 0.15,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welkom Bij Wild Rapport',
-                  style: TextStyle(
-                    color: AppColors.offWhite,
-                    fontSize: welcomeFontSize,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: height * 0.06),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Welkom Bij Wild Rapport',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.offWhite,
+                  fontSize: welcomeFontSize,
+                  fontWeight: FontWeight.w600,
                 ),
-                SizedBox(height: height * 0.03),
-                Text(
-                  userName,
-                  style: TextStyle(
-                    color: AppColors.offWhite,
-                    fontSize: usernameFontSize,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        offset: const Offset(0, 2),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 15,
-            right: 0,
-            left: 0,
-            child: Center(
-              child: Image.asset(
-                'assets/LogoWildlifeNL.png',
-                width: MediaQuery.of(context).size.width * 0.7,
-                fit: BoxFit.contain,
               ),
-            ),
+              SizedBox(height: height * 0.03),
+              Text(
+                userName,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.offWhite,
+                  fontSize: usernameFontSize,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -16,6 +16,8 @@ class WhiteBulkButton extends StatelessWidget {
   final FontWeight? fontWeight;
   final TextAlign textAlign;
   final Color? backgroundColor; // Add this line
+  final Color? borderColor; // Add border color
+  final Color? arrowColor; // color for right arrow / icon
 
   const WhiteBulkButton({
     super.key,
@@ -31,6 +33,8 @@ class WhiteBulkButton extends StatelessWidget {
     this.fontWeight,
     this.textAlign = TextAlign.center,
     this.backgroundColor, // Add this line
+    this.borderColor,
+    this.arrowColor,
   });
 
   @override
@@ -62,6 +66,7 @@ class WhiteBulkButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.offWhite, // Modify this line
         borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: borderColor ?? Colors.transparent, width: borderColor != null ? 2 : 0),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.25),
@@ -97,7 +102,7 @@ class WhiteBulkButton extends StatelessWidget {
                 else if (showIcon)
                   CircleIconContainer(
                     icon: Icons.arrow_forward_ios,
-                    iconColor: AppColors.brown,
+                    iconColor: arrowColor ?? AppColors.brown,
                     size: 48,
                     iconSize: 28,
                     backgroundColor:
