@@ -3,6 +3,7 @@ import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/other/login_interface.dart';
 import 'package:wildrapport/models/ui_models/brown_button_model.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/user.dart';
 import 'package:wildrapport/exceptions/validation_exception.dart';
 
@@ -49,6 +50,8 @@ class LoginManager implements LoginInterface {
         leftIconPath: leftIconPath,
         rightIconPath: rightIconPath,
         fontSize: 16,
+        elevation: 0,
+        backgroundColor: AppColors.darkGreen,
       );
     }
 

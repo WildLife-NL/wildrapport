@@ -293,7 +293,7 @@ Future<void> _verifyCode() async {
         ),
         const Spacer(),
         BrownButton(
-          model: LoginManager.createButtonModel(text: 'Verifiëren'),
+          model: LoginManager.createButtonModel(text: 'Verifiëren', isLoginButton: true),
           onPressed: _verifyCode,
         ),
         const SizedBox(height: 15),
