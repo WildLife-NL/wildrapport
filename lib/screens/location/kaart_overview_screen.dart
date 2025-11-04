@@ -10,7 +10,6 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 
