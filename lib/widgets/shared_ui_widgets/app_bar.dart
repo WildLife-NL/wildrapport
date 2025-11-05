@@ -8,6 +8,12 @@ class CustomAppBar extends StatelessWidget {
   final IconData? leftIcon;
   final String? centerText;
   final IconData? rightIcon;
+  final Color? iconColor;
+  final Color? textColor;
+  final double fontScale;
+  final double iconScale;
+  final double userIconScale;
+  final double topPaddingFraction;
   final VoidCallback? onLeftIconPressed;
   final VoidCallback? onRightIconPressed;
   final bool showUserIcon;
@@ -24,6 +30,12 @@ class CustomAppBar extends StatelessWidget {
     this.preserveState = true,
     this.showUserIcon = true,
     this.onUserIconPressed,
+    this.iconColor,
+    this.textColor,
+    this.fontScale = 1.0,
+    this.iconScale = 1.0,
+    this.userIconScale = 1.15,
+    this.topPaddingFraction = 0.03,
   });
 
   @override
@@ -41,24 +53,28 @@ class CustomAppBar extends StatelessWidget {
     final double maxHeight = 40.0;
     final double finalHeight = barHeight.clamp(minHeight, maxHeight);
 
-    // Calculate responsive text size
-    final double fontSize = screenSize.width * 0.05; // 5% of screen width
-    final double minFontSize = 16.0;
-    final double maxFontSize = 24.0;
-    final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
+  // Calculate responsive text size
+  final double fontSize = screenSize.width * 0.05; // 5% of screen width
+  final double minFontSize = 16.0;
+  final double maxFontSize = 24.0;
+  final double finalFontSize = (fontSize.clamp(minFontSize, maxFontSize)) * fontScale;
 
     // Calculate responsive icon size
     final double iconSize = screenSize.width * 0.06; // 6% of screen width
     final double minIconSize = 24.0;
     final double maxIconSize = 32.0;
-    final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
-  // Slightly smaller icon for the user/person glyph so it sits better visually
-  final double userIconSize = finalIconSize * 0.85;
+    final double finalIconSize = (iconSize.clamp(minIconSize, maxIconSize)) * iconScale;
+  // Slightly larger profile/person glyph by default (configurable)
+  final double userIconSize = finalIconSize * userIconScale;
 
-    return Container(
-      height: finalHeight,
-      color: Colors.transparent,
-      child: Row(
+    final double topPadding = screenSize.height * topPaddingFraction;
+
+    return Padding(
+      padding: EdgeInsets.only(top: topPadding),
+      child: Container(
+        height: finalHeight,
+        color: Colors.transparent,
+        child: Row(
         children: [
           // Left section (1/4 of space)
           Expanded(
@@ -78,8 +94,8 @@ class CustomAppBar extends StatelessWidget {
                             Navigator.of(context).pop();
                           },
                       child: Icon(
-                        Icons.arrow_back_ios,
-                        color: AppColors.brown,
+                        leftIcon ?? Icons.arrow_back_ios,
+                        color: iconColor ?? AppColors.brown,
                         size: finalIconSize,
                       ),
                     ),
@@ -92,12 +108,12 @@ class CustomAppBar extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Center(
-              child: Text(
+                child: Text(
                 displayText,
                 style: TextStyle(
-                  color: AppColors.brown,
+                  color: textColor ?? AppColors.brown,
                   fontSize: finalFontSize,
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Overpass',
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -115,13 +131,13 @@ class CustomAppBar extends StatelessWidget {
                 if (rightIcon != null)
                   Padding(
                     padding: EdgeInsets.only(
-                      right: screenSize.width * 0.04, // 4% of screen width
+                      right: screenSize.width * 0.08, // 4% of screen width
                     ),
                     child: GestureDetector(
                       onTap: onRightIconPressed,
                       child: Icon(
                         rightIcon,
-                        color: AppColors.brown,
+                        color: iconColor ?? AppColors.brown,
                         size: finalIconSize,
                       ),
                     ),
@@ -129,7 +145,7 @@ class CustomAppBar extends StatelessWidget {
                 else if (showUserIcon)
                   Padding(
                     padding: EdgeInsets.only(
-                      right: screenSize.width * 0.04, // 4% of screen width
+                      right: screenSize.width * 0.08, // 4% of screen width
                       top: screenSize.height * 0.006, // nudge slightly downward
                     ),
                     child: GestureDetector(
@@ -142,7 +158,7 @@ class CustomAppBar extends StatelessWidget {
                       },
                       child: Icon(
                         Icons.person,
-                        color: AppColors.brown,
+                        color: const Color.fromARGB(255, 0, 0, 0),
                         size: userIconSize,
                       ),
                     ),
@@ -152,6 +168,7 @@ class CustomAppBar extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }

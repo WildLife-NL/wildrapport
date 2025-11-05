@@ -13,7 +13,7 @@ class AppTextTheme {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: AppColors.brown,
-      fontFamily: 'Overpass',
+      fontFamily: 'Roboto',
     ),
     bodyMedium: TextStyle(fontSize: 16, color: AppColors.brown),
   );
