@@ -69,13 +69,6 @@ class CustomBottomAppBar extends StatelessWidget {
                         Icons.arrow_back_ios,
                         color: AppColors.brown,
                         size: finalIconSize,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
                       ),
                       SizedBox(width: screenSize.width * 0.03),
                       Text(
@@ -84,13 +77,6 @@ class CustomBottomAppBar extends StatelessWidget {
                           color: AppColors.brown,
                           fontSize: finalFontSize,
                           fontWeight: FontWeight.w600,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
                         ),
                       ),
                     ],
@@ -110,13 +96,6 @@ class CustomBottomAppBar extends StatelessWidget {
                           color: AppColors.brown,
                           fontSize: finalFontSize,
                           fontWeight: FontWeight.w600,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
                         ),
                       ),
                       SizedBox(width: screenSize.width * 0.03),
@@ -124,13 +103,6 @@ class CustomBottomAppBar extends StatelessWidget {
                         Icons.arrow_forward_ios,
                         color: AppColors.brown,
                         size: finalIconSize,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
                       ),
                     ],
                   ),

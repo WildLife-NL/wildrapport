@@ -71,12 +71,12 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         _error = null;
       });
 
-      final selectedCategory =
-    _animalSightingManager.getCurrentanimalSighting()?.category;
+      final selectedCategory = _animalSightingManager.getCurrentanimalSighting()?.category;
+      debugPrint('[AnimalsScreen] Selected category used for query: $selectedCategory');
 
-final animals = await _animalManager.getAnimalsByCategory(
-  category: selectedCategory,
-);
+      final animals = await _animalManager.getAnimalsByCategory(
+        category: selectedCategory,
+      );
 
 
       debugPrint(
@@ -153,11 +153,16 @@ final animals = await _animalManager.getAnimalsByCategory(
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
               centerText: widget.appBarTitle,
-              rightIcon: Icons.menu,
+              // no right icon here so the user/profile icon is shown like Rapporteren
+              rightIcon: null,
+              showUserIcon: true,
               onLeftIconPressed: _handleBackNavigation,
-              onRightIconPressed: () {
-                /* Handle menu */
-              },
+              // match Rapporteren app bar styling exactly
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.15,
+              iconScale: 1.15,
+              userIconScale: 1.15,
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),

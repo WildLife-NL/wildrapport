@@ -30,7 +30,8 @@ class AnimalManager
         return _getFilteredAnimals(_cachedAnimals!);
       }
 
-      final species = await _speciesApi.getAllSpecies();
+  final species = await _speciesApi.getAllSpecies();
+  debugPrint('[AnimalManager] species fetched: ${species.length}');
       _cachedAnimals =
           species
               .map(
@@ -116,6 +117,7 @@ class AnimalManager
 @override
 Future<List<AnimalModel>> getAnimalsByCategory({AnimalCategory? category}) async {
   final animals = await getAnimals();
+  debugPrint('[AnimalManager] getAnimalsByCategory called with category: $category; total animals fetched: ${animals.length}');
   if (category == null) return animals;
 
   return animals.where((a) {
