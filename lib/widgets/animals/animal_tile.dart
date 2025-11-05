@@ -16,25 +16,43 @@ class AnimalTile extends StatelessWidget {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
-          backgroundColor: AppColors.lightMintGreen,
+          // Use pure white for the button background when not tapped
+          backgroundColor: AppColors.lightMintGreen100,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
           elevation: 0,
+        ).copyWith(
+          // Use the app's brown300 color for hover/pressed overlay so the
+          // photo container highlights with 0xFFEBC4A6 as requested.
+          overlayColor: MaterialStateProperty.resolveWith<Color?>(
+            (states) {
+              if (states.contains(MaterialState.hovered)) {
+                return AppColors.brown300.withOpacity(0.12);
+              }
+              if (states.contains(MaterialState.pressed)) {
+                return AppColors.brown300.withOpacity(0.18);
+              }
+              return null;
+            },
+          ),
         ),
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
-            color: AppColors.lightMintGreen,
+            // Make the visible container background pure white when idle
+            color: AppColors.lightMintGreen100,
           ),
           child: Column(
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
+                  // Reduce the clipping radius for the image so it appears less rounded
+                  borderRadius: BorderRadius.circular(6),
                   child: Container(
                     width: double.infinity,
-                    color: AppColors.offWhite,
+                    // Ensure the image background is pure white as well
+                    color: AppColors.lightMintGreen100,
                     child: animal.animalImagePath != null
                         ? Image(
                             image: AssetImage(animal.animalImagePath!),
