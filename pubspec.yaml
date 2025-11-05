@@ -100,6 +100,7 @@ flutter:
     - assets/icons/possesion/gewassen/tulip_2.svg
     - assets/icons/possesion/gewassen/wheat.svg
     - assets/location/location_icon.png
+    - assets/
     - .env
 
   fonts:
