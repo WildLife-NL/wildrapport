@@ -15,6 +15,6 @@ class AppTextTheme {
       color: AppColors.brown,
       fontFamily: 'Roboto',
     ),
-    bodyMedium: TextStyle(fontSize: 16, color: AppColors.brown),
+    bodyMedium: TextStyle(fontSize: 16, color: AppColors.brown, fontFamily: 'Roboto'),
   );
 }
