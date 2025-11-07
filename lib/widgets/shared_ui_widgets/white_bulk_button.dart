@@ -17,6 +17,8 @@ class WhiteBulkButton extends StatefulWidget {
   final TextAlign textAlign;
   final Color? backgroundColor; // Add this line
   final Color? borderColor; // Add border color
+  final Color? hoverBackgroundColor; // background color on hover/press
+  final Color? hoverBorderColor; // border color on hover/press
   final Color? arrowColor; // color for right arrow / icon
   final bool showShadow; // control shadows
 
@@ -35,6 +37,8 @@ class WhiteBulkButton extends StatefulWidget {
     this.textAlign = TextAlign.center,
     this.backgroundColor, // Add this line
     this.borderColor,
+    this.hoverBackgroundColor,
+    this.hoverBorderColor,
     this.arrowColor,
     this.showShadow = true,
   });
@@ -57,11 +61,17 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
   Widget build(BuildContext context) {
     final bool active = _isHovered || _isPressed;
 
-    final Color initialBg = widget.backgroundColor ?? AppColors.offWhite;
-    final Color initialBorder = widget.borderColor ?? Colors.transparent;
+  final Color initialBg = widget.backgroundColor ?? AppColors.offWhite;
+  final Color initialBorder = widget.borderColor ?? Colors.transparent;
 
-    final Color bgColor = active ? AppColors.darkGreen : initialBg;
-    final Color borderColor = active ? initialBg : initialBorder;
+  // When active (hover/press) use hover colors if provided, otherwise fallback
+  // to the previous darkGreen behavior for background, and to initialBg for border.
+  final Color bgColor = active
+    ? (widget.hoverBackgroundColor ?? AppColors.darkGreen)
+    : initialBg;
+  final Color borderColor = active
+    ? (widget.hoverBorderColor ?? initialBg)
+    : initialBorder;
 
     // Base style from theme (buttons should use Roboto / titleMedium)
     final baseStyle = AppTextTheme.textTheme.titleMedium?.copyWith(
