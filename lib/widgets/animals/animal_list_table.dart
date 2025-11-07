@@ -7,9 +7,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
-import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 
 class AnimalListTable extends StatefulWidget {
@@ -72,8 +70,8 @@ class AnimalListTableState extends State<AnimalListTable> {
     }
   }
 
-  void _toggleEditMode() {
-    debugPrint('_toggleEditMode: changing from $_isEditing to ${!_isEditing}');
+  void toggleEditMode() {
+    debugPrint('toggleEditMode: changing from $_isEditing to ${!_isEditing}');
 
     if (_isEditing) {
       // If we're currently in edit mode and toggling out, save the changes
@@ -187,42 +185,14 @@ class AnimalListTableState extends State<AnimalListTable> {
     return animal.genderViewCounts.map((gvc) => gvc.gender).toList();
   }
 
-  String _getGenderIconPath(AnimalGender gender) {
+  String _getGenderText(AnimalGender gender) {
     switch (gender) {
       case AnimalGender.mannelijk:
-        return 'assets/icons/gender/male_gender.png';
+        return 'Mannelijk';
       case AnimalGender.vrouwelijk:
-        return 'assets/icons/gender/female_gender.png';
+        return 'Vrouwelijk';
       case AnimalGender.onbekend:
-        return 'assets/icons/gender/unknown_gender.png';
-    }
-  }
-
-  double _getIconSize(int rowIndex) {
-    switch (rowIndex) {
-      case 1: // Kalf (equivalent to pasGeboren)
-        return 28.0; // Reduced from 38.0
-      case 2: // Jong (equivalent to onvolwassen)
-        return 32.0; // Reduced from 44.0
-      case 3: // Volwassen
-        return 36.0; // Reduced from 50.0
-      case 4: // Onbekend
-        return 40.0; // Reduced from 56.0
-      default:
-        return 28.0;
-    }
-  }
-
-  Color _getIconColor(int index) {
-    switch (index) {
-      case 1: // Pas geboren
-        return AppColors.brown;
-      case 2: // Onvolwassen
-        return const Color(0xFF549537);
-      case 3: // Volwassen
-        return Colors.orange;
-      default:
-        return AppColors.brown;
+        return 'Onbekend';
     }
   }
 
@@ -322,10 +292,6 @@ class AnimalListTableState extends State<AnimalListTable> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: _buildEditButton(),
-                    ),
                     Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 8.0,
@@ -334,13 +300,6 @@ class AnimalListTableState extends State<AnimalListTable> {
                       decoration: BoxDecoration(
                         color: AppColors.offWhite,
                         borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
                       ),
                       child: Table(
                         border: TableBorder.all(
@@ -413,7 +372,13 @@ class AnimalListTableState extends State<AnimalListTable> {
         child: Center(
           child: Padding(
             padding: EdgeInsets.all(5.0),
-            child: Image.asset(_getGenderIconPath(gender), height: 32),
+            child: Text(
+              _getGenderText(gender),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Roboto',
+              ),
+            ),
           ),
         ),
       ),
@@ -452,23 +417,11 @@ class AnimalListTableState extends State<AnimalListTable> {
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                if (index != 0)
-                  age == AnimalAge.onbekend
-                      ? Image.asset(
-                          'assets/icons/gender/unknown_gender.png',
-                          height: _getIconSize(index),
-                          width: _getIconSize(index),
-                        )
-                      : Icon(
-                          Icons.pets,
-                          size: _getIconSize(index),
-                          color: _getIconColor(index),
-                        ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(firstColumnText)),
-              ],
+            child: Text(
+              firstColumnText,
+              style: TextStyle(
+                fontFamily: 'Roboto',
+              ),
             ),
           ),
         ),
@@ -537,19 +490,6 @@ class AnimalListTableState extends State<AnimalListTable> {
     );
   }
 
-  Widget _buildEditButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: BrownButton(
-        model: ButtonModelFactory.createStandardButton(
-          text: _isEditing ? 'Opslaan' : 'Bewerken',
-          leftIconPath: _isEditing ? 'circle_icon:done' : 'circle_icon:edit',
-        ),
-        onPressed: _toggleEditMode,
-      ),
-    );
-  }
-
   Widget _buildDescriptionSection(AnimalSightingModel currentSighting) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -559,16 +499,10 @@ class AnimalListTableState extends State<AnimalListTable> {
           Text(
             'Opmerkingen',
             style: TextStyle(
-              color: AppColors.brown,
+              color: Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
+              fontFamily: 'Roboto',
             ),
           ),
           const SizedBox(height: 8),
@@ -582,13 +516,6 @@ class AnimalListTableState extends State<AnimalListTable> {
                 color: AppColors.brown.withValues(alpha: 0.3),
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25),
