@@ -3,14 +3,14 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
-  final VoidCallback onBackPressed;
+  final VoidCallback? onBackPressed;
   final VoidCallback? onNextPressed;
   final bool showNextButton;
   final bool showBackButton;
 
   const CustomBottomAppBar({
     super.key,
-    required this.onBackPressed,
+    this.onBackPressed,
     this.onNextPressed,
     this.showNextButton = true,
     this.showBackButton = true,
@@ -18,7 +18,7 @@ class CustomBottomAppBar extends StatelessWidget {
 
   void _handleBackPress() {
     debugPrint('CustomBottomAppBar: Back button pressed');
-    onBackPressed();
+    onBackPressed?.call();
   }
 
   void _handleNextPress() {
