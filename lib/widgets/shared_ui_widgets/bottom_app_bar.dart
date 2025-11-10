@@ -90,11 +90,11 @@ class CustomBottomAppBar extends StatelessWidget {
                 if (showNextButton)
                   SizedBox(
                     width: 220,
-                    height: 70,
+                    height: 50,
                     child: WhiteBulkButton(
                       text: 'Volgende',
                       showIcon: false,
-                      height: 70,
+                      height: 50,
                       backgroundColor: AppColors.lightMintGreen100,
                       borderColor: AppColors.brown,
                       hoverBackgroundColor: AppColors.brown,
