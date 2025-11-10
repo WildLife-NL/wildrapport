@@ -409,13 +409,20 @@ void _startFollowingMe() {
 
   /// Helper to build a scrollable bottom sheet that won't overflow
   Widget _buildBottomSheet(List<Widget> children) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(
+        maxWidth: 400,
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: children,
+          ),
         ),
       ),
     );
@@ -611,47 +618,52 @@ onMapEvent: (evt) {
                                           child: GestureDetector(
                                             behavior: HitTestBehavior.opaque,
                                             onTap: () {
-                                              showModalBottomSheet(
+                                              showDialog(
                                                 context: context,
-                                                builder: (_) =>
-                                                    _buildBottomSheet([
-                                                  // Show animal icon if available
-                                                  if (_getAnimalIconPath(pin.speciesName) != null)
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(bottom: 12),
-                                                      child: Image.asset(
-                                                        _getAnimalIconPath(pin.speciesName)!,
-                                                        width: 80,
-                                                        height: 80,
-                                                        errorBuilder: (context, error, stackTrace) {
-                                                          return const Icon(Icons.pets, size: 64);
-                                                        },
+                                                builder: (_) => Dialog(
+                                                  child: _buildBottomSheet([
+                                                    // Show animal icon if available
+                                                    if (_getAnimalIconPath(pin.speciesName) != null)
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(bottom: 12),
+                                                        child: Image.asset(
+                                                          _getAnimalIconPath(pin.speciesName)!,
+                                                          width: 80,
+                                                          height: 80,
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return const Icon(Icons.pets, size: 64, color: AppColors.darkGreen);
+                                                          },
+                                                        ),
                                                       ),
+                                                    Text(
+                                                      pin.speciesName ?? 'Dier',
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: AppColors.darkGreen,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                  Text(
-                                                    pin.speciesName ?? 'Dier',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: AppColors.darkGreen,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.grey,
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColors.darkGreen,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ]),
+                                                  ]),
+                                                ),
                                               );
                                             },
                                             child: _getAnimalIconPath(pin.speciesName) != null
@@ -735,23 +747,30 @@ onMapEvent: (evt) {
                                           child: GestureDetector(
                                             behavior: HitTestBehavior.opaque,
                                             onTap: () {
-                                              showModalBottomSheet(
+                                              showDialog(
                                                 context: context,
-                                                builder: (_) =>
-                                                    _buildBottomSheet([
-                                                  const Text(
-                                                    'Detectie',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                builder: (_) => Dialog(
+                                                  child: _buildBottomSheet([
+                                                    const Text(
+                                                      'Detectie',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: AppColors.darkGreen,
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                  ),
-                                                ]),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColors.darkGreen,
+                                                      ),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ]),
+                                                ),
                                               );
                                             },
                                             child: const Icon(
@@ -791,57 +810,74 @@ onMapEvent: (evt) {
                                               child: GestureDetector(
                                                 behavior: HitTestBehavior.opaque,
                                                 onTap: () {
-                                                  showModalBottomSheet(
+                                                  showDialog(
                                                     context: context,
-                                                    builder: (_) =>
-                                                        _buildBottomSheet([
-                                                      // Show animal icon if available
-                                                      if (_getAnimalIconPath(itx.speciesName) != null)
-                                                        Padding(
-                                                          padding: const EdgeInsets.only(bottom: 12),
-                                                          child: ColorFiltered(
-                                                            colorFilter: const ColorFilter.matrix([
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0,      0,      0,      1, 0,
-                                                            ]),
-                                                            child: Image.asset(
-                                                              _getAnimalIconPath(itx.speciesName)!,
-                                                              width: 80,
-                                                              height: 80,
-                                                              errorBuilder: (context, error, stackTrace) {
-                                                                return const Icon(Icons.place, size: 64);
-                                                              },
+                                                    builder: (_) => Dialog(
+                                                      child: _buildBottomSheet([
+                                                        // Show animal icon if available
+                                                        if (_getAnimalIconPath(itx.speciesName) != null)
+                                                          Padding(
+                                                            padding: const EdgeInsets.only(bottom: 12),
+                                                            child: ColorFiltered(
+                                                              colorFilter: const ColorFilter.matrix([
+                                                                0.2126, 0.7152, 0.0722, 0, 0,
+                                                                0.2126, 0.7152, 0.0722, 0, 0,
+                                                                0.2126, 0.7152, 0.0722, 0, 0,
+                                                                0,      0,      0,      1, 0,
+                                                              ]),
+                                                              child: Image.asset(
+                                                                _getAnimalIconPath(itx.speciesName)!,
+                                                                width: 80,
+                                                                height: 80,
+                                                                errorBuilder: (context, error, stackTrace) {
+                                                                  return const Icon(Icons.place, size: 64, color: AppColors.darkGreen);
+                                                                },
+                                                              ),
                                                             ),
                                                           ),
+                                                        Text(
+                                                          itx.speciesName ??
+                                                              itx.typeName ??
+                                                              'Interactie',
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
                                                         ),
-                                                      Text(
-                                                        itx.speciesName ??
-                                                            itx.typeName ??
-                                                            'Interactie',
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600,
+                                                        const SizedBox(height: 8),
+                                                        Text(
+                                                          itx.description ??
+                                                              'Geen omschrijving',
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
                                                         ),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        itx.description ??
-                                                            'Geen omschrijving',
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        itx.moment
-                                                            .toLocal()
-                                                            .toString(),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                      ),
-                                                    ]),
+                                                        const SizedBox(height: 8),
+                                                        Text(
+                                                          itx.moment
+                                                              .toLocal()
+                                                              .toString(),
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
+                                                        ),
+                                                        const SizedBox(height: 8),
+                                                        Text(
+                                                          '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
+                                                        ),
+                                                      ]),
+                                                    ),
                                                   );
                                                 },
                                                 child: _getAnimalIconPath(itx.speciesName) != null
@@ -916,57 +952,74 @@ onMapEvent: (evt) {
                                             child: GestureDetector(
                                               behavior: HitTestBehavior.opaque,
                                               onTap: () {
-                                                showModalBottomSheet(
+                                                showDialog(
                                                   context: context,
-                                                  builder: (_) =>
-                                                      _buildBottomSheet([
-                                                    // Show animal icon if available
-                                                    if (_getAnimalIconPath(itx.speciesName) != null)
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(bottom: 12),
-                                                        child: ColorFiltered(
-                                                          colorFilter: const ColorFilter.matrix([
-                                                            0.2126, 0.7152, 0.0722, 0, 0,
-                                                            0.2126, 0.7152, 0.0722, 0, 0,
-                                                            0.2126, 0.7152, 0.0722, 0, 0,
-                                                            0,      0,      0,      1, 0,
-                                                          ]),
-                                                          child: Image.asset(
-                                                            _getAnimalIconPath(itx.speciesName)!,
-                                                            width: 80,
-                                                            height: 80,
-                                                            errorBuilder: (context, error, stackTrace) {
-                                                              return const Icon(Icons.place, size: 64);
-                                                            },
+                                                  builder: (_) => Dialog(
+                                                    child: _buildBottomSheet([
+                                                      // Show animal icon if available
+                                                      if (_getAnimalIconPath(itx.speciesName) != null)
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(bottom: 12),
+                                                          child: ColorFiltered(
+                                                            colorFilter: const ColorFilter.matrix([
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0,      0,      0,      1, 0,
+                                                            ]),
+                                                            child: Image.asset(
+                                                              _getAnimalIconPath(itx.speciesName)!,
+                                                              width: 80,
+                                                              height: 80,
+                                                              errorBuilder: (context, error, stackTrace) {
+                                                                return const Icon(Icons.place, size: 64, color: AppColors.darkGreen);
+                                                              },
+                                                            ),
                                                           ),
                                                         ),
+                                                      Text(
+                                                        itx.speciesName ??
+                                                            itx.typeName ??
+                                                            'Interactie',
+                                                        style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: AppColors.darkGreen,
+                                                        ),
+                                                        textAlign: TextAlign.center,
                                                       ),
-                                                    Text(
-                                                      itx.speciesName ??
-                                                          itx.typeName ??
-                                                          'Interactie',
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w600,
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        itx.description ??
+                                                            'Geen omschrijving',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: AppColors.darkGreen,
+                                                        ),
+                                                        textAlign: TextAlign.center,
                                                       ),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      itx.description ??
-                                                          'Geen omschrijving',
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      itx.moment
-                                                          .toLocal()
-                                                          .toString(),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                    ),
-                                                  ]),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        itx.moment
+                                                            .toLocal()
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: AppColors.darkGreen,
+                                                        ),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: AppColors.darkGreen,
+                                                        ),
+                                                        textAlign: TextAlign.center,
+                                                      ),
+                                                    ]),
+                                                  ),
                                                 );
                                               },
                                               child: _getAnimalIconPath(itx.speciesName) != null
