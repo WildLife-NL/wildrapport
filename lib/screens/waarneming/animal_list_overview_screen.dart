@@ -4,10 +4,13 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
+import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_list_table.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 
 class AnimalListOverviewScreen extends StatelessWidget {
   AnimalListOverviewScreen({super.key});
@@ -101,6 +104,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
           final navigationManager = context.read<NavigationStateInterface>();
           final animalSightingManager =
               context.read<AnimalSightingReportingInterface>();
+          final appStateProvider = context.read<AppStateProvider>();
 
           // Get the description from AnimalListTable
           final description =
@@ -121,10 +125,25 @@ class AnimalListOverviewScreen extends StatelessWidget {
           );
 
           if (context.mounted) {
-            navigationManager.pushReplacementForward(
-              context,
-              const LocationScreen(),
+            // Check if this is a collision report (verkeersongeval)
+            final isCollision = appStateProvider.currentReportType == ReportType.verkeersongeval;
+            debugPrint(
+              '[AnimalListOverviewScreen] Report type: ${appStateProvider.currentReportType}, isCollision: $isCollision',
             );
+
+            if (isCollision) {
+              // Navigate to collision details screen for traffic accidents
+              navigationManager.pushReplacementForward(
+                context,
+                const CollisionDetailsScreen(),
+              );
+            } else {
+              // Navigate directly to location screen for regular sightings
+              navigationManager.pushReplacementForward(
+                context,
+                const LocationScreen(),
+              );
+            }
           }
         },
         showBackButton: false,
