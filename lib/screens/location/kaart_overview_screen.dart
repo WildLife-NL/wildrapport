@@ -700,9 +700,92 @@ onMapEvent: (evt) {
                                 markers:
                                     map.interactions
                                         .map(
-                                          (itx) => fm.Marker(
+                                          (itx) {
+                                            // Calculate age for color
+                                            final age = DateTime.now().difference(itx.moment);
+                                            final isRecent = age.inHours < 1;
+                                            final pinColor = isRecent ? Colors.red : Colors.deepOrange;
+                                            
+                                            return fm.Marker(
+                                              point: LatLng(itx.lat, itx.lon),
+                                              width: 44, // easier tap target
+                                              height: 44,
+                                              child: GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  showModalBottomSheet(
+                                                    context: context,
+                                                    builder: (_) =>
+                                                        _buildBottomSheet([
+                                                      Text(
+                                                        itx.speciesName ??
+                                                            itx.typeName ??
+                                                            'Interactie',
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        itx.description ??
+                                                            'Geen omschrijving',
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        itx.moment
+                                                            .toLocal()
+                                                            .toString(),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                      ),
+                                                    ]),
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.place,
+                                                  size: 28,
+                                                  color: pinColor,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                        .toList(),
+                                maxClusterRadius: 60,
+                                disableClusteringAtZoom: 99,
+                                padding: const EdgeInsets.all(40),
+                                maxZoom: 17.0,
+                                polygonOptions: const cl.PolygonOptions(
+                                  borderColor: Colors.transparent,
+                                ),
+                                zoomToBoundsOnClick: true,
+                                markerChildBehavior:
+                                    true, // let child handle taps
+                                builder:
+                                    (context, markers) => _clusterBadge(
+                                      icon: Icons.place,
+                                      count: markers.length,
+                                      color: Colors.deepOrange,
+                                    ),
+                              ),
+                            )
+                            : fm.MarkerLayer(
+                              markers:
+                                  map.interactions
+                                      .map(
+                                        (itx) {
+                                          // Calculate age for color
+                                          final age = DateTime.now().difference(itx.moment);
+                                          final isRecent = age.inHours < 1;
+                                          final pinColor = isRecent ? Colors.red : Colors.deepOrange;
+                                          
+                                          return fm.Marker(
                                             point: LatLng(itx.lat, itx.lon),
-                                            width: 44, // easier tap target
+                                            width: 44,
                                             height: 44,
                                             child: GestureDetector(
                                               behavior: HitTestBehavior.opaque,
@@ -739,81 +822,14 @@ onMapEvent: (evt) {
                                                   ]),
                                                 );
                                               },
-                                              child: const Icon(
+                                              child: Icon(
                                                 Icons.place,
                                                 size: 28,
+                                                color: pinColor,
                                               ),
                                             ),
-                                          ),
-                                        )
-                                        .toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior:
-                                    true, // let child handle taps
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.place,
-                                      count: markers.length,
-                                      color: Colors.deepOrange,
-                                    ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.interactions
-                                      .map(
-                                        (itx) => fm.Marker(
-                                          point: LatLng(itx.lat, itx.lon),
-                                          width: 44,
-                                          height: 44,
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                builder: (_) =>
-                                                    _buildBottomSheet([
-                                                  Text(
-                                                    itx.speciesName ??
-                                                        itx.typeName ??
-                                                        'Interactie',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.description ??
-                                                        'Geen omschrijving',
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.moment
-                                                        .toLocal()
-                                                        .toString(),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                  ),
-                                                ]),
-                                              );
-                                            },
-                                            child: const Icon(
-                                              Icons.place,
-                                              size: 28,
-                                            ),
-                                          ),
-                                        ),
+                                          );
+                                        },
                                       )
                                       .toList(),
                             ),
