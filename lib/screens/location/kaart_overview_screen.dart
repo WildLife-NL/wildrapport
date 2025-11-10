@@ -548,12 +548,37 @@ onMapEvent: (evt) {
                                         .map(
                                           (pin) => fm.Marker(
                                             point: LatLng(pin.lat, pin.lon),
-                                            width: 32,
-                                            height: 32,
-                                            child: const Icon(
-                                              Icons.pets,
-                                              size: 28,
-                                            ),
+                                            width: 44,
+                                            height: 44,
+                                            child: _getAnimalIconPath(pin.speciesName) != null
+                                                ? Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      shape: BoxShape.circle,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.2),
+                                                          blurRadius: 4,
+                                                          offset: const Offset(0, 2),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    padding: const EdgeInsets.all(4),
+                                                    child: Image.asset(
+                                                      _getAnimalIconPath(pin.speciesName)!,
+                                                      width: 32,
+                                                      height: 32,
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return const Icon(Icons.pets, size: 28, color: Colors.teal);
+                                                      },
+                                                    ),
+                                                  )
+                                                : const Icon(
+                                                    Icons.pets,
+                                                    size: 28,
+                                                    color: Colors.teal,
+                                                  ),
                                           ),
                                         )
                                         .toList(),
@@ -590,6 +615,19 @@ onMapEvent: (evt) {
                                                 context: context,
                                                 builder: (_) =>
                                                     _buildBottomSheet([
+                                                  // Show animal icon if available
+                                                  if (_getAnimalIconPath(pin.speciesName) != null)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(bottom: 12),
+                                                      child: Image.asset(
+                                                        _getAnimalIconPath(pin.speciesName)!,
+                                                        width: 80,
+                                                        height: 80,
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return const Icon(Icons.pets, size: 64);
+                                                        },
+                                                      ),
+                                                    ),
                                                   Text(
                                                     pin.speciesName ?? 'Dier',
                                                     style: const TextStyle(
@@ -616,10 +654,35 @@ onMapEvent: (evt) {
                                                 ]),
                                               );
                                             },
-                                            child: const Icon(
-                                              Icons.pets,
-                                              size: 28,
-                                            ),
+                                            child: _getAnimalIconPath(pin.speciesName) != null
+                                                ? Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      shape: BoxShape.circle,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.2),
+                                                          blurRadius: 4,
+                                                          offset: const Offset(0, 2),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    padding: const EdgeInsets.all(4),
+                                                    child: Image.asset(
+                                                      _getAnimalIconPath(pin.speciesName)!,
+                                                      width: 32,
+                                                      height: 32,
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return const Icon(Icons.pets, size: 28, color: Colors.teal);
+                                                      },
+                                                    ),
+                                                  )
+                                                : const Icon(
+                                                    Icons.pets,
+                                                    size: 28,
+                                                    color: Colors.teal,
+                                                  ),
                                           ),
                                         ),
                                       )
@@ -990,5 +1053,28 @@ onPressed: () async {
 
       ),
     );
+  }
+
+  /// Maps species names to their corresponding icon paths
+  String? _getAnimalIconPath(String? speciesName) {
+    if (speciesName == null) return null;
+    
+    final name = speciesName.toLowerCase();
+    
+    // Map species names to icon file names (without 'assets/' prefix for Image.asset)
+    if (name.contains('wolf')) return 'icons/animals/wolf.png';
+    if (name.contains('vos') || name.contains('fox')) return 'icons/animals/vos.png';
+    if (name.contains('das') || name.contains('badger')) return 'icons/animals/das.png';
+    if (name.contains('ree') || name.contains('deer')) return 'icons/animals/ree.png';
+    if (name.contains('zwijn') || name.contains('boar')) return 'icons/animals/wild_zwijn.png';
+    if (name.contains('damhert')) return 'icons/animals/damhert.png';
+    if (name.contains('egel') || name.contains('hedgehog')) return 'icons/animals/egel.png';
+    if (name.contains('eekhoorn') || name.contains('squirrel')) return 'icons/animals/eekhoorn.png';
+    if (name.contains('bever') || name.contains('beaver')) return 'icons/animals/beaver.png';
+    if (name.contains('boommarten') || name.contains('marten')) return 'icons/animals/boommarten.png';
+    if (name.contains('hooglander') || name.contains('highlander')) return 'icons/animals/hooglander.png';
+    if (name.contains('wisent') || name.contains('bison')) return 'icons/animals/winsent.png';
+    
+    return null; // Return null if no matching icon is found, will show default pets icon
   }
 }
