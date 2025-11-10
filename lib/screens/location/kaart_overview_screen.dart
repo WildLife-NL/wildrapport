@@ -444,7 +444,12 @@ void _startFollowingMe() {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Kaart'),
+          title: const Text(
+            'Kaart',
+            style: TextStyle(
+              fontFamily: 'Overpass',
+            ),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new),
             onPressed: () {
@@ -463,8 +468,8 @@ void _startFollowingMe() {
               padding: const EdgeInsets.only(right: 12.0, top: 6.0),
               child: IconButton(
                 icon: const Icon(Icons.person),
-                color: AppColors.brown,
-                iconSize: 22.0,
+                color: Colors.black,
+                iconSize: 32.0,
                 onPressed: () {
                   debugPrint('[KaartOverviewScreen] profile icon pressed');
                   Navigator.of(context).push(

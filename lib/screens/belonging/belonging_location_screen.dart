@@ -188,7 +188,8 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
               CustomAppBar(
                 leftIcon: Icons.arrow_back_ios,
                 centerText: 'Locatie',
-                rightIcon: Icons.menu,
+                rightIcon: null,
+                showUserIcon: true,
                 onLeftIconPressed: () {
                   belongingProvider.clearStateOfValues();
                   navigationManager.pushReplacementForward(
@@ -196,9 +197,11 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                     const Rapporteren(),
                   );
                 },
-                onRightIconPressed: () {
-                  /* Handle menu */
-                },
+                iconColor: Colors.black,
+                textColor: Colors.black,
+                fontScale: 1.15,
+                iconScale: 1.15,
+                userIconScale: 1.15,
               ),
               Expanded(
                 child: _isInitialized
