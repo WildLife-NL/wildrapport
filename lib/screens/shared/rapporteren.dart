@@ -129,9 +129,14 @@ class _RapporterenState extends State<Rapporteren> {
             child: CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Rapporteren',
-              rightIcon: Icons.menu,
+              rightIcon: null,
               onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
+              // make title and arrow black and slightly larger for this screen
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.15,
+              iconScale: 1.15,
             ),
           ),
           Expanded(
@@ -145,59 +150,47 @@ class _RapporterenState extends State<Rapporteren> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ReportButton(
-                              image: 'assets/icons/rapporteren/crop_icon.png',
-                              text: 'Gewasschade',
-                              onPressed:
-                                  () =>
-                                      _handleReportTypeSelection('Gewasschade'),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: screenSize.width * 0.9,
+                              height: screenSize.height * 0.22,
+                              child: ReportButton(
+                                image: 'assets/icons/agriculture.png',
+                                text: 'Gewasschade',
+                                onPressed: () =>
+                                    _handleReportTypeSelection('Gewasschade'),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.02),
-                          Expanded(
-                            child: ReportButton(
-                              image: 'assets/icons/rapporteren/health_icon.png',
-                              text: 'Diergezondheid',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'Diergezondheid',
-                                  ),
+                            SizedBox(height: screenSize.height * 0.03),
+                            SizedBox(
+                              width: screenSize.width * 0.9,
+                              height: screenSize.height * 0.22,
+                              child: ReportButton(
+                                image: 'assets/icons/binoculars.png',
+                                text: 'Waarnemingen',
+                                onPressed: () => _handleReportTypeSelection(
+                                  'animalSightingen',
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: screenSize.height * 0.02),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ReportButton(
-                              image:
-                                  'assets/icons/rapporteren/sighting_icon.png',
-                              text: 'Waarnemingen',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'animalSightingen',
-                                  ),
+                            SizedBox(height: screenSize.height * 0.03),
+                            SizedBox(
+                              width: screenSize.width * 0.9,
+                              height: screenSize.height * 0.22,
+                              child: ReportButton(
+                                image: 'assets/icons/accident.png',
+                                text: 'Verkeersongeval',
+                                onPressed: () => _handleReportTypeSelection(
+                                  'Verkeersongeval',
+                                ),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.02),
-                          Expanded(
-                            child: ReportButton(
-                              image:
-                                  'assets/icons/rapporteren/accident_icon.png',
-                              text: 'Verkeersongeval',
-                              onPressed:
-                                  () => _handleReportTypeSelection(
-                                    'Verkeersongeval',
-                                  ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],

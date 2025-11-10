@@ -204,6 +204,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MediaQueryWrapper(
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'Wild Rapport',
         theme: ThemeData(
@@ -213,13 +214,13 @@ class MyApp extends StatelessWidget {
             surface: AppColors.lightMintGreen,
           ),
           textTheme: AppTextTheme.textTheme,
-          fontFamily: 'Arimo',
+          fontFamily: 'Roboto',
           snackBarTheme: const SnackBarThemeData(
             backgroundColor: AppColors.brown300,
             behavior: SnackBarBehavior.floating,
             contentTextStyle: TextStyle(
               color: Colors.black,
-              fontFamily: 'Arimo',
+              fontFamily: 'Roboto',
             ),
           ),
         ),
