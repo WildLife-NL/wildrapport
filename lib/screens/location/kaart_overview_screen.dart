@@ -784,11 +784,6 @@ onMapEvent: (evt) {
                                     map.interactions
                                         .map(
                                           (itx) {
-                                            // Calculate age for color
-                                            final age = DateTime.now().difference(itx.moment);
-                                            final isRecent = age.inHours < 1;
-                                            final pinColor = isRecent ? Colors.red : Colors.deepOrange;
-                                            
                                             return fm.Marker(
                                               point: LatLng(itx.lat, itx.lon),
                                               width: 44, // easier tap target
@@ -800,6 +795,27 @@ onMapEvent: (evt) {
                                                     context: context,
                                                     builder: (_) =>
                                                         _buildBottomSheet([
+                                                      // Show animal icon if available
+                                                      if (_getAnimalIconPath(itx.speciesName) != null)
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(bottom: 12),
+                                                          child: ColorFiltered(
+                                                            colorFilter: const ColorFilter.matrix([
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0.2126, 0.7152, 0.0722, 0, 0,
+                                                              0,      0,      0,      1, 0,
+                                                            ]),
+                                                            child: Image.asset(
+                                                              _getAnimalIconPath(itx.speciesName)!,
+                                                              width: 80,
+                                                              height: 80,
+                                                              errorBuilder: (context, error, stackTrace) {
+                                                                return const Icon(Icons.place, size: 64);
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
                                                       Text(
                                                         itx.speciesName ??
                                                             itx.typeName ??
@@ -828,11 +844,43 @@ onMapEvent: (evt) {
                                                     ]),
                                                   );
                                                 },
-                                                child: Icon(
-                                                  Icons.place,
-                                                  size: 28,
-                                                  color: pinColor,
-                                                ),
+                                                child: _getAnimalIconPath(itx.speciesName) != null
+                                                    ? Container(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.grey[300],
+                                                          shape: BoxShape.circle,
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors.black.withOpacity(0.2),
+                                                              blurRadius: 4,
+                                                              offset: const Offset(0, 2),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        padding: const EdgeInsets.all(4),
+                                                        child: ColorFiltered(
+                                                          colorFilter: const ColorFilter.matrix([
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0,      0,      0,      1, 0,
+                                                          ]),
+                                                          child: Image.asset(
+                                                            _getAnimalIconPath(itx.speciesName)!,
+                                                            width: 32,
+                                                            height: 32,
+                                                            fit: BoxFit.contain,
+                                                            errorBuilder: (context, error, stackTrace) {
+                                                              return const Icon(Icons.place, size: 28, color: Colors.deepOrange);
+                                                            },
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : const Icon(
+                                                        Icons.place,
+                                                        size: 28,
+                                                        color: Colors.deepOrange,
+                                                      ),
                                               ),
                                             );
                                           },
@@ -861,11 +909,6 @@ onMapEvent: (evt) {
                                   map.interactions
                                       .map(
                                         (itx) {
-                                          // Calculate age for color
-                                          final age = DateTime.now().difference(itx.moment);
-                                          final isRecent = age.inHours < 1;
-                                          final pinColor = isRecent ? Colors.red : Colors.deepOrange;
-                                          
                                           return fm.Marker(
                                             point: LatLng(itx.lat, itx.lon),
                                             width: 44,
@@ -877,6 +920,27 @@ onMapEvent: (evt) {
                                                   context: context,
                                                   builder: (_) =>
                                                       _buildBottomSheet([
+                                                    // Show animal icon if available
+                                                    if (_getAnimalIconPath(itx.speciesName) != null)
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(bottom: 12),
+                                                        child: ColorFiltered(
+                                                          colorFilter: const ColorFilter.matrix([
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0.2126, 0.7152, 0.0722, 0, 0,
+                                                            0,      0,      0,      1, 0,
+                                                          ]),
+                                                          child: Image.asset(
+                                                            _getAnimalIconPath(itx.speciesName)!,
+                                                            width: 80,
+                                                            height: 80,
+                                                            errorBuilder: (context, error, stackTrace) {
+                                                              return const Icon(Icons.place, size: 64);
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
                                                     Text(
                                                       itx.speciesName ??
                                                           itx.typeName ??
@@ -905,11 +969,43 @@ onMapEvent: (evt) {
                                                   ]),
                                                 );
                                               },
-                                              child: Icon(
-                                                Icons.place,
-                                                size: 28,
-                                                color: pinColor,
-                                              ),
+                                              child: _getAnimalIconPath(itx.speciesName) != null
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey[300],
+                                                        shape: BoxShape.circle,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black.withOpacity(0.2),
+                                                            blurRadius: 4,
+                                                            offset: const Offset(0, 2),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      padding: const EdgeInsets.all(4),
+                                                      child: ColorFiltered(
+                                                        colorFilter: const ColorFilter.matrix([
+                                                          0.2126, 0.7152, 0.0722, 0, 0,
+                                                          0.2126, 0.7152, 0.0722, 0, 0,
+                                                          0.2126, 0.7152, 0.0722, 0, 0,
+                                                          0,      0,      0,      1, 0,
+                                                        ]),
+                                                        child: Image.asset(
+                                                          _getAnimalIconPath(itx.speciesName)!,
+                                                          width: 32,
+                                                          height: 32,
+                                                          fit: BoxFit.contain,
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return const Icon(Icons.place, size: 28, color: Colors.deepOrange);
+                                                          },
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.place,
+                                                      size: 28,
+                                                      color: Colors.deepOrange,
+                                                    ),
                                             ),
                                           );
                                         },
