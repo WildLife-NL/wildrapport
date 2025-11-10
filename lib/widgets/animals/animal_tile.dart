@@ -45,18 +45,18 @@ class AnimalTile extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Expanded(
+              // Make image container square using AspectRatio
+              AspectRatio(
+                aspectRatio: 1.0, // Square ratio
                 child: ClipRRect(
-                  // Reduce the clipping radius for the image so it appears less rounded
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
                     width: double.infinity,
-                    // Ensure the image background is pure white as well
                     color: AppColors.lightMintGreen100,
                     child: animal.animalImagePath != null
                         ? Image(
                             image: AssetImage(animal.animalImagePath!),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.cover, // Cover to fill the square, cropping if needed
                             frameBuilder: (
                               context,
                               child,
