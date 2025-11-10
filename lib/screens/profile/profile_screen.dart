@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -181,9 +183,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   Navigator.of(ctx).pop();
-                                  Navigator.of(context).popUntil((r) => r.isFirst);
+                                  final appStateProvider = context.read<AppStateProvider>();
+                                  await appStateProvider.logout();
                                 },
                                 child: const Text('Log out'),
                               ),
