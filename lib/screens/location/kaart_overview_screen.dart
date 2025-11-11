@@ -15,7 +15,6 @@ import 'dart:math' as math;
 import 'dart:convert';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
-import 'package:wildrapport/managers/map/location_helpers.dart';
 
 class KaartOverviewScreen extends StatefulWidget {
   const KaartOverviewScreen({super.key});
@@ -44,7 +43,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   static const double _initialZoom = 15.0; // same as your initialZoom
   bool _followUser = true;
-  bool _mapReady = false;
 
   @override
   void didChangeDependencies() {
@@ -552,7 +550,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         initialZoom: _initialZoom,
                         onMapReady: () {
                           debugPrint('[Map] ready');
-                          _mapReady = true;
                         },
 
                         interactionOptions: const fm.InteractionOptions(
@@ -730,33 +727,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                     ),
                                                   ]),
                                                 ),
-                                                builder:
-                                                    (_) => _buildBottomSheet([
-                                                      Text(
-                                                        pin.speciesName ??
-                                                            'Dier',
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ]),
                                               );
                                             },
                                             child: _getAnimalIconPath(pin.speciesName) != null
@@ -864,21 +834,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                     ),
                                                   ]),
                                                 ),
-                                                builder:
-                                                    (_) => _buildBottomSheet([
-                                                      const Text(
-                                                        'Detectie',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                      ),
-                                                    ]),
                                               );
                                             },
                                             child: const Icon(
@@ -1030,16 +985,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           },
                                         )
                                         .toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior:
-                                    true, // let child handle taps
                                 builder:
                                     (context, markers) => _clusterBadge(
                                       icon: Icons.place,
@@ -1167,143 +1112,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                       size: 28,
                                                       color: Colors.deepOrange,
                                                     ),
-                                            ),
-                                    map.interactions.map((itx) {
-                                      // Calculate age for color
-                                      final age = DateTime.now().difference(
-                                        itx.moment,
-                                      );
-                                      final isRecent = age.inHours < 1;
-                                      final pinColor =
-                                          isRecent
-                                              ? Colors.red
-                                              : Colors.deepOrange;
-
-                                      return fm.Marker(
-                                        point: LatLng(itx.lat, itx.lon),
-                                        width: 44, // easier tap target
-                                        height: 44,
-                                        child: GestureDetector(
-                                          behavior: HitTestBehavior.opaque,
-                                          onTap: () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder:
-                                                  (_) => _buildBottomSheet([
-                                                    Text(
-                                                      itx.speciesName ??
-                                                          itx.typeName ??
-                                                          'Interactie',
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      itx.description ??
-                                                          'Geen omschrijving',
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      itx.moment
-                                                          .toLocal()
-                                                          .toString(),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                    ),
-                                                  ]),
+                                              ),
                                             );
                                           },
-                                          child: Icon(
-                                            Icons.place,
-                                            size: 28,
-                                            color: pinColor,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior:
-                                    true, // let child handle taps
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.place,
-                                      count: markers.length,
-                                      color: Colors.deepOrange,
-                                    ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.interactions.map((itx) {
-                                    // Calculate age for color
-                                    final age = DateTime.now().difference(
-                                      itx.moment,
-                                    );
-                                    final isRecent = age.inHours < 1;
-                                    final pinColor =
-                                        isRecent
-                                            ? Colors.red
-                                            : Colors.deepOrange;
-
-                                    return fm.Marker(
-                                      point: LatLng(itx.lat, itx.lon),
-                                      width: 44,
-                                      height: 44,
-                                      child: GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            builder:
-                                                (_) => _buildBottomSheet([
-                                                  Text(
-                                                    itx.speciesName ??
-                                                        itx.typeName ??
-                                                        'Interactie',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.description ??
-                                                        'Geen omschrijving',
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    itx.moment
-                                                        .toLocal()
-                                                        .toString(),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                  ),
-                                                ]),
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.place,
-                                          size: 28,
-                                          color: pinColor,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
+                                        )
+                                        .toList(),
                             ),
                       ],
                     ),
@@ -1422,10 +1235,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               fresh ??= target;
               if (fresh == null || !mounted) return;
 
-              String address = mp.currentAddress ?? 'Locatie gevonden';
+              String address = mp.currentAddress;
               try {
                 final a = await _location.getAddressFromPosition(fresh);
-                if (a != null && a.trim().isNotEmpty) address = a;
+                if (a.trim().isNotEmpty) address = a;
               } catch (e) {
                 debugPrint('[FAB] Reverse geocoding failed: $e');
               }
