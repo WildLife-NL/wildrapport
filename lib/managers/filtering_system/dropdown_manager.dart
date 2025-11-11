@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
@@ -133,10 +134,13 @@ class DropdownManager implements DropdownInterface {
               model: filterModel,
               onPressed: () {
                 // Show snackbar but don't select this option
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Deze functie komt binnenkort beschikbaar'),
-                    duration: Duration(seconds: 2),
+                showDialog(
+                  context: context,
+                  builder: (_) => const ErrorOverlay(
+                    messages: [
+                      'Nog niet beschikbaar',
+                      'De "Meest gezien" filter wordt later toegevoegd.',
+                    ],
                   ),
                 );
                 // Don't close dropdown or update selection

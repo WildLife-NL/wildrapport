@@ -20,6 +20,7 @@ import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
+import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -35,11 +36,16 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void _handlePendingActions() {
     if (_pendingSnackBarMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_pendingSnackBarMessage!),
-          backgroundColor: _pendingSnackBarMessage!.contains('fout') ? Colors.red : Colors.orange,
-          behavior: SnackBarBehavior.fixed,
+      // Replace error SnackBar with ErrorOverlay
+      showDialog(
+        context: context,
+        builder: (_) => ErrorOverlay(
+          messages: [
+            _pendingSnackBarMessage!,
+            _pendingSnackBarMessage!.contains('Selecteer')
+                ? 'Kies eerst een geldige optie en probeer opnieuw.'
+                : 'Corrigeer het probleem en probeer opnieuw.'
+          ],
         ),
       );
     }

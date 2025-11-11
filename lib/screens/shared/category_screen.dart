@@ -9,6 +9,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/selection_button_group.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -81,13 +82,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
         '$purpleLog[CategoryScreen] Error updating category: $e$resetLog',
       );
       if (mounted) {
-        // Check if still mounted before showing snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Er is een fout opgetreden bij het bijwerken van de categorie',
-            ),
-            backgroundColor: Colors.red,
+        // Replace error SnackBar with ErrorOverlay
+        showDialog(
+          context: context,
+          builder: (_) => const ErrorOverlay(
+            messages: [
+              'Er is een fout opgetreden',
+              'Het bijwerken van de categorie is mislukt. Probeer het later opnieuw.',
+            ],
           ),
         );
       }

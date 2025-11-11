@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/managers/map/location_helpers.dart';
+import 'package:wildrapport/widgets/overlay/encounter_notice_overlay.dart';
 
 class KaartOverviewScreen extends StatefulWidget {
   const KaartOverviewScreen({super.key});
@@ -90,16 +91,12 @@ void didChangeDependencies() {
         if (!mounted) return;
         
         try {
-          debugPrint('[Kaart] 🎉 Showing SnackBar: "${n.text}"');
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(n.text),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 4),
-              ),
-            );
+          debugPrint('[Kaart] 🎉 Showing encounter notice dialog: "${n.text}"');
+          showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => EncounterNoticeOverlay(message: n.text),
+          );
         } catch (e) {
           debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
         }
@@ -170,18 +167,11 @@ void _startFollowingMe() {
         debugPrint('[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"');
         // Display the message immediately as per requirement
         if (mounted) {
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(notice.text),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 5),
-                backgroundColor: notice.severity != null && notice.severity! > 1
-                    ? Colors.red
-                    : null,
-              ),
-            );
+          showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => EncounterNoticeOverlay(message: notice.text),
+          );
         }
       } else {
         debugPrint('[ME/live] No notice from position update');

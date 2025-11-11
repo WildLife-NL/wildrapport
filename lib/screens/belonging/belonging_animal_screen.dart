@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
@@ -71,10 +72,13 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
 
   void _handlePendingSnackBar() {
     if (_pendingSnackBarMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_pendingSnackBarMessage!),
-          backgroundColor: Colors.red,
+      showDialog(
+        context: context,
+        builder: (_) => ErrorOverlay(
+          messages: [
+            _pendingSnackBarMessage!,
+            'Corrigeer je invoer en probeer het opnieuw.',
+          ],
         ),
       );
       _pendingSnackBarMessage = null;
