@@ -69,6 +69,9 @@ void main() async {
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager();
+  
+  // Load location tracking preference
+  await appStateProvider.loadLocationTrackingPreference();
 
   await dotenv.load(fileName: ".env");
 

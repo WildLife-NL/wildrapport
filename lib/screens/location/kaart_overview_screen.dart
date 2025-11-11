@@ -210,16 +210,21 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       // use cached provider, not context.read(...)
       await _mp.updatePosition(pos, _mp.currentAddress);
 
-      // 🔔 Send tracking ping on position update to check for encounters
-      debugPrint('[ME/live] 📡 Sending tracking ping for position update');
-      final notice = await _mp.sendTrackingPingFromPosition(pos);
-      if (notice != null) {
-        debugPrint(
-          '[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"',
-        );
-        // Notice will be displayed via the MapProvider listener and popup dialog
+      // 🔔 Send tracking ping on position update - only if tracking is enabled
+      final appStateProvider = context.read<AppStateProvider>();
+      if (appStateProvider.isLocationTrackingEnabled) {
+        debugPrint('[ME/live] 📡 Sending tracking ping for position update');
+        final notice = await _mp.sendTrackingPingFromPosition(pos);
+        if (notice != null) {
+          debugPrint(
+            '[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"',
+          );
+          // Notice will be displayed via the MapProvider listener and popup dialog
+        } else {
+          debugPrint('[ME/live] No notice from position update');
+        }
       } else {
-        debugPrint('[ME/live] No notice from position update');
+        debugPrint('[ME/live] ⚠️ Skipping tracking ping - tracking disabled by user');
       }
 
       // ✅ keep center on user only when following
@@ -329,19 +334,83 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // 3) Apply immediately to provider (don't wait for address)
     await map.resetToCurrentLocation(pos, 'Locatie gevonden');
 
-    // 4) Send one tracking ping (R2) on first load
-    debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
-    final initialNotice = await map.sendTrackingPingFromPosition(pos);
-    if (initialNotice != null) {
-      debugPrint(
-        '[Kaart/Bootstrap] 🔔 Initial ping returned notice: "${initialNotice.text}"',
-      );
-    } else {
-      debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
-    }
+    // 4) Send one tracking ping (R2) on first load - only if tracking is enabled
+    final appStateProvider = context.read<AppStateProvider>();
+    if (appStateProvider.isLocationTrackingEnabled) {
+      debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
+      final initialNotice = await map.sendTrackingPingFromPosition(pos);
+      if (initialNotice != null) {
+        debugPrint(
+          '[Kaart/Bootstrap] 🔔 Initial ping returned notice: "${initialNotice.text}"',
+        );
+      } else {
+        debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
+      }
 
-    debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 10s)');
-    map.startTracking(interval: const Duration(seconds: 10));
+      debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 10s)');
+      map.startTracking(interval: const Duration(seconds: 10));
+    } else {
+      debugPrint('[Kaart/Bootstrap] ⚠️ Location tracking is disabled by user');
+      
+      // Show popup to inform user that tracking is disabled
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Row(
+                  children: [
+                    Icon(Icons.location_off, color: Colors.orange, size: 28),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Tracking Disabled',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                content: const Text(
+                  'We cannot track you. If you want to enable tracking, please turn on the permission in the Profile page.',
+                  style: TextStyle(fontSize: 16),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // Navigate to profile screen
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Go to Profile',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      });
+    }
 
     // 5) Move camera & load data after first frame so the map is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -847,16 +916,18 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             ),
 
                         // ── CURRENT POSITION ─────────────────────────────────────────────────────
-                        fm.MarkerLayer(
-                          markers: [
-                            fm.Marker(
-                              point: LatLng(pos.latitude, pos.longitude),
-                              width: 40,
-                              height: 40,
-                              child: const Icon(Icons.my_location, size: 30),
-                            ),
-                          ],
-                        ),
+                        // Only show user location pin if tracking is enabled
+                        if (context.watch<AppStateProvider>().isLocationTrackingEnabled)
+                          fm.MarkerLayer(
+                            markers: [
+                              fm.Marker(
+                                point: LatLng(pos.latitude, pos.longitude),
+                                width: 40,
+                                height: 40,
+                                child: const Icon(Icons.my_location, size: 30),
+                              ),
+                            ],
+                          ),
 
                         // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
                         _useClusters
@@ -1136,12 +1207,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             bool error = false,
                             IconData? icon,
                           }) {
+                            // Show count even if there was an error, unless we're still loading
+                            // This way, "0" means no data, "Err" only shows during actual failures
                             final text =
                                 loading
                                     ? '$label: …'
-                                    : (error
-                                        ? '$label: Err'
-                                        : '$label: $count');
+                                    : '$label: $count';
                             return Chip(
                               avatar:
                                   icon != null ? Icon(icon, size: 16) : null,
