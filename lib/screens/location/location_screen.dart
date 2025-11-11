@@ -14,6 +14,7 @@ import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
+import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
@@ -190,9 +191,19 @@ class _LocationScreenState extends State<LocationScreen> {
               centerText: 'Locatie',
               rightIcon: null,
               showUserIcon: true,
-              onLeftIconPressed: () => context
-                  .read<NavigationStateInterface>()
-                  .pushReplacementBack(context, AnimalListOverviewScreen()),
+              onLeftIconPressed: () {
+                final navigationManager = context.read<NavigationStateInterface>();
+                final appStateProvider = context.read<AppStateProvider>();
+                final reportType = appStateProvider.currentReportType;
+                
+                // For collision flow, go back to collision details screen
+                if (reportType == ReportType.verkeersongeval) {
+                  navigationManager.pushReplacementBack(context, const CollisionDetailsScreen());
+                } else {
+                  // For other flows, go back to animal list overview
+                  navigationManager.pushReplacementBack(context, AnimalListOverviewScreen());
+                }
+              },
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -204,9 +215,19 @@ class _LocationScreenState extends State<LocationScreen> {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () => context
-            .read<NavigationStateInterface>()
-            .pushReplacementBack(context, AnimalListOverviewScreen()),
+        onBackPressed: () {
+          final navigationManager = context.read<NavigationStateInterface>();
+          final appStateProvider = context.read<AppStateProvider>();
+          final reportType = appStateProvider.currentReportType;
+          
+          // For collision flow, go back to collision details screen
+          if (reportType == ReportType.verkeersongeval) {
+            navigationManager.pushReplacementBack(context, const CollisionDetailsScreen());
+          } else {
+            // For other flows, go back to animal list overview
+            navigationManager.pushReplacementBack(context, AnimalListOverviewScreen());
+          }
+        },
         onNextPressed: _handleNextPressed,
         showNextButton: true,
         showBackButton: false,

@@ -444,6 +444,7 @@ void _startFollowingMe() {
       },
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text(
             'Kaart',
             style: TextStyle(
