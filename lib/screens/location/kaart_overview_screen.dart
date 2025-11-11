@@ -77,9 +77,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       }
       _lastNoticeKey = key;
 
-      debugPrint('[Kaart] Scheduling SnackBar to show');
+      debugPrint('[Kaart] Scheduling popup dialog to show');
 
-      // Schedule the snackbar to show after the current frame completes
+      // Schedule the dialog to show after the current frame completes
       // This ensures we're not modifying the widget tree during a build
       Future.microtask(() {
         if (!mounted) return;
@@ -89,16 +89,64 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           if (!mounted) return;
 
           try {
-            debugPrint('[Kaart] 🎉 Showing SnackBar: "${n.text}"');
-            ScaffoldMessenger.of(context)
-              ..clearSnackBars()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(n.text),
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 4),
-                ),
-              );
+            debugPrint('[Kaart] 🎉 Showing popup dialog: "${n.text}"');
+
+            // Determine dialog color based on severity
+            Color dialogColor;
+            IconData dialogIcon;
+            String dialogTitle;
+
+            if (n.severity == 1) {
+              // Danger
+              dialogColor = Colors.red;
+              dialogIcon = Icons.warning;
+              dialogTitle = 'Waarschuwing';
+            } else if (n.severity == 2) {
+              // Warning
+              dialogColor = Colors.orange;
+              dialogIcon = Icons.info;
+              dialogTitle = 'Melding';
+            } else {
+              // Info or unknown
+              dialogColor = Colors.blue;
+              dialogIcon = Icons.notifications;
+              dialogTitle = 'Informatie';
+            }
+
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: Row(
+                    children: [
+                      Icon(dialogIcon, color: dialogColor, size: 28),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          dialogTitle,
+                          style: TextStyle(
+                            color: dialogColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Text(n.text, style: const TextStyle(fontSize: 16)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK', style: TextStyle(fontSize: 16)),
+                    ),
+                  ],
+                );
+              },
+            );
           } catch (e) {
             debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
           }
@@ -123,7 +171,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   @override
   void dispose() {
     _debounce?.cancel();
-    _posSub?.cancel(); // <— IMPORTANT
+    _posSub?.cancel();
     if (_listenerAttached && _mpListener != null) {
       _mp.removeListener(_mpListener!);
     }
@@ -171,22 +219,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         debugPrint(
           '[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"',
         );
-        // Display the message immediately as per requirement
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(notice.text),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 5),
-                backgroundColor:
-                    notice.severity != null && notice.severity! > 1
-                        ? Colors.red
-                        : null,
-              ),
-            );
-        }
+        // Notice will be displayed via the MapProvider listener and popup dialog
       } else {
         debugPrint('[ME/live] No notice from position update');
       }
@@ -964,7 +997,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             final mp = context.read<MapProvider>();
             debugPrint('[FAB] tapped');
 
-            // instant jump (no rebuild)
             _followUser = true;
 
             // pick a quick target
@@ -1018,7 +1050,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                   _initialZoom,
                 );
               }
-              _queueFetch(); // now ok to refetch for the new view
+              _queueFetch();
             });
           },
         ),
