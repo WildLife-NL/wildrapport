@@ -156,18 +156,16 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           child: Column(
             children: [
               CustomAppBar(
-                leftIcon: Icons.arrow_back_ios,
+                leftIcon: null,
                 centerText: "Vragenlijst",
-                rightIcon: Icons.menu,
-                onLeftIconPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OverzichtScreen(),
-                  ),
-                ),
-                onRightIconPressed: () {
-                  /* Handle menu */
-                },
+                rightIcon: null,
+                showUserIcon: true,
+                useFixedText: true,
+                iconColor: Colors.black,
+                textColor: Colors.black,
+                fontScale: 1.15,
+                iconScale: 1.15,
+                userIconScale: 1.15,
               ),
               Expanded(
                 child: questionnaireScreensList[currentQuestionnaireIndex],
