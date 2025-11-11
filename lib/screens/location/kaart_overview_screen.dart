@@ -29,7 +29,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   final _location = LocationMapManager();
 
   // cache things we must clean up
-  late MapProvider _mp;                    // <— cached provider
+  late MapProvider _mp; // <— cached provider
   StreamSubscription<Position>? _posSub;
   VoidCallback? _mpListener;
   bool _listenerAttached = false;
@@ -42,77 +42,76 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _useClusters = true;
   static const double _clusterUntilZoom = 16.0;
 
-static const double _initialZoom = 15.0; // same as your initialZoom
-bool _followUser = true;
-bool _mapReady = false;
+  static const double _initialZoom = 15.0; // same as your initialZoom
+  bool _followUser = true;
+  bool _mapReady = false;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _mp = context.read<MapProvider>();
 
+    _mpListener ??= () {
+      debugPrint('[Kaart] 📨 Listener triggered');
+      final n = _mp.lastTrackingNotice;
 
+      if (n == null) {
+        debugPrint('[Kaart] No tracking notice to show');
+        return;
+      }
 
-@override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  _mp = context.read<MapProvider>();
+      if (!mounted) {
+        debugPrint('[Kaart] Widget not mounted, skipping notice');
+        return;
+      }
 
-  _mpListener ??= () {
-    debugPrint('[Kaart] 📨 Listener triggered');
-    final n = _mp.lastTrackingNotice;
-    
-    if (n == null) {
-      debugPrint('[Kaart] No tracking notice to show');
-      return;
-    }
-    
-    if (!mounted) {
-      debugPrint('[Kaart] Widget not mounted, skipping notice');
-      return;
-    }
-    
-    debugPrint('[Kaart] Received notice: "${n.text}" (severity: ${n.severity})');
+      debugPrint(
+        '[Kaart] Received notice: "${n.text}" (severity: ${n.severity})',
+      );
 
-    // Dedup the same notice
-    final key = '${n.text}|${n.severity ?? ''}';
-    if (_lastNoticeKey == key) {
-      debugPrint('[Kaart] Duplicate notice, skipping');
-      return;
-    }
-    _lastNoticeKey = key;
+      // Dedup the same notice
+      final key = '${n.text}|${n.severity ?? ''}';
+      if (_lastNoticeKey == key) {
+        debugPrint('[Kaart] Duplicate notice, skipping');
+        return;
+      }
+      _lastNoticeKey = key;
 
-    debugPrint('[Kaart] Scheduling SnackBar to show');
-    
-    // Schedule the snackbar to show after the current frame completes
-    // This ensures we're not modifying the widget tree during a build
-    Future.microtask(() {
-      if (!mounted) return;
-      
-      // Use a post-frame callback as an extra safety layer
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint('[Kaart] Scheduling SnackBar to show');
+
+      // Schedule the snackbar to show after the current frame completes
+      // This ensures we're not modifying the widget tree during a build
+      Future.microtask(() {
         if (!mounted) return;
-        
-        try {
-          debugPrint('[Kaart] 🎉 Showing SnackBar: "${n.text}"');
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(n.text),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-        } catch (e) {
-          debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
-        }
-      });
-    });
-  };
 
-  if (!_listenerAttached) {
-    debugPrint('[Kaart] 🔗 Attaching listener to MapProvider');
-    _mp.addListener(_mpListener!);
-    _listenerAttached = true;
+        // Use a post-frame callback as an extra safety layer
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+
+          try {
+            debugPrint('[Kaart] 🎉 Showing SnackBar: "${n.text}"');
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(n.text),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 4),
+                ),
+              );
+          } catch (e) {
+            debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
+          }
+        });
+      });
+    };
+
+    if (!_listenerAttached) {
+      debugPrint('[Kaart] 🔗 Attaching listener to MapProvider');
+      _mp.addListener(_mpListener!);
+      _listenerAttached = true;
+    }
   }
-}
 
   @override
   void initState() {
@@ -121,17 +120,16 @@ void didChangeDependencies() {
     _startFollowingMe();
   }
 
-@override
-void dispose() {
-  _debounce?.cancel();
-  _posSub?.cancel();                      // <— IMPORTANT
-  if (_listenerAttached && _mpListener != null) {
-    _mp.removeListener(_mpListener!);
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _posSub?.cancel(); // <— IMPORTANT
+    if (_listenerAttached && _mpListener != null) {
+      _mp.removeListener(_mpListener!);
+    }
+    _mp.stopTracking();
+    super.dispose();
   }
-  _mp.stopTracking();
-  super.dispose();
-}
-
 
   void _queueFetch() {
     _debounce?.cancel();
@@ -140,20 +138,23 @@ void dispose() {
     });
   }
 
-void _startFollowingMe() {
-  const settings = LocationSettings(
-    accuracy: LocationAccuracy.best,
-    distanceFilter: 5,
-  );
+  void _startFollowingMe() {
+    const settings = LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 5,
+    );
 
-  _posSub = Geolocator.getPositionStream(locationSettings: settings).listen(
-    (pos) async {
+    _posSub = Geolocator.getPositionStream(locationSettings: settings).listen((
+      pos,
+    ) async {
       if (!mounted) return;
 
       // accuracy can be null on some platforms
       final double acc = pos.accuracy;
       final String accStr =
-          (acc.isNaN || acc.isInfinite || acc <= 0) ? '?' : acc.toStringAsFixed(1);
+          (acc.isNaN || acc.isInfinite || acc <= 0)
+              ? '?'
+              : acc.toStringAsFixed(1);
 
       debugPrint(
         '[ME/live] ${pos.latitude.toStringAsFixed(6)}, '
@@ -167,7 +168,9 @@ void _startFollowingMe() {
       debugPrint('[ME/live] 📡 Sending tracking ping for position update');
       final notice = await _mp.sendTrackingPingFromPosition(pos);
       if (notice != null) {
-        debugPrint('[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"');
+        debugPrint(
+          '[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"',
+        );
         // Display the message immediately as per requirement
         if (mounted) {
           ScaffoldMessenger.of(context)
@@ -177,9 +180,10 @@ void _startFollowingMe() {
                 content: Text(notice.text),
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 5),
-                backgroundColor: notice.severity != null && notice.severity! > 1
-                    ? Colors.red
-                    : null,
+                backgroundColor:
+                    notice.severity != null && notice.severity! > 1
+                        ? Colors.red
+                        : null,
               ),
             );
         }
@@ -192,10 +196,8 @@ void _startFollowingMe() {
         final z = _mp.mapController.camera.zoom;
         _mp.mapController.move(LatLng(pos.latitude, pos.longitude), z);
       }
-    },
-  );
-}
-
+    });
+  }
 
   Future<void> _fetchAllForView() async {
     final map = context.read<MapProvider>();
@@ -228,10 +230,14 @@ void _startFollowingMe() {
     );
 
     // Log all animals with JSON output
-    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint(
+      '═══════════════════════════════════════════════════════════════',
+    );
     debugPrint('[ANIMALS] Total count: ${map.animalPins.length}');
-    debugPrint('═══════════════════════════════════════════════════════════════');
-    
+    debugPrint(
+      '═══════════════════════════════════════════════════════════════',
+    );
+
     for (int i = 0; i < map.animalPins.length; i++) {
       final animal = map.animalPins[i];
       try {
@@ -246,116 +252,136 @@ void _startFollowingMe() {
         debugPrint('[ANIMAL $i] JSON: $jsonOutput');
       } catch (e) {
         debugPrint('[ANIMAL $i] Error serializing: $e');
-        debugPrint('[ANIMAL $i] Raw: id=${animal.id}, species=${animal.speciesName}, lat=${animal.lat}, lon=${animal.lon}, seenAt=${animal.seenAt}');
+        debugPrint(
+          '[ANIMAL $i] Raw: id=${animal.id}, species=${animal.speciesName}, lat=${animal.lat}, lon=${animal.lon}, seenAt=${animal.seenAt}',
+        );
       }
     }
-    debugPrint('═══════════════════════════════════════════════════════════════');
-  }
-
- Future<void> _bootstrap() async {
-  final map = context.read<MapProvider>();
-  final app = context.read<AppStateProvider>();
-  final mgr = _location; // LocationMapManager
-
-  // 1) Get a position (cache → GPS)
-  Position? pos = app.isLocationCacheValid ? app.cachedPosition : null;
-  pos ??= await mgr.determinePosition();
-
-  // Log what we got
-  debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');
-
-  // 2) Fallback to NL center if missing/outside bounds
-  if (pos == null ||
-      !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
-    pos = Position(
-      latitude: LocationMapManager.denBoschCenter.latitude,
-      longitude: LocationMapManager.denBoschCenter.longitude,
-      timestamp: DateTime.now(),
-      accuracy: 100,
-      altitude: 0,
-      heading: 0,
-      speed: 0,
-      speedAccuracy: 0,
-      altitudeAccuracy: 0,
-      headingAccuracy: 0,
+    debugPrint(
+      '═══════════════════════════════════════════════════════════════',
     );
-    debugPrint('[Loc] using fallback center: '
-        '${pos.latitude},${pos.longitude}');
   }
 
-  // 3) Apply immediately to provider (don't wait for address)
-  await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+  Future<void> _bootstrap() async {
+    final map = context.read<MapProvider>();
+    final app = context.read<AppStateProvider>();
+    final mgr = _location; // LocationMapManager
 
-  // 4) Send one tracking ping (R2) on first load
-  debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
-  final initialNotice = await map.sendTrackingPingFromPosition(pos);
-  if (initialNotice != null) {
-    debugPrint('[Kaart/Bootstrap] 🔔 Initial ping returned notice: "${initialNotice.text}"');
-  } else {
-    debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
-  }
-  
-  debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 10s)');
-  map.startTracking(interval: const Duration(seconds: 10));
+    // 1) Get a position (cache → GPS)
+    Position? pos = app.isLocationCacheValid ? app.cachedPosition : null;
+    pos ??= await mgr.determinePosition();
 
-  // 5) Move camera & load data after first frame so the map is mounted
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    try {
-      map.mapController.move(LatLng(pos!.latitude, pos.longitude), _initialZoom);
+    // Log what we got
+    debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');
 
-      final now = DateTime.now().toUtc();
-      await map.loadAllPinsForView(
-        lat: pos.latitude,
-        lon: pos.longitude,
-        radiusMeters: 5000, // start fairly wide
-        after: now.subtract(const Duration(days: 365)),
-        before: now,
+    // 2) Fallback to NL center if missing/outside bounds
+    if (pos == null ||
+        !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
+      pos = Position(
+        latitude: LocationMapManager.denBoschCenter.latitude,
+        longitude: LocationMapManager.denBoschCenter.longitude,
+        timestamp: DateTime.now(),
+        accuracy: 100,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0,
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
       );
+      debugPrint(
+        '[Loc] using fallback center: '
+        '${pos.latitude},${pos.longitude}',
+      );
+    }
 
-      debugPrint('[Map] initial totals  '
+    // 3) Apply immediately to provider (don't wait for address)
+    await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+
+    // 4) Send one tracking ping (R2) on first load
+    debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
+    final initialNotice = await map.sendTrackingPingFromPosition(pos);
+    if (initialNotice != null) {
+      debugPrint(
+        '[Kaart/Bootstrap] 🔔 Initial ping returned notice: "${initialNotice.text}"',
+      );
+    } else {
+      debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
+    }
+
+    debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 10s)');
+    map.startTracking(interval: const Duration(seconds: 10));
+
+    // 5) Move camera & load data after first frame so the map is mounted
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        map.mapController.move(
+          LatLng(pos!.latitude, pos.longitude),
+          _initialZoom,
+        );
+
+        final now = DateTime.now().toUtc();
+        await map.loadAllPinsForView(
+          lat: pos.latitude,
+          lon: pos.longitude,
+          radiusMeters: 5000, // start fairly wide
+          after: now.subtract(const Duration(days: 365)),
+          before: now,
+        );
+
+        debugPrint(
+          '[Map] initial totals  '
           'animals=${map.animalPins.length} '
           'detections=${map.detectionPins.length} '
           'interactions=${map.interactions.length} '
-          'total=${map.totalPins}');
+          'total=${map.totalPins}',
+        );
 
-      // Log all animals with JSON output
-      debugPrint('═══════════════════════════════════════════════════════════════');
-      debugPrint('[BOOTSTRAP ANIMALS] Total count: ${map.animalPins.length}');
-      debugPrint('═══════════════════════════════════════════════════════════════');
-      
-      for (int i = 0; i < map.animalPins.length; i++) {
-        final animal = map.animalPins[i];
-        try {
-          final jsonOutput = jsonEncode({
-            'index': i,
-            'id': animal.id,
-            'speciesName': animal.speciesName,
-            'lat': animal.lat,
-            'lon': animal.lon,
-            'seenAt': animal.seenAt.toIso8601String(),
-          });
-          debugPrint('[BOOTSTRAP ANIMAL $i] JSON: $jsonOutput');
-        } catch (e) {
-          debugPrint('[BOOTSTRAP ANIMAL $i] Error serializing: $e');
-          debugPrint('[BOOTSTRAP ANIMAL $i] Raw: id=${animal.id}, species=${animal.speciesName}, lat=${animal.lat}, lon=${animal.lon}, seenAt=${animal.seenAt}');
+        // Log all animals with JSON output
+        debugPrint(
+          '═══════════════════════════════════════════════════════════════',
+        );
+        debugPrint('[BOOTSTRAP ANIMALS] Total count: ${map.animalPins.length}');
+        debugPrint(
+          '═══════════════════════════════════════════════════════════════',
+        );
+
+        for (int i = 0; i < map.animalPins.length; i++) {
+          final animal = map.animalPins[i];
+          try {
+            final jsonOutput = jsonEncode({
+              'index': i,
+              'id': animal.id,
+              'speciesName': animal.speciesName,
+              'lat': animal.lat,
+              'lon': animal.lon,
+              'seenAt': animal.seenAt.toIso8601String(),
+            });
+            debugPrint('[BOOTSTRAP ANIMAL $i] JSON: $jsonOutput');
+          } catch (e) {
+            debugPrint('[BOOTSTRAP ANIMAL $i] Error serializing: $e');
+            debugPrint(
+              '[BOOTSTRAP ANIMAL $i] Raw: id=${animal.id}, species=${animal.speciesName}, lat=${animal.lat}, lon=${animal.lon}, seenAt=${animal.seenAt}',
+            );
+          }
         }
-      }
-      debugPrint('═══════════════════════════════════════════════════════════════');
+        debugPrint(
+          '═══════════════════════════════════════════════════════════════',
+        );
 
-      _queueFetch(); // keep in sync with pan/zoom
-    } catch (_) {}
-  });
+        _queueFetch(); // keep in sync with pan/zoom
+      } catch (_) {}
+    });
 
-  // 6) Reverse-geocode address (don’t block UI)
-  try {
-    final address = await mgr.getAddressFromPosition(pos);
-    if (!mounted) return;
-    map.setSelectedLocation(pos, address);
-  } catch (e) {
-    debugPrint('[Kaart] Reverse geocoding failed: $e');
+    // 6) Reverse-geocode address (don’t block UI)
+    try {
+      final address = await mgr.getAddressFromPosition(pos);
+      if (!mounted) return;
+      map.setSelectedLocation(pos, address);
+    } catch (e) {
+      debugPrint('[Kaart] Reverse geocoding failed: $e');
+    }
   }
-}
-
 
   Widget _clusterBadge({
     required IconData icon,
@@ -461,9 +487,7 @@ void _startFollowingMe() {
                 onPressed: () {
                   debugPrint('[KaartOverviewScreen] profile icon pressed');
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const ProfileScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
                   );
                 },
               ),
@@ -480,58 +504,61 @@ void _startFollowingMe() {
                       options: fm.MapOptions(
                         initialCenter: LatLng(pos.latitude, pos.longitude),
                         initialZoom: _initialZoom,
-                          onMapReady: () {
-    debugPrint('[Map] ready');
-    _mapReady = true;
-  },
+                        onMapReady: () {
+                          debugPrint('[Map] ready');
+                          _mapReady = true;
+                        },
 
-interactionOptions: const fm.InteractionOptions(
-  flags: fm.InteractiveFlag.drag |
-         fm.InteractiveFlag.pinchZoom |
-         fm.InteractiveFlag.doubleTapZoom |
-         fm.InteractiveFlag.scrollWheelZoom |
-         fm.InteractiveFlag.flingAnimation |
-         fm.InteractiveFlag.pinchMove,
-),
+                        interactionOptions: const fm.InteractionOptions(
+                          flags:
+                              fm.InteractiveFlag.drag |
+                              fm.InteractiveFlag.pinchZoom |
+                              fm.InteractiveFlag.doubleTapZoom |
+                              fm.InteractiveFlag.scrollWheelZoom |
+                              fm.InteractiveFlag.flingAnimation |
+                              fm.InteractiveFlag.pinchMove,
+                        ),
 
+                        onMapEvent: (evt) {
+                          final mp = context.read<MapProvider>();
+                          final currentZoom = mp.mapController.camera.zoom;
+                          final isProgrammatic =
+                              evt.source == fm.MapEventSource.mapController;
 
-onMapEvent: (evt) {
-  final mp = context.read<MapProvider>();
-  final currentZoom = mp.mapController.camera.zoom;
-  final isProgrammatic = evt.source == fm.MapEventSource.mapController;
+                          // Stop following only on user gestures
+                          if (!isProgrammatic &&
+                              (evt is fm.MapEventMoveStart ||
+                                  evt is fm.MapEventMove)) {
+                            if (_followUser)
+                              _followUser = false; // no setState needed
+                          }
 
-  // Stop following only on user gestures
-  if (!isProgrammatic && (evt is fm.MapEventMoveStart || evt is fm.MapEventMove)) {
-    if (_followUser) _followUser = false; // no setState needed
-  }
+                          // Handle zoom changes only for user gestures
+                          if (!isProgrammatic && _lastZoom != currentZoom) {
+                            _lastZoom = currentZoom;
 
-  // Handle zoom changes only for user gestures
-  if (!isProgrammatic && _lastZoom != currentZoom) {
-    _lastZoom = currentZoom;
+                            _queueFetch();
 
-    _queueFetch();
+                            final next = currentZoom < _clusterUntilZoom;
+                            if (next != _useClusters && mounted) {
+                              setState(() => _useClusters = next);
+                            }
 
-    final next = currentZoom < _clusterUntilZoom;
-    if (next != _useClusters && mounted) {
-      setState(() => _useClusters = next);
-    }
+                            // Recenter only if following (still user-driven)
+                            final p = mp.currentPosition ?? mp.selectedPosition;
+                            if (_followUser && p != null) {
+                              mp.mapController.move(
+                                LatLng(p.latitude, p.longitude),
+                                currentZoom,
+                              );
+                            }
+                          }
 
-    // Recenter only if following (still user-driven)
-    final p = mp.currentPosition ?? mp.selectedPosition;
-    if (_followUser && p != null) {
-      mp.mapController.move(LatLng(p.latitude, p.longitude), currentZoom);
-    }
-  }
-
-  // Only fetch after a user pan ends
-  if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
-    _queueFetch();
-  }
-},
-
-
-
-
+                          // Only fetch after a user pan ends
+                          if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
+                            _queueFetch();
+                          }
+                        },
                       ),
                       children: [
                         fm.TileLayer(
@@ -588,32 +615,33 @@ onMapEvent: (evt) {
                                             onTap: () {
                                               showModalBottomSheet(
                                                 context: context,
-                                                builder: (_) =>
-                                                    _buildBottomSheet([
-                                                  Text(
-                                                    pin.speciesName ?? 'Dier',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ]),
+                                                builder:
+                                                    (_) => _buildBottomSheet([
+                                                      Text(
+                                                        pin.speciesName ??
+                                                            'Dier',
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ]),
                                               );
                                             },
                                             child: const Icon(
@@ -674,21 +702,21 @@ onMapEvent: (evt) {
                                             onTap: () {
                                               showModalBottomSheet(
                                                 context: context,
-                                                builder: (_) =>
-                                                    _buildBottomSheet([
-                                                  const Text(
-                                                    'Detectie',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                  ),
-                                                ]),
+                                                builder:
+                                                    (_) => _buildBottomSheet([
+                                                      const Text(
+                                                        'Detectie',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                      ),
+                                                    ]),
                                               );
                                             },
                                             child: const Icon(
@@ -718,102 +746,28 @@ onMapEvent: (evt) {
                             ? cl.MarkerClusterLayerWidget(
                               options: cl.MarkerClusterLayerOptions(
                                 markers:
-                                    map.interactions
-                                        .map(
-                                          (itx) {
-                                            // Calculate age for color
-                                            final age = DateTime.now().difference(itx.moment);
-                                            final isRecent = age.inHours < 1;
-                                            final pinColor = isRecent ? Colors.red : Colors.deepOrange;
-                                            
-                                            return fm.Marker(
-                                              point: LatLng(itx.lat, itx.lon),
-                                              width: 44, // easier tap target
-                                              height: 44,
-                                              child: GestureDetector(
-                                                behavior: HitTestBehavior.opaque,
-                                                onTap: () {
-                                                  showModalBottomSheet(
-                                                    context: context,
-                                                    builder: (_) =>
-                                                        _buildBottomSheet([
-                                                      Text(
-                                                        itx.speciesName ??
-                                                            itx.typeName ??
-                                                            'Interactie',
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        itx.description ??
-                                                            'Geen omschrijving',
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        itx.moment
-                                                            .toLocal()
-                                                            .toString(),
-                                                      ),
-                                                      const SizedBox(height: 6),
-                                                      Text(
-                                                        '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                      ),
-                                                    ]),
-                                                  );
-                                                },
-                                                child: Icon(
-                                                  Icons.place,
-                                                  size: 28,
-                                                  color: pinColor,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        )
-                                        .toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior:
-                                    true, // let child handle taps
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.place,
-                                      count: markers.length,
-                                      color: Colors.deepOrange,
-                                    ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.interactions
-                                      .map(
-                                        (itx) {
-                                          // Calculate age for color
-                                          final age = DateTime.now().difference(itx.moment);
-                                          final isRecent = age.inHours < 1;
-                                          final pinColor = isRecent ? Colors.red : Colors.deepOrange;
-                                          
-                                          return fm.Marker(
-                                            point: LatLng(itx.lat, itx.lon),
-                                            width: 44,
-                                            height: 44,
-                                            child: GestureDetector(
-                                              behavior: HitTestBehavior.opaque,
-                                              onTap: () {
-                                                showModalBottomSheet(
-                                                  context: context,
-                                                  builder: (_) =>
-                                                      _buildBottomSheet([
+                                    map.interactions.map((itx) {
+                                      // Calculate age for color
+                                      final age = DateTime.now().difference(
+                                        itx.moment,
+                                      );
+                                      final isRecent = age.inHours < 1;
+                                      final pinColor =
+                                          isRecent
+                                              ? Colors.red
+                                              : Colors.deepOrange;
+
+                                      return fm.Marker(
+                                        point: LatLng(itx.lat, itx.lon),
+                                        width: 44, // easier tap target
+                                        height: 44,
+                                        child: GestureDetector(
+                                          behavior: HitTestBehavior.opaque,
+                                          onTap: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder:
+                                                  (_) => _buildBottomSheet([
                                                     Text(
                                                       itx.speciesName ??
                                                           itx.typeName ??
@@ -840,18 +794,94 @@ onMapEvent: (evt) {
                                                       '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
                                                     ),
                                                   ]),
-                                                );
-                                              },
-                                              child: Icon(
-                                                Icons.place,
-                                                size: 28,
-                                                color: pinColor,
-                                              ),
-                                            ),
+                                            );
+                                          },
+                                          child: Icon(
+                                            Icons.place,
+                                            size: 28,
+                                            color: pinColor,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                maxClusterRadius: 60,
+                                disableClusteringAtZoom: 99,
+                                padding: const EdgeInsets.all(40),
+                                maxZoom: 17.0,
+                                polygonOptions: const cl.PolygonOptions(
+                                  borderColor: Colors.transparent,
+                                ),
+                                zoomToBoundsOnClick: true,
+                                markerChildBehavior:
+                                    true, // let child handle taps
+                                builder:
+                                    (context, markers) => _clusterBadge(
+                                      icon: Icons.place,
+                                      count: markers.length,
+                                      color: Colors.deepOrange,
+                                    ),
+                              ),
+                            )
+                            : fm.MarkerLayer(
+                              markers:
+                                  map.interactions.map((itx) {
+                                    // Calculate age for color
+                                    final age = DateTime.now().difference(
+                                      itx.moment,
+                                    );
+                                    final isRecent = age.inHours < 1;
+                                    final pinColor =
+                                        isRecent
+                                            ? Colors.red
+                                            : Colors.deepOrange;
+
+                                    return fm.Marker(
+                                      point: LatLng(itx.lat, itx.lon),
+                                      width: 44,
+                                      height: 44,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                            context: context,
+                                            builder:
+                                                (_) => _buildBottomSheet([
+                                                  Text(
+                                                    itx.speciesName ??
+                                                        itx.typeName ??
+                                                        'Interactie',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    itx.description ??
+                                                        'Geen omschrijving',
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    itx.moment
+                                                        .toLocal()
+                                                        .toString(),
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Text(
+                                                    '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                  ),
+                                                ]),
                                           );
                                         },
-                                      )
-                                      .toList(),
+                                        child: Icon(
+                                          Icons.place,
+                                          size: 28,
+                                          color: pinColor,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                             ),
                       ],
                     ),
@@ -927,67 +957,71 @@ onMapEvent: (evt) {
                     ),
                   ],
                 ),
-floatingActionButton: FloatingActionButton(
-  tooltip: 'Center on me',
-  child: const Icon(Icons.my_location),
-onPressed: () async {
-  final mp = context.read<MapProvider>();
-  debugPrint('[FAB] tapped');
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'Center on me',
+          child: const Icon(Icons.my_location),
+          onPressed: () async {
+            final mp = context.read<MapProvider>();
+            debugPrint('[FAB] tapped');
 
-  // instant jump (no rebuild)
-  _followUser = true;
+            // instant jump (no rebuild)
+            _followUser = true;
 
-  // pick a quick target
-  Position? target = mp.currentPosition ?? mp.selectedPosition;
-  target ??= await Geolocator.getLastKnownPosition();
+            // pick a quick target
+            Position? target = mp.currentPosition ?? mp.selectedPosition;
+            target ??= await Geolocator.getLastKnownPosition();
 
-  if (target != null) {
-    mp.mapController.move(LatLng(target.latitude, target.longitude), _initialZoom);
-  } else {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(const SnackBar(
-        content: Text('Zoeken naar je locatie…'),
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 2),
-      ));
-  }
+            if (target != null) {
+              mp.mapController.move(
+                LatLng(target.latitude, target.longitude),
+                _initialZoom,
+              );
+            } else {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context)
+                ..clearSnackBars()
+                ..showSnackBar(
+                  const SnackBar(
+                    content: Text('Zoeken naar je locatie…'),
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+            }
 
-  // resolve fresh GPS + address in background (don’t block the jump)
-  Future(() async {
-    Position? fresh;
-    try {
-      fresh = await Geolocator
-          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-          .timeout(const Duration(seconds: 2));
-    } catch (_) {}
+            // resolve fresh GPS + address in background (don’t block the jump)
+            Future(() async {
+              Position? fresh;
+              try {
+                fresh = await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.high,
+                ).timeout(const Duration(seconds: 2));
+              } catch (_) {}
 
-    fresh ??= target;
-    if (fresh == null || !mounted) return;
+              fresh ??= target;
+              if (fresh == null || !mounted) return;
 
-    String address = mp.currentAddress ?? 'Locatie gevonden';
-    try {
-      final a = await _location.getAddressFromPosition(fresh);
-      if (a != null && a.trim().isNotEmpty) address = a;
-    } catch (e) {
-      debugPrint('[FAB] Reverse geocoding failed: $e');
-    }
+              String address = mp.currentAddress ?? 'Locatie gevonden';
+              try {
+                final a = await _location.getAddressFromPosition(fresh);
+                if (a != null && a.trim().isNotEmpty) address = a;
+              } catch (e) {
+                debugPrint('[FAB] Reverse geocoding failed: $e');
+              }
 
-    await mp.resetToCurrentLocation(fresh, address);
-    await mp.sendTrackingPingFromPosition(fresh);
+              await mp.resetToCurrentLocation(fresh, address);
+              await mp.sendTrackingPingFromPosition(fresh);
 
-    if (_followUser) {
-      mp.mapController.move(LatLng(fresh.latitude, fresh.longitude), _initialZoom);
-    }
-    _queueFetch(); // now ok to refetch for the new view
-  });
-},
-
-)
-
-
-
+              if (_followUser) {
+                mp.mapController.move(
+                  LatLng(fresh.latitude, fresh.longitude),
+                  _initialZoom,
+                );
+              }
+              _queueFetch(); // now ok to refetch for the new view
+            });
+          },
+        ),
       ),
     );
   }
