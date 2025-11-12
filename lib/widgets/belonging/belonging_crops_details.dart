@@ -4,6 +4,8 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/belonging/belonging_dropdown.dart';
+import 'package:flutter/services.dart';
+
 
 class BelongingCropsDetails extends StatefulWidget {
   const BelongingCropsDetails({super.key});
@@ -30,6 +32,16 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
 
     final belongingDamageReportProvider =
       Provider.of<BelongingDamageReportProvider>(context, listen: false);
+
+      // STEP A: Legacy normalization — if old state stored 'hectare', convert to m²
+if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
+    belongingDamageReportProvider.impactedArea != null) {
+  final ha = belongingDamageReportProvider.impactedArea!;
+  belongingDamageReportProvider.setImpactedAreaType('vierkante meters');
+  belongingDamageReportProvider.updateSelectedText('m2');
+  belongingDamageReportProvider.setImpactedArea(ha * 10000); // ha -> m²
+}
+
     
     // Initialize controllers with proper text values
     final impactAreaString = formatImpactAreaString();
@@ -169,104 +181,50 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                 ),
                 const SizedBox(height: 10),
 
-                BelongingDropdown(
-                  key: const Key('impacted-area-type'),
-                  onChanged: (value) {
-                    // Update the impacted area type
-                    switch (value) {
-                      case "vierkante meters":
-                        belongingDamageReportProvider.updateSelectedText("m2");
-                      case "hectare":
-                        belongingDamageReportProvider.updateSelectedText("ha");
-                      default:
-                        belongingDamageReportProvider.updateSelectedText(
-                          "Type",
-                        );
-                    }
-                    convertImpactArea(value);
-                    _belongingDamageReportManager.updateImpactedAreaType(value);
-                    belongingDamageReportProvider.setErrorState(
-                      "impactedAreaType",
-                      false,
-                    );
+BelongingDropdown(
+  key: const Key('impacted-area-type'),
+  onChanged: (value) {
+    // value is either 'vierkante meters' or 'units'
+    belongingDamageReportProvider.updateSelectedText(
+      value == 'units' ? 'units' : 'm2',
+    );
 
-                    // If impactedArea is not null or empty, validate the input
-                    if (_impactValueController.text.isNotEmpty) {
-                      final areaType = value;
-                      String cleanedValue = _impactValueController.text.replaceAll(
-                        ',',
-                        '.',
-                      );
+    _belongingDamageReportManager.updateImpactedAreaType(value);
+    belongingDamageReportProvider.setErrorState('impactedAreaType', false);
 
-                      bool isValid = false;
-                      double? parsed;
-
-                      if (areaType == "vierkante meters") {
-                        // Only allow full integers
-                        final intRegex = RegExp(r'^\d+$');
-                        if (intRegex.hasMatch(_impactValueController.text)) {
-                          parsed = double.tryParse(_impactValueController.text);
-                          isValid = parsed != null;
-                        }
-                      } else if (areaType == "hectare") {
-                        // Allow decimals with comma or dot
-                        final decimalRegex = RegExp(r'^\d+([.,]\d+)?$');
-                        if (decimalRegex.hasMatch(cleanedValue)) {
-                          parsed = double.tryParse(cleanedValue);
-                          isValid = parsed != null;
-                        }
-                      }
-                      debugPrint("$isValid");
-                      if (isValid) {
-                        setState(() {});
-                        debugPrint("$yellowLog is valid = $isValid");
-                        debugPrint("$yellowLog parsed = $parsed");
-
-                        _belongingDamageReportManager.updateImpactedArea(
-                          parsed!,
-                        );
-                        belongingDamageReportProvider.setHasErrorImpactedArea(
-                          false,
-                        ); // Clear error in provider
-                        belongingDamageReportProvider
-                            .resetInputErrorImpactArea();
-
-                        debugPrint(
-                          "$yellowLog ErrorImpactedArea = ${belongingDamageReportProvider.hasErrorImpactedArea}",
-                        );
-                      } else {
-                        setState(() {
-                          belongingDamageReportProvider
-                              .updateInputErrorImpactArea(
-                                areaType == "vierkante meters"
-                                    ? "Alleen gehele getallen toegestaan"
-                                    : "Gebruik een geldig getal (bv. 1,5 of 1.5)",
-                              );
-                        });
-                        belongingDamageReportProvider.setHasErrorImpactedArea(
-                          true,
-                        ); // Set error in provider
-                      }
-                    }
-                  },
-                  getSelectedValue:
-                      belongingDamageReportProvider.impactedAreaType,
-                  getSelectedText:
-                      belongingDamageReportProvider.selectedText ?? "Type",
-                  dropdownItems: [
-                    {'text': 'ha', 'value': 'hectare'},
-                    {'text': 'm2', 'value': 'vierkante meters'},
-                  ],
-                  containerHeight: 40,
-                  containerWidth: 150,
-                  startingValue: "vierkante meters",
-                  defaultValue: "Type",
-                  hasDropdownSideDescription: true,
-                  dropdownSideDescriptionText: "Getroffen Gebied",
-                  hasError:
-                      belongingDamageReportProvider.hasErrorImpactedAreaType,
-                  useIcons: false,
-                ),
+    // Re-validate current input (both types are integers)
+    final txt = _impactValueController.text;
+    if (txt.isNotEmpty) {
+      final intRegex = RegExp(r'^\d+$');
+      final ok = intRegex.hasMatch(txt);
+      if (ok) {
+        _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
+        belongingDamageReportProvider.setHasErrorImpactedArea(false);
+        belongingDamageReportProvider.resetInputErrorImpactArea();
+      } else {
+        belongingDamageReportProvider.setHasErrorImpactedArea(true);
+        belongingDamageReportProvider
+            .updateInputErrorImpactArea('Alleen gehele getallen toegestaan');
+      }
+      setState(() {});
+    }
+  },
+  getSelectedValue: belongingDamageReportProvider.impactedAreaType,
+  getSelectedText: belongingDamageReportProvider.selectedText ?? 'Type',
+  dropdownItems: const [
+    {'text': 'm²',    'value': 'vierkante meters'}, // store value = 'vierkante meters'
+    {'text': 'units', 'value': 'units'},            // store value = 'units'
+  ],
+  containerHeight: 40,
+  containerWidth: 150,
+  startingValue: 'vierkante meters',
+  defaultValue: 'Type',
+  hasDropdownSideDescription: true,
+  dropdownSideDescriptionText: 'Getroffen Gebied',
+  hasError: belongingDamageReportProvider.hasErrorImpactedAreaType,
+  useIcons: false,
+)
+,
 
                 const SizedBox(height: 10),
                 Padding(
@@ -277,159 +235,76 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       Container(
                         decoration: const BoxDecoration(),
                         child: TextField(
-                          key: const Key('area-value'),
-                          controller: _impactValueController,
-                          onChanged: (value) {
-                            debugPrint(value);
-                            
-                            // Handle empty input
-                            if (value.isEmpty) {
-                              setState(() {
-                                belongingDamageReportProvider.resetImpactedArea();
-                                belongingDamageReportProvider.updateInputErrorImpactArea('This field is required');
-                                belongingDamageReportProvider.setHasErrorImpactedArea(true);
-                              });
-                              return;
-                            }
-                            
-                            final areaType =
-                                belongingDamageReportProvider.impactedAreaType;
-                            String cleanedValue = value.replaceAll(',', '.');
+  key: const Key('area-value'),
+  controller: _impactValueController,
+  keyboardType: const TextInputType.numberWithOptions(decimal: false),
+  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  decoration: InputDecoration(
+    filled: true,
+    fillColor: Colors.white,
+    hintText: belongingDamageReportProvider.impactedAreaType == 'units'
+        ? 'hoeveel (aantal)'
+        : 'hoe groot (m²)',
+    suffixText: belongingDamageReportProvider.impactedAreaType == 'units'
+        ? 'units'
+        : 'm²',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+              belongingDamageReportProvider.hasErrorImpactedArea)
+          ? const BorderSide(color: Colors.red, width: 2.0)
+          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+              belongingDamageReportProvider.hasErrorImpactedArea)
+          ? const BorderSide(color: Colors.red, width: 2.0)
+          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+              belongingDamageReportProvider.hasErrorImpactedArea)
+          ? const BorderSide(color: Colors.red, width: 2.0)
+          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
+    ),
+  ),
+  style: const TextStyle(
+    fontSize: 18,
+    color: AppColors.brown,
+    fontFamily: 'Roboto',
+  ),
+  onChanged: (value) {
+    if (value.isEmpty) {
+      setState(() {
+        belongingDamageReportProvider.resetImpactedArea();
+        belongingDamageReportProvider
+            .updateInputErrorImpactArea('This field is required');
+        belongingDamageReportProvider.setHasErrorImpactedArea(true);
+      });
+      return;
+    }
 
-                            bool isValid = false;
-                            double? parsed;
+    final intRegex = RegExp(r'^\d+$');
+    if (intRegex.hasMatch(value)) {
+      final parsed = double.parse(value);
+      _belongingDamageReportManager.updateImpactedArea(parsed);
+      setState(() {
+        belongingDamageReportProvider.resetInputErrorImpactArea();
+        belongingDamageReportProvider.setHasErrorImpactedArea(false);
+      });
+    } else {
+      setState(() {
+        belongingDamageReportProvider.setHasErrorImpactedArea(true);
+        belongingDamageReportProvider
+            .updateInputErrorImpactArea('Alleen gehele getallen toegestaan');
+      });
+    }
+  },
+)
 
-                            if (areaType == "vierkante meters") {
-                              // Only allow full integers
-                              final intRegex = RegExp(r'^\d+$');
-                              if (intRegex.hasMatch(value)) {
-                                parsed = double.tryParse(value);
-                                isValid = parsed != null;
-                              }
-                            } else if (areaType == "hectare") {
-                              // Allow decimals with comma or dot
-                              final decimalRegex = RegExp(r'^\d+([.,]\d+)?$');
-                              if (decimalRegex.hasMatch(cleanedValue)) {
-                                parsed = double.tryParse(cleanedValue);
-                                isValid = parsed != null;
-                              }
-                            }
 
-                            if (isValid) {
-                              setState(() {
-                                belongingDamageReportProvider
-                                    .resetInputErrorImpactArea(); // Clear the error if the input is valid
-                              });
-                              _belongingDamageReportManager.updateImpactedArea(
-                                parsed!,
-                              );
-                              belongingDamageReportProvider
-                                  .setHasErrorImpactedArea(
-                                    false,
-                                  ); // Clear error in provider
-                            } else {
-                              // Only show 'This field is required' when input is empty
-                              setState(() {
-                                if (value.isNotEmpty &&
-                                    areaType != "vierkante meters" &&
-                                    areaType != "hectare") {
-                                  debugPrint(
-                                    "$greenLog [GewasschadeDetails]: Line 198",
-                                  );
-                                  belongingDamageReportProvider
-                                      .updateInputErrorImpactArea(
-                                        "Vul Getroffen Gebied in",
-                                      );
-                                } else if (value.isEmpty) {
-                                  debugPrint(
-                                    "$greenLog [GewasschadeDetails]: Line 197, value = $value",
-                                  );
-                                  belongingDamageReportProvider
-                                      .resetImpactedArea();
-                                  belongingDamageReportProvider
-                                      .updateInputErrorImpactArea(
-                                        "This field is required",
-                                      ); // Show error if the input is empty
-                                } else {
-                                  belongingDamageReportProvider
-                                      .updateInputErrorImpactArea(
-                                        areaType == "vierkante meters"
-                                            ? "Alleen gehele getallen toegestaan"
-                                            : "Gebruik een geldig getal (bv. 1,5 of 1.5)",
-                                      );
-                                }
-                              });
-                              belongingDamageReportProvider
-                                  .setHasErrorImpactedArea(
-                                    true,
-                                  ); // Set error in provider
-                            }
-                          },
-                          keyboardType: TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: 'hoe groot',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide:
-                                  (belongingDamageReportProvider
-                                                  .inputErrorImpactArea !=
-                                              null ||
-                                          belongingDamageReportProvider
-                                              .hasErrorImpactedArea)
-                                      ? const BorderSide(
-                                        color: Colors.red,
-                                        width: 2.0,
-                                      )
-                                      : const BorderSide(
-                                        color: AppColors.darkGreen,
-                                        width: 2.0,
-                                      ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide:
-                                  (belongingDamageReportProvider
-                                                  .inputErrorImpactArea !=
-                                              null ||
-                                          belongingDamageReportProvider
-                                              .hasErrorImpactedArea)
-                                      ? const BorderSide(
-                                        color: Colors.red,
-                                        width: 2.0,
-                                      )
-                                      : const BorderSide(
-                                        color: AppColors.darkGreen,
-                                        width: 2.0,
-                                      ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              borderSide:
-                                  (belongingDamageReportProvider
-                                                  .inputErrorImpactArea !=
-                                              null ||
-                                          belongingDamageReportProvider
-                                              .hasErrorImpactedArea)
-                                      ? const BorderSide(
-                                        color: Colors.red,
-                                        width: 2.0,
-                                      )
-                                      : const BorderSide(
-                                        color: AppColors.darkGreen,
-                                        width: 2.0,
-                                      ),
-                            ),
-                          ),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: AppColors.brown,
-                            fontFamily: 'Roboto',
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 5),
                       belongingDamageReportProvider.hasErrorImpactedArea
