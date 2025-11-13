@@ -744,7 +744,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                         final local = pin.seenAt.toLocal();
                                                         final dateStr = '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
                                                         return Text(
-                                                          dateStr,
+                                                          'Date: $dateStr',
                                                           style: const TextStyle(
                                                             fontSize: 14,
                                                             color: AppColors.darkGreen,
@@ -759,7 +759,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                         final local = pin.seenAt.toLocal();
                                                         final timeStr = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
                                                         return Text(
-                                                          timeStr,
+                                                          'Time: $timeStr',
                                                           style: const TextStyle(
                                                             fontSize: 14,
                                                             color: AppColors.darkGreen,
@@ -771,7 +771,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                                                       // Location
                                                       Text(
-                                                        'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                        'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           color: AppColors.darkGreen,
@@ -897,7 +897,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                         final local = pin.detectedAt.toLocal();
                                                         final dateStr = '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
                                                         return Text(
-                                                          dateStr,
+                                                          'Date: $dateStr',
                                                           style: const TextStyle(
                                                             fontSize: 14,
                                                             color: AppColors.darkGreen,
@@ -912,7 +912,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                         final local = pin.detectedAt.toLocal();
                                                         final timeStr = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
                                                         return Text(
-                                                          timeStr,
+                                                          'Time: $timeStr',
                                                           style: const TextStyle(
                                                             fontSize: 14,
                                                             color: AppColors.darkGreen,
@@ -924,7 +924,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                                                       // Location
                                                       Text(
-                                                        'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
+                                                        'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
                                                         style: const TextStyle(
                                                           fontSize: 12,
                                                           color: AppColors.darkGreen,
@@ -1021,7 +1021,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               final local = itx.moment.toLocal();
                                                               final dateStr = '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
                                                               return Text(
-                                                                dateStr,
+                                                                'Date: $dateStr',
                                                                 style: const TextStyle(
                                                                   fontSize: 14,
                                                                   color: AppColors.darkGreen,
@@ -1036,7 +1036,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               final local = itx.moment.toLocal();
                                                               final timeStr = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
                                                               return Text(
-                                                                timeStr,
+                                                                'Time: $timeStr',
                                                                 style: const TextStyle(
                                                                   fontSize: 14,
                                                                   color: AppColors.darkGreen,
@@ -1048,7 +1048,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                                                             // Location
                                                             Text(
-                                                              '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                              'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
                                                               style: const TextStyle(
                                                                 fontSize: 12,
                                                                 color: AppColors.darkGreen,
@@ -1124,68 +1124,81 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   context: context,
                                                   builder: (_) => Dialog(
                                                     child: _buildBottomSheet([
-                                                      // Show animal icon if available
-                                                      if (_getAnimalIconPath(itx.speciesName) != null)
-                                                        Padding(
-                                                          padding: const EdgeInsets.only(bottom: 12),
-                                                          child: ColorFiltered(
-                                                            colorFilter: const ColorFilter.matrix([
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0.2126, 0.7152, 0.0722, 0, 0,
-                                                              0,      0,      0,      1, 0,
-                                                            ]),
-                                                            child: Image.asset(
-                                                              _getAnimalIconPath(itx.speciesName)!,
-                                                              width: 80,
-                                                              height: 80,
-                                                              errorBuilder: (context, error, stackTrace) {
-                                                                return const Icon(Icons.place, size: 64, color: AppColors.darkGreen);
-                                                              },
+                                                        // Centered icon (use animal icon when available)
+                                                        if (_getAnimalIconPath(itx.speciesName) != null)
+                                                          Padding(
+                                                            padding: const EdgeInsets.only(bottom: 12),
+                                                            child: Center(
+                                                              child: Image.asset(
+                                                                _getAnimalIconPath(itx.speciesName)!,
+                                                                width: 80,
+                                                                height: 80,
+                                                                fit: BoxFit.contain,
+                                                                errorBuilder: (context, error, stackTrace) {
+                                                                  return const Icon(Icons.place, size: 64, color: AppColors.darkGreen);
+                                                                },
+                                                              ),
+                                                            ),
+                                                          )
+                                                        else
+                                                          const Padding(
+                                                            padding: EdgeInsets.only(bottom: 12),
+                                                            child: Center(
+                                                              child: Icon(Icons.place, size: 64, color: AppColors.darkGreen),
                                                             ),
                                                           ),
+
+                                                        // Title (species or interaction type)
+                                                        Text(
+                                                          itx.speciesName ?? itx.typeName ?? 'Interactie',
+                                                          style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w700,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
                                                         ),
-                                                      Text(
-                                                        itx.speciesName ??
-                                                            itx.typeName ??
-                                                            'Interactie',
-                                                        style: const TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: AppColors.darkGreen,
+                                                        const SizedBox(height: 6),
+
+                                                        // Date
+                                                        Builder(builder: (context) {
+                                                          final local = itx.moment.toLocal();
+                                                          final dateStr = '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+                                                          return Text(
+                                                            'Date: $dateStr',
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color: AppColors.darkGreen,
+                                                            ),
+                                                            textAlign: TextAlign.center,
+                                                          );
+                                                        }),
+                                                        const SizedBox(height: 4),
+
+                                                        // Time
+                                                        Builder(builder: (context) {
+                                                          final local = itx.moment.toLocal();
+                                                          final timeStr = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+                                                          return Text(
+                                                            'Time: $timeStr',
+                                                            style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color: AppColors.darkGreen,
+                                                            ),
+                                                            textAlign: TextAlign.center,
+                                                          );
+                                                        }),
+                                                        const SizedBox(height: 8),
+
+                                                        // Location
+                                                        Text(
+                                                          'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors.darkGreen,
+                                                          ),
+                                                          textAlign: TextAlign.center,
                                                         ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        itx.description ??
-                                                            'Geen omschrijving',
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        itx.moment
-                                                            .toLocal()
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
                                                     ]),
                                                   ),
                                                 );
