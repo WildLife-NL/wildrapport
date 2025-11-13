@@ -52,19 +52,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   static const double _initialZoom = 8.0; // same as your initialZoom
   bool _followUser = true;
 
-  // Filter state
+  // Filter state (default: show only last hour; enable others via filter)
   bool _showAnimals = true;
   bool _showDetections = true;
   bool _showInteractions = true;
   bool _showAnimalsNew = true; // < 24h
-  bool _showAnimalsMedium = true; // 24h - 1 week
-  bool _showAnimalsOld = true; // > 1 week
+  bool _showAnimalsMedium = false; // 24h - 1 week
+  bool _showAnimalsOld = false; // > 1 week
   bool _showDetectionsNew = true;
-  bool _showDetectionsMedium = true;
-  bool _showDetectionsOld = true;
+  bool _showDetectionsMedium = false;
+  bool _showDetectionsOld = false;
   bool _showInteractionsNew = true;
-  bool _showInteractionsMedium = true;
-  bool _showInteractionsOld = true;
+  bool _showInteractionsMedium = false;
+  bool _showInteractionsOld = false;
 
   @override
   void didChangeDependencies() {
