@@ -47,9 +47,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   static const _debounceMs = 450;
 
   bool _useClusters = true;
-  static const double _clusterUntilZoom = 16.0;
+  static const double _clusterUntilZoom = 17.0;
 
-  static const double _initialZoom = 15.0; // same as your initialZoom
+  static const double _initialZoom = 8.0; // same as your initialZoom
   bool _followUser = true;
 
   // Filter state
@@ -1056,7 +1056,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     (context, markers) => _clusterBadge(
                                       icon: Icons.pets,
                                       count: markers.length,
-                                      color: Colors.teal,
+                                      color: AppColors.darkGreen,
                                     ),
                               ),
                             )
@@ -1316,7 +1316,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     (context, markers) => _clusterBadge(
                                       icon: Icons.sensors,
                                       count: markers.length,
-                                      color: Colors.indigo,
+                                      color: AppColors.darkGreen,
                                     ),
                               ),
                             )
@@ -1490,7 +1490,17 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             ? cl.MarkerClusterLayerWidget(
                               options: cl.MarkerClusterLayerOptions(
                                 markers:
-                                    map.interactions.map((itx) {
+                                    map.interactions
+                                        .where(
+                                          (itx) => _shouldShowPin(
+                                            itx.moment,
+                                            _showInteractions,
+                                            _showInteractionsNew,
+                                            _showInteractionsMedium,
+                                            _showInteractionsOld,
+                                          ),
+                                        )
+                                        .map((itx) {
                                       return fm.Marker(
                                         point: LatLng(itx.lat, itx.lon),
                                         width: 44, // easier tap target
@@ -1716,7 +1726,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     (context, markers) => _clusterBadge(
                                       icon: Icons.place,
                                       count: markers.length,
-                                      color: Colors.deepOrange,
+                                      color: AppColors.darkGreen,
                                     ),
                               ),
                             )
@@ -1992,21 +2002,21 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     children: [
                                       chip(
                                         'Animals',
-                                        mp.animalPins.length,
+                                        mp.animalPins.where((pin) => _shouldShowPin(pin.seenAt, _showAnimals, _showAnimalsNew, _showAnimalsMedium, _showAnimalsOld)).length,
                                         loading: mp.animalPinsLoading,
                                         error: mp.animalPinsError != null,
                                         icon: Icons.pets,
                                       ),
                                       chip(
                                         'Detections',
-                                        mp.detectionPins.length,
+                                        mp.detectionPins.where((pin) => _shouldShowPin(pin.detectedAt, _showDetections, _showDetectionsNew, _showDetectionsMedium, _showDetectionsOld)).length,
                                         loading: mp.detectionPinsLoading,
                                         error: mp.detectionPinsError != null,
                                         icon: Icons.sensors,
                                       ),
                                       chip(
                                         'Interacts',
-                                        mp.interactions.length,
+                                        mp.interactions.where((itx) => _shouldShowPin(itx.moment, _showInteractions, _showInteractionsNew, _showInteractionsMedium, _showInteractionsOld)).length,
                                         loading: mp.interactionsLoading,
                                         error: mp.interactionsError != null,
                                         icon: Icons.place,
