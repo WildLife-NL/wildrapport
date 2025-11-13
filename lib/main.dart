@@ -57,6 +57,8 @@ import 'package:wildrapport/data_managers/interaction_query_api.dart';
 import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 import 'package:wildrapport/managers/api_managers/animal_pins_manager.dart';
 import 'package:wildrapport/managers/api_managers/detection_pins_manager.dart';
+import 'package:wildrapport/data_managers/interaction_types_api.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
@@ -109,6 +111,10 @@ void main() async {
   mapProvider.setInteractionsManager(interactionQueryManager);
   mapProvider.setDetectionPinsManager(detectionPinsManager);
   mapProvider.setAnimalPinsManager(animalPinsManager);
+
+  // Interaction types: fetch/display names for UI
+  final interactionTypesApi = InteractionTypesApi(apiClient);
+  final interactionTypesManager = InteractionTypesManager(interactionTypesApi);
 
   final trackingApi = TrackingApi(apiClient);
   mapProvider.setTrackingApi(trackingApi);
@@ -165,6 +171,7 @@ void main() async {
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
+  Provider<InteractionTypesManager>.value(value: interactionTypesManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),

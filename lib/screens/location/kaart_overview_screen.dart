@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/widgets/overlay/encounter_message_overlay.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
@@ -86,68 +87,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
 
-          try {
-            debugPrint('[Kaart] 🎉 Showing popup dialog: "${n.text}"');
-
-            // Determine dialog color based on severity
-            Color dialogColor;
-            IconData dialogIcon;
-            String dialogTitle;
-
-            if (n.severity == 1) {
-              // Danger
-              dialogColor = Colors.red;
-              dialogIcon = Icons.warning;
-              dialogTitle = 'Waarschuwing';
-            } else if (n.severity == 2) {
-              // Warning
-              dialogColor = Colors.orange;
-              dialogIcon = Icons.info;
-              dialogTitle = 'Melding';
-            } else {
-              // Info or unknown
-              dialogColor = Colors.blue;
-              dialogIcon = Icons.notifications;
-              dialogTitle = 'Informatie';
+            try {
+              debugPrint('[Kaart] 🎉 Showing message-style popup: "${n.text}"');
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (_) => EncounterMessageOverlay(
+                  message: n.text,
+                  title: n.severity == 1
+                      ? 'Waarschuwing'
+                      : (n.severity == 2 ? 'Melding' : 'Informatie'),
+                  severity: n.severity,
+                ),
+              );
+            } catch (e) {
+              debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
             }
-
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  title: Row(
-                    children: [
-                      Icon(dialogIcon, color: dialogColor, size: 28),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          dialogTitle,
-                          style: TextStyle(
-                            color: dialogColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  content: Text(n.text, style: const TextStyle(fontSize: 16)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('OK', style: TextStyle(fontSize: 16)),
-                    ),
-                  ],
-                );
-              },
-            );
-          } catch (e) {
-            debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
-          }
         });
       });
     };
