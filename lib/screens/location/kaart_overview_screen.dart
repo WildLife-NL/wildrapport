@@ -402,7 +402,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           lat: pos.latitude,
           lon: pos.longitude,
           radiusMeters: 5000, // start fairly wide
-          after: now.subtract(const Duration(days: 365)),
+          after: now.subtract(const Duration(days: 31)),
           before: now,
         );
 
@@ -508,6 +508,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         ),
       ],
     );
+  }
+
+  /// Returns true if timestamp is within the last 31 days
+  bool _within31Days(DateTime timestamp) {
+    return DateTime.now().difference(timestamp) < const Duration(days: 31);
   }
 
   /// Check if a pin should be shown based on filter settings
@@ -973,6 +978,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               options: cl.MarkerClusterLayerOptions(
                                 markers:
                                     map.animalPins
+                                        .where((pin) => _within31Days(pin.seenAt))
                                         .where(
                                           (pin) => _shouldShowPin(
                                             pin.seenAt,
@@ -1063,6 +1069,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             : fm.MarkerLayer(
                               markers:
                                   map.animalPins
+                                      .where((pin) => _within31Days(pin.seenAt))
                                       .where(
                                         (pin) => _shouldShowPin(
                                           pin.seenAt,
@@ -1271,6 +1278,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               options: cl.MarkerClusterLayerOptions(
                                 markers:
                                     map.detectionPins
+                                        .where((pin) => _within31Days(pin.detectedAt))
                                         .where(
                                           (pin) => _shouldShowPin(
                                             pin.detectedAt,
@@ -1323,6 +1331,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             : fm.MarkerLayer(
                               markers:
                                   map.detectionPins
+                                      .where((pin) => _within31Days(pin.detectedAt))
                                       .where(
                                         (pin) => _shouldShowPin(
                                           pin.detectedAt,
@@ -1491,6 +1500,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               options: cl.MarkerClusterLayerOptions(
                                 markers:
                                     map.interactions
+                                        .where((itx) => _within31Days(itx.moment))
                                         .where(
                                           (itx) => _shouldShowPin(
                                             itx.moment,
@@ -1733,6 +1743,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             : fm.MarkerLayer(
                               markers:
                                   map.interactions
+                                      .where((itx) => _within31Days(itx.moment))
                                       .where(
                                         (itx) => _shouldShowPin(
                                           itx.moment,
@@ -2002,21 +2013,30 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     children: [
                                       chip(
                                         'Animals',
-                                        mp.animalPins.where((pin) => _shouldShowPin(pin.seenAt, _showAnimals, _showAnimalsNew, _showAnimalsMedium, _showAnimalsOld)).length,
+                                        mp.animalPins
+                                            .where((pin) => _within31Days(pin.seenAt))
+                                            .where((pin) => _shouldShowPin(pin.seenAt, _showAnimals, _showAnimalsNew, _showAnimalsMedium, _showAnimalsOld))
+                                            .length,
                                         loading: mp.animalPinsLoading,
                                         error: mp.animalPinsError != null,
                                         icon: Icons.pets,
                                       ),
                                       chip(
                                         'Detections',
-                                        mp.detectionPins.where((pin) => _shouldShowPin(pin.detectedAt, _showDetections, _showDetectionsNew, _showDetectionsMedium, _showDetectionsOld)).length,
+                                        mp.detectionPins
+                                            .where((pin) => _within31Days(pin.detectedAt))
+                                            .where((pin) => _shouldShowPin(pin.detectedAt, _showDetections, _showDetectionsNew, _showDetectionsMedium, _showDetectionsOld))
+                                            .length,
                                         loading: mp.detectionPinsLoading,
                                         error: mp.detectionPinsError != null,
                                         icon: Icons.sensors,
                                       ),
                                       chip(
                                         'Interacts',
-                                        mp.interactions.where((itx) => _shouldShowPin(itx.moment, _showInteractions, _showInteractionsNew, _showInteractionsMedium, _showInteractionsOld)).length,
+                                        mp.interactions
+                                            .where((itx) => _within31Days(itx.moment))
+                                            .where((itx) => _shouldShowPin(itx.moment, _showInteractions, _showInteractionsNew, _showInteractionsMedium, _showInteractionsOld))
+                                            .length,
                                         loading: mp.interactionsLoading,
                                         error: mp.interactionsError != null,
                                         icon: Icons.place,
