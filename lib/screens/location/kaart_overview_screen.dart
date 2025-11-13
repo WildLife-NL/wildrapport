@@ -2039,7 +2039,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                 ),
         floatingActionButton: FloatingActionButton(
           tooltip: 'Center on me',
-          child: const Icon(Icons.my_location),
+          backgroundColor: AppColors.darkGreen,
+          child: const Icon(Icons.my_location, color: Colors.white),
           onPressed: () async {
             final mp = context.read<MapProvider>();
             debugPrint('[FAB] tapped');
