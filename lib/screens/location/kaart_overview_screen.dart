@@ -716,48 +716,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 showDialog(
                                                   context: context,
                                                   builder: (_) => Dialog(
-                                                    child: _buildBottomSheet([
-                                                      // Show animal icon if available
-                                                      if (_getAnimalIconPath(pin.speciesName) != null)
-                                                        Padding(
-                                                          padding: const EdgeInsets.only(bottom: 12),
-                                                          child: Image.asset(
-                                                            _getAnimalIconPath(pin.speciesName)!,
-                                                            width: 80,
-                                                            height: 80,
-                                                            errorBuilder: (context, error, stackTrace) {
-                                                              return const Icon(Icons.pets, size: 64, color: AppColors.darkGreen);
-                                                            },
-                                                          ),
-                                                        ),
-                                                      Text(
-                                                        pin.speciesName ?? 'Dier',
-                                                        style: const TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
+                                                    child: _buildBottomSheet(
+                                                      _buildMapPopupWidgets(
+                                                        speciesName: pin.speciesName,
+                                                        timestamp: pin.seenAt,
+                                                        lat: pin.lat,
+                                                        lon: pin.lon,
                                                       ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        'Waargenomen: ${pin.seenAt.toLocal().toString().substring(0, 16)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        'Locatie: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                    ]),
+                                                    ),
                                                   ),
                                                 );
                                               },
@@ -855,26 +821,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 showDialog(
                                                   context: context,
                                                   builder: (_) => Dialog(
-                                                    child: _buildBottomSheet([
-                                                      const Text(
-                                                        'Detectie',
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
+                                                    child: _buildBottomSheet(
+                                                      _buildMapPopupWidgets(
+                                                        primaryLabel: 'Detectie',
+                                                        timestamp: pin.detectedAt,
+                                                        lat: pin.lat,
+                                                        lon: pin.lon,
                                                       ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: AppColors.darkGreen,
-                                                        ),
-                                                        textAlign: TextAlign.center,
-                                                      ),
-                                                    ]),
+                                                    ),
                                                   ),
                                                 );
                                               },
@@ -925,70 +879,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   showDialog(
                                                     context: context,
                                                     builder: (_) => Dialog(
-                                                      child: _buildBottomSheet([
-                                                        // Show animal icon if available
-                                                        if (_getAnimalIconPath(itx.speciesName) != null)
-                                                          Padding(
-                                                            padding: const EdgeInsets.only(bottom: 12),
-                                                            child: ColorFiltered(
-                                                              colorFilter: const ColorFilter.matrix([
-                                                                0.2126, 0.7152, 0.0722, 0, 0,
-                                                                0.2126, 0.7152, 0.0722, 0, 0,
-                                                                0.2126, 0.7152, 0.0722, 0, 0,
-                                                                0,      0,      0,      1, 0,
-                                                              ]),
-                                                              child: Image.asset(
-                                                                _getAnimalIconPath(itx.speciesName)!,
-                                                                width: 80,
-                                                                height: 80,
-                                                                errorBuilder: (context, error, stackTrace) {
-                                                                  return const Icon(Icons.place, size: 64, color: AppColors.darkGreen);
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        Text(
-                                                          itx.speciesName ??
-                                                              itx.typeName ??
-                                                              'Interactie',
-                                                          style: const TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: AppColors.darkGreen,
-                                                          ),
-                                                          textAlign: TextAlign.center,
+                                                      child: _buildBottomSheet(
+                                                        _buildMapPopupWidgets(
+                                                          speciesName: itx.speciesName,
+                                                          primaryLabel: itx.speciesName ?? itx.typeName ?? 'Interactie',
+                                                          description: itx.description,
+                                                          timestamp: itx.moment,
+                                                          lat: itx.lat,
+                                                          lon: itx.lon,
                                                         ),
-                                                        const SizedBox(height: 8),
-                                                        Text(
-                                                          itx.description ??
-                                                              'Geen omschrijving',
-                                                          style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: AppColors.darkGreen,
-                                                          ),
-                                                          textAlign: TextAlign.center,
-                                                        ),
-                                                        const SizedBox(height: 8),
-                                                        Text(
-                                                          itx.moment
-                                                              .toLocal()
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: AppColors.darkGreen,
-                                                          ),
-                                                          textAlign: TextAlign.center,
-                                                        ),
-                                                        const SizedBox(height: 8),
-                                                        Text(
-                                                          '${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: AppColors.darkGreen,
-                                                          ),
-                                                          textAlign: TextAlign.center,
-                                                        ),
-                                                      ]),
+                                                      ),
                                                     ),
                                                   );
                                                 },
@@ -1176,71 +1076,67 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                     // ── Status chips ────────────────────────────────────────────────────────────
                     Positioned(
                       top: 8,
+                      left: 8,
                       right: 8,
-                      child: Builder(
-                        builder: (context) {
-                          final mp = context.watch<MapProvider>();
+                      child: Builder(builder: (context) {
+                        final mp = context.watch<MapProvider>();
+                        final maxW = MediaQuery.of(context).size.width * 0.92;
 
-                          Widget chip(
-                            String label,
-                            int count, {
-                            bool loading = false,
-                            bool error = false,
-                            IconData? icon,
-                          }) {
-                            // Show count even if there was an error, unless we're still loading
-                            // This way, "0" means no data, "Err" only shows during actual failures
-                            final text =
-                                loading
-                                    ? '$label: …'
-                                    : '$label: $count';
-                            return Chip(
-                              avatar:
-                                  icon != null ? Icon(icon, size: 16) : null,
-                              label: Text(text),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            );
-                          }
+                        Widget chip(
+                          String label,
+                          int count, {
+                          bool loading = false,
+                          bool error = false,
+                          IconData? icon,
+                        }) {
+                          final text = loading ? '$label: …' : '$label: $count';
+                          return Chip(
+                            avatar: icon != null ? Icon(icon, size: 16) : null,
+                            label: Text(text, style: const TextStyle(fontSize: 13)),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          );
+                        }
 
-                          return Card(
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 6,
-                              ),
-                              child: Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  chip(
-                                    'Animals',
-                                    mp.animalPins.length,
-                                    loading: mp.animalPinsLoading,
-                                    error: mp.animalPinsError != null,
-                                    icon: Icons.pets,
-                                  ),
-                                  chip(
-                                    'Detections',
-                                    mp.detectionPins.length,
-                                    loading: mp.detectionPinsLoading,
-                                    error: mp.detectionPinsError != null,
-                                    icon: Icons.sensors,
-                                  ),
-                                  chip(
-                                    'Interacts',
-                                    mp.interactions.length,
-                                    loading: mp.interactionsLoading,
-                                    error: mp.interactionsError != null,
-                                    icon: Icons.place,
-                                  ),
-                                ],
+                        return Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: maxW),
+                            child: Card(
+                              elevation: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                child: Wrap(
+                                  spacing: 6,
+                                  runSpacing: 6,
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    chip(
+                                      'Animals',
+                                      mp.animalPins.length,
+                                      loading: mp.animalPinsLoading,
+                                      error: mp.animalPinsError != null,
+                                      icon: Icons.pets,
+                                    ),
+                                    chip(
+                                      'Detections',
+                                      mp.detectionPins.length,
+                                      loading: mp.detectionPinsLoading,
+                                      error: mp.detectionPinsError != null,
+                                      icon: Icons.sensors,
+                                    ),
+                                    chip(
+                                      'Interacts',
+                                      mp.interactions.length,
+                                      loading: mp.interactionsLoading,
+                                      error: mp.interactionsError != null,
+                                      icon: Icons.place,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -1333,6 +1229,115 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (name.contains('wisent') || name.contains('bison')) return 'assets/icons/animals/winsent.png';
     
     return null; // Return null if no matching icon is found, will show default pets icon
+  }
+
+  /// Build standardized map popup widgets for animals, detections and interactions
+  List<Widget> _buildMapPopupWidgets({
+    String? speciesName,
+    String? primaryLabel,
+    String? description,
+    DateTime? timestamp,
+    double? lat,
+    double? lon,
+  }) {
+    final children = <Widget>[];
+
+    // Image / icon (centered)
+    if (speciesName != null && _getAnimalIconPath(speciesName) != null) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Center(
+            child: Image.asset(
+              _getAnimalIconPath(speciesName)!,
+              width: 80,
+              height: 80,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.pets, size: 64, color: AppColors.darkGreen);
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Primary label (animal or generic title)
+    if (speciesName != null) {
+      children.add(Text(
+        'Animal: ${speciesName}',
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+      children.add(const SizedBox(height: 6));
+    } else if (primaryLabel != null) {
+      children.add(Text(
+        primaryLabel,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+      children.add(const SizedBox(height: 8));
+    }
+
+    // Description / subtitle
+    if (description != null && description.trim().isNotEmpty) {
+      children.add(Text(
+        description,
+        style: const TextStyle(
+          fontSize: 14,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+      children.add(const SizedBox(height: 8));
+    }
+
+    // Date and time (if provided)
+    if (timestamp != null) {
+      final local = timestamp.toLocal();
+      final dateStr = '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+      final timeStr = '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+      children.add(Text(
+        'Datum: $dateStr',
+        style: const TextStyle(
+          fontSize: 14,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+      children.add(const SizedBox(height: 4));
+      children.add(Text(
+        'Tijd: $timeStr',
+        style: const TextStyle(
+          fontSize: 14,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+      children.add(const SizedBox(height: 8));
+    }
+
+    // Location
+    if (lat != null && lon != null) {
+      children.add(Text(
+        'Locatie: ${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}',
+        style: const TextStyle(
+          fontSize: 12,
+          color: AppColors.darkGreen,
+        ),
+        textAlign: TextAlign.center,
+      ));
+    }
+
+    return children;
   }
 
   /// Determines the background color based on how old the timestamp is

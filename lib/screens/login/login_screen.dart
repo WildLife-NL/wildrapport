@@ -117,10 +117,23 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                 clipBehavior: Clip.none,
                 children: [
                   Center(
-                    child: Image.asset(
-                      'assets/LogoWildlifeNL.png',
-                      width: screenWidth * 0.7,
-                      fit: BoxFit.contain,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/LogoWildlifeNL.png',
+                          width: screenWidth * 0.6,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Wild Rapport',
+                          style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ) ?? const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                        ),
+                      ],
                     ),
                   ),
                   Positioned(
