@@ -389,7 +389,7 @@ BelongingDropdown(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Verwachte toekomstige schade",
+                        "Verwachte inkomstenderving",
                         style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 16),
                       ),
                       const SizedBox(height: 8),
