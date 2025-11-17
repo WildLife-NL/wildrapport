@@ -331,65 +331,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       map.startTracking(interval: const Duration(seconds: 10));
     } else {
       debugPrint('[Kaart/Bootstrap] ⚠️ Location tracking is disabled by user');
-
-      // Show popup to inform user that tracking is disabled
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                title: Row(
-                  children: [
-                    Icon(Icons.location_off, color: Colors.orange, size: 28),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Locatie delen uitgeschakeld',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                content: const Text(
-                  'Om de kaart te kunnen gebruiken dient u uw locatie te delen. Ga naar \'instellingen\' en schakel de optie \'locatie delen\' in.',
-                  style: TextStyle(fontSize: 16),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop(); // Go back to main menu
-                    },
-                    child: const Text('Annuleren', style: TextStyle(fontSize: 16)),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // Navigate to profile screen
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const ProfileScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Ga naar instellingen',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      });
+      // Location tracking is optional, so we don't show a dialog
+      // User can enable it later from profile settings if desired
     }
 
     // 5) Move camera & load data after first frame so the map is mounted
