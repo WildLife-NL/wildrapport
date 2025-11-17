@@ -348,7 +348,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
-                        'Tracking Disabled',
+                        'Locatie delen uitgeschakeld',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -358,13 +358,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                   ],
                 ),
                 content: const Text(
-                  'We cannot track you. If you want to enable tracking, please turn on the permission in the Profile page.',
+                  'Om de kaart te kunnen gebruiken dient u uw locatie te delen. Ga naar \'instellingen\' en schakel de optie \'locatie delen\' in.',
                   style: TextStyle(fontSize: 16),
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK', style: TextStyle(fontSize: 16)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(); // Go back to main menu
+                    },
+                    child: const Text('Annuleren', style: TextStyle(fontSize: 16)),
                   ),
                   TextButton(
                     onPressed: () {
@@ -377,7 +380,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                       );
                     },
                     child: const Text(
-                      'Go to Profile',
+                      'Ga naar instellingen',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
