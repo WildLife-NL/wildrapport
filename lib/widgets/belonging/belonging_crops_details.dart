@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/widgets/belonging/belonging_dropdown.dart';
 import 'package:flutter/services.dart';
 
 
@@ -15,6 +14,7 @@ class BelongingCropsDetails extends StatefulWidget {
 }
 
 class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
+  late final TextEditingController _belongingController;
   late final TextEditingController _impactValueController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _currentDamageController;
@@ -44,6 +44,11 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
 
     
     // Initialize controllers with proper text values
+    final initialBelonging = belongingDamageReportProvider.impactedCrop.isNotEmpty
+        ? belongingDamageReportProvider.impactedCrop
+        : '';
+    _belongingController = TextEditingController(text: initialBelonging);
+    
     final impactAreaString = formatImpactAreaString();
     final initialImpact = (impactAreaString.isNotEmpty && impactAreaString != "0" && impactAreaString != "0.0") 
         ? impactAreaString 
@@ -68,6 +73,7 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
   
   @override
   void dispose() {
+    _belongingController.dispose();
     _impactValueController.dispose();
     _descriptionController.dispose();
     _currentDamageController.dispose();
@@ -149,178 +155,261 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BelongingDropdown(
-                  key: const Key('impacted-crop'),
-                  onChanged: (value) {
-                    _belongingDamageReportManager.updateImpactedCrop(value);
-                    belongingDamageReportProvider.setErrorState(
-                      "impactedCrop",
-                      false,
-                    );
-                  },
-                  getSelectedValue: belongingDamageReportProvider.impactedCrop,
-                  getSelectedText: capitalize(
-                    belongingDamageReportProvider.impactedCrop,
-                  ),
-                  dropdownItems: [
-                    {'text': 'Mais', 'value': 'mais'},
-                    {'text': 'Bieten', 'value': 'bieten'},
-                    {'text': 'Granen', 'value': 'granen'},
-                    {'text': 'Bloementeelt', 'value': 'bloementeelt'},
-                    {'text': 'Grasvelden', 'value': 'grasvelden'},
-                    {'text': 'Boomteelt', 'value': 'boomteelt'},
-                    {'text': 'Tuinbouw', 'value': 'tuinbouw'},
-                  ],
-                  containerHeight: 50,
-                  containerWidth: 400,
-                  startingValue: "mais",
-                  defaultValue: "Kies Gewas",
-                  hasDropdownSideDescription: false,
-                  hasError: belongingDamageReportProvider.hasErrorImpactedCrop,
-                  useIcons: true,
-                ),
-                const SizedBox(height: 10),
-
-BelongingDropdown(
-  key: const Key('impacted-area-type'),
-  onChanged: (value) {
-    // value is either 'vierkante meters' or 'units'
-    belongingDamageReportProvider.updateSelectedText(
-      value == 'units' ? 'units' : 'm2',
-    );
-
-    _belongingDamageReportManager.updateImpactedAreaType(value);
-    belongingDamageReportProvider.setErrorState('impactedAreaType', false);
-
-    // Re-validate current input (both types are integers)
-    final txt = _impactValueController.text;
-    if (txt.isNotEmpty) {
-      final intRegex = RegExp(r'^\d+$');
-      final ok = intRegex.hasMatch(txt);
-      if (ok) {
-        _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
-        belongingDamageReportProvider.setHasErrorImpactedArea(false);
-        belongingDamageReportProvider.resetInputErrorImpactArea();
-      } else {
-        belongingDamageReportProvider.setHasErrorImpactedArea(true);
-        belongingDamageReportProvider
-            .updateInputErrorImpactArea('Alleen gehele getallen toegestaan');
-      }
-      setState(() {});
-    }
-  },
-  getSelectedValue: belongingDamageReportProvider.impactedAreaType,
-  getSelectedText: belongingDamageReportProvider.selectedText ?? 'Type',
-  dropdownItems: const [
-    {'text': 'm²',    'value': 'vierkante meters'}, // store value = 'vierkante meters'
-    {'text': 'units', 'value': 'units'},            // store value = 'units'
-  ],
-  containerHeight: 40,
-  containerWidth: 150,
-  startingValue: 'vierkante meters',
-  defaultValue: 'Type',
-  hasDropdownSideDescription: true,
-  dropdownSideDescriptionText: 'Getroffen Gebied',
-  hasError: belongingDamageReportProvider.hasErrorImpactedAreaType,
-  useIcons: false,
-)
-,
-
-                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        decoration: const BoxDecoration(),
-                        child: TextField(
-  key: const Key('area-value'),
-  controller: _impactValueController,
-  keyboardType: const TextInputType.numberWithOptions(decimal: false),
-  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-  decoration: InputDecoration(
-    filled: true,
-    fillColor: Colors.white,
-    hintText: belongingDamageReportProvider.impactedAreaType == 'units'
-        ? 'hoeveel (aantal)'
-        : 'hoe groot (m²)',
-    suffixText: belongingDamageReportProvider.impactedAreaType == 'units'
-        ? 'units'
-        : 'm²',
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.0),
-      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
-              belongingDamageReportProvider.hasErrorImpactedArea)
-          ? const BorderSide(color: Colors.red, width: 2.0)
-          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.0),
-      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
-              belongingDamageReportProvider.hasErrorImpactedArea)
-          ? const BorderSide(color: Colors.red, width: 2.0)
-          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.0),
-      borderSide: (belongingDamageReportProvider.inputErrorImpactArea != null ||
-              belongingDamageReportProvider.hasErrorImpactedArea)
-          ? const BorderSide(color: Colors.red, width: 2.0)
-          : const BorderSide(color: AppColors.darkGreen, width: 2.0),
-    ),
-  ),
-  style: const TextStyle(
-    fontSize: 18,
-    color: AppColors.brown,
-    fontFamily: 'Roboto',
-  ),
-  onChanged: (value) {
-    if (value.isEmpty) {
-      setState(() {
-        belongingDamageReportProvider.resetImpactedArea();
-        belongingDamageReportProvider
-            .updateInputErrorImpactArea('This field is required');
-        belongingDamageReportProvider.setHasErrorImpactedArea(true);
-      });
-      return;
-    }
+                      const Text(
+                        "Wat is beschadigd?",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        key: const Key('belonging-field'),
+                        controller: _belongingController,
+                        onChanged: (value) {
+                          _belongingDamageReportManager.updateImpactedCrop(value);
+                          belongingDamageReportProvider.setErrorState(
+                            "impactedCrop",
+                            false,
+                          );
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: 'bijv. mais, bieten, granen...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide(
+                              color: belongingDamageReportProvider.hasErrorImpactedCrop
+                                  ? Colors.red
+                                  : AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide(
+                              color: belongingDamageReportProvider.hasErrorImpactedCrop
+                                  ? Colors.red
+                                  : AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: BorderSide(
+                              color: belongingDamageReportProvider.hasErrorImpactedCrop
+                                  ? Colors.red
+                                  : AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: AppColors.brown,
+                          fontFamily: 'Roboto',
+                        ),
+                      ),
+                      if (belongingDamageReportProvider.hasErrorImpactedCrop)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Text(
+                            'Dit veld is verplicht',
+                            style: TextStyle(color: Colors.red, fontSize: 12, fontFamily: 'Roboto'),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Omvang van de schade",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              key: const Key('area-value'),
+                              controller: _impactValueController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: 'bijv. 150',
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                    color: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+                                            belongingDamageReportProvider.hasErrorImpactedArea)
+                                        ? Colors.red
+                                        : AppColors.darkGreen,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                    color: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+                                            belongingDamageReportProvider.hasErrorImpactedArea)
+                                        ? Colors.red
+                                        : AppColors.darkGreen,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  borderSide: BorderSide(
+                                    color: (belongingDamageReportProvider.inputErrorImpactArea != null ||
+                                            belongingDamageReportProvider.hasErrorImpactedArea)
+                                        ? Colors.red
+                                        : AppColors.darkGreen,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              ),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: AppColors.brown,
+                                fontFamily: 'Roboto',
+                              ),
+                              onChanged: (value) {
+                                if (value.isEmpty) {
+                                  setState(() {
+                                    belongingDamageReportProvider.resetImpactedArea();
+                                    belongingDamageReportProvider
+                                        .updateInputErrorImpactArea('Dit veld is verplicht');
+                                    belongingDamageReportProvider.setHasErrorImpactedArea(true);
+                                  });
+                                  return;
+                                }
 
-    final intRegex = RegExp(r'^\d+$');
-    if (intRegex.hasMatch(value)) {
-      final parsed = double.parse(value);
-      _belongingDamageReportManager.updateImpactedArea(parsed);
-      setState(() {
-        belongingDamageReportProvider.resetInputErrorImpactArea();
-        belongingDamageReportProvider.setHasErrorImpactedArea(false);
-      });
-    } else {
-      setState(() {
-        belongingDamageReportProvider.setHasErrorImpactedArea(true);
-        belongingDamageReportProvider
-            .updateInputErrorImpactArea('Alleen gehele getallen toegestaan');
-      });
-    }
-  },
-)
-
-
+                                final intRegex = RegExp(r'^\d+$');
+                                if (intRegex.hasMatch(value)) {
+                                  final parsed = double.parse(value);
+                                  _belongingDamageReportManager.updateImpactedArea(parsed);
+                                  setState(() {
+                                    belongingDamageReportProvider.resetInputErrorImpactArea();
+                                    belongingDamageReportProvider.setHasErrorImpactedArea(false);
+                                  });
+                                } else {
+                                  setState(() {
+                                    belongingDamageReportProvider.setHasErrorImpactedArea(true);
+                                    belongingDamageReportProvider
+                                        .updateInputErrorImpactArea('Alleen gehele getallen toegestaan');
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    belongingDamageReportProvider.updateSelectedText('m²');
+                                    _belongingDamageReportManager.updateImpactedAreaType('vierkante meters');
+                                    belongingDamageReportProvider.setErrorState('impactedAreaType', false);
+                                    
+                                    final txt = _impactValueController.text;
+                                    if (txt.isNotEmpty) {
+                                      final intRegex = RegExp(r'^\d+$');
+                                      if (intRegex.hasMatch(txt)) {
+                                        _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
+                                        belongingDamageReportProvider.setHasErrorImpactedArea(false);
+                                        belongingDamageReportProvider.resetInputErrorImpactArea();
+                                      }
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: belongingDamageReportProvider.impactedAreaType == 'vierkante meters'
+                                          ? AppColors.darkGreen
+                                          : Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'm²',
+                                      style: TextStyle(
+                                        color: belongingDamageReportProvider.impactedAreaType == 'vierkante meters'
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                InkWell(
+                                  onTap: () {
+                                    belongingDamageReportProvider.updateSelectedText('eenheden');
+                                    _belongingDamageReportManager.updateImpactedAreaType('units');
+                                    belongingDamageReportProvider.setErrorState('impactedAreaType', false);
+                                    
+                                    final txt = _impactValueController.text;
+                                    if (txt.isNotEmpty) {
+                                      final intRegex = RegExp(r'^\d+$');
+                                      if (intRegex.hasMatch(txt)) {
+                                        _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
+                                        belongingDamageReportProvider.setHasErrorImpactedArea(false);
+                                        belongingDamageReportProvider.resetInputErrorImpactArea();
+                                      }
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: belongingDamageReportProvider.impactedAreaType == 'units'
+                                          ? AppColors.darkGreen
+                                          : Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'ha',
+                                      style: TextStyle(
+                                        color: belongingDamageReportProvider.impactedAreaType == 'units'
+                                            ? Colors.white
+                                            : Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 5),
-                      belongingDamageReportProvider.hasErrorImpactedArea
-                          ? Text(
-                            belongingDamageReportProvider
-                                    .inputErrorImpactArea ??
-                                'This field is required',
-                            style: const TextStyle(color: Colors.red, fontSize: 12, fontFamily: 'Roboto'),
-                          )
-                          : const SizedBox.shrink(), // invisible when no error
+                      if (belongingDamageReportProvider.hasErrorImpactedArea)
+                        Text(
+                          belongingDamageReportProvider.inputErrorImpactArea ?? 'Dit veld is verplicht',
+                          style: const TextStyle(color: Colors.red, fontSize: 12, fontFamily: 'Roboto'),
+                        ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

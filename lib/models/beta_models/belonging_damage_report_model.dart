@@ -72,10 +72,10 @@ Map<String, dynamic> toJson() {
     throw StateError('impactValue must be > 0');
   }
 
-  // ✅ Use possesionID (UUID) not the name
-  final String belongingID = possesion.possesionID ?? '';
-  if (belongingID.trim().isEmpty) {
-    throw StateError('belonging ID is required');
+  // ✅ Use possesionName (free text) as per API schema
+  final String belongingName = possesion.possesionName ?? '';
+  if (belongingName.trim().isEmpty) {
+    throw StateError('belonging name is required');
   }
 
   return {
@@ -91,8 +91,8 @@ Map<String, dynamic> toJson() {
       "longitude": userSelectedLocation!.longtitude,
     },
     "reportOfDamage": {
-      // ✅ Send the UUID, not the name
-      "belonging": belongingID,
+      // ✅ Send the free text name as per API schema
+      "belonging": belongingName,
 
       // ✅ ints (int64)
       "estimatedDamage": currentImpactDamages.round(),

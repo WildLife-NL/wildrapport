@@ -206,7 +206,6 @@ void updateImpactedAreaType(String value) {
 @override
 BelongingDamageReport? buildBelongingReport() {
   debugPrint("✅ buildBelongingReport called");
-  _ensureBelongingsLoaded();
 
   try {
     // --- validate minimal required fields ---
@@ -217,14 +216,12 @@ BelongingDamageReport? buildBelongingReport() {
       throw Exception("Impacted area is empty");
     }
 
-    // map selected crop name -> backend Possesion
-    final Possesion? pos = _getCorrectPossesion(formProvider.impactedCrop);
-    if (pos == null) {
-      debugPrint(
-        "$redLog[BelongingDamageReportManager] Could not resolve possesion from '${formProvider.impactedCrop}'$yellowLog",
-      );
-      return null; // cannot send without a real belonging
-    }
+    // ✅ Use the free text crop name directly as belonging
+    final Possesion pos = Possesion(
+      possesionID: null,
+      possesionName: formProvider.impactedCrop,
+      category: null,
+    );
 
     // locations (fallbacks if missing)
     final systemReportLocation =
