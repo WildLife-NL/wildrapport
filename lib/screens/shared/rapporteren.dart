@@ -42,14 +42,14 @@ class _RapporterenState extends State<Rapporteren> {
         nextScreen = const CategoryScreen();
         _initializeMapInBackground();
         break;
-      case 'Gewasschade':
-        debugPrint('[Rapporteren] Gewasschade selected, initializing map');
+      case 'Schademelding':
+        debugPrint('[Rapporteren] Schademelding selected, initializing map');
         selectedReportType = ReportType.gewasschade;
         nextScreen = BelongingDamagesScreen();
         _initializeMapInBackground();
         break;
-      case 'Verkeersongeval':
-        debugPrint('[Rapporteren] Verkeersongeval selected, initializing map');
+      case 'Dieraanrijding':
+        debugPrint('[Rapporteren] Dieraanrijding selected, initializing map');
         selectedReportType = ReportType.verkeersongeval;
         // Create animal sighting report and save it in provider
         final animalSightingManagerVerkeer =
@@ -160,9 +160,9 @@ class _RapporterenState extends State<Rapporteren> {
                               height: screenSize.height * 0.22,
                               child: ReportButton(
                                 image: 'assets/icons/agriculture.png',
-                                text: 'Gewasschade',
+                                text: 'Schademelding',
                                 onPressed: () =>
-                                    _handleReportTypeSelection('Gewasschade'),
+                                    _handleReportTypeSelection('Schademelding'),
                               ),
                             ),
                             SizedBox(height: screenSize.height * 0.03),
@@ -183,9 +183,9 @@ class _RapporterenState extends State<Rapporteren> {
                               height: screenSize.height * 0.22,
                               child: ReportButton(
                                 image: 'assets/icons/accident.png',
-                                text: 'Verkeersongeval',
+                                text: 'Dieraanrijding',
                                 onPressed: () => _handleReportTypeSelection(
-                                  'Verkeersongeval',
+                                  'Dieraanrijding',
                                 ),
                               ),
                             ),
