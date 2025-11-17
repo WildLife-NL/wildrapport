@@ -200,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                             child: TextField(
                               controller: emailController,
                               decoration: InputDecoration(
-                                hintText: 'voorbeeld@gmail.com',
+                                hintText: 'e-mailadres',
                                 hintStyle: TextStyle(color: Colors.grey),
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                           const SizedBox(height: 24),
                           BrownButton(
                             model: ButtonModelFactory.createLoginButton(
-                              text: 'Login',
+                              text: 'Aanmelden',
                             ),
                             onPressed: _handleLogin,
                           ),
