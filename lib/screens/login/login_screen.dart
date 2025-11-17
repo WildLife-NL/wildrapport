@@ -229,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                                 );
                               },
                               child: Text(
-                                'Leer hoe de registratie werkt?',
+                                'Hoe werkt de registratie?',
                                 style: TextStyle(
                                   color: AppColors.brown,
                                   decoration: TextDecoration.underline,
