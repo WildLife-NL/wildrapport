@@ -5,7 +5,7 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   String impactedCrop = '';
   double currentDamage = 0;
   double expectedDamage = 0;
-  String impactedAreaType = '';
+  String impactedAreaType = 'vierkante meters'; // Default to m²
   double? impactedArea;
   String description = '';
   String? suspectedSpeciesID;
@@ -17,7 +17,7 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   ReportLocation? userLocation;
   bool expanded = false;
   String? inputErrorImpactArea;
-  String? selectedText;
+  String? selectedText = 'm²'; // Default display text
 
     // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
   // Use these names everywhere new code touches the provider.

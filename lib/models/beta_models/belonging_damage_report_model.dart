@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
@@ -73,9 +74,12 @@ Map<String, dynamic> toJson() {
   }
 
   // ✅ Use possesionName (free text) as per API schema
-  final String belongingName = possesion.possesionName ?? '';
-  if (belongingName.trim().isEmpty) {
-    throw StateError('belonging name is required');
+  final String? belongingName = possesion.possesionName;
+  debugPrint("🔍 toJson: possesionName = '$belongingName'");
+  
+  if (belongingName == null || belongingName.trim().isEmpty) {
+    debugPrint("❌ toJson: belonging name is null or empty!");
+    throw StateError('belonging name is required - got: ${belongingName ?? "null"}');
   }
 
   return {
@@ -92,7 +96,7 @@ Map<String, dynamic> toJson() {
     },
     "reportOfDamage": {
       // ✅ Send the free text name as per API schema
-      "belonging": belongingName,
+      "belonging": belongingName.trim(),
 
       // ✅ ints (int64)
       "estimatedDamage": currentImpactDamages.round(),

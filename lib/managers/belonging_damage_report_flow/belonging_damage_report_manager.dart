@@ -206,6 +206,9 @@ void updateImpactedAreaType(String value) {
 @override
 BelongingDamageReport? buildBelongingReport() {
   debugPrint("✅ buildBelongingReport called");
+  debugPrint("✅ formProvider.impactedCrop: '${formProvider.impactedCrop}'");
+  debugPrint("✅ formProvider.impactedArea: ${formProvider.impactedArea}");
+  debugPrint("✅ formProvider.impactedAreaType: '${formProvider.impactedAreaType}'");
 
   try {
     // --- validate minimal required fields ---
@@ -222,6 +225,7 @@ BelongingDamageReport? buildBelongingReport() {
       possesionName: formProvider.impactedCrop,
       category: null,
     );
+    debugPrint("✅ Created Possesion with name: '${pos.possesionName}'");
 
     // locations (fallbacks if missing)
     final systemReportLocation =
