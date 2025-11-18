@@ -49,7 +49,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _useClusters = true;
   static const double _clusterUntilZoom = 17.0;
 
-  static const double _initialZoom = 8.0; // same as your initialZoom
+  static const double _initialZoom = 15.0; // Zoom level for "Center on me" button
   bool _followUser = true;
 
   // Filter state (default: show only last hour; enable others via filter)
