@@ -22,6 +22,7 @@ class BelongingAnimalScreen extends StatefulWidget {
 
 class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   late final BelongingDamageReportProvider _belongingDamageReportProvider;
   late final AnimalManagerInterface _animalManager;
   List<AnimalModel> _animals = [];
@@ -33,6 +34,10 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
     super.initState();
     _belongingDamageReportProvider = context.read<BelongingDamageReportProvider>();
     _animalManager = context.read<AnimalManagerInterface>();
+    // Ensure search is reset when (re)entering this screen
+    _searchController.text = '';
+    _searchController.addListener(() => setState(() {}));
+    _animalManager.updateSearchTerm('');
     _animalManager.addListener(_handleStateChange);
     _loadAnimals();
   }
@@ -40,6 +45,9 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    // Clear any lingering search to avoid sticky filtered lists on next visit
+    _animalManager.updateSearchTerm('');
+    _searchController.dispose();
     _animalManager.removeListener(_handleStateChange);
     super.dispose();
   }
@@ -95,6 +103,8 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
               showUserIcon: true,
               onLeftIconPressed: () {
                 debugPrint('[BelongingAnimalScreen] Back button pressed');
+                // Reset search before navigating back
+                _animalManager.updateSearchTerm('');
                 Navigator.pop(context);
               },
               iconColor: Colors.black,
@@ -122,12 +132,23 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
+                            controller: _searchController,
                             style: const TextStyle(fontSize: 16),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'zoeken',
                               border: InputBorder.none,
                               isCollapsed: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                              suffixIcon: (_searchController.text.isNotEmpty)
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear, color: AppColors.darkGreen),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _animalManager.updateSearchTerm('');
+                                        setState(() {});
+                                      },
+                                    )
+                                  : null,
                             ),
                             onChanged: (val) {
                               _animalManager.updateSearchTerm(val);
