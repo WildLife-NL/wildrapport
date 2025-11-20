@@ -28,7 +28,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedAge;
   String? selectedGender;
   String? lastSelectedGender; // Add this to remember the last gender
-  int currentCount = 0;
+  int currentCount = 1;
   bool _forceRebuild = false;
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
@@ -118,7 +118,7 @@ void _validateAndAddToList(BuildContext context) {
 
     selectedAge = null;
     selectedGender = null;
-    currentCount = 0;
+    currentCount = 1;
 
     // force rebuild trick stays if you still need it
     _forceRebuild = !_forceRebuild;
@@ -260,18 +260,19 @@ void _validateAndAddToList(BuildContext context) {
                               ),
                             ),
                             child: ListWheelScrollView.useDelegate(
-                              controller: FixedExtentScrollController(initialItem: 0),
+                              controller: FixedExtentScrollController(initialItem: 0), // Start at index 0 (shows 1)
                               itemExtent: 40,
                               diameterRatio: 1.5,
                               physics: const FixedExtentScrollPhysics(),
                               onSelectedItemChanged: (index) {
                                 setState(() {
-                                  currentCount = index;
+                                  currentCount = index + 1; // Store actual count (1-100)
                                 });
                               },
                               childDelegate: ListWheelChildBuilderDelegate(
                                 builder: (context, index) {
-                                  final bool isSelected = index == currentCount;
+                                  final displayNumber = index + 1; // Start from 1
+                                  final bool isSelected = (index + 1) == currentCount;
                                   return Center(
                                     child: Container(
                                       width: 70,
@@ -283,7 +284,7 @@ void _validateAndAddToList(BuildContext context) {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          '$index',
+                                          '$displayNumber',
                                           style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -297,7 +298,7 @@ void _validateAndAddToList(BuildContext context) {
                                     ),
                                   );
                                 },
-                                childCount: 101, // 0 to 100
+                                childCount: 100, // 1 to 100
                               ),
                             ),
                           ),
