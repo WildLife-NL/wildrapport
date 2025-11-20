@@ -39,11 +39,18 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   late TextEditingController _responseController;
   late final ResponseProvider responseProvider;
   String? _validationError;
+  
+  // Slider-related state
+  bool _isNumericRange = false;
+  int _minValue = 0;
+  int _maxValue = 10;
+  double _sliderValue = 1;
 
   @override
   void initState() {
     super.initState();
     responseProvider = context.read<ResponseProvider>();
+    _checkIfNumericRange();
     _initializeController();
   }
 
@@ -52,7 +59,29 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     super.didUpdateWidget(oldWidget);
     // If the question changed, reinitialize the controller
     if (oldWidget.question.id != widget.question.id) {
+      _checkIfNumericRange();
       _initializeController();
+    }
+  }
+  
+  void _checkIfNumericRange() {
+    final format = widget.question.openResponseFormat;
+    if (format == null || format.isEmpty) {
+      _isNumericRange = false;
+      return;
+    }
+    
+    // Check for numeric range patterns like [1-5], [0-10], etc.
+    final rangePattern = RegExp(r'^\[(\d+)-(\d+)\]$');
+    final match = rangePattern.firstMatch(format);
+    
+    if (match != null) {
+      _isNumericRange = true;
+      _minValue = int.parse(match.group(1)!);
+      _maxValue = int.parse(match.group(2)!);
+      _sliderValue = _minValue.toDouble();
+    } else {
+      _isNumericRange = false;
     }
   }
 
@@ -62,9 +91,18 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     existingResponse = responseProvider.responses.firstWhereOrNull(
       (response) => response.questionID == widget.question.id,
     );
-    _responseController = TextEditingController(
-      text: existingResponse?.text ?? '',
-    );
+    
+    final existingText = existingResponse?.text ?? '';
+    
+    // If numeric range, initialize slider value from existing response
+    if (_isNumericRange && existingText.isNotEmpty) {
+      final numValue = int.tryParse(existingText);
+      if (numValue != null && numValue >= _minValue && numValue <= _maxValue) {
+        _sliderValue = numValue.toDouble();
+      }
+    }
+    
+    _responseController = TextEditingController(text: existingText);
     _validationError = null;
   }
 
@@ -75,26 +113,191 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   }
 
   String? _validateText(String text) {
-    // Backend requires text to match a regex pattern
-    // Minimum validation: at least 2 characters, not just whitespace
-    final trimmedText = text.trim();
+    final format = widget.question.openResponseFormat;
     
-    if (trimmedText.isEmpty) {
-      return null; // Allow empty if question allows it
+    // If no format specified, only do basic validation
+    if (format == null || format.isEmpty) {
+      final trimmedText = text.trim();
+      if (trimmedText.isEmpty) {
+        return null; // Allow empty if question allows it
+      }
+      if (trimmedText.length < 2) {
+        return 'Antwoord moet minimaal 2 tekens bevatten';
+      }
+      return null;
     }
     
-    if (trimmedText.length < 2) {
-      return 'Antwoord moet minimaal 2 tekens bevatten';
-    }
-    
-    // Check for valid characters (alphanumeric, spaces, basic punctuation)
-    // This is a guess - adjust based on backend requirements
-    final validPattern = RegExp(r'^[a-zA-Z0-9\s.,!?;:()\[\]\-]+$');
-    if (!validPattern.hasMatch(trimmedText)) {
-      return 'Antwoord bevat ongeldige tekens';
+    // Validate against the regex pattern
+    try {
+      final regex = RegExp(format);
+      if (!regex.hasMatch(text)) {
+        return 'Antwoord voldoet niet aan het vereiste formaat';
+      }
+    } catch (e) {
+      // If regex is invalid, skip validation
+      debugPrint('Invalid regex pattern: $format');
     }
     
     return null;
+  }
+  
+  Widget _buildSlider() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.offWhite,
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(
+              color: AppColors.darkGreen,
+              width: 2,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                'Geselecteerde waarde: ${_sliderValue.toInt()}',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Roboto',
+                  color: AppColors.darkGreen,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Slider(
+                value: _sliderValue,
+                min: _minValue.toDouble(),
+                max: _maxValue.toDouble(),
+                divisions: _maxValue - _minValue,
+                label: _sliderValue.toInt().toString(),
+                activeColor: AppColors.darkGreen,
+                inactiveColor: AppColors.brown300,
+                onChanged: (value) {
+                  setState(() {
+                    _sliderValue = value;
+                    final stringValue = value.toInt().toString();
+                    _responseController.text = stringValue;
+                    
+                    if (existingResponse != null) {
+                      responseProvider.setUpdatingResponse(true);
+                      responseProvider.updateResponse(
+                        existingResponse?.copyWith(text: stringValue),
+                      );
+                    } else {
+                      responseProvider.addResponse(
+                        Response(
+                          interactionID: widget.interactionID,
+                          questionID: widget.question.id,
+                          text: stringValue,
+                        ),
+                      );
+                    }
+                  });
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$_minValue',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Roboto',
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    '$_maxValue',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Roboto',
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          key: const Key('questionnaire-description'),
+          controller: _responseController,
+          onChanged: (value) {
+            setState(() {
+              _validationError = _validateText(value);
+              if (existingResponse != null) {
+                responseProvider.setUpdatingResponse(true);
+                responseProvider.updateResponse(
+                  existingResponse?.copyWith(text: value),
+                );
+              } else {
+                responseProvider.addResponse(
+                  Response(
+                    interactionID: widget.interactionID,
+                    questionID: widget.question.id,
+                    text: value,
+                  ),
+                );
+              }
+            });
+          },
+          maxLines: 10,
+          decoration: InputDecoration(
+            hintText: 'Schrijf hier uw antwoord...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide(
+                color: _validationError != null ? Colors.red : AppColors.darkGreen,
+                width: 2,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide(
+                color: _validationError != null ? Colors.red : AppColors.darkGreen,
+                width: 2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: const BorderSide(
+                color: AppColors.darkGreen,
+                width: 2,
+              ),
+            ),
+            errorText: _validationError,
+          ),
+          style: const TextStyle(
+            fontSize: 18,
+            fontFamily: 'Roboto',
+            color: Colors.black,
+          ),
+        ),
+        if (_validationError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Antwoord voldoet niet aan het vereiste formaat',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red[700],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
@@ -149,75 +352,8 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               const SizedBox(height: 32),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      key: Key('questionnaire-description'),
-                      controller: _responseController,
-                      onChanged: (value) {
-                        setState(() {
-                          _validationError = _validateText(value);
-                          if (existingResponse != null) {
-                            responseProvider.setUpdatingResponse(true);
-                            responseProvider.updateResponse(
-                              existingResponse?.copyWith(text: value),
-                            );
-                          } else {
-                            responseProvider.addResponse(
-                              Response(interactionID: widget.interactionID, questionID: widget.question.id, text: value),
-                            );
-                          }
-                        });
-                      },
-                      maxLines: 10,
-                      decoration: InputDecoration(
-                        hintText: 'Schrijf hier uw antwoord...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          borderSide: BorderSide(
-                            color: _validationError != null ? Colors.red : AppColors.darkGreen,
-                            width: 2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          borderSide: BorderSide(
-                            color: _validationError != null ? Colors.red : AppColors.darkGreen,
-                            width: 2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                          borderSide: const BorderSide(
-                            color: AppColors.darkGreen,
-                            width: 2,
-                          ),
-                        ),
-                        errorText: _validationError,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Roboto',
-                        color: Colors.black,
-                      ),
-                    ),
-                    if (_validationError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'Let op: Het antwoord moet voldoen aan de eisen van de backend.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.orange[700],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                child: _isNumericRange ? _buildSlider() : _buildTextField(),
               ),
-              // Remove Expanded(child: Container()) — no longer needed
             ],
           ),
         ),

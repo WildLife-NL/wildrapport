@@ -2023,6 +2023,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
             _followUser = true;
 
+            // Preserve current zoom level
+            final currentZoom = mp.mapController.camera.zoom;
+
             // pick a quick target
             Position? target = mp.currentPosition ?? mp.selectedPosition;
             target ??= await Geolocator.getLastKnownPosition();
@@ -2030,7 +2033,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             if (target != null) {
               mp.mapController.move(
                 LatLng(target.latitude, target.longitude),
-                _initialZoom,
+                currentZoom,
               );
             } else {
               if (!mounted) return;
@@ -2071,7 +2074,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               if (_followUser) {
                 mp.mapController.move(
                   LatLng(fresh.latitude, fresh.longitude),
-                  _initialZoom,
+                  currentZoom,
                 );
               }
               _queueFetch();
