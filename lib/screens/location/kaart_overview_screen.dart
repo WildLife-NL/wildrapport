@@ -11,6 +11,9 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
+import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:convert';
@@ -543,7 +546,24 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Animals by age
+                              // Animals section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Dieren',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               _buildFilterCheckbox(
                                 'New (< 24 hours)',
                                 _showAnimalsNew,
@@ -575,7 +595,26 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 Icons.history,
                               ),
 
-                              // Detections by age
+                              const SizedBox(height: 16),
+
+                              // Detections section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Detecties',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               _buildFilterCheckbox(
                                 'New (< 24 hours)',
                                 _showDetectionsNew,
@@ -607,7 +646,26 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 Icons.history,
                               ),
 
-                              // Interactions by age
+                              const SizedBox(height: 16),
+
+                              // Interactions section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.place, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Interacties',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               _buildFilterCheckbox(
                                 'New (< 24 hours)',
                                 _showInteractionsNew,
@@ -992,139 +1050,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   showDialog(
                                                     context: context,
                                                     builder:
-                                                        (_) => Dialog(
-                                                          child: _buildBottomSheet([
-                                                            // Show animal icon if available (centered)
-                                                            if (_getAnimalIconPath(
-                                                                  pin.speciesName,
-                                                                ) !=
-                                                                null)
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      bottom:
-                                                                          12,
-                                                                    ),
-                                                                child: Center(
-                                                                  child: Image.asset(
-                                                                    _getAnimalIconPath(
-                                                                      pin.speciesName,
-                                                                    )!,
-                                                                    width: 80,
-                                                                    height: 80,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .contain,
-                                                                    errorBuilder: (
-                                                                      context,
-                                                                      error,
-                                                                      stackTrace,
-                                                                    ) {
-                                                                      return const Icon(
-                                                                        Icons
-                                                                            .pets,
-                                                                        size:
-                                                                            64,
-                                                                        color:
-                                                                            AppColors.darkGreen,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-
-                                                            // Animal name
-                                                            Text(
-                                                              'Animal: ${pin.speciesName ?? 'Onbekend'}',
-                                                              style: const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 6,
-                                                            ),
-
-                                                            // Date
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    pin.seenAt
-                                                                        .toLocal();
-                                                                final dateStr =
-                                                                    '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Date: $dateStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 4,
-                                                            ),
-
-                                                            // Time
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    pin.seenAt
-                                                                        .toLocal();
-                                                                final timeStr =
-                                                                    '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Time: $timeStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-
-                                                            // Location
-                                                            Text(
-                                                              'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                              style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ]),
+                                                        (_) => AnimalDetailDialog(
+                                                          animal: pin,
+                                                          animalIconPath:
+                                                              _getAnimalIconPath(
+                                                            pin.speciesName,
+                                                          ),
                                                         ),
                                                   );
                                                 },
@@ -1225,10 +1156,23 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   24.0,
                                                   44.0,
                                                 ),
-                                                child: Icon(
-                                                  Icons.sensors,
-                                                  size: style.size,
-                                                  color: style.color,
+                                                child: GestureDetector(
+                                                  behavior:
+                                                      HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => DetectionDetailDialog(
+                                                            detection: pin,
+                                                          ),
+                                                    );
+                                                  },
+                                                  child: Icon(
+                                                    Icons.sensors,
+                                                    size: style.size,
+                                                    color: style.color,
+                                                  ),
                                                 ),
                                               );
                                             })
@@ -1289,117 +1233,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   showDialog(
                                                     context: context,
                                                     builder:
-                                                        (_) => Dialog(
-                                                          child: _buildBottomSheet([
-                                                            // Centered sensor icon for detections
-                                                            const Padding(
-                                                              padding:
-                                                                  EdgeInsets.only(
-                                                                    bottom: 12,
-                                                                  ),
-                                                              child: Center(
-                                                                child: Icon(
-                                                                  Icons.sensors,
-                                                                  size: 64,
-                                                                  color:
-                                                                      AppColors
-                                                                          .darkGreen,
-                                                                ),
-                                                              ),
-                                                            ),
-
-                                                            // Title
-                                                            const Text(
-                                                              'Detectie',
-                                                              style: TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 6,
-                                                            ),
-
-                                                            // Date
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    pin.detectedAt
-                                                                        .toLocal();
-                                                                final dateStr =
-                                                                    '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Date: $dateStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 4,
-                                                            ),
-
-                                                            // Time
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    pin.detectedAt
-                                                                        .toLocal();
-                                                                final timeStr =
-                                                                    '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Time: $timeStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-
-                                                            // Location
-                                                            Text(
-                                                              'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                              style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ]),
+                                                        (_) => DetectionDetailDialog(
+                                                          detection: pin,
                                                         ),
                                                   );
                                                 },
@@ -1464,184 +1299,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                     showDialog(
                                                       context: context,
                                                       builder:
-                                                          (_) => Dialog(
-                                                            child: _buildBottomSheet([
-                                                              // Centered icon (use animal icon when available)
-                                                              if (_getAnimalIconPath(
-                                                                    itx.speciesName,
-                                                                  ) !=
-                                                                  null)
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets.only(
-                                                                        bottom:
-                                                                            12,
-                                                                      ),
-                                                                  child: Center(
-                                                                    child: Image.asset(
-                                                                      _getAnimalIconPath(
-                                                                        itx.speciesName,
-                                                                      )!,
-                                                                      width: 80,
-                                                                      height:
-                                                                          80,
-                                                                      fit:
-                                                                          BoxFit
-                                                                              .contain,
-                                                                      errorBuilder: (
-                                                                        context,
-                                                                        error,
-                                                                        stackTrace,
-                                                                      ) {
-                                                                        return const Icon(
-                                                                          Icons
-                                                                              .place,
-                                                                          size:
-                                                                              64,
-                                                                          color:
-                                                                              AppColors.darkGreen,
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              else
-                                                                const Padding(
-                                                                  padding:
-                                                                      EdgeInsets.only(
-                                                                        bottom:
-                                                                            12,
-                                                                      ),
-                                                                  child: Center(
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .place,
-                                                                      size: 64,
-                                                                      color:
-                                                                          AppColors
-                                                                              .darkGreen,
-                                                                    ),
-                                                                  ),
+                                                          (
+                                                            _,
+                                                          ) => InteractionDetailDialog(
+                                                            interaction: itx,
+                                                            animalIconPath:
+                                                                _getAnimalIconPath(
+                                                                  itx.speciesName,
                                                                 ),
-
-                                                              // Title (species or interaction type)
-                                                              Text(
-                                                                itx.speciesName ??
-                                                                    itx.typeName ??
-                                                                    'Interactie',
-                                                                style: const TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color:
-                                                                      AppColors
-                                                                          .darkGreen,
-                                                                ),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 6,
-                                                              ),
-
-                                                              // Date
-                                                              Builder(
-                                                                builder: (
-                                                                  context,
-                                                                ) {
-                                                                  final local =
-                                                                      itx.moment
-                                                                          .toLocal();
-                                                                  final dateStr =
-                                                                      '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                                  return Text(
-                                                                    'Date: $dateStr',
-                                                                    style: const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          AppColors
-                                                                              .darkGreen,
-                                                                    ),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                  );
-                                                                },
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 4,
-                                                              ),
-
-                                                              // Time
-                                                              Builder(
-                                                                builder: (
-                                                                  context,
-                                                                ) {
-                                                                  final local =
-                                                                      itx.moment
-                                                                          .toLocal();
-                                                                  final timeStr =
-                                                                      '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                                  return Text(
-                                                                    'Time: $timeStr',
-                                                                    style: const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          AppColors
-                                                                              .darkGreen,
-                                                                    ),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                  );
-                                                                },
-                                                              ),
-                                                              const SizedBox(
-                                                                height: 8,
-                                                              ),
-
-                                                              // Location
-                                                              Text(
-                                                                'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                                style: const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      AppColors
-                                                                          .darkGreen,
-                                                                ),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                              ),
-
-                                                              // Optional description (after main lines)
-                                                              if (itx.description !=
-                                                                      null &&
-                                                                  itx.description!
-                                                                      .trim()
-                                                                      .isNotEmpty) ...[
-                                                                const SizedBox(
-                                                                  height: 8,
-                                                                ),
-                                                                Text(
-                                                                  itx.description!,
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                ),
-                                                              ],
-                                                            ]),
                                                           ),
                                                     );
                                                   },

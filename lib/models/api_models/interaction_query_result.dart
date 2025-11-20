@@ -1,3 +1,19 @@
+class AnimalInfo {
+  final String? sex;
+  final String? lifeStage;
+  final String? condition;
+
+  AnimalInfo({this.sex, this.lifeStage, this.condition});
+
+  factory AnimalInfo.fromJson(Map<String, dynamic> json) {
+    return AnimalInfo(
+      sex: json['sex']?.toString(),
+      lifeStage: json['lifeStage']?.toString(),
+      condition: json['condition']?.toString(),
+    );
+  }
+}
+
 class InteractionQueryResult {
   final String id;
   final double lat;
@@ -6,6 +22,9 @@ class InteractionQueryResult {
   final String? typeName;     // e.g., "Sighting"
   final String? speciesName;  // e.g., "Vos"
   final String? description;  // optional
+  final String? userName;     // User who reported
+  final String? placeName;    // Reverse geocoded place name
+  final List<AnimalInfo>? involvedAnimals; // Animal details
 
   InteractionQueryResult({
     required this.id,
@@ -15,6 +34,9 @@ class InteractionQueryResult {
     this.typeName,
     this.speciesName,
     this.description,
+    this.userName,
+    this.placeName,
+    this.involvedAnimals,
   });
 
   /// Defensive JSON parsing:
@@ -50,6 +72,34 @@ class InteractionQueryResult {
         json['interactionType'] as Map<String, dynamic>? ??
         const {};
     final speciesNode = json['species'] as Map<String, dynamic>? ?? const {};
+    final userNode = json['user'] as Map<String, dynamic>? ?? const {};
+    final placeNode = json['place'] as Map<String, dynamic>? ?? const {};
+
+    // Parse involved animals from reportOfSighting, reportOfCollision, or reportOfDamage
+    List<AnimalInfo>? animals;
+    final reportOfSighting = json['reportOfSighting'] as Map<String, dynamic>?;
+    final reportOfCollision = json['reportOfCollision'] as Map<String, dynamic>?;
+    final reportOfDamage = json['reportOfDamage'] as Map<String, dynamic>?;
+    
+    if (reportOfSighting != null && reportOfSighting['involvedAnimals'] != null) {
+      final animalsList = reportOfSighting['involvedAnimals'] as List;
+      animals = animalsList
+          .whereType<Map<String, dynamic>>()
+          .map((a) => AnimalInfo.fromJson(a))
+          .toList();
+    } else if (reportOfCollision != null && reportOfCollision['involvedAnimals'] != null) {
+      final animalsList = reportOfCollision['involvedAnimals'] as List;
+      animals = animalsList
+          .whereType<Map<String, dynamic>>()
+          .map((a) => AnimalInfo.fromJson(a))
+          .toList();
+    } else if (reportOfDamage != null && reportOfDamage['involvedAnimals'] != null) {
+      final animalsList = reportOfDamage['involvedAnimals'] as List;
+      animals = animalsList
+          .whereType<Map<String, dynamic>>()
+          .map((a) => AnimalInfo.fromJson(a))
+          .toList();
+    }
 
     return InteractionQueryResult(
       id: rawId,
@@ -60,6 +110,9 @@ class InteractionQueryResult {
       speciesName:
           (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),
       description: json['description']?.toString(),
+      userName: (userNode['name'] ?? userNode['username'])?.toString(),
+      placeName: placeNode['name']?.toString(),
+      involvedAnimals: animals,
     );
   }
 
@@ -73,6 +126,8 @@ class InteractionQueryResult {
         if (typeName != null) 'type': {'name': typeName},
         if (speciesName != null) 'species': {'commonName': speciesName},
         if (description != null) 'description': description,
+        if (userName != null) 'user': {'name': userName},
+        if (placeName != null) 'place': {'name': placeName},
       };
 
   static double? _asDouble(Object? v) {
