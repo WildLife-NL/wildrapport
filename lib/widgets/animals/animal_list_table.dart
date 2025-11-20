@@ -333,11 +333,11 @@ class AnimalListTableState extends State<AnimalListTable> {
               padding: EdgeInsets.all(5.0),
               child: Center(
                 child: Text(
-                  'Leeftijdscategorie',
+                  'Leeftijd',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Roboto',
-                    fontSize: 13,
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -394,7 +394,7 @@ class AnimalListTableState extends State<AnimalListTable> {
     switch (index) {
       case 1:
         age = AnimalAge.pasGeboren;
-        ageLabel = 'Baby';
+        ageLabel = 'Pas geboren';
         break;
       case 2:
         age = AnimalAge.onvolwassen;
@@ -406,11 +406,11 @@ class AnimalListTableState extends State<AnimalListTable> {
         break;
       case 4:
         age = AnimalAge.onbekend;
-        ageLabel = 'Unknown';
+        ageLabel = 'Onbekend';
         break;
       default:
         age = AnimalAge.onbekend;
-        ageLabel = 'Unknown';
+        ageLabel = 'Onbekend';
     }
 
     return TableRow(
