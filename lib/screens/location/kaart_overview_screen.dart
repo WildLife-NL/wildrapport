@@ -1962,8 +1962,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                         // ── Filter button ───────────────────────────────────────────────────────────
                         Positioned(
-                          left: 16,
-                          bottom: 16,
+                          right: 16,
+                          top: 16,
                           child: FloatingActionButton(
                             heroTag: 'filter_btn',
                             backgroundColor: AppColors.darkGreen,
