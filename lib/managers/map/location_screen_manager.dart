@@ -118,8 +118,7 @@ class LocationScreenManager implements LocationScreenInterface {
       'selectedLocation': selectedLocation,
       'dateTime': dateTimeInfo,
       'isLocationUnknown':
-          selectedLocation == null ||
-          mapProvider.selectedAddress == LocationType.unknown.displayText,
+          selectedLocation == null || mapProvider.selectedAddress.isEmpty,
       'isDateTimeUnknown':
           _selectedDateTime == DateTimeType.unknown.displayText,
     };

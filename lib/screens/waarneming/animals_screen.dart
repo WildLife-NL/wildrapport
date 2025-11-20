@@ -32,6 +32,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
   String? _error;
   bool _isLoading = true;
   // dropdown expansion state no longer used (custom UI)
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -44,6 +45,10 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     _animalManager = context.read<AnimalManagerInterface>();
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
     _navigationManager = context.read<NavigationStateInterface>();
+    // Ensure search is reset when (re)entering this screen
+    _searchController.text = '';
+    _searchController.addListener(() => setState(() {}));
+    _animalManager.updateSearchTerm('');
     _animalManager.addListener(_handleStateChange);
     _validateAndLoad();
   }
@@ -109,6 +114,9 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
     _animationController.dispose();
+    // Clear any lingering search term so future visits show all animals
+    _animalManager.updateSearchTerm('');
+    _searchController.dispose();
     _animalManager.removeListener(_handleStateChange);
     super.dispose();
   }
@@ -132,6 +140,8 @@ class _AnimalsScreenState extends State<AnimalsScreen>
 
   void _handleBackNavigation() {
     debugPrint('[AnimalsScreen] Back button pressed');
+    // Reset search before navigating back
+    _animalManager.updateSearchTerm('');
     // Do not dispose the navigation manager here — keep shared state alive for previous flow
     _navigationManager.pushReplacementBack(context, const CategoryScreen());
   }
@@ -179,12 +189,23 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
+                            controller: _searchController,
                             style: const TextStyle(fontSize: 16),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'zoeken',
                               border: InputBorder.none,
                               isCollapsed: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                              suffixIcon: (_searchController.text.isNotEmpty)
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear, color: AppColors.darkGreen),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _animalManager.updateSearchTerm('');
+                                        setState(() {});
+                                      },
+                                    )
+                                  : null,
                             ),
                             onChanged: (val) {
                               _animalManager.updateSearchTerm(val);

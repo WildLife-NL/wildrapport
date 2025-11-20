@@ -11,6 +11,9 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
+import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:convert';
@@ -49,7 +52,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _useClusters = true;
   static const double _clusterUntilZoom = 17.0;
 
-  static const double _initialZoom = 15.0; // Zoom level for "Center on me" button
+  static const double _initialZoom =
+      15.0; // Zoom level for "Center on me" button
   bool _followUser = true;
 
   // Filter state (default: show only last hour; enable others via filter)
@@ -542,147 +546,156 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Main categories
-                              _buildFilterSection('Main Categories', [
-                                _buildFilterCheckbox(
-                                  'Show Animals',
-                                  _showAnimals,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimals = v ?? true,
+                              // Animals section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Dieren',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
                                     ),
-                                  ),
-                                  Icons.pets,
+                                  ],
                                 ),
-                                _buildFilterCheckbox(
-                                  'Show Detections',
-                                  _showDetections,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetections = v ?? true,
-                                    ),
+                              ),
+                              _buildFilterCheckbox(
+                                'New (< 24 hours)',
+                                _showAnimalsNew,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showAnimalsNew = v ?? true,
                                   ),
-                                  Icons.sensors,
                                 ),
-                                _buildFilterCheckbox(
-                                  'Show Interactions',
-                                  _showInteractions,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractions = v ?? true,
-                                    ),
+                                Icons.fiber_new,
+                              ),
+                              _buildFilterCheckbox(
+                                'Recent (24h - 1 week)',
+                                _showAnimalsMedium,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showAnimalsMedium = v ?? true,
                                   ),
-                                  Icons.place,
                                 ),
-                              ]),
+                                Icons.access_time,
+                              ),
+                              _buildFilterCheckbox(
+                                'Old (> 1 week)',
+                                _showAnimalsOld,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showAnimalsOld = v ?? true,
+                                  ),
+                                ),
+                                Icons.history,
+                              ),
 
-                              const Divider(height: 32),
+                              const SizedBox(height: 16),
 
-                              // Animals by age
-                              _buildFilterSection('Animals by Age', [
-                                _buildFilterCheckbox(
-                                  'New (< 24 hours)',
-                                  _showAnimalsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsNew = v ?? true,
+                              // Detections section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Detecties',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
                                     ),
-                                  ),
-                                  Icons.fiber_new,
+                                  ],
                                 ),
-                                _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
-                                  _showAnimalsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsMedium = v ?? true,
-                                    ),
+                              ),
+                              _buildFilterCheckbox(
+                                'New (< 24 hours)',
+                                _showDetectionsNew,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showDetectionsNew = v ?? true,
                                   ),
-                                  Icons.access_time,
                                 ),
-                                _buildFilterCheckbox(
-                                  'Old (> 1 week)',
-                                  _showAnimalsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsOld = v ?? true,
-                                    ),
+                                Icons.fiber_new,
+                              ),
+                              _buildFilterCheckbox(
+                                'Recent (24h - 1 week)',
+                                _showDetectionsMedium,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showDetectionsMedium = v ?? true,
                                   ),
-                                  Icons.history,
                                 ),
-                              ]),
+                                Icons.access_time,
+                              ),
+                              _buildFilterCheckbox(
+                                'Old (> 1 week)',
+                                _showDetectionsOld,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showDetectionsOld = v ?? true,
+                                  ),
+                                ),
+                                Icons.history,
+                              ),
 
-                              const Divider(height: 32),
+                              const SizedBox(height: 16),
 
-                              // Detections by age
-                              _buildFilterSection('Detections by Age', [
-                                _buildFilterCheckbox(
-                                  'New (< 24 hours)',
-                                  _showDetectionsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsNew = v ?? true,
+                              // Interactions section
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.place, size: 20, color: AppColors.darkGreen),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Interacties',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.darkGreen,
+                                      ),
                                     ),
-                                  ),
-                                  Icons.fiber_new,
+                                  ],
                                 ),
-                                _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
-                                  _showDetectionsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsMedium = v ?? true,
-                                    ),
+                              ),
+                              _buildFilterCheckbox(
+                                'New (< 24 hours)',
+                                _showInteractionsNew,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showInteractionsNew = v ?? true,
                                   ),
-                                  Icons.access_time,
                                 ),
-                                _buildFilterCheckbox(
-                                  'Old (> 1 week)',
-                                  _showDetectionsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsOld = v ?? true,
-                                    ),
+                                Icons.fiber_new,
+                              ),
+                              _buildFilterCheckbox(
+                                'Recent (24h - 1 week)',
+                                _showInteractionsMedium,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showInteractionsMedium = v ?? true,
                                   ),
-                                  Icons.history,
                                 ),
-                              ]),
-
-                              const Divider(height: 32),
-
-                              // Interactions by age
-                              _buildFilterSection('Interactions by Age', [
-                                _buildFilterCheckbox(
-                                  'New (< 24 hours)',
-                                  _showInteractionsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsNew = v ?? true,
-                                    ),
+                                Icons.access_time,
+                              ),
+                              _buildFilterCheckbox(
+                                'Old (> 1 week)',
+                                _showInteractionsOld,
+                                (v) => setDialogState(
+                                  () => setState(
+                                    () => _showInteractionsOld = v ?? true,
                                   ),
-                                  Icons.fiber_new,
                                 ),
-                                _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
-                                  _showInteractionsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsMedium = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.access_time,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Old (> 1 week)',
-                                  _showInteractionsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsOld = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.history,
-                                ),
-                              ]),
+                                Icons.history,
+                              ),
 
                               const SizedBox(height: 16),
 
@@ -735,24 +748,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               );
             },
           ),
-    );
-  }
-
-  Widget _buildFilterSection(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.darkGreen,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...children,
-      ],
     );
   }
 
@@ -850,642 +845,135 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         body:
             pos == null
                 ? const Center(child: CircularProgressIndicator())
-                : Stack(
-                  children: [
-                    fm.FlutterMap(
-                      mapController: map.mapController,
-                      options: fm.MapOptions(
-                        initialCenter: LatLng(pos.latitude, pos.longitude),
-                        initialZoom: _initialZoom,
-                        onMapReady: () {
-                          debugPrint('[Map] ready');
-                        },
-
-                        interactionOptions: const fm.InteractionOptions(
-                          flags:
-                              fm.InteractiveFlag.drag |
-                              fm.InteractiveFlag.pinchZoom |
-                              fm.InteractiveFlag.doubleTapZoom |
-                              fm.InteractiveFlag.scrollWheelZoom |
-                              fm.InteractiveFlag.flingAnimation |
-                              fm.InteractiveFlag.pinchMove,
-                        ),
-
-                        onMapEvent: (evt) {
-                          final mp = context.read<MapProvider>();
-                          final currentZoom = mp.mapController.camera.zoom;
-                          final isProgrammatic =
-                              evt.source == fm.MapEventSource.mapController;
-
-                          // Stop following only on user gestures
-                          if (!isProgrammatic &&
-                              (evt is fm.MapEventMoveStart ||
-                                  evt is fm.MapEventMove)) {
-                            if (_followUser)
-                              _followUser = false; // no setState needed
-                          }
-
-                          // Handle zoom changes only for user gestures
-                          if (!isProgrammatic && _lastZoom != currentZoom) {
-                            _lastZoom = currentZoom;
-
-                            _queueFetch();
-
-                            final next = currentZoom < _clusterUntilZoom;
-                            if (next != _useClusters && mounted) {
-                              setState(() => _useClusters = next);
-                            }
-
-                            // Recenter only if following (still user-driven)
-                            final p = mp.currentPosition ?? mp.selectedPosition;
-                            if (_followUser && p != null) {
-                              mp.mapController.move(
-                                LatLng(p.latitude, p.longitude),
-                                currentZoom,
-                              );
-                            }
-                          }
-
-                          // Only fetch after a user pan ends
-                          if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
-                            _queueFetch();
-                          }
-                        },
-                      ),
+                : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: Stack(
                       children: [
-                        fm.TileLayer(
-                          urlTemplate: LocationMapManager.standardTileUrl,
-                          userAgentPackageName: 'com.wildrapport.app',
-                        ),
+                        fm.FlutterMap(
+                          mapController: map.mapController,
+                          options: fm.MapOptions(
+                            initialCenter: LatLng(pos.latitude, pos.longitude),
+                            initialZoom: _initialZoom,
+                            onMapReady: () {
+                              debugPrint('[Map] ready');
+                            },
 
-                        // ── ANIMALS ───────────────────────────────────────────────────────────────
-                        _useClusters
-                            ? cl.MarkerClusterLayerWidget(
-                              options: cl.MarkerClusterLayerOptions(
-                                markers:
-                                    map.animalPins
-                                        .where((pin) => _within31Days(pin.seenAt))
-                                        .where(
-                                          (pin) => _shouldShowPin(
-                                            pin.seenAt,
-                                            _showAnimals,
-                                            _showAnimalsNew,
-                                            _showAnimalsMedium,
-                                            _showAnimalsOld,
-                                          ),
-                                        )
-                                        .map((pin) {
-                                          final style = _iconStyleForTimestamp(
-                                            pin.seenAt,
-                                          );
-                                          return fm.Marker(
-                                            point: LatLng(pin.lat, pin.lon),
-                                            width: (style.size + 8).clamp(
-                                              24.0,
-                                              44.0,
-                                            ),
-                                            height: (style.size + 8).clamp(
-                                              24.0,
-                                              44.0,
-                                            ),
-                                            child:
-                                                _getAnimalIconPath(
-                                                          pin.speciesName,
-                                                        ) !=
-                                                        null
-                                                    ? SizedBox(
-                                                      width: style.size,
-                                                      height: style.size,
-                                                      child: ColorFiltered(
-                                                        colorFilter:
-                                                            ColorFilter.mode(
-                                                              style.color,
-                                                              BlendMode.srcIn,
-                                                            ),
-                                                        child: Image.asset(
-                                                          _getAnimalIconPath(
-                                                            pin.speciesName,
-                                                          )!,
-                                                          width: style.size,
-                                                          height: style.size,
-                                                          fit: BoxFit.contain,
-                                                          errorBuilder: (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) {
-                                                            return Icon(
-                                                              Icons.pets,
-                                                              size:
-                                                                  style.size *
-                                                                  0.9,
-                                                              color:
-                                                                  style.color,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    )
-                                                    : Icon(
-                                                      Icons.pets,
-                                                      size: style.size,
-                                                      color: style.color,
-                                                    ),
-                                          );
-                                        })
-                                        .toList()
-                                        .toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior: true,
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.pets,
-                                      count: markers.length,
-                                      color: AppColors.darkGreen,
-                                    ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.animalPins
-                                      .where((pin) => _within31Days(pin.seenAt))
-                                      .where(
-                                        (pin) => _shouldShowPin(
-                                          pin.seenAt,
-                                          _showAnimals,
-                                          _showAnimalsNew,
-                                          _showAnimalsMedium,
-                                          _showAnimalsOld,
-                                        ),
-                                      )
-                                      .map((pin) {
-                                        return fm.Marker(
-                                          point: LatLng(pin.lat, pin.lon),
-                                          width:
-                                              44, // bigger, easier tap target
-                                          height: 44,
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => Dialog(
-                                                      child: _buildBottomSheet([
-                                                        // Show animal icon if available (centered)
-                                                        if (_getAnimalIconPath(
+                            interactionOptions: const fm.InteractionOptions(
+                              flags:
+                                  fm.InteractiveFlag.drag |
+                                  fm.InteractiveFlag.pinchZoom |
+                                  fm.InteractiveFlag.doubleTapZoom |
+                                  fm.InteractiveFlag.scrollWheelZoom |
+                                  fm.InteractiveFlag.flingAnimation |
+                                  fm.InteractiveFlag.pinchMove,
+                            ),
+
+                            onMapEvent: (evt) {
+                              final mp = context.read<MapProvider>();
+                              final currentZoom = mp.mapController.camera.zoom;
+                              final isProgrammatic =
+                                  evt.source == fm.MapEventSource.mapController;
+
+                              // Stop following only on user gestures
+                              if (!isProgrammatic &&
+                                  (evt is fm.MapEventMoveStart ||
+                                      evt is fm.MapEventMove)) {
+                                if (_followUser)
+                                  _followUser = false; // no setState needed
+                              }
+
+                              // Handle zoom changes only for user gestures
+                              if (!isProgrammatic && _lastZoom != currentZoom) {
+                                _lastZoom = currentZoom;
+
+                                _queueFetch();
+
+                                final next = currentZoom < _clusterUntilZoom;
+                                if (next != _useClusters && mounted) {
+                                  setState(() => _useClusters = next);
+                                }
+
+                                // Recenter only if following (still user-driven)
+                                final p =
+                                    mp.currentPosition ?? mp.selectedPosition;
+                                if (_followUser && p != null) {
+                                  mp.mapController.move(
+                                    LatLng(p.latitude, p.longitude),
+                                    currentZoom,
+                                  );
+                                }
+                              }
+
+                              // Only fetch after a user pan ends
+                              if (!isProgrammatic &&
+                                  evt is fm.MapEventMoveEnd) {
+                                _queueFetch();
+                              }
+                            },
+                          ),
+                          children: [
+                            fm.TileLayer(
+                              urlTemplate: LocationMapManager.standardTileUrl,
+                              userAgentPackageName: 'com.wildrapport.app',
+                            ),
+
+                            // ── ANIMALS ───────────────────────────────────────────────────────────────
+                            _useClusters
+                                ? cl.MarkerClusterLayerWidget(
+                                  options: cl.MarkerClusterLayerOptions(
+                                    markers:
+                                        map.animalPins
+                                            .where(
+                                              (pin) =>
+                                                  _within31Days(pin.seenAt),
+                                            )
+                                            .where(
+                                              (pin) => _shouldShowPin(
+                                                pin.seenAt,
+                                                _showAnimals,
+                                                _showAnimalsNew,
+                                                _showAnimalsMedium,
+                                                _showAnimalsOld,
+                                              ),
+                                            )
+                                            .map((pin) {
+                                              final style =
+                                                  _iconStyleForTimestamp(
+                                                    pin.seenAt,
+                                                  );
+                                              return fm.Marker(
+                                                point: LatLng(pin.lat, pin.lon),
+                                                width: (style.size + 8).clamp(
+                                                  24.0,
+                                                  44.0,
+                                                ),
+                                                height: (style.size + 8).clamp(
+                                                  24.0,
+                                                  44.0,
+                                                ),
+                                                child:
+                                                    _getAnimalIconPath(
                                                               pin.speciesName,
                                                             ) !=
-                                                            null)
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets.only(
-                                                                  bottom: 12,
-                                                                ),
-                                                            child: Center(
-                                                              child: Image.asset(
-                                                                _getAnimalIconPath(
-                                                                  pin.speciesName,
-                                                                )!,
-                                                                width: 80,
-                                                                height: 80,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .contain,
-                                                                errorBuilder: (
-                                                                  context,
-                                                                  error,
-                                                                  stackTrace,
-                                                                ) {
-                                                                  return const Icon(
-                                                                    Icons.pets,
-                                                                    size: 64,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                        // Animal name
-                                                        Text(
-                                                          'Animal: ${pin.speciesName ?? 'Onbekend'}',
-                                                          style: const TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 6,
-                                                        ),
-
-                                                        // Date
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                pin.seenAt
-                                                                    .toLocal();
-                                                            final dateStr =
-                                                                '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Date: $dateStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 4,
-                                                        ),
-
-                                                        // Time
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                pin.seenAt
-                                                                    .toLocal();
-                                                            final timeStr =
-                                                                '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Time: $timeStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 8,
-                                                        ),
-
-                                                        // Location
-                                                        Text(
-                                                          'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                      ]),
-                                                    ),
-                                              );
-                                            },
-                                            child: Builder(
-                                              builder: (ctx) {
-                                                final style =
-                                                    _iconStyleForTimestamp(
-                                                      pin.seenAt,
-                                                    );
-                                                return _getAnimalIconPath(
-                                                          pin.speciesName,
-                                                        ) !=
-                                                        null
-                                                    ? SizedBox(
-                                                      width: style.size,
-                                                      height: style.size,
-                                                      child: ColorFiltered(
-                                                        colorFilter:
-                                                            ColorFilter.mode(
-                                                              style.color,
-                                                              BlendMode.srcIn,
-                                                            ),
-                                                        child: Image.asset(
-                                                          _getAnimalIconPath(
-                                                            pin.speciesName,
-                                                          )!,
+                                                            null
+                                                        ? SizedBox(
                                                           width: style.size,
                                                           height: style.size,
-                                                          fit: BoxFit.contain,
-                                                          errorBuilder: (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) {
-                                                            return Icon(
-                                                              Icons.pets,
-                                                              size:
-                                                                  style.size *
-                                                                  0.9,
-                                                              color:
+                                                          child: ColorFiltered(
+                                                            colorFilter:
+                                                                ColorFilter.mode(
                                                                   style.color,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    )
-                                                    : Icon(
-                                                      Icons.pets,
-                                                      size: style.size,
-                                                      color: style.color,
-                                                    );
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                      .toList(),
-                            ),
-
-                        // ── DETECTIONS ────────────────────────────────────────────────────────────
-                        _useClusters
-                            ? cl.MarkerClusterLayerWidget(
-                              options: cl.MarkerClusterLayerOptions(
-                                markers:
-                                    map.detectionPins
-                                        .where((pin) => _within31Days(pin.detectedAt))
-                                        .where(
-                                          (pin) => _shouldShowPin(
-                                            pin.detectedAt,
-                                            _showDetections,
-                                            _showDetectionsNew,
-                                            _showDetectionsMedium,
-                                            _showDetectionsOld,
-                                          ),
-                                        )
-                                        .map((pin) {
-                                          final style = _iconStyleForTimestamp(
-                                            pin.detectedAt,
-                                          );
-
-                                          return fm.Marker(
-                                            point: LatLng(pin.lat, pin.lon),
-                                            width: (style.size + 8).clamp(
-                                              24.0,
-                                              44.0,
-                                            ),
-                                            height: (style.size + 8).clamp(
-                                              24.0,
-                                              44.0,
-                                            ),
-                                            child: Icon(
-                                              Icons.sensors,
-                                              size: style.size,
-                                              color: style.color,
-                                            ),
-                                          );
-                                        })
-                                        .toList(),
-                                maxClusterRadius: 60,
-                                disableClusteringAtZoom: 99,
-                                padding: const EdgeInsets.all(40),
-                                maxZoom: 17.0,
-                                polygonOptions: const cl.PolygonOptions(
-                                  borderColor: Colors.transparent,
-                                ),
-                                zoomToBoundsOnClick: true,
-                                markerChildBehavior: true,
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.sensors,
-                                      count: markers.length,
-                                      color: AppColors.darkGreen,
-                                    ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.detectionPins
-                                      .where((pin) => _within31Days(pin.detectedAt))
-                                      .where(
-                                        (pin) => _shouldShowPin(
-                                          pin.detectedAt,
-                                          _showDetections,
-                                          _showDetectionsNew,
-                                          _showDetectionsMedium,
-                                          _showDetectionsOld,
-                                        ),
-                                      )
-                                      .map((pin) {
-                                        final style = _iconStyleForTimestamp(
-                                          pin.detectedAt,
-                                        );
-
-                                        return fm.Marker(
-                                          point: LatLng(pin.lat, pin.lon),
-                                          width: (style.size + 8).clamp(
-                                            24.0,
-                                            44.0,
-                                          ),
-                                          height: (style.size + 8).clamp(
-                                            24.0,
-                                            44.0,
-                                          ),
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => Dialog(
-                                                      child: _buildBottomSheet([
-                                                        // Centered sensor icon for detections
-                                                        const Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                bottom: 12,
-                                                              ),
-                                                          child: Center(
-                                                            child: Icon(
-                                                              Icons.sensors,
-                                                              size: 64,
-                                                              color:
-                                                                  AppColors
-                                                                      .darkGreen,
-                                                            ),
-                                                          ),
-                                                        ),
-
-                                                        // Title
-                                                        const Text(
-                                                          'Detectie',
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 6,
-                                                        ),
-
-                                                        // Date
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                pin.detectedAt
-                                                                    .toLocal();
-                                                            final dateStr =
-                                                                '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Date: $dateStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 4,
-                                                        ),
-
-                                                        // Time
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                pin.detectedAt
-                                                                    .toLocal();
-                                                            final timeStr =
-                                                                '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Time: $timeStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 8,
-                                                        ),
-
-                                                        // Location
-                                                        Text(
-                                                          'Location: ${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}',
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                      ]),
-                                                    ),
-                                              );
-                                            },
-                                            child: Icon(
-                                              Icons.sensors,
-                                              size: style.size,
-                                              color: style.color,
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                      .toList(),
-                            ),
-
-                        // ── CURRENT POSITION ─────────────────────────────────────────────────────
-                        // Only show user location pin if tracking is enabled
-                        if (context
-                            .watch<AppStateProvider>()
-                            .isLocationTrackingEnabled)
-                          fm.MarkerLayer(
-                            markers: [
-                              fm.Marker(
-                                point: LatLng(pos.latitude, pos.longitude),
-                                width: 40,
-                                height: 40,
-                                child: const Icon(Icons.my_location, size: 30),
-                              ),
-                            ],
-                          ),
-
-                        // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
-                        _useClusters
-                            ? cl.MarkerClusterLayerWidget(
-                              options: cl.MarkerClusterLayerOptions(
-                                markers:
-                                    map.interactions
-                                        .where((itx) => _within31Days(itx.moment))
-                                        .where(
-                                          (itx) => _shouldShowPin(
-                                            itx.moment,
-                                            _showInteractions,
-                                            _showInteractionsNew,
-                                            _showInteractionsMedium,
-                                            _showInteractionsOld,
-                                          ),
-                                        )
-                                        .map((itx) {
-                                      return fm.Marker(
-                                        point: LatLng(itx.lat, itx.lon),
-                                        width: 44, // easier tap target
-                                        height: 44,
-                                        child: GestureDetector(
-                                          behavior: HitTestBehavior.opaque,
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => Dialog(
-                                                    child: _buildBottomSheet([
-                                                      // Centered icon (use animal icon when available)
-                                                      if (_getAnimalIconPath(
-                                                            itx.speciesName,
-                                                          ) !=
-                                                          null)
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets.only(
-                                                                bottom: 12,
-                                                              ),
-                                                          child: Center(
+                                                                  BlendMode
+                                                                      .srcIn,
+                                                                ),
                                                             child: Image.asset(
                                                               _getAnimalIconPath(
-                                                                itx.speciesName,
+                                                                pin.speciesName,
                                                               )!,
-                                                              width: 80,
-                                                              height: 80,
+                                                              width: style.size,
+                                                              height:
+                                                                  style.size,
                                                               fit:
                                                                   BoxFit
                                                                       .contain,
@@ -1494,241 +982,362 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                 error,
                                                                 stackTrace,
                                                               ) {
-                                                                return const Icon(
-                                                                  Icons.place,
-                                                                  size: 64,
+                                                                return Icon(
+                                                                  Icons.pets,
+                                                                  size:
+                                                                      style
+                                                                          .size *
+                                                                      0.9,
                                                                   color:
-                                                                      AppColors
-                                                                          .darkGreen,
+                                                                      style
+                                                                          .color,
                                                                 );
                                                               },
                                                             ),
                                                           ),
                                                         )
-                                                      else
-                                                        const Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                bottom: 12,
-                                                              ),
-                                                          child: Center(
-                                                            child: Icon(
-                                                              Icons.place,
-                                                              size: 64,
-                                                              color:
-                                                                  AppColors
-                                                                      .darkGreen,
-                                                            ),
+                                                        : Icon(
+                                                          Icons.pets,
+                                                          size: style.size,
+                                                          color: style.color,
+                                                        ),
+                                              );
+                                            })
+                                            .toList()
+                                            .toList(),
+                                    maxClusterRadius: 60,
+                                    disableClusteringAtZoom: 99,
+                                    padding: const EdgeInsets.all(40),
+                                    maxZoom: 17.0,
+                                    polygonOptions: const cl.PolygonOptions(
+                                      borderColor: Colors.transparent,
+                                    ),
+                                    zoomToBoundsOnClick: true,
+                                    markerChildBehavior: true,
+                                    builder:
+                                        (context, markers) => _clusterBadge(
+                                          icon: Icons.pets,
+                                          count: markers.length,
+                                          color: AppColors.darkGreen,
+                                        ),
+                                  ),
+                                )
+                                : fm.MarkerLayer(
+                                  markers:
+                                      map.animalPins
+                                          .where(
+                                            (pin) => _within31Days(pin.seenAt),
+                                          )
+                                          .where(
+                                            (pin) => _shouldShowPin(
+                                              pin.seenAt,
+                                              _showAnimals,
+                                              _showAnimalsNew,
+                                              _showAnimalsMedium,
+                                              _showAnimalsOld,
+                                            ),
+                                          )
+                                          .map((pin) {
+                                            return fm.Marker(
+                                              point: LatLng(pin.lat, pin.lon),
+                                              width:
+                                                  44, // bigger, easier tap target
+                                              height: 44,
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => AnimalDetailDialog(
+                                                          animal: pin,
+                                                          animalIconPath:
+                                                              _getAnimalIconPath(
+                                                            pin.speciesName,
                                                           ),
                                                         ),
-
-                                                      // Title (species or interaction type)
-                                                      Text(
-                                                        itx.speciesName ??
-                                                            itx.typeName ??
-                                                            'Interactie',
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                          color:
-                                                              AppColors
-                                                                  .darkGreen,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                      const SizedBox(height: 6),
-
-                                                      // Date
-                                                      Builder(
-                                                        builder: (context) {
-                                                          final local =
-                                                              itx.moment
-                                                                  .toLocal();
-                                                          final dateStr =
-                                                              '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                          return Text(
-                                                            'Date: $dateStr',
-                                                            style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  AppColors
-                                                                      .darkGreen,
+                                                  );
+                                                },
+                                                child: Builder(
+                                                  builder: (ctx) {
+                                                    final style =
+                                                        _iconStyleForTimestamp(
+                                                          pin.seenAt,
+                                                        );
+                                                    return _getAnimalIconPath(
+                                                              pin.speciesName,
+                                                            ) !=
+                                                            null
+                                                        ? SizedBox(
+                                                          width: style.size,
+                                                          height: style.size,
+                                                          child: ColorFiltered(
+                                                            colorFilter:
+                                                                ColorFilter.mode(
+                                                                  style.color,
+                                                                  BlendMode
+                                                                      .srcIn,
+                                                                ),
+                                                            child: Image.asset(
+                                                              _getAnimalIconPath(
+                                                                pin.speciesName,
+                                                              )!,
+                                                              width: style.size,
+                                                              height:
+                                                                  style.size,
+                                                              fit:
+                                                                  BoxFit
+                                                                      .contain,
+                                                              errorBuilder: (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) {
+                                                                return Icon(
+                                                                  Icons.pets,
+                                                                  size:
+                                                                      style
+                                                                          .size *
+                                                                      0.9,
+                                                                  color:
+                                                                      style
+                                                                          .color,
+                                                                );
+                                                              },
                                                             ),
-                                                            textAlign:
-                                                                TextAlign
-                                                                    .center,
-                                                          );
-                                                        },
-                                                      ),
-                                                      const SizedBox(height: 4),
-
-                                                      // Time
-                                                      Builder(
-                                                        builder: (context) {
-                                                          final local =
-                                                              itx.moment
-                                                                  .toLocal();
-                                                          final timeStr =
-                                                              '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                          return Text(
-                                                            'Time: $timeStr',
-                                                            style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  AppColors
-                                                                      .darkGreen,
-                                                            ),
-                                                            textAlign:
-                                                                TextAlign
-                                                                    .center,
-                                                          );
-                                                        },
-                                                      ),
-                                                      const SizedBox(height: 8),
-
-                                                      // Location
-                                                      Text(
-                                                        'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              AppColors
-                                                                  .darkGreen,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-
-                                                      // Optional description (after main lines)
-                                                      if (itx.description !=
-                                                              null &&
-                                                          itx.description!
-                                                              .trim()
-                                                              .isNotEmpty) ...[
-                                                        const SizedBox(
-                                                          height: 8,
-                                                        ),
-                                                        Text(
-                                                          itx.description!,
-                                                          style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
                                                           ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                      ],
-                                                    ]),
-                                                  ),
+                                                        )
+                                                        : Icon(
+                                                          Icons.pets,
+                                                          size: style.size,
+                                                          color: style.color,
+                                                        );
+                                                  },
+                                                ),
+                                              ),
                                             );
-                                          },
-                                          child: Builder(
-                                            builder: (ctx) {
+                                          })
+                                          .toList(),
+                                ),
+
+                            // ── DETECTIONS ────────────────────────────────────────────────────────────
+                            _useClusters
+                                ? cl.MarkerClusterLayerWidget(
+                                  options: cl.MarkerClusterLayerOptions(
+                                    markers:
+                                        map.detectionPins
+                                            .where(
+                                              (pin) =>
+                                                  _within31Days(pin.detectedAt),
+                                            )
+                                            .where(
+                                              (pin) => _shouldShowPin(
+                                                pin.detectedAt,
+                                                _showDetections,
+                                                _showDetectionsNew,
+                                                _showDetectionsMedium,
+                                                _showDetectionsOld,
+                                              ),
+                                            )
+                                            .map((pin) {
                                               final style =
                                                   _iconStyleForTimestamp(
-                                                    itx.moment,
+                                                    pin.detectedAt,
                                                   );
-                                              return _getAnimalIconPath(
-                                                        itx.speciesName,
-                                                      ) !=
-                                                      null
-                                                  ? SizedBox(
-                                                    width: style.size,
-                                                    height: style.size,
-                                                    child: ColorFiltered(
-                                                      colorFilter:
-                                                          ColorFilter.mode(
-                                                            style.color,
-                                                            BlendMode.srcIn,
+
+                                              return fm.Marker(
+                                                point: LatLng(pin.lat, pin.lon),
+                                                width: (style.size + 8).clamp(
+                                                  24.0,
+                                                  44.0,
+                                                ),
+                                                height: (style.size + 8).clamp(
+                                                  24.0,
+                                                  44.0,
+                                                ),
+                                                child: GestureDetector(
+                                                  behavior:
+                                                      HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => DetectionDetailDialog(
+                                                            detection: pin,
                                                           ),
-                                                      child: Image.asset(
-                                                        _getAnimalIconPath(
-                                                          itx.speciesName,
-                                                        )!,
-                                                        width: style.size,
-                                                        height: style.size,
-                                                        fit: BoxFit.contain,
-                                                        errorBuilder: (
-                                                          context,
-                                                          error,
-                                                          stackTrace,
-                                                        ) {
-                                                          return Icon(
-                                                            Icons.place,
-                                                            size:
-                                                                style.size *
-                                                                0.9,
-                                                            color: style.color,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  )
-                                                  : Icon(
-                                                    Icons.place,
+                                                    );
+                                                  },
+                                                  child: Icon(
+                                                    Icons.sensors,
                                                     size: style.size,
                                                     color: style.color,
-                                                  );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                builder:
-                                    (context, markers) => _clusterBadge(
-                                      icon: Icons.place,
-                                      count: markers.length,
-                                      color: AppColors.darkGreen,
+                                                  ),
+                                                ),
+                                              );
+                                            })
+                                            .toList(),
+                                    maxClusterRadius: 60,
+                                    disableClusteringAtZoom: 99,
+                                    padding: const EdgeInsets.all(40),
+                                    maxZoom: 17.0,
+                                    polygonOptions: const cl.PolygonOptions(
+                                      borderColor: Colors.transparent,
                                     ),
-                              ),
-                            )
-                            : fm.MarkerLayer(
-                              markers:
-                                  map.interactions
-                                      .where((itx) => _within31Days(itx.moment))
-                                      .where(
-                                        (itx) => _shouldShowPin(
-                                          itx.moment,
-                                          _showInteractions,
-                                          _showInteractionsNew,
-                                          _showInteractionsMedium,
-                                          _showInteractionsOld,
+                                    zoomToBoundsOnClick: true,
+                                    markerChildBehavior: true,
+                                    builder:
+                                        (context, markers) => _clusterBadge(
+                                          icon: Icons.sensors,
+                                          count: markers.length,
+                                          color: AppColors.darkGreen,
                                         ),
-                                      )
-                                      .map((itx) {
-                                        return fm.Marker(
-                                          point: LatLng(itx.lat, itx.lon),
-                                          width: 44,
-                                          height: 44,
-                                          child: GestureDetector(
-                                            behavior: HitTestBehavior.opaque,
-                                            onTap: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => Dialog(
-                                                      child: _buildBottomSheet([
-                                                        // Centered icon (use animal icon when available)
-                                                        if (_getAnimalIconPath(
-                                                              itx.speciesName,
-                                                            ) !=
-                                                            null)
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets.only(
-                                                                  bottom: 12,
+                                  ),
+                                )
+                                : fm.MarkerLayer(
+                                  markers:
+                                      map.detectionPins
+                                          .where(
+                                            (pin) =>
+                                                _within31Days(pin.detectedAt),
+                                          )
+                                          .where(
+                                            (pin) => _shouldShowPin(
+                                              pin.detectedAt,
+                                              _showDetections,
+                                              _showDetectionsNew,
+                                              _showDetectionsMedium,
+                                              _showDetectionsOld,
+                                            ),
+                                          )
+                                          .map((pin) {
+                                            final style =
+                                                _iconStyleForTimestamp(
+                                                  pin.detectedAt,
+                                                );
+
+                                            return fm.Marker(
+                                              point: LatLng(pin.lat, pin.lon),
+                                              width: (style.size + 8).clamp(
+                                                24.0,
+                                                44.0,
+                                              ),
+                                              height: (style.size + 8).clamp(
+                                                24.0,
+                                                44.0,
+                                              ),
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => DetectionDetailDialog(
+                                                          detection: pin,
+                                                        ),
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.sensors,
+                                                  size: style.size,
+                                                  color: style.color,
+                                                ),
+                                              ),
+                                            );
+                                          })
+                                          .toList(),
+                                ),
+
+                            // ── CURRENT POSITION ─────────────────────────────────────────────────────
+                            // Only show user location pin if tracking is enabled
+                            if (context
+                                .watch<AppStateProvider>()
+                                .isLocationTrackingEnabled)
+                              fm.MarkerLayer(
+                                markers: [
+                                  fm.Marker(
+                                    point: LatLng(pos.latitude, pos.longitude),
+                                    width: 40,
+                                    height: 40,
+                                    child: const Icon(
+                                      Icons.my_location,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
+                            _useClusters
+                                ? cl.MarkerClusterLayerWidget(
+                                  options: cl.MarkerClusterLayerOptions(
+                                    markers:
+                                        map.interactions
+                                            .where(
+                                              (itx) =>
+                                                  _within31Days(itx.moment),
+                                            )
+                                            .where(
+                                              (itx) => _shouldShowPin(
+                                                itx.moment,
+                                                _showInteractions,
+                                                _showInteractionsNew,
+                                                _showInteractionsMedium,
+                                                _showInteractionsOld,
+                                              ),
+                                            )
+                                            .map((itx) {
+                                              return fm.Marker(
+                                                point: LatLng(itx.lat, itx.lon),
+                                                width: 44, // easier tap target
+                                                height: 44,
+                                                child: GestureDetector(
+                                                  behavior:
+                                                      HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (
+                                                            _,
+                                                          ) => InteractionDetailDialog(
+                                                            interaction: itx,
+                                                            animalIconPath:
+                                                                _getAnimalIconPath(
+                                                                  itx.speciesName,
                                                                 ),
-                                                            child: Center(
+                                                          ),
+                                                    );
+                                                  },
+                                                  child: Builder(
+                                                    builder: (ctx) {
+                                                      final style =
+                                                          _iconStyleForTimestamp(
+                                                            itx.moment,
+                                                          );
+                                                      return _getAnimalIconPath(
+                                                                itx.speciesName,
+                                                              ) !=
+                                                              null
+                                                          ? SizedBox(
+                                                            width: style.size,
+                                                            height: style.size,
+                                                            child: ColorFiltered(
+                                                              colorFilter:
+                                                                  ColorFilter.mode(
+                                                                    style.color,
+                                                                    BlendMode
+                                                                        .srcIn,
+                                                                  ),
                                                               child: Image.asset(
                                                                 _getAnimalIconPath(
                                                                   itx.speciesName,
                                                                 )!,
-                                                                width: 80,
-                                                                height: 80,
+                                                                width:
+                                                                    style.size,
+                                                                height:
+                                                                    style.size,
                                                                 fit:
                                                                     BoxFit
                                                                         .contain,
@@ -1737,281 +1346,302 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                   error,
                                                                   stackTrace,
                                                                 ) {
-                                                                  return const Icon(
+                                                                  return Icon(
                                                                     Icons.place,
-                                                                    size: 64,
+                                                                    size:
+                                                                        style
+                                                                            .size *
+                                                                        0.9,
                                                                     color:
-                                                                        AppColors
-                                                                            .darkGreen,
+                                                                        style
+                                                                            .color,
                                                                   );
                                                                 },
                                                               ),
                                                             ),
                                                           )
-                                                        else
-                                                          const Padding(
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                  bottom: 12,
-                                                                ),
-                                                            child: Center(
-                                                              child: Icon(
-                                                                Icons.place,
-                                                                size: 64,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                        // Title (species or interaction type)
-                                                        Text(
-                                                          itx.speciesName ??
-                                                              itx.typeName ??
-                                                              'Interactie',
-                                                          style: const TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 6,
-                                                        ),
-
-                                                        // Date
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                itx.moment
-                                                                    .toLocal();
-                                                            final dateStr =
-                                                                '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Date: $dateStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 4,
-                                                        ),
-
-                                                        // Time
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final local =
-                                                                itx.moment
-                                                                    .toLocal();
-                                                            final timeStr =
-                                                                '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                            return Text(
-                                                              'Time: $timeStr',
-                                                              style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            );
-                                                          },
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 8,
-                                                        ),
-
-                                                        // Location
-                                                        Text(
-                                                          'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                AppColors
-                                                                    .darkGreen,
-                                                          ),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
-                                                      ]),
-                                                    ),
+                                                          : Icon(
+                                                            Icons.place,
+                                                            size: style.size,
+                                                            color: style.color,
+                                                          );
+                                                    },
+                                                  ),
+                                                ),
                                               );
-                                            },
-                                            child: Builder(
-                                              builder: (ctx) {
-                                                final style =
-                                                    _iconStyleForTimestamp(
-                                                      itx.moment,
-                                                    );
-                                                return _getAnimalIconPath(
-                                                          itx.speciesName,
-                                                        ) !=
-                                                        null
-                                                    ? SizedBox(
-                                                      width: style.size,
-                                                      height: style.size,
-                                                      child: ColorFiltered(
-                                                        colorFilter:
-                                                            ColorFilter.mode(
-                                                              style.color,
-                                                              BlendMode.srcIn,
+                                            })
+                                            .toList(),
+                                    builder:
+                                        (context, markers) => _clusterBadge(
+                                          icon: Icons.place,
+                                          count: markers.length,
+                                          color: AppColors.darkGreen,
+                                        ),
+                                  ),
+                                )
+                                : fm.MarkerLayer(
+                                  markers:
+                                      map.interactions
+                                          .where(
+                                            (itx) => _within31Days(itx.moment),
+                                          )
+                                          .where(
+                                            (itx) => _shouldShowPin(
+                                              itx.moment,
+                                              _showInteractions,
+                                              _showInteractionsNew,
+                                              _showInteractionsMedium,
+                                              _showInteractionsOld,
+                                            ),
+                                          )
+                                          .map((itx) {
+                                            return fm.Marker(
+                                              point: LatLng(itx.lat, itx.lon),
+                                              width: 44,
+                                              height: 44,
+                                              child: GestureDetector(
+                                                behavior:
+                                                    HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => Dialog(
+                                                          child: _buildBottomSheet([
+                                                            // Centered icon (use animal icon when available)
+                                                            if (_getAnimalIconPath(
+                                                                  itx.speciesName,
+                                                                ) !=
+                                                                null)
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets.only(
+                                                                      bottom:
+                                                                          12,
+                                                                    ),
+                                                                child: Center(
+                                                                  child: Image.asset(
+                                                                    _getAnimalIconPath(
+                                                                      itx.speciesName,
+                                                                    )!,
+                                                                    width: 80,
+                                                                    height: 80,
+                                                                    fit:
+                                                                        BoxFit
+                                                                            .contain,
+                                                                    errorBuilder: (
+                                                                      context,
+                                                                      error,
+                                                                      stackTrace,
+                                                                    ) {
+                                                                      return const Icon(
+                                                                        Icons
+                                                                            .place,
+                                                                        size:
+                                                                            64,
+                                                                        color:
+                                                                            AppColors.darkGreen,
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            else
+                                                              const Padding(
+                                                                padding:
+                                                                    EdgeInsets.only(
+                                                                      bottom:
+                                                                          12,
+                                                                    ),
+                                                                child: Center(
+                                                                  child: Icon(
+                                                                    Icons.place,
+                                                                    size: 64,
+                                                                    color:
+                                                                        AppColors
+                                                                            .darkGreen,
+                                                                  ),
+                                                                ),
+                                                              ),
+
+                                                            // Title (species or interaction type)
+                                                            Text(
+                                                              itx.speciesName ??
+                                                                  itx.typeName ??
+                                                                  'Interactie',
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color:
+                                                                    AppColors
+                                                                        .darkGreen,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
                                                             ),
-                                                        child: Image.asset(
-                                                          _getAnimalIconPath(
-                                                            itx.speciesName,
-                                                          )!,
+                                                            const SizedBox(
+                                                              height: 6,
+                                                            ),
+
+                                                            // Date
+                                                            Builder(
+                                                              builder: (
+                                                                context,
+                                                              ) {
+                                                                final local =
+                                                                    itx.moment
+                                                                        .toLocal();
+                                                                final dateStr =
+                                                                    '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+                                                                return Text(
+                                                                  'Date: $dateStr',
+                                                                  style: const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    color:
+                                                                        AppColors
+                                                                            .darkGreen,
+                                                                  ),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                );
+                                                              },
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 4,
+                                                            ),
+
+                                                            // Time
+                                                            Builder(
+                                                              builder: (
+                                                                context,
+                                                              ) {
+                                                                final local =
+                                                                    itx.moment
+                                                                        .toLocal();
+                                                                final timeStr =
+                                                                    '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+                                                                return Text(
+                                                                  'Time: $timeStr',
+                                                                  style: const TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    color:
+                                                                        AppColors
+                                                                            .darkGreen,
+                                                                  ),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                );
+                                                              },
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 8,
+                                                            ),
+
+                                                            // Location
+                                                            Text(
+                                                              'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
+                                                              style: const TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    AppColors
+                                                                        .darkGreen,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
+                                                          ]),
+                                                        ),
+                                                  );
+                                                },
+                                                child: Builder(
+                                                  builder: (ctx) {
+                                                    final style =
+                                                        _iconStyleForTimestamp(
+                                                          itx.moment,
+                                                        );
+                                                    return _getAnimalIconPath(
+                                                              itx.speciesName,
+                                                            ) !=
+                                                            null
+                                                        ? SizedBox(
                                                           width: style.size,
                                                           height: style.size,
-                                                          fit: BoxFit.contain,
-                                                          errorBuilder: (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) {
-                                                            return Icon(
-                                                              Icons.place,
-                                                              size:
-                                                                  style.size *
-                                                                  0.9,
-                                                              color:
+                                                          child: ColorFiltered(
+                                                            colorFilter:
+                                                                ColorFilter.mode(
                                                                   style.color,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    )
-                                                    : Icon(
-                                                      Icons.place,
-                                                      size: style.size,
-                                                      color: style.color,
-                                                    );
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                      .toList(),
+                                                                  BlendMode
+                                                                      .srcIn,
+                                                                ),
+                                                            child: Image.asset(
+                                                              _getAnimalIconPath(
+                                                                itx.speciesName,
+                                                              )!,
+                                                              width: style.size,
+                                                              height:
+                                                                  style.size,
+                                                              fit:
+                                                                  BoxFit
+                                                                      .contain,
+                                                              errorBuilder: (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) {
+                                                                return Icon(
+                                                                  Icons.place,
+                                                                  size:
+                                                                      style
+                                                                          .size *
+                                                                      0.9,
+                                                                  color:
+                                                                      style
+                                                                          .color,
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                        )
+                                                        : Icon(
+                                                          Icons.place,
+                                                          size: style.size,
+                                                          color: style.color,
+                                                        );
+                                                  },
+                                                ),
+                                              ),
+                                            );
+                                          })
+                                          .toList(),
+                                ),
+                          ],
+                        ),
+
+                        // ── Filter button ───────────────────────────────────────────────────────────
+                        Positioned(
+                          left: 16,
+                          bottom: 70,
+                          child: FloatingActionButton(
+                            heroTag: 'filter_btn',
+                            backgroundColor: AppColors.darkGreen,
+                            child: const Icon(
+                              Icons.filter_list,
+                              color: Colors.white,
                             ),
+                            onPressed: () => _showFilterDialog(context),
+                          ),
+                        ),
                       ],
                     ),
-
-                    // ── Status chips ────────────────────────────────────────────────────────────
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      right: 8,
-                      child: Builder(
-                        builder: (context) {
-                          final mp = context.watch<MapProvider>();
-                          final maxW = MediaQuery.of(context).size.width * 0.92;
-
-                          Widget chip(
-                            String label,
-                            int count, {
-                            bool loading = false,
-                            bool error = false,
-                            IconData? icon,
-                          }) {
-                            final text =
-                                loading ? '$label: …' : '$label: $count';
-                            return Chip(
-                              avatar:
-                                  icon != null ? Icon(icon, size: 16) : null,
-                              label: Text(
-                                text,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            );
-                          }
-
-                          return Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: maxW),
-                              child: Card(
-                                elevation: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 6,
-                                  ),
-                                  child: Wrap(
-                                    spacing: 6,
-                                    runSpacing: 6,
-                                    alignment: WrapAlignment.center,
-                                    children: [
-                                      chip(
-                                        'Animals',
-                                        mp.animalPins
-                                            .where((pin) => _within31Days(pin.seenAt))
-                                            .where((pin) => _shouldShowPin(pin.seenAt, _showAnimals, _showAnimalsNew, _showAnimalsMedium, _showAnimalsOld))
-                                            .length,
-                                        loading: mp.animalPinsLoading,
-                                        error: mp.animalPinsError != null,
-                                        icon: Icons.pets,
-                                      ),
-                                      chip(
-                                        'Detections',
-                                        mp.detectionPins
-                                            .where((pin) => _within31Days(pin.detectedAt))
-                                            .where((pin) => _shouldShowPin(pin.detectedAt, _showDetections, _showDetectionsNew, _showDetectionsMedium, _showDetectionsOld))
-                                            .length,
-                                        loading: mp.detectionPinsLoading,
-                                        error: mp.detectionPinsError != null,
-                                        icon: Icons.sensors,
-                                      ),
-                                      chip(
-                                        'Interacts',
-                                        mp.interactions
-                                            .where((itx) => _within31Days(itx.moment))
-                                            .where((itx) => _shouldShowPin(itx.moment, _showInteractions, _showInteractionsNew, _showInteractionsMedium, _showInteractionsOld))
-                                            .length,
-                                        loading: mp.interactionsLoading,
-                                        error: mp.interactionsError != null,
-                                        icon: Icons.place,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    // ── Filter button ───────────────────────────────────────────────────────────
-                    Positioned(
-                      left: 16,
-                      bottom: 80,
-                      child: FloatingActionButton(
-                        heroTag: 'filter_btn',
-                        backgroundColor: AppColors.darkGreen,
-                        child: const Icon(
-                          Icons.filter_list,
-                          color: Colors.white,
-                        ),
-                        onPressed: () => _showFilterDialog(context),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
         floatingActionButton: FloatingActionButton(
           tooltip: 'Center on me',

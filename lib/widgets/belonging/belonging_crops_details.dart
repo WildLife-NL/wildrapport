@@ -161,7 +161,7 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Wat is beschadigd?",
+                        "Beschrijf uw schade",
                         style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 16),
                       ),
                       const SizedBox(height: 8),
@@ -178,7 +178,7 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
-                          hintText: 'bijv. mais, bieten, granen...',
+                          hintText: 'Typ hier...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide(
@@ -237,7 +237,8 @@ Padding(
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.45,
                             child: TextField(
                               key: const Key('area-value'),
                               controller: _impactValueController,
@@ -246,7 +247,7 @@ Padding(
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                hintText: 'bijv. 150',
+                                hintText: 'Typ hier...',
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
@@ -382,7 +383,7 @@ Padding(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      'ha',
+                                      'eenheden',
                                       style: TextStyle(
                                         color: belongingDamageReportProvider.impactedAreaType == 'units'
                                             ? Colors.white
@@ -409,7 +410,7 @@ Padding(
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

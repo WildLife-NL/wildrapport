@@ -44,16 +44,6 @@ class AnimalManager
               )
               .toList();
 
-      // Add the "Unknown" option with no image
-      _cachedAnimals!.add(
-        AnimalModel(
-          animalId: 'unknown', // Added default ID for unknown
-          animalImagePath: null,
-          animalName: 'Onbekend',
-          genderViewCounts: [], // Initialize with empty list
-        ),
-      );
-
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
       debugPrint('[AnimalManager] Error fetching animals: $e');

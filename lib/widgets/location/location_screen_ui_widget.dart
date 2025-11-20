@@ -22,9 +22,7 @@ import 'package:latlong2/latlong.dart';
 import 'dart:async';
 
 class LocationScreenUIWidget extends StatefulWidget {
-  const LocationScreenUIWidget({
-    super.key,
-  });
+  const LocationScreenUIWidget({super.key});
 
   @override
   State<LocationScreenUIWidget> createState() => _LocationScreenUIWidgetState();
@@ -59,46 +57,15 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   void _updateSelectedLocation() {
     if (_mapProvider.selectedPosition == null) {
       setState(() {
-        _selectedLocation =
-            _mapProvider.selectedAddress == LocationType.unknown.displayText
-                ? LocationType.unknown.displayText
-                : LocationType.current.displayText;
+        _selectedLocation = LocationType.current.displayText;
       });
       return;
     }
 
-    final selectedPoint = LatLng(
-      _mapProvider.selectedPosition!.latitude,
-      _mapProvider.selectedPosition!.longitude,
-    );
-
-    String newLocation = LocationType.current.displayText;
-
-    if (_isWithinBoundary(
-      selectedPoint,
-      const LatLng(52.3874, 4.5753),
-      0.018,
-    )) {
-      newLocation = LocationType.npZuidKennemerland.displayText;
-    } else if (_isWithinBoundary(
-      selectedPoint,
-      const LatLng(51.1950, 5.7230),
-      0.045,
-    )) {
-      newLocation = LocationType.grensparkKempenbroek.displayText;
-    }
-
-    // Update dropdown immediately
+    // If a position is selected, show custom location option
     setState(() {
-      _selectedLocation = newLocation;
+      _selectedLocation = LocationType.custom.displayText;
     });
-  }
-
-  bool _isWithinBoundary(LatLng point, LatLng center, double tolerance) {
-    return (point.latitude >= center.latitude - tolerance &&
-            point.latitude <= center.latitude + tolerance) &&
-        (point.longitude >= center.longitude - tolerance &&
-            point.longitude <= center.longitude + tolerance);
   }
 
   Future<void> _initializeMap() async {
@@ -187,11 +154,6 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
 
     final mapProvider = context.read<MapProvider>();
 
-    if (location == LocationType.unknown.displayText) {
-      await mapProvider.clearSelectedLocation();
-      return;
-    }
-
     if (location == LocationType.current.displayText) {
       mapProvider.setLoading(true);
 
@@ -229,26 +191,13 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       } else {
         mapProvider.setLoading(false);
       }
-    } else if (location == LocationType.npZuidKennemerland.displayText) {
-      _navigateToLivingLab(
-        'Nationaal Park Zuid-Kennemerland',
-        const LatLng(52.3874, 4.5753),
-        0.018,
-      );
-    } else if (location == LocationType.grensparkKempenbroek.displayText) {
-      _navigateToLivingLab(
-        'Grenspark Kempen-Broek',
-        const LatLng(51.1950, 5.7230),
-        0.045,
-      );
+    } else if (location == LocationType.custom.displayText) {
+      _navigateToFullMap();
     }
   }
 
-  void _navigateToLivingLab(String labName, LatLng center, double offset) {
+  void _navigateToFullMap() {
     final mapProvider = context.read<MapProvider>();
-    mapProvider.setLoading(true);
-    mapProvider.currentPosition = null;
-    mapProvider.currentAddress = '';
 
     // Check if we're in the possession flow by checking the current context
     final isFromPossession =
@@ -257,22 +206,35 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             null;
 
     debugPrint(
-      '[LocationScreenUIWidget] Navigating to LivingLab. isFromPossession: $isFromPossession',
+      '[LocationScreenUIWidget] Navigating to full map. isFromPossession: $isFromPossession',
     );
+
+    // Get current position to center the map
+    LatLng initialCenter = const LatLng(
+      52.3702,
+      4.8952,
+    ); // Default to Netherlands center
+
+    if (mapProvider.currentPosition != null) {
+      initialCenter = LatLng(
+        mapProvider.currentPosition!.latitude,
+        mapProvider.currentPosition!.longitude,
+      );
+    }
 
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         settings: RouteSettings(
-          name: isFromPossession ? 'PossesionLivingLabMap' : 'LivingLabMap',
+          name: isFromPossession ? 'PossesionCustomMap' : 'CustomMap',
         ),
         builder:
             (_) => MapScreen(
-              title: labName,
+              title: 'Kies locatie op kaart',
               mapWidget: LivingLabMapScreen(
-                labName: labName,
-                labCenter: center,
-                boundaryOffset: offset,
+                labName: 'Kies locatie op kaart',
+                labCenter: initialCenter,
+                boundaryOffset: 10.0, // Large area covering all of Netherlands
                 isFromPossession: isFromPossession,
               ),
             ),
@@ -331,6 +293,19 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
               onExpandChanged: (value) => setState(() => _isExpanded = value),
               onOptionSelected: _handleLocationSelection,
               context: context,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'Kies "Huidige locatie" of selecteer "Kies locatie op kaart" om een pin op de kaart te plaatsen',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  fontFamily: 'Roboto',
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             Container(
