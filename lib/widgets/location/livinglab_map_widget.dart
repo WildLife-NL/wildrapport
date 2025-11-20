@@ -156,7 +156,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     Position position, {
     bool animate = true,
   }) async {
-    bool isInBounds = position.latitude >= minLat &&
+    bool isInBounds =
+        position.latitude >= minLat &&
         position.latitude <= maxLat &&
         position.longitude >= minLng &&
         position.longitude <= maxLng;
@@ -297,10 +298,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
               context,
               const BelongingLocationScreen(),
             );
-          } else if(navTarget == 'location') {
-            debugPrint(
-              '[LivingLabMapScreen] Navigating to LocationScreen',
-            );
+          } else if (navTarget == 'location') {
+            debugPrint('[LivingLabMapScreen] Navigating to LocationScreen');
             navigationManager.pushReplacementBack(
               context,
               const LocationScreen(),
@@ -348,7 +347,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
+                          _isSatelliteView
+                              ? _satelliteTileUrl
+                              : _standardTileUrl,
                       userAgentPackageName: 'com.wildrapport.app',
                     ),
                     PolygonLayer(
@@ -364,25 +365,70 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                     MarkerLayer(markers: _buildMarkers()),
                   ],
                 ),
+                if (_markedLocation == null)
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkGreen,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            offset: const Offset(0, 2),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.touch_app, color: Colors.white, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Tik op de kaart om een locatie te kiezen',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Roboto',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 Positioned(
-                  top: 16,
+                  top: _markedLocation == null ? 76 : 16,
                   left: 16,
                   right: 16,
                   child: LocationDataCard(
-                    cityName: _markedLocation != null
-                        ? _getLocationCity(_markedAddress)
-                        : _getLocationCity(_currentAddress),
-                    streetName: _markedLocation != null
-                        ? _getLocationStreet(_markedAddress)
-                        : _getLocationStreet(_currentAddress),
-                    houseNumber: _markedLocation != null
-                        ? _getLocationHouseNumber(_markedAddress)
-                        : _getLocationHouseNumber(_currentAddress),
+                    cityName:
+                        _markedLocation != null
+                            ? _getLocationCity(_markedAddress)
+                            : _getLocationCity(_currentAddress),
+                    streetName:
+                        _markedLocation != null
+                            ? _getLocationStreet(_markedAddress)
+                            : _getLocationStreet(_currentAddress),
+                    houseNumber:
+                        _markedLocation != null
+                            ? _getLocationHouseNumber(_markedAddress)
+                            : _getLocationHouseNumber(_currentAddress),
                     isLoading: _isLoading,
                     isCurrentLocation: _markedLocation == null,
-                    latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
+                    latitude:
+                        _markedLocation?.latitude ?? _currentPosition?.latitude,
                     longitude:
-                        _markedLocation?.longitude ?? _currentPosition?.longitude,
+                        _markedLocation?.longitude ??
+                        _currentPosition?.longitude,
                   ),
                 ),
                 if (_isLoading)
@@ -448,52 +494,59 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                 _buildNavButton(
                   icon: Icons.check_circle,
                   label: 'Bevestig',
-                  onPressed: _markedLocation != null
-                      ? () async {
-                          debugPrint(
-                            '[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}',
-                          );
-
-                          final position = Position(
-                            latitude: _markedLocation!.latitude,
-                            longitude: _markedLocation!.longitude,
-                            timestamp: DateTime.now(),
-                            accuracy: 0,
-                            altitude: 0,
-                            altitudeAccuracy: 0,
-                            heading: 0,
-                            headingAccuracy: 0,
-                            speed: 0,
-                            speedAccuracy: 0,
-                            isMocked: false,
-                          );
-
-                          final mapProvider = context.read<MapProvider>();
-                          debugPrint(
-                              '[LivingLabMapScreen] Setting selected location');
-                          mapProvider.setSelectedLocation(
-                            position,
-                            _markedAddress,
-                          );
-
-                          if (!widget.isFromPossession) {
-                            final locationManager =
-                                context.read<LocationScreenInterface>();
+                  onPressed:
+                      _markedLocation != null
+                          ? () async {
                             debugPrint(
-                                '[LivingLabMapScreen] Calling getLocationAndDateTime');
-                            await locationManager.getLocationAndDateTime(context);
-                          }
+                              '[LivingLabMapScreen] Confirm button pressed, isFromPossession: ${widget.isFromPossession}',
+                            );
 
-                          debugPrint(
-                              '[LivingLabMapScreen] Setting _shouldNavigate to true');
-                          setState(() {
-                            _shouldNavigate = true;
-                            _navigateToScreen = widget.isFromPossession
-                                ? 'possession'
-                                : 'location';
-                          });
-                        }
-                      : null,
+                            final position = Position(
+                              latitude: _markedLocation!.latitude,
+                              longitude: _markedLocation!.longitude,
+                              timestamp: DateTime.now(),
+                              accuracy: 0,
+                              altitude: 0,
+                              altitudeAccuracy: 0,
+                              heading: 0,
+                              headingAccuracy: 0,
+                              speed: 0,
+                              speedAccuracy: 0,
+                              isMocked: false,
+                            );
+
+                            final mapProvider = context.read<MapProvider>();
+                            debugPrint(
+                              '[LivingLabMapScreen] Setting selected location',
+                            );
+                            mapProvider.setSelectedLocation(
+                              position,
+                              _markedAddress,
+                            );
+
+                            if (!widget.isFromPossession) {
+                              final locationManager =
+                                  context.read<LocationScreenInterface>();
+                              debugPrint(
+                                '[LivingLabMapScreen] Calling getLocationAndDateTime',
+                              );
+                              await locationManager.getLocationAndDateTime(
+                                context,
+                              );
+                            }
+
+                            debugPrint(
+                              '[LivingLabMapScreen] Setting _shouldNavigate to true',
+                            );
+                            setState(() {
+                              _shouldNavigate = true;
+                              _navigateToScreen =
+                                  widget.isFromPossession
+                                      ? 'possession'
+                                      : 'location';
+                            });
+                          }
+                          : null,
                   isEnabled: _markedLocation != null,
                 ),
               ],
@@ -550,7 +603,10 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
         )) {
       markers.add(
         Marker(
-          point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          point: LatLng(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+          ),
           width: 40,
           height: 40,
           child: Stack(

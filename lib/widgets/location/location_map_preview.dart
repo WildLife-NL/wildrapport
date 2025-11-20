@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as flutter_map;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/models/enums/location_type.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/location/map_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
@@ -17,7 +16,7 @@ class LocationMapPreview extends StatelessWidget {
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
         // Show placeholder for unknown location
-        if (mapProvider.selectedAddress == LocationType.unknown.displayText) {
+        if (mapProvider.selectedAddress.isEmpty) {
           return Container(
             height: 150,
             decoration: BoxDecoration(
@@ -79,7 +78,9 @@ class LocationMapPreview extends StatelessWidget {
             SizedBox(
               height: 150,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(15),
+                ),
                 child: flutter_map.FlutterMap(
                   mapController: mapProvider.mapController,
                   options: flutter_map.MapOptions(
@@ -91,7 +92,8 @@ class LocationMapPreview extends StatelessWidget {
                   ),
                   children: [
                     flutter_map.TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.wildrapport.app',
                     ),
                     flutter_map.MarkerLayer(
@@ -122,27 +124,38 @@ class LocationMapPreview extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     debugPrint('[LocationMapPreview] Expand button tapped!');
-                    
+
                     // Check if we're in the possession flow
                     final isFromPossession =
-                        ModalRoute.of(context)?.settings.name == 'PossesionLocationScreen' ||
-                        context.findAncestorWidgetOfExactType<BelongingLocationScreen>() != null;
-                    
-                    debugPrint('[LocationMapPreview] isFromPossession: $isFromPossession');
-                    
+                        ModalRoute.of(context)?.settings.name ==
+                            'PossesionLocationScreen' ||
+                        context
+                                .findAncestorWidgetOfExactType<
+                                  BelongingLocationScreen
+                                >() !=
+                            null;
+
+                    debugPrint(
+                      '[LocationMapPreview] isFromPossession: $isFromPossession',
+                    );
+
                     // Navigate to full interactive map
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         settings: RouteSettings(
-                          name: isFromPossession ? 'PossesionCustomMap' : 'CustomMap',
+                          name:
+                              isFromPossession
+                                  ? 'PossesionCustomMap'
+                                  : 'CustomMap',
                         ),
-                        builder: (_) => MapScreen(
-                          title: 'Selecteer locatie',
-                          mapWidget: CustomLocationMapScreen(
-                            isFromPossession: isFromPossession,
-                          ),
-                        ),
+                        builder:
+                            (_) => MapScreen(
+                              title: 'Selecteer locatie',
+                              mapWidget: CustomLocationMapScreen(
+                                isFromPossession: isFromPossession,
+                              ),
+                            ),
                       ),
                     );
                   },

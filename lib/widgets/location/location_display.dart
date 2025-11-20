@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wildrapport/models/enums/location_type.dart';
 
 class LocationDisplay extends StatefulWidget {
   final VoidCallback onLocationIconTap;
@@ -19,7 +18,7 @@ class LocationDisplay extends StatefulWidget {
 
   String get _displayText {
     if (isLoading) return '';
-    if (locationText == LocationType.unknown.displayText) {
+    if (locationText.isEmpty) {
       return 'Geen locatie geselecteerd';
     }
     if (position == null) return locationText;
