@@ -26,7 +26,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedGender;
   String? lastSelectedGender; // Add this to remember the last gender
   int currentCount = 1; // Default to 1
-  int currentCount = 1;
   bool _forceRebuild = false;
   late final FixedExtentScrollController _countController;
 
@@ -145,53 +144,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
       // In case controller isn't attached yet
       _countController.jumpToItem(0);
     }
-  // 3. Convert UI strings -> enums
-  final AnimalAge ageEnum = _convertStringToAnimalAge(selectedAge!);
-  final AnimalGender genderEnum = _convertStringToAnimalGender(selectedGender!);
-
-  // We don't let the user pick condition yet in this screen,
-  // so fallback to whatever is on the selected animal,
-  // or just "other".
-  final AnimalCondition conditionEnum =
-      currentAnimal.condition ?? AnimalCondition.andere;
-
-  // 4. Build one batch entry for the chosen combo
-  final entry = ObservedAnimalEntry(
-    age: ageEnum,
-    gender: genderEnum,
-    condition: conditionEnum,
-    count: currentCount,
-  );
-
-  // 5. Save it in the manager
-  mgr.addObservedAnimal(entry);
-
-  // 6. Sync into the legacy AnimalSightingModel.animals
-  // so later screens + API transformer can still read it
-  mgr.syncObservedAnimalsToSighting();
-
-  // 7. Reset local UI so user can add another batch
-  setState(() {
-    // Remember last gender if you still want that UX
-    lastSelectedGender = selectedGender;
-
-    selectedAge = null;
-    selectedGender = null;
-    currentCount = 1;
-
-    // force rebuild trick stays if you still need it
-    _forceRebuild = !_forceRebuild;
-  });
-
-  // 8. Tell parent screen "we added something"
-  widget.onAddToList?.call();
-
-  // 9. Show success toast/snack
-  SnackBarWithProgress.show(
-    context: context,
-    message: 'Dier toegevoegd aan de lijst',
-  );
-}
 
     // 8. Tell parent screen "we added something"
     widget.onAddToList?.call();
@@ -369,47 +321,6 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 );
                               },
                               childCount: 100, // 1 to 100
-                            child: ListWheelScrollView.useDelegate(
-                              controller: FixedExtentScrollController(initialItem: 0), // Start at index 0 (shows 1)
-                              itemExtent: 40,
-                              diameterRatio: 1.5,
-                              physics: const FixedExtentScrollPhysics(),
-                              onSelectedItemChanged: (index) {
-                                setState(() {
-                                  currentCount = index + 1; // Store actual count (1-100)
-                                });
-                              },
-                              childDelegate: ListWheelChildBuilderDelegate(
-                                builder: (context, index) {
-                                  final displayNumber = index + 1; // Start from 1
-                                  final bool isSelected = (index + 1) == currentCount;
-                                  return Center(
-                                    child: Container(
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? AppColors.brown300
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '$displayNumber',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: isSelected
-                                                ? Colors.white
-                                                : Colors.black,
-                                            fontFamily: 'Roboto',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                childCount: 100, // 1 to 100
-                              ),
                             ),
                           ),
                         ),

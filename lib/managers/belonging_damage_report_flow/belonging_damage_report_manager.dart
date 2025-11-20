@@ -89,18 +89,18 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
           : _mapToMapString3x(response);
   }
 
-  List<Belonging> _mapToListOfBelonging(List<Map<String, String>> maps) {
-    List<Belonging> mappedBelongings = [];
-    for(Map<String, String> map in maps){
-      mappedBelongings.add(
-        Belonging(      
-          ID: map['ID'] ?? '',
-          name: map['name'] ?? '',
-          category: map['category'] ?? '',)
-      );
-    }
-    return mappedBelongings;
-  }
+  // List<Belonging> _mapToListOfBelonging(List<Map<String, String>> maps) {
+  //   List<Belonging> mappedBelongings = [];
+  //   for(Map<String, String> map in maps){
+  //     mappedBelongings.add(
+  //       Belonging(      
+  //         ID: map['ID'] ?? '',
+  //         name: map['name'] ?? '',
+  //         category: map['category'] ?? '',)
+  //     );
+  //   }
+  //   return mappedBelongings;
+  // }
   //Higly suggest refactoring the flow to just use List<Belonging> everywhere
   List<Map<String, String>> _mapToMapString3x(List<Belonging> allBelongings){
     List<Map<String, String>> resultMap = [];
@@ -268,101 +268,101 @@ BelongingDamageReport? buildBelongingReport() {
 }
 
 
-  String _normalize(String input) {
-    return input
-        .toLowerCase()
-        .replaceAll('ï', 'i')
-        .replaceAll('í', 'i')
-        .replaceAll('ì', 'i')
-        .replaceAll('î', 'i')
-        .replaceAll('ë', 'e')
-        .replaceAll('é', 'e')
-        .replaceAll('è', 'e')
-        .replaceAll('ê', 'e')
-        .replaceAll('á', 'a')
-        .replaceAll('à', 'a')
-        .replaceAll('ä', 'a')
-        .replaceAll('â', 'a')
-        .replaceAll('ó', 'o')
-        .replaceAll('ò', 'o')
-        .replaceAll('ö', 'o')
-        .replaceAll('ô', 'o')
-        .replaceAll('ü', 'u')
-        .replaceAll('ú', 'u')
-        .replaceAll('ù', 'u')
-        .replaceAll('û', 'u')
-        .trim();
-  }
+  // String _normalize(String input) {
+  //   return input
+  //       .toLowerCase()
+  //       .replaceAll('ï', 'i')
+  //       .replaceAll('í', 'i')
+  //       .replaceAll('ì', 'i')
+  //       .replaceAll('î', 'i')
+  //       .replaceAll('ë', 'e')
+  //       .replaceAll('é', 'e')
+  //       .replaceAll('è', 'e')
+  //       .replaceAll('ê', 'e')
+  //       .replaceAll('á', 'a')
+  //       .replaceAll('à', 'a')
+  //       .replaceAll('ä', 'a')
+  //       .replaceAll('â', 'a')
+  //       .replaceAll('ó', 'o')
+  //       .replaceAll('ò', 'o')
+  //       .replaceAll('ö', 'o')
+  //       .replaceAll('ô', 'o')
+  //       .replaceAll('ü', 'u')
+  //       .replaceAll('ú', 'u')
+  //       .replaceAll('ù', 'u')
+  //       .replaceAll('û', 'u')
+  //       .trim();
+  // }
 
   // -------------------------------
   // map the user's picked crop name (UI text) -> backend Possesion
   // -------------------------------
-  Possesion? _getCorrectPossesion(String pickedName) {
-    final normalizedPicked = _normalize(pickedName);
+  // Possesion? _getCorrectPossesion(String pickedName) {
+  //   final normalizedPicked = _normalize(pickedName);
 
-    // try to find exact match after normalization
-    for (final belonging in _mapToListOfBelonging(belongings)) {
-      final normalizedBelongingName = _normalize(belonging.name);
-      if (normalizedBelongingName == normalizedPicked) {
-        return Possesion(
-          possesionID: belonging.ID ?? '',
-          possesionName: belonging.name,
-          category: belonging.category,
-        );
-      }
-    }
+  //   // try to find exact match after normalization
+  //   for (final belonging in _mapToListOfBelonging(belongings)) {
+  //     final normalizedBelongingName = _normalize(belonging.name);
+  //     if (normalizedBelongingName == normalizedPicked) {
+  //       return Possesion(
+  //         possesionID: belonging.ID ?? '',
+  //         possesionName: belonging.name,
+  //         category: belonging.category,
+  //       );
+  //     }
+  //   }
 
-    // if we didn't find a normalized match, log + return null
-    debugPrint(
-      "$yellowLog[BelongingDamageReportManager] No match for '$pickedName' in belongings list$redLog",
-    );
-    return null;
-  }
+  //   // if we didn't find a normalized match, log + return null
+  //   debugPrint(
+  //     "$yellowLog[BelongingDamageReportManager] No match for '$pickedName' in belongings list$redLog",
+  //   );
+  //   return null;
+  // }
 
 
-  void _ensureBelongingsLoaded() {
-  if (belongings.isNotEmpty) return;
+  // void _ensureBelongingsLoaded() {
+  // if (belongings.isNotEmpty) return;
 
-  // fallback list (same as in init())
-  belongings = [
-    {
-      "ID": "61726f48-066b-46b6-84cd-6fee993e4c74",
-      "name": "Bieten",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "086001b5-126b-44ba-bc81-ab2f9416ab58",
-      "name": "Bloementeelt",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "0bf4e74c-b196-436a-9166-8fa4d9dd5db9",
-      "name": "Boomteelt",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "db9c7716-ec68-499c-9528-a3ab58607b3c",
-      "name": "Granen",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "5013a551-21d9-4874-af7e-b60800329e91",
-      "name": "Grasvelden",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "aef8950b-c7aa-42c6-848e-1d72d0636a64",
-      "name": "Maïs",
-      "category": "Gewassen"
-    },
-    {
-      "ID": "0dc5864b-6fd7-4703-a41b-7e45a0c4b558",
-      "name": "Tuinbouw",
-      "category": "Gewassen"
-    }
-  ];
+  // // fallback list (same as in init())
+  // belongings = [
+  //   {
+  //     "ID": "61726f48-066b-46b6-84cd-6fee993e4c74",
+  //     "name": "Bieten",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "086001b5-126b-44ba-bc81-ab2f9416ab58",
+  //     "name": "Bloementeelt",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "0bf4e74c-b196-436a-9166-8fa4d9dd5db9",
+  //     "name": "Boomteelt",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "db9c7716-ec68-499c-9528-a3ab58607b3c",
+  //     "name": "Granen",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "5013a551-21d9-4874-af7e-b60800329e91",
+  //     "name": "Grasvelden",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "aef8950b-c7aa-42c6-848e-1d72d0636a64",
+  //     "name": "Maïs",
+  //     "category": "Gewassen"
+  //   },
+  //   {
+  //     "ID": "0dc5864b-6fd7-4703-a41b-7e45a0c4b558",
+  //     "name": "Tuinbouw",
+  //     "category": "Gewassen"
+  //   }
+  // ];
 
-  debugPrint('[BelongingDamageReportManager] 🔄 belongings loaded via fallback (${belongings.length} items)');
-}
+  // debugPrint('[BelongingDamageReportManager] 🔄 belongings loaded via fallback (${belongings.length} items)');
+  // }
 
 }
