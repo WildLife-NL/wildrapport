@@ -237,7 +237,8 @@ Padding(
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.45,
                             child: TextField(
                               key: const Key('area-value'),
                               controller: _impactValueController,
@@ -246,7 +247,7 @@ Padding(
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                hintText: 'bijv. 150',
+                                hintText: 'type',
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
@@ -382,7 +383,7 @@ Padding(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      'ha',
+                                      'eenheden',
                                       style: TextStyle(
                                         color: belongingDamageReportProvider.impactedAreaType == 'units'
                                             ? Colors.white
