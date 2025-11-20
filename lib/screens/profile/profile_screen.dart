@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,6 +12,20 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _userName = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? 'User';
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -70,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      'Naam Achternaam, Researcher',
+                      _userName,
                       style: TextStyle(
                         color: AppColors.offWhite,
                         fontSize: 16,
@@ -203,10 +218,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Update Info
                       _filledButton('Gegevens bijwerken', onPressed: () {}),
-                      const SizedBox(height: 12),
-
-                      // Taal
-                      _filledButton('Taal', onPressed: () {}),
                     ],
                   ),
                 ),
