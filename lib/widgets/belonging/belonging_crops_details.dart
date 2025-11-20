@@ -161,7 +161,7 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Wat is beschadigd?",
+                        "Beschrijf uw schade",
                         style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 16),
                       ),
                       const SizedBox(height: 8),
@@ -178,7 +178,7 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
-                          hintText: 'bijv. mais, bieten, granen...',
+                          hintText: 'Typ hier...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: BorderSide(
