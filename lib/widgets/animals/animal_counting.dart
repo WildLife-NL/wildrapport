@@ -28,8 +28,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
   String? selectedAge;
   String? selectedGender;
   String? lastSelectedGender; // Add this to remember the last gender
-  int currentCount = 0;
+  int currentCount = 1; // Default to 1
   bool _forceRebuild = false;
+  late final FixedExtentScrollController _countController;
 
   AnimalAge _convertStringToAnimalAge(String ageString) {
     return AnimalAgeExtensions.fromApiString(ageString);
@@ -50,6 +51,14 @@ class _AnimalCountingState extends State<AnimalCounting> {
   @override
   void initState() {
     super.initState();
+    // Initialize the wheel controller with index matching value 1
+    _countController = FixedExtentScrollController(initialItem: currentCount - 1);
+  }
+  
+  @override
+  void dispose() {
+    _countController.dispose();
+    super.dispose();
   }
 
 void _validateAndAddToList(BuildContext context) {
@@ -118,11 +127,22 @@ void _validateAndAddToList(BuildContext context) {
 
     selectedAge = null;
     selectedGender = null;
-    currentCount = 0;
+    currentCount = 1; // Reset to default 1
 
     // force rebuild trick stays if you still need it
     _forceRebuild = !_forceRebuild;
   });
+  // Reset the wheel position to 1 as well (index 0)
+  try {
+    _countController.animateToItem(
+      0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+  } catch (_) {
+    // In case controller isn't attached yet
+    _countController.jumpToItem(0);
+  }
 
   // 8. Tell parent screen "we added something"
   widget.onAddToList?.call();
@@ -260,18 +280,19 @@ void _validateAndAddToList(BuildContext context) {
                               ),
                             ),
                             child: ListWheelScrollView.useDelegate(
-                              controller: FixedExtentScrollController(initialItem: 0),
+                              controller: _countController,
                               itemExtent: 40,
                               diameterRatio: 1.5,
                               physics: const FixedExtentScrollPhysics(),
                               onSelectedItemChanged: (index) {
                                 setState(() {
-                                  currentCount = index;
+                                  currentCount = index + 1; // Values 1..100
                                 });
                               },
                               childDelegate: ListWheelChildBuilderDelegate(
                                 builder: (context, index) {
-                                  final bool isSelected = index == currentCount;
+                                  final int value = index + 1;
+                                  final bool isSelected = value == currentCount;
                                   return Center(
                                     child: Container(
                                       width: 70,
@@ -283,7 +304,7 @@ void _validateAndAddToList(BuildContext context) {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          '$index',
+                                          '$value',
                                           style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
@@ -297,7 +318,7 @@ void _validateAndAddToList(BuildContext context) {
                                     ),
                                   );
                                 },
-                                childCount: 101, // 0 to 100
+                                childCount: 100, // 1 to 100
                               ),
                             ),
                           ),
