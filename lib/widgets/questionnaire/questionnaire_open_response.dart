@@ -117,13 +117,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     
     // If no format specified, only do basic validation
     if (format == null || format.isEmpty) {
-      final trimmedText = text.trim();
-      if (trimmedText.isEmpty) {
-        return null; // Allow empty if question allows it
-      }
-      if (trimmedText.length < 2) {
-        return 'Antwoord moet minimaal 2 tekens bevatten';
-      }
+      // No minimum length requirement - accept any input
       return null;
     }
     
@@ -252,6 +246,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               }
             });
           },
+          minLines: 1,
           maxLines: 10,
           decoration: InputDecoration(
             hintText: 'Schrijf hier uw antwoord...',
