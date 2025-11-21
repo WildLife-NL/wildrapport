@@ -12,6 +12,7 @@ import 'package:wildrapport/data_managers/species_api.dart';
 import 'package:wildrapport/data_managers/animals_api.dart';
 import 'package:wildrapport/data_managers/detections_api.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
@@ -117,7 +118,9 @@ void main() async {
   final interactionTypesManager = InteractionTypesManager(interactionTypesApi);
 
   final trackingApi = TrackingApi(apiClient);
-  mapProvider.setTrackingApi(trackingApi);
+  final trackingCacheManager = TrackingCacheManager(trackingApi: trackingApi);
+  trackingCacheManager.init();
+  mapProvider.setTrackingCacheManager(trackingCacheManager);
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();
@@ -148,8 +151,6 @@ void main() async {
   final bool hasValidToken = await TokenValidator.hasValidToken();
   final Widget initialScreen =
       hasValidToken ? const OverzichtScreen() : const LoginScreen();
-
-  mapProvider.setTrackingApi(TrackingApi(apiClient));
 
   runApp(
     MultiProvider(

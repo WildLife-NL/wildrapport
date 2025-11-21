@@ -14,10 +14,12 @@ import 'package:wildrapport/managers/api_managers/detection_pins_manager.dart';
 
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'dart:async';
 
 class MapProvider extends ChangeNotifier {
   TrackingApiInterface? _trackingApi;
+  TrackingCacheManager? _trackingCacheManager;
   // ===== Location state =====
   Position? selectedPosition;
   String selectedAddress = '';
@@ -54,8 +56,40 @@ class MapProvider extends ChangeNotifier {
     _trackingApi = api;
   }
 
+  void setTrackingCacheManager(TrackingCacheManager manager) {
+    _trackingCacheManager = manager;
+  }
+
   /// Call this to send the user's current GPS location to the backend.
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+    // Prefer using the cache manager if available
+    if (_trackingCacheManager != null) {
+      debugPrint('[MapProvider] 📍 Sending tracking ping via cache manager: ${pos.latitude}, ${pos.longitude}');
+      
+      try {
+        final notice = await _trackingCacheManager!.sendOrCacheReading(
+          lat: pos.latitude,
+          lon: pos.longitude,
+          timestampUtc: DateTime.now().toUtc(),
+        );
+
+        if (notice != null) {
+          _lastTrackingNotice = notice;
+          debugPrint('[MapProvider] 🔔 Got tracking notice, calling notifyListeners()');
+          notifyListeners(); // if any UI wants to react to changes
+          debugPrint('[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
+              ' sev=${notice.severity ?? '-'}');
+        } else {
+          debugPrint('[MapProvider] ✓ tracking-reading cached or sent; no notice from backend');
+        }
+        return notice;
+      } catch (e) {
+        debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
+        return null;
+      }
+    }
+    
+    // Fallback to direct API call if cache manager not available
     if (_trackingApi == null) {
       debugPrint(
         '[MapProvider] ⚠️ TrackingApi not set - cannot send tracking ping',
@@ -470,8 +504,8 @@ class MapProvider extends ChangeNotifier {
 
   /// Starts periodic pings. Fires one immediately, then repeats.
   void startTracking({Duration? interval}) {
-    if (_trackingApi == null) {
-      debugPrint('[MapProvider] Cannot start tracking: TrackingApi not set');
+    if (_trackingCacheManager == null && _trackingApi == null) {
+      debugPrint('[MapProvider] Cannot start tracking: Neither TrackingCacheManager nor TrackingApi is set');
       return;
     }
     _trackingTimer?.cancel();
