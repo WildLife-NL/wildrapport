@@ -13,7 +13,7 @@ class InteractionTypesApi implements InteractionTypesApiInterface {
     // Attempt to get interaction types from server. The exact endpoint
     // may vary across deployments; try a reasonable path and return an
     // empty list on non-200/204 responses.
-    const path = 'interaction-types/';
+    const path = 'interactionTypes/';
     try {
       final res = await apiClient.get(path, authenticated: true);
       debugPrint('[InteractionTypesApi] GET $path => ${res.statusCode}');

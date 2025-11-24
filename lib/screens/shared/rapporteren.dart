@@ -5,13 +5,14 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/screens/shared/category_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
+import 'package:wildrapport/models/api_models/interaction_type.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});
@@ -22,51 +23,83 @@ class Rapporteren extends StatefulWidget {
 
 class _RapporterenState extends State<Rapporteren> {
   String selectedCategory = '';
+  List<InteractionType>? _interactionTypes;
+  bool _isLoading = true;
+  bool _hasLoadedTypes = false;
 
-  void _handleReportTypeSelection(String reportType) {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasLoadedTypes) {
+      _hasLoadedTypes = true;
+      _loadInteractionTypes();
+    }
+  }
+
+  Future<void> _loadInteractionTypes() async {
+    final interactionTypesManager = context.read<InteractionTypesManager>();
+    try {
+      final types = await interactionTypesManager.ensureFetched();
+      debugPrint('[Rapporteren] Loaded ${types.length} interaction types');
+      for (final type in types) {
+        debugPrint('[Rapporteren]   - ${type.name} (ID: ${type.id})');
+      }
+      if (mounted) {
+        setState(() {
+          _interactionTypes = types;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[Rapporteren] Error loading interaction types: $e');
+      if (mounted) {
+        setState(() {
+          _interactionTypes = [];
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _handleReportTypeSelection(InteractionType interactionType) {
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
+
+    debugPrint('[Rapporteren] Selected interaction type: ${interactionType.name} (ID: ${interactionType.id})');
 
     Widget nextScreen;
     ReportType selectedReportType;
 
-    switch (reportType) {
-      case 'animalSightingen':
-        debugPrint('[Rapporteren] Animal sighting selected, initializing map');
-        selectedReportType = ReportType.waarneming;
-        // Create animal sighting report and save it in provider
-        final animalSightingManager =
-            context.read<AnimalSightingReportingInterface>();
-        animalSightingManager.createanimalSighting();
-        // Skip condition screen and go directly to category screen
-        nextScreen = const CategoryScreen();
-        _initializeMapInBackground();
-        break;
-      case 'Schademelding':
-        debugPrint('[Rapporteren] Schademelding selected, initializing map');
-        selectedReportType = ReportType.gewasschade;
-        nextScreen = BelongingDamagesScreen();
-        _initializeMapInBackground();
-        break;
-      case 'Dieraanrijding':
-        debugPrint('[Rapporteren] Dieraanrijding selected, initializing map');
-        selectedReportType = ReportType.verkeersongeval;
-        // Create animal sighting report and save it in provider
-        final animalSightingManagerVerkeer =
-            context.read<AnimalSightingReportingInterface>();
-        animalSightingManagerVerkeer.createanimalSighting();
-        // Skip condition screen and go directly to category screen
-        nextScreen = const CategoryScreen();
-        _initializeMapInBackground();
-        break;
-      case 'Diergezondheid':
-        debugPrint('[Rapporteren] Diergezondheid selected, initializing map');
-        selectedReportType = ReportType.verkeersongeval;
-        nextScreen = AnimalsScreen(appBarTitle: reportType);
-        _initializeMapInBackground();
-        break;
-      default:
-        throw Exception('Unknown report type: $reportType');
+    // Map interaction type name to ReportType enum
+    final typeName = interactionType.name.toLowerCase();
+    
+    if (typeName == 'waarneming' || typeName.contains('sighting')) {
+      selectedReportType = ReportType.waarneming;
+      final animalSightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      animalSightingManager.createanimalSighting();
+      nextScreen = const CategoryScreen();
+      _initializeMapInBackground();
+    } else if (typeName == 'schademelding' || typeName.contains('crop damage')) {
+      selectedReportType = ReportType.gewasschade;
+      nextScreen = BelongingDamagesScreen();
+      _initializeMapInBackground();
+    } else if (typeName == 'dieraanrijding' || typeName.contains('animal collision')) {
+      selectedReportType = ReportType.verkeersongeval;
+      final animalSightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      animalSightingManager.createanimalSighting();
+      nextScreen = const CategoryScreen();
+      _initializeMapInBackground();
+    } else {
+      // Default to waarneming for unknown types
+      debugPrint('[Rapporteren] Unknown interaction type: ${interactionType.name}, defaulting to waarneming');
+      selectedReportType = ReportType.waarneming;
+      final animalSightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      animalSightingManager.createanimalSighting();
+      nextScreen = const CategoryScreen();
+      _initializeMapInBackground();
     }
 
     // Initialize the report in the app state
@@ -150,48 +183,49 @@ class _RapporterenState extends State<Rapporteren> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: screenSize.width * 0.9,
-                              height: screenSize.height * 0.22,
-                              child: ReportButton(
-                                image: 'assets/icons/agriculture.png',
-                                text: 'Schademelding',
-                                onPressed: () =>
-                                    _handleReportTypeSelection('Schademelding'),
-                              ),
-                            ),
-                            SizedBox(height: screenSize.height * 0.03),
-                            SizedBox(
-                              width: screenSize.width * 0.9,
-                              height: screenSize.height * 0.22,
-                              child: ReportButton(
-                                image: 'assets/icons/binoculars.png',
-                                text: 'Waarnemingen',
-                                onPressed: () => _handleReportTypeSelection(
-                                  'animalSightingen',
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _interactionTypes == null || _interactionTypes!.isEmpty
+                              ? const Center(
+                                  child: Text('Geen interactietypen beschikbaar'),
+                                )
+                              : Center(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: _interactionTypes!.map((type) {
+                                        // Map interaction types to appropriate icons
+                                        String icon;
+                                        final typeName = type.name.toLowerCase();
+                                        if (typeName == 'waarneming' || typeName.contains('sighting')) {
+                                          icon = 'assets/icons/binoculars.png';
+                                        } else if (typeName == 'schademelding' || typeName.contains('crop damage')) {
+                                          icon = 'assets/icons/agriculture.png';
+                                        } else if (typeName == 'dieraanrijding' || typeName.contains('animal collision')) {
+                                          icon = 'assets/icons/accident.png';
+                                        } else {
+                                          icon = 'assets/icons/binoculars.png'; // Default icon
+                                        }
+
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: screenSize.height * 0.03,
+                                          ),
+                                          child: SizedBox(
+                                            width: screenSize.width * 0.9,
+                                            height: screenSize.height * 0.22,
+                                            child: ReportButton(
+                                              image: icon,
+                                              text: type.name,
+                                              onPressed: () => _handleReportTypeSelection(type),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            SizedBox(height: screenSize.height * 0.03),
-                            SizedBox(
-                              width: screenSize.width * 0.9,
-                              height: screenSize.height * 0.22,
-                              child: ReportButton(
-                                image: 'assets/icons/accident.png',
-                                text: 'Dieraanrijding',
-                                onPressed: () => _handleReportTypeSelection(
-                                  'Dieraanrijding',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ],
                 ),
