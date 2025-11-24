@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class EncounterMessageOverlay extends StatelessWidget {
   final String message;
@@ -10,6 +11,7 @@ class EncounterMessageOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     // choose accent based on severity
     final Color accent = (severity == 1)
         ? Colors.red.shade700
@@ -25,14 +27,14 @@ class EncounterMessageOverlay extends StatelessWidget {
           child: GestureDetector(
             onTap: () {},
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 360, maxHeight: 160),
+              constraints: BoxConstraints(maxWidth: responsive.wp(90), maxHeight: responsive.hp(20)),
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                margin: EdgeInsets.symmetric(horizontal: responsive.wp(5)),
+                padding: EdgeInsets.symmetric(horizontal: responsive.wp(3), vertical: responsive.hp(1.2)),
                 decoration: BoxDecoration(
                   color: AppColors.lightMintGreen.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.darkGreen, width: 1.6),
+                  borderRadius: BorderRadius.circular(responsive.sp(1.75)),
+                  border: Border.all(color: AppColors.darkGreen, width: responsive.sp(0.2)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.14),
@@ -46,11 +48,11 @@ class EncounterMessageOverlay extends StatelessWidget {
                   children: [
                     // Icon / asset (smaller)
                     Container(
-                      width: 40,
-                      height: 40,
-                      margin: const EdgeInsets.only(right: 10, top: 2),
+                      width: responsive.sp(5),
+                      height: responsive.sp(5),
+                      margin: EdgeInsets.only(right: responsive.wp(2.5), top: responsive.hp(0.25)),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(responsive.sp(0.75)),
                         child: Image.asset(
                           'assets/icons/animalmeet.png',
                           fit: BoxFit.cover,
@@ -69,18 +71,18 @@ class EncounterMessageOverlay extends StatelessWidget {
                               title!,
                               style: TextStyle(
                                 color: AppColors.darkGreen,
-                                fontSize: 14,
+                                fontSize: responsive.fontSize(14),
                                 fontWeight: FontWeight.w700,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          if ((title ?? '').isNotEmpty) const SizedBox(height: 4),
+                          if ((title ?? '').isNotEmpty) SizedBox(height: responsive.hp(0.5)),
                           Text(
                             message,
                             style: TextStyle(
                               color: Colors.black87,
-                              fontSize: 13,
+                              fontSize: responsive.fontSize(13),
                             ),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,

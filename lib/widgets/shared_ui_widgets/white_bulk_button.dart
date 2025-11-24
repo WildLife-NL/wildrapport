@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/circle_icon_container.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class WhiteBulkButton extends StatefulWidget {
   final String text;
@@ -59,6 +60,7 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final bool active = _isHovered || _isPressed;
 
   final Color initialBg = widget.backgroundColor ?? AppColors.offWhite;
@@ -152,8 +154,8 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
                       CircleIconContainer(
                         icon: Icons.arrow_forward_ios,
                         iconColor: active ? Colors.white : (widget.arrowColor ?? AppColors.brown),
-                        size: 48,
-                        iconSize: 28,
+                        size: responsive.sp(4.8),
+                        iconSize: responsive.sp(2.8),
                         backgroundColor: widget.backgroundColor ?? AppColors.offWhite,
                         showShadow: widget.showShadow,
                       )

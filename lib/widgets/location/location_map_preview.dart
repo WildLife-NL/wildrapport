@@ -7,33 +7,35 @@ import 'package:wildrapport/screens/location/map_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/custom_location_map_widget.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class LocationMapPreview extends StatelessWidget {
   const LocationMapPreview({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
         // Show placeholder for unknown location
         if (mapProvider.selectedAddress.isEmpty) {
           return Container(
-            height: 150,
+            height: responsive.hp(18),
             decoration: BoxDecoration(
               color: Colors.grey[200],
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(15),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.sp(3.75)),
               ),
             ),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_off, size: 40, color: Colors.grey[400]),
-                  const SizedBox(height: 8),
+                  Icon(Icons.location_off, size: responsive.sp(40), color: Colors.grey[400]),
+                  SizedBox(height: responsive.spacing(8)),
                   Text(
                     'Geen locatie geselecteerd',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(color: Colors.grey[600], fontSize: responsive.fontSize(14)),
                   ),
                 ],
               ),
@@ -45,17 +47,17 @@ class LocationMapPreview extends StatelessWidget {
         if (mapProvider.currentPosition == null ||
             mapProvider.selectedAddress.isEmpty) {
           return Container(
-            height: 150,
+            height: responsive.hp(18),
             decoration: BoxDecoration(
               color: Colors.grey[200],
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(15),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.sp(3.75)),
               ),
             ),
             child: Center(
               child: SizedBox(
-                width: 100,
-                height: 100,
+                width: responsive.sp(100),
+                height: responsive.sp(100),
                 child: Lottie.asset(
                   'assets/loaders/loading_paw.json',
                   fit: BoxFit.contain,
@@ -76,10 +78,10 @@ class LocationMapPreview extends StatelessWidget {
         return Stack(
           children: [
             SizedBox(
-              height: 150,
+              height: responsive.hp(18),
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(15),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(responsive.sp(3.75)),
                 ),
                 child: flutter_map.FlutterMap(
                   mapController: mapProvider.mapController,
@@ -100,12 +102,12 @@ class LocationMapPreview extends StatelessWidget {
                       markers: [
                         flutter_map.Marker(
                           point: point,
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
+                          width: responsive.sp(40),
+                          height: responsive.sp(40),
+                          child: Icon(
                             Icons.location_pin,
                             color: Colors.red,
-                            size: 40,
+                            size: responsive.sp(40),
                           ),
                         ),
                       ],
@@ -115,11 +117,11 @@ class LocationMapPreview extends StatelessWidget {
               ),
             ),
             Positioned(
-              top: 8,
-              right: 8,
+              top: responsive.spacing(8),
+              right: responsive.spacing(8),
               child: Material(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(responsive.sp(2)),
                 elevation: 4,
                 child: InkWell(
                   onTap: () {
@@ -159,13 +161,13 @@ class LocationMapPreview extends StatelessWidget {
                       ),
                     );
                   },
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(responsive.sp(2)),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(responsive.spacing(8)),
                     child: Icon(
                       Icons.fullscreen,
                       color: Colors.grey[700],
-                      size: 24,
+                      size: responsive.sp(24),
                     ),
                   ),
                 ),

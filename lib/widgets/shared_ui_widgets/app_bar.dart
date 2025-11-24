@@ -3,6 +3,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class CustomAppBar extends StatelessWidget {
   final IconData? leftIcon;
@@ -42,7 +43,7 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final responsive = context.responsive;
     final appStateProvider = context.watch<AppStateProvider>();
 
     // Use fixed centerText if useFixedText is true, otherwise use report type's display text
@@ -50,27 +51,21 @@ class CustomAppBar extends StatelessWidget {
         ? (centerText ?? '')
         : (appStateProvider.currentReportType?.displayText ?? centerText ?? '');
 
-    // Calculate responsive dimensions
-    final double barHeight = screenSize.height * 0.05; // 5% of screen height
-    final double minHeight = 24.0;
-    final double maxHeight = 40.0;
+    // Calculate responsive dimensions using ResponsiveUtils
+    final double barHeight = responsive.hp(3.5); // 3.5% of screen height
+    final double minHeight = responsive.sp(2);
+    final double maxHeight = responsive.sp(3.5);
     final double finalHeight = barHeight.clamp(minHeight, maxHeight);
 
-  // Calculate responsive text size
-  final double fontSize = screenSize.width * 0.05; // 5% of screen width
-  final double minFontSize = 16.0;
-  final double maxFontSize = 24.0;
-  final double finalFontSize = (fontSize.clamp(minFontSize, maxFontSize)) * fontScale;
+    // Calculate responsive text size
+    final double finalFontSize = responsive.fontSize(12) * fontScale;
 
     // Calculate responsive icon size
-    final double iconSize = screenSize.width * 0.06; // 6% of screen width
-    final double minIconSize = 24.0;
-    final double maxIconSize = 32.0;
-    final double finalIconSize = (iconSize.clamp(minIconSize, maxIconSize)) * iconScale;
-  // Slightly larger profile/person glyph by default (configurable)
-  final double userIconSize = finalIconSize * userIconScale;
+    final double finalIconSize = responsive.sp(2.8) * iconScale;
+    // Slightly larger profile/person glyph by default (configurable)
+    final double userIconSize = finalIconSize * userIconScale;
 
-    final double topPadding = screenSize.height * topPaddingFraction;
+    final double topPadding = responsive.hp(topPaddingFraction * 100);
 
     return Padding(
       padding: EdgeInsets.only(top: topPadding),
@@ -88,7 +83,7 @@ class CustomAppBar extends StatelessWidget {
                 if (leftIcon != null)
                   Padding(
                     padding: EdgeInsets.only(
-                      left: screenSize.width * 0.04, // 4% of screen width
+                      left: responsive.wp(4), // 4% of screen width
                     ),
                     child: GestureDetector(
                       onTap:
@@ -134,7 +129,7 @@ class CustomAppBar extends StatelessWidget {
                 if (rightIcon != null)
                   Padding(
                     padding: EdgeInsets.only(
-                      right: screenSize.width * 0.08, // 4% of screen width
+                      right: responsive.wp(8), // 8% of screen width
                     ),
                     child: GestureDetector(
                       onTap: onRightIconPressed,
@@ -148,8 +143,8 @@ class CustomAppBar extends StatelessWidget {
                 else if (showUserIcon)
                   Padding(
                     padding: EdgeInsets.only(
-                      right: screenSize.width * 0.08, // 4% of screen width
-                      bottom: screenSize.height * 0.008, // nudge slightly upward
+                      right: responsive.wp(8), // 8% of screen width
+                      bottom: responsive.hp(0.8), // nudge slightly upward
                     ),
                     child: GestureDetector(
                       onTap: onUserIconPressed ?? () {

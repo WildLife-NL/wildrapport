@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class QuestionnaireWhiteButton extends StatefulWidget {
   final String text;
@@ -35,6 +36,7 @@ class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final bool isActive = _isPressed || _isHovered;
     
     return MouseRegion(
@@ -51,17 +53,17 @@ class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
           width: widget.width,
           decoration: BoxDecoration(
             color: isActive ? AppColors.darkGreen : Colors.white,
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(responsive.sp(2.5)),
             border: Border.all(
               color: AppColors.darkGreen,
-              width: 2,
+              width: responsive.sp(0.2),
             ),
           ),
           child: Center(
             child: Text(
               widget.text,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: responsive.fontSize(16),
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.bold,
                 color: isActive ? Colors.white : Colors.black,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class ErrorOverlay extends StatelessWidget {
   final List<String> messages;
@@ -14,6 +15,7 @@ class ErrorOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
@@ -23,12 +25,12 @@ class ErrorOverlay extends StatelessWidget {
             onTap:
                 () {}, // Prevents taps on the container from closing the overlay
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              constraints: const BoxConstraints(maxWidth: 500),
+              margin: EdgeInsets.symmetric(horizontal: responsive.wp(5)),
+              constraints: BoxConstraints(maxWidth: responsive.wp(80)),
               decoration: BoxDecoration(
                 color: AppColors.lightMintGreen,
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: Colors.red.shade700, width: 1.6),
+                borderRadius: BorderRadius.circular(responsive.sp(3.1)),
+                border: Border.all(color: Colors.red.shade700, width: responsive.sp(0.2)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.25),
@@ -42,7 +44,7 @@ class ErrorOverlay extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 12),
+                    padding: EdgeInsets.only(top: responsive.hp(1.5)),
                     child: IconButton(
                       icon: ShaderMask(
                         shaderCallback: (Rect bounds) {
@@ -54,7 +56,7 @@ class ErrorOverlay extends StatelessWidget {
                         },
                         child: Icon(
                           Icons.error_outline,
-                          size: 32,
+                          size: responsive.sp(4),
                           color: Colors.red.shade700,
                           shadows: [
                             Shadow(
@@ -66,12 +68,12 @@ class ErrorOverlay extends StatelessWidget {
                         ),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
-                      iconSize: 50,
+                      iconSize: responsive.sp(6),
                     ),
                   ),
                   Flexible(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                      padding: EdgeInsets.fromLTRB(responsive.wp(5), responsive.hp(1), responsive.wp(5), responsive.hp(2.5)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -109,7 +111,7 @@ class ErrorOverlay extends StatelessWidget {
                                   titleToShow,
                                   style: AppTextTheme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 20,
+                                    fontSize: responsive.fontSize(20),
                                     color: Colors.red.shade700,
                                     shadows: [
                                       Shadow(
@@ -121,7 +123,7 @@ class ErrorOverlay extends StatelessWidget {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 12),
+                                SizedBox(height: responsive.spacing(12)),
                                 if (bodyToShow.isNotEmpty) ...[
                                   Text(
                                     bodyToShow,
@@ -136,7 +138,7 @@ class ErrorOverlay extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: responsive.spacing(8)),
                                 ],
                                 // If an instruction was not provided and there is no body,
                                 // show a small default guidance line.

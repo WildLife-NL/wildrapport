@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/asset_preloader.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class LoadingScreen extends StatefulWidget {
   final VoidCallback? onLoadingComplete;
@@ -58,6 +59,7 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       body: Center(
@@ -65,8 +67,8 @@ class _LoadingScreenState extends State<LoadingScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 200,
-              height: 200,
+              width: responsive.sp(25),
+              height: responsive.sp(25),
               child: Lottie.asset(
                 'assets/loaders/loading_paw.json',
                 fit: BoxFit.contain,

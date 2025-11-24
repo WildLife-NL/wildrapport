@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:flutter/services.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class CustomTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;
@@ -174,35 +175,36 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(responsive.sp(3.75))),
       child: Container(
-        width: 300,
-        padding: const EdgeInsets.all(20),
+        width: responsive.wp(75),
+        padding: EdgeInsets.all(responsive.spacing(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Kies tijd',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: responsive.fontSize(20),
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkGreen,
               ),
             ),
-            const SizedBox(height: 20),
-            _buildCurrentTimeDisplay(),
-            const SizedBox(height: 20),
-            _buildTimeWheels(),
-            const SizedBox(height: 20),
-            _buildActionButtons(),
+            SizedBox(height: responsive.spacing(20)),
+            _buildCurrentTimeDisplay(responsive),
+            SizedBox(height: responsive.spacing(20)),
+            _buildTimeWheels(responsive),
+            SizedBox(height: responsive.spacing(20)),
+            _buildActionButtons(responsive),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCurrentTimeDisplay() {
+  Widget _buildCurrentTimeDisplay(ResponsiveUtils responsive) {
     return Column(
       children: [
         GestureDetector(
@@ -214,13 +216,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             });
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            padding: EdgeInsets.symmetric(vertical: responsive.hp(1.2), horizontal: responsive.wp(5)),
             decoration: BoxDecoration(
               color: AppColors.darkGreen.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(responsive.sp(2.5)),
               border:
                   _errorMessage != null
-                      ? Border.all(color: Colors.red, width: 1.0)
+                      ? Border.all(color: Colors.red, width: responsive.sp(0.25))
                       : null,
             ),
             child:
@@ -230,7 +232,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: responsive.fontSize(32),
                         fontWeight: FontWeight.bold,
                         color:
                             _errorMessage != null
@@ -283,12 +285,12 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 
-  Widget _buildTimeWheels() {
+  Widget _buildTimeWheels(ResponsiveUtils responsive) {
     return Container(
-      height: 150,
+      height: responsive.hp(18),
       decoration: BoxDecoration(
         color: AppColors.offWhite,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(responsive.sp(2.5)),
         border: Border.all(color: AppColors.darkGreen.withValues(alpha: 0.1)),
       ),
       child: Row(
@@ -317,13 +319,14 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             label: 'uur',
             initialScrollIndex: _selectedHour,
             controller: _hourScrollController,
+            responsive: responsive,
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: responsive.wp(2.5)),
             child: Text(
               ':',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: responsive.fontSize(24),
                 fontWeight: FontWeight.bold,
                 color: AppColors.darkGreen,
               ),
@@ -351,6 +354,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             label: 'min',
             initialScrollIndex: _selectedMinute,
             controller: _minuteScrollController,
+            responsive: responsive,
           ),
         ],
       ),
@@ -365,13 +369,14 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     required String label,
     required int initialScrollIndex,
     FixedExtentScrollController? controller,
+    required ResponsiveUtils responsive,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 60,
-          height: 120,
+          width: responsive.wp(15),
+          height: responsive.hp(14.5),
           child: ListWheelScrollView.useDelegate(
             itemExtent: 40,
             perspective: 0.003,
@@ -395,7 +400,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   child: AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
                     style: TextStyle(
-                      fontSize: isSelected ? 20 : 16,
+                      fontSize: isSelected ? responsive.fontSize(20) : responsive.fontSize(16),
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
                       color:
@@ -413,7 +418,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: responsive.fontSize(12),
             color: AppColors.darkGreen.withValues(alpha: 0.6),
           ),
         ),
@@ -421,7 +426,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 
-  Widget _buildActionButtons() {
+  Widget _buildActionButtons(ResponsiveUtils responsive) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -429,7 +434,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text('Annuleren', style: TextStyle(color: AppColors.darkGreen)),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: responsive.spacing(8)),
         ElevatedButton(
           onPressed:
               () => Navigator.of(
@@ -438,7 +443,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.darkGreen,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(responsive.sp(2)),
             ),
           ),
           child: const Text(

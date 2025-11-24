@@ -13,6 +13,7 @@ import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});
@@ -149,9 +150,7 @@ class _RapporterenState extends State<Rapporteren> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final double verticalPadding = screenSize.height * 0.01;
-    final double horizontalPadding = screenSize.width * 0.05;
+    final responsive = context.responsive;
     context.read<NavigationStateInterface>();
 
     return Scaffold(
@@ -177,8 +176,8 @@ class _RapporterenState extends State<Rapporteren> {
               top: false,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: verticalPadding,
+                  horizontal: responsive.wp(5),
+                  vertical: responsive.hp(1),
                 ),
                 child: Column(
                   children: [
@@ -186,8 +185,11 @@ class _RapporterenState extends State<Rapporteren> {
                       child: _isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : _interactionTypes == null || _interactionTypes!.isEmpty
-                              ? const Center(
-                                  child: Text('Geen interactietypen beschikbaar'),
+                              ? Center(
+                                  child: Text(
+                                    'Geen interactietypen beschikbaar',
+                                    style: TextStyle(fontSize: responsive.fontSize(16)),
+                                  ),
                                 )
                               : Center(
                                   child: SingleChildScrollView(
@@ -210,11 +212,11 @@ class _RapporterenState extends State<Rapporteren> {
 
                                         return Padding(
                                           padding: EdgeInsets.only(
-                                            bottom: screenSize.height * 0.03,
+                                            bottom: responsive.hp(3),
                                           ),
                                           child: SizedBox(
-                                            width: screenSize.width * 0.9,
-                                            height: screenSize.height * 0.22,
+                                            width: responsive.wp(90),
+                                            height: responsive.hp(22),
                                             child: ReportButton(
                                               image: icon,
                                               text: type.name,

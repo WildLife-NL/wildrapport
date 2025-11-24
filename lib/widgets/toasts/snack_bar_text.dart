@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class SnackBarText extends StatelessWidget {
   final String message;
@@ -12,17 +13,18 @@ class SnackBarText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8, // limit width to 80% of screen
+          maxWidth: responsive.wp(80),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 24),
-            const SizedBox(width: 12),
+            Icon(Icons.check_circle, color: Colors.green, size: responsive.sp(2.5)),
+            SizedBox(width: responsive.spacing(12)),
             Flexible(  // Flexible lets text wrap and limits width within Row
               child: Text(
                 message,
@@ -34,7 +36,7 @@ class SnackBarText extends StatelessWidget {
               ),
             ),
             if (trailing != null) ...[
-              const SizedBox(width: 12),
+              SizedBox(width: responsive.spacing(12)),
               trailing!,
             ],
           ],
