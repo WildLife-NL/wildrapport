@@ -211,8 +211,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         );
       }
 
-      // ✅ keep center on user only when following
-      if (_followUser) {
+      // ✅ keep center on user only when following AND tracking is enabled
+      if (_followUser && appStateProvider.isLocationTrackingEnabled) {
         final z = _mp.mapController.camera.zoom;
         _mp.mapController.move(LatLng(pos.latitude, pos.longitude), z);
       }
@@ -894,10 +894,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   setState(() => _useClusters = next);
                                 }
 
-                                // Recenter only if following (still user-driven)
+                                // Recenter only if following AND tracking is enabled (still user-driven)
                                 final p =
                                     mp.currentPosition ?? mp.selectedPosition;
-                                if (_followUser && p != null) {
+                                final appStateProvider = context.read<AppStateProvider>();
+                                if (_followUser && appStateProvider.isLocationTrackingEnabled && p != null) {
                                   mp.mapController.move(
                                     LatLng(p.latitude, p.longitude),
                                     currentZoom,
@@ -1649,7 +1650,20 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           child: const Icon(Icons.my_location, color: Colors.white),
           onPressed: () async {
             final mp = context.read<MapProvider>();
+            final appStateProvider = context.read<AppStateProvider>();
             debugPrint('[FAB] tapped');
+
+            // Check if location tracking is enabled
+            if (!appStateProvider.isLocationTrackingEnabled) {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Locatie delen is uitgeschakeld'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              return;
+            }
 
             _followUser = true;
 
@@ -1699,9 +1713,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               }
 
               await mp.resetToCurrentLocation(fresh, address);
-              await mp.sendTrackingPingFromPosition(fresh);
+              
+              // Only send tracking ping if tracking is enabled
+              if (appStateProvider.isLocationTrackingEnabled) {
+                await mp.sendTrackingPingFromPosition(fresh);
+              }
 
-              if (_followUser) {
+              if (_followUser && appStateProvider.isLocationTrackingEnabled) {
                 mp.mapController.move(
                   LatLng(fresh.latitude, fresh.longitude),
                   currentZoom,
