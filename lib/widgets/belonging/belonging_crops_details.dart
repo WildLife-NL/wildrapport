@@ -357,42 +357,49 @@ Padding(
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                InkWell(
-                                  onTap: () {
-                                    belongingDamageReportProvider.updateSelectedText('eenheden');
-                                    _belongingDamageReportManager.updateImpactedAreaType('units');
-                                    belongingDamageReportProvider.setErrorState('impactedAreaType', false);
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final screenWidth = MediaQuery.of(context).size.width;
+                                    final useAbbreviation = screenWidth < 400;
                                     
-                                    final txt = _impactValueController.text;
-                                    if (txt.isNotEmpty) {
-                                      final intRegex = RegExp(r'^\d+$');
-                                      if (intRegex.hasMatch(txt)) {
-                                        _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
-                                        belongingDamageReportProvider.setHasErrorImpactedArea(false);
-                                        belongingDamageReportProvider.resetInputErrorImpactArea();
-                                      }
-                                    }
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: belongingDamageReportProvider.impactedAreaType == 'units'
-                                          ? AppColors.darkGreen
-                                          : Colors.grey.shade300,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'eenheden',
-                                      style: TextStyle(
-                                        color: belongingDamageReportProvider.impactedAreaType == 'units'
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                    return InkWell(
+                                      onTap: () {
+                                        belongingDamageReportProvider.updateSelectedText('eenheden');
+                                        _belongingDamageReportManager.updateImpactedAreaType('units');
+                                        belongingDamageReportProvider.setErrorState('impactedAreaType', false);
+                                        
+                                        final txt = _impactValueController.text;
+                                        if (txt.isNotEmpty) {
+                                          final intRegex = RegExp(r'^\d+$');
+                                          if (intRegex.hasMatch(txt)) {
+                                            _belongingDamageReportManager.updateImpactedArea(double.parse(txt));
+                                            belongingDamageReportProvider.setHasErrorImpactedArea(false);
+                                            belongingDamageReportProvider.resetInputErrorImpactArea();
+                                          }
+                                        }
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: belongingDamageReportProvider.impactedAreaType == 'units'
+                                              ? AppColors.darkGreen
+                                              : Colors.grey.shade300,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          useAbbreviation ? 'een' : 'eenheden',
+                                          style: TextStyle(
+                                            color: belongingDamageReportProvider.impactedAreaType == 'units'
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
