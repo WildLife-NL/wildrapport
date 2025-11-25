@@ -164,10 +164,15 @@ class _RapporterenState extends State<Rapporteren> {
               rightIcon: null,
               onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
-              // make title and arrow black and slightly larger for this screen
+              // make title and arrow black and larger for this screen - more on smaller screens
               iconColor: Colors.black,
               textColor: Colors.black,
-              fontScale: 1.15,
+              fontScale: responsive.breakpointValue<double>(
+                small: 1.4,
+                medium: 1.3,
+                large: 1.2,
+                extraLarge: 1.15,
+              ),
               iconScale: 1.15,
             ),
           ),

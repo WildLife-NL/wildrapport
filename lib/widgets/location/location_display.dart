@@ -54,19 +54,19 @@ class _LocationDisplayState extends State<LocationDisplay>
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: responsive.wp(4), vertical: responsive.hp(1.5)),
+      padding: EdgeInsets.symmetric(horizontal: responsive.wp(3), vertical: responsive.hp(1)),
       child: Container(
         constraints: BoxConstraints(minHeight: responsive.hp(8)),
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(responsive.sp(2)),
         ),
-        padding: EdgeInsets.symmetric(horizontal: responsive.wp(4), vertical: responsive.hp(1.5)),
+        padding: EdgeInsets.symmetric(horizontal: responsive.wp(3), vertical: responsive.hp(1)),
         child:
             widget.isLoading
                 ? Center(
                   child: SizedBox(
-                    height: responsive.sp(36),
+                    height: responsive.sp(6),
                     child: Lottie.asset(
                       'assets/loaders/loading_paw.json',
                       fit: BoxFit.contain,
@@ -88,17 +88,17 @@ class _LocationDisplayState extends State<LocationDisplay>
                       onTap: widget.onLocationIconTap,
                       child: Image.asset(
                         'assets/location/location_icon.png',
-                        width: responsive.sp(24),
-                        height: responsive.sp(24),
+                        width: responsive.sp(4),
+                        height: responsive.sp(4),
                       ),
                     ),
-                    SizedBox(width: responsive.spacing(12)),
+                    SizedBox(width: responsive.spacing(8)),
                     Expanded(
                       child: Text(
                         widget._displayText,
                         style: TextStyle(
                           color: Colors.black54,
-                          fontSize: responsive.fontSize(14),
+                          fontSize: responsive.fontSize(12),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.left,

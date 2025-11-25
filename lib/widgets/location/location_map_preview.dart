@@ -20,7 +20,7 @@ class LocationMapPreview extends StatelessWidget {
         // Show placeholder for unknown location
         if (mapProvider.selectedAddress.isEmpty) {
           return Container(
-            height: responsive.hp(18),
+            height: responsive.hp(10),
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.vertical(
@@ -31,11 +31,11 @@ class LocationMapPreview extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_off, size: responsive.sp(40), color: Colors.grey[400]),
+                  Icon(Icons.location_off, size: responsive.sp(4), color: Colors.grey[400]),
                   SizedBox(height: responsive.spacing(8)),
                   Text(
                     'Geen locatie geselecteerd',
-                    style: TextStyle(color: Colors.grey[600], fontSize: responsive.fontSize(14)),
+                    style: TextStyle(color: Colors.grey[600], fontSize: responsive.fontSize(12)),
                   ),
                 ],
               ),
@@ -47,7 +47,7 @@ class LocationMapPreview extends StatelessWidget {
         if (mapProvider.currentPosition == null ||
             mapProvider.selectedAddress.isEmpty) {
           return Container(
-            height: responsive.hp(18),
+            height: responsive.hp(14),
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.vertical(
@@ -56,8 +56,8 @@ class LocationMapPreview extends StatelessWidget {
             ),
             child: Center(
               child: SizedBox(
-                width: responsive.sp(100),
-                height: responsive.sp(100),
+                width: responsive.sp(6),
+                height: responsive.sp(6),
                 child: Lottie.asset(
                   'assets/loaders/loading_paw.json',
                   fit: BoxFit.contain,
@@ -78,7 +78,7 @@ class LocationMapPreview extends StatelessWidget {
         return Stack(
           children: [
             SizedBox(
-              height: responsive.hp(18),
+              height: responsive.hp(14),
               child: ClipRRect(
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(responsive.sp(3.75)),
@@ -102,12 +102,12 @@ class LocationMapPreview extends StatelessWidget {
                       markers: [
                         flutter_map.Marker(
                           point: point,
-                          width: responsive.sp(40),
-                          height: responsive.sp(40),
+                          width: responsive.sp(6),
+                          height: responsive.sp(6),
                           child: Icon(
                             Icons.location_pin,
                             color: Colors.red,
-                            size: responsive.sp(40),
+                            size: responsive.sp(6),
                           ),
                         ),
                       ],
@@ -163,11 +163,11 @@ class LocationMapPreview extends StatelessWidget {
                   },
                   borderRadius: BorderRadius.circular(responsive.sp(2)),
                   child: Padding(
-                    padding: EdgeInsets.all(responsive.spacing(8)),
+                    padding: EdgeInsets.all(responsive.spacing(4)),
                     child: Icon(
                       Icons.fullscreen,
                       color: Colors.grey[700],
-                      size: responsive.sp(24),
+                      size: responsive.sp(4),
                     ),
                   ),
                 ),
