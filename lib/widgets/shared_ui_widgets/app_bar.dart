@@ -55,10 +55,10 @@ class CustomAppBar extends StatelessWidget {
     final double barHeight = responsive.hp(3.5); // 3.5% of screen height
     final double minHeight = responsive.sp(2);
     final double maxHeight = responsive.sp(3.5);
-    final double finalHeight = barHeight.clamp(minHeight, maxHeight);
+    final double finalHeight = barHeight.clamp(minHeight, maxHeight) + 6;
 
     // Calculate responsive text size
-    final double finalFontSize = responsive.fontSize(12) * fontScale;
+    final double finalFontSize = responsive.fontSize(14) * fontScale;
 
     // Calculate responsive icon size
     final double finalIconSize = responsive.sp(2.8) * iconScale;

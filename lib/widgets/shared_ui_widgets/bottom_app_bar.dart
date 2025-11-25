@@ -31,17 +31,17 @@ class CustomBottomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
 
-    final double barHeight = responsive.hp(10);
-    final double minHeight = responsive.spacing(80);
-    final double maxHeight = responsive.spacing(110);
+    final double barHeight = responsive.hp(8);
+    final double minHeight = responsive.spacing(60);
+    final double maxHeight = responsive.spacing(90);
 
-    final double fontSize = responsive.fontSize(16);
-    final double minFontSize = responsive.fontSize(16);
-    final double maxFontSize = responsive.fontSize(20);
+    final double fontSize = responsive.fontSize(12);
+    final double minFontSize = responsive.fontSize(12);
+    final double maxFontSize = responsive.fontSize(16);
 
-    final double iconSize = responsive.sp(3);
-    final double minIconSize = responsive.sp(2.8);
-    final double maxIconSize = responsive.sp(3.6);
+    final double iconSize = responsive.sp(2.5);
+    final double minIconSize = responsive.sp(2.2);
+    final double maxIconSize = responsive.sp(3);
 
     final double finalHeight = barHeight.clamp(minHeight, maxHeight);
     final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
@@ -90,12 +90,12 @@ class CustomBottomAppBar extends StatelessWidget {
                   ),
                 if (showNextButton)
                   SizedBox(
-                    width: responsive.wp(50),
-                    height: responsive.spacing(45),
+                    width: responsive.wp(45),
+                    height: responsive.spacing(38),
                     child: WhiteBulkButton(
                       text: 'Volgende',
                       showIcon: false,
-                      height: responsive.spacing(45),
+                      height: responsive.spacing(38),
                       backgroundColor: AppColors.lightMintGreen100,
                       borderColor: AppColors.brown,
                       hoverBackgroundColor: AppColors.brown,
@@ -103,7 +103,7 @@ class CustomBottomAppBar extends StatelessWidget {
                       textStyle: TextStyle(
                         fontFamily: 'Roboto',
                         color: Colors.black,
-                        fontSize: responsive.fontSize(16),
+                        fontSize: finalFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                       showShadow: false,
