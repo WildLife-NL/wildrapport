@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class TermsScreen extends StatefulWidget {
   const TermsScreen({super.key});
@@ -49,46 +50,59 @@ class _TermsScreenState extends State<TermsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       appBar: AppBar(
-        title: const Text('Algemene Voorwaarden'),
+        title: Text(
+          'Algemene Voorwaarden',
+          style: TextStyle(fontSize: responsive.fontSize(18)),
+        ),
         backgroundColor: AppColors.lightMintGreen,
         elevation: 0,
         foregroundColor: Colors.black,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(responsive.spacing(16)),
           child: Column(
             children: [
-              const Expanded(
+              Expanded(
                 child: SingleChildScrollView(
                   child: Text(
                     'Algemene Voorwaarden\n\n'
                     'Deze app wordt geleverd door WildlifeNL om wildlifemelding te vergemakkelijken. Door gebruik te maken van deze app, gaat u ermee akkoord dat u zich houdt aan alle toepasselijke wet- en regelgeving met betrekking tot de bescherming van wilde dieren en gegevensprivacy. U erkent dat alle gegevens die u via deze app indient, door WildlifeNL kunnen worden gebruikt voor onderzoeksdoeleinden.',
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: responsive.fontSize(16),
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
               Row(
                 children: [
-                  Checkbox(
-                    value: _checked,
-                    activeColor: AppColors.darkGreen,
-                    onChanged: _submitting
-                        ? null
-                        : (v) => setState(() => _checked = v ?? false),
+                  Transform.scale(
+                    scale: responsive.sp(0.15),
+                    child: Checkbox(
+                      value: _checked,
+                      activeColor: AppColors.darkGreen,
+                      onChanged: _submitting
+                          ? null
+                          : (v) => setState(() => _checked = v ?? false),
+                    ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Ik heb de Algemene Voorwaarden gelezen en accepteer deze',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: responsive.fontSize(14),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: responsive.spacing(8)),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -96,12 +110,21 @@ class _TermsScreenState extends State<TermsScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkGreen,
                     foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(
+                      vertical: responsive.hp(1.75),
+                    ),
+                    textStyle: TextStyle(
+                      fontSize: responsive.fontSize(16),
+                    ),
                   ),
                   child: _submitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                      ? SizedBox(
+                          width: responsive.sp(2.5),
+                          height: responsive.sp(2.5),
+                          child: CircularProgressIndicator(
+                            strokeWidth: responsive.sp(0.25),
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Accepteren & Doorgaan'),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final VoidCallback? onBackPressed;
@@ -28,31 +29,31 @@ class CustomBottomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final responsive = context.responsive;
 
-    final double barHeight = screenSize.height * 0.12;
-    final double minHeight = 100.0;
-    final double maxHeight = 130.0;
+    final double barHeight = responsive.hp(8);
+    final double minHeight = responsive.spacing(60);
+    final double maxHeight = responsive.spacing(90);
 
-    final double fontSize = screenSize.width * 0.05;
-    final double minFontSize = 18.0;
-    final double maxFontSize = 24.0;
+    final double fontSize = responsive.fontSize(12);
+    final double minFontSize = responsive.fontSize(12);
+    final double maxFontSize = responsive.fontSize(16);
 
-    final double iconSize = screenSize.width * 0.08;
-    final double minIconSize = 28.0;
-    final double maxIconSize = 36.0;
+    final double iconSize = responsive.sp(2.5);
+    final double minIconSize = responsive.sp(2.2);
+    final double maxIconSize = responsive.sp(3);
 
     final double finalHeight = barHeight.clamp(minHeight, maxHeight);
     final double finalFontSize = fontSize.clamp(minFontSize, maxFontSize);
     final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
-    final double horizontalPadding = screenSize.width * 0.06;
+    final double horizontalPadding = responsive.wp(6);
 
     return Container(
       height: finalHeight,
       color: Colors.transparent, // Make container background transparent
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.only(bottom: responsive.spacing(10)),
           child: Center(
             child: Row(
               mainAxisAlignment:
@@ -74,7 +75,7 @@ class CustomBottomAppBar extends StatelessWidget {
                             color: AppColors.brown,
                             size: finalIconSize,
                           ),
-                          SizedBox(width: screenSize.width * 0.03),
+                          SizedBox(width: responsive.wp(3)),
                           Text(
                             'Terug',
                             style: TextStyle(
@@ -89,20 +90,20 @@ class CustomBottomAppBar extends StatelessWidget {
                   ),
                 if (showNextButton)
                   SizedBox(
-                    width: 220,
-                    height: 50,
+                    width: responsive.wp(45),
+                    height: responsive.spacing(38),
                     child: WhiteBulkButton(
                       text: 'Volgende',
                       showIcon: false,
-                      height: 50,
+                      height: responsive.spacing(38),
                       backgroundColor: AppColors.lightMintGreen100,
                       borderColor: AppColors.brown,
                       hoverBackgroundColor: AppColors.brown,
                       hoverBorderColor: AppColors.lightMintGreen100,
-                      textStyle: const TextStyle(
+                      textStyle: TextStyle(
                         fontFamily: 'Roboto',
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: finalFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                       showShadow: false,

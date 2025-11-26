@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 
 
@@ -136,16 +137,17 @@ Future<void> _verifyCode() async {
 
 
   Widget _buildTextField(int index) {
+    final responsive = context.responsive;
     return Container(
-      width: 45,
+      width: responsive.wp(11),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(responsive.sp(1.5)),
         color:
             isError ? Colors.red.shade50.withValues(alpha: 0.9) : Colors.white,
         border:
             isError
-                ? Border.all(color: Colors.red.shade300, width: 1.0)
-                : Border.all(color: Colors.grey[300]!),
+                ? Border.all(color: Colors.red.shade300, width: responsive.sp(0.12))
+                : Border.all(color: Colors.grey[300]!, width: responsive.sp(0.12)),
         boxShadow: [
           BoxShadow(
             color:
@@ -213,11 +215,12 @@ Future<void> _verifyCode() async {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     if (isLoading) {
       return Center(
         child: SizedBox(
-          width: 200,
-          height: 200,
+          width: responsive.sp(25),
+          height: responsive.sp(25),
           child: Lottie.asset(
             'assets/loaders/loading_paw.json',
             fit: BoxFit.contain,
@@ -260,7 +263,7 @@ Future<void> _verifyCode() async {
             Text(
               'Voer de verificatiecode in',
               style: AppTextTheme.textTheme.titleMedium?.copyWith(
-                fontSize: 16,
+                fontSize: responsive.fontSize(16),
                 fontWeight: FontWeight.w500,
                 shadows: [
                   Shadow(
@@ -275,18 +278,18 @@ Future<void> _verifyCode() async {
         ),
         if (isError) ...[
           Padding(
-            padding: const EdgeInsets.only(left: 20, top: 10),
+            padding: EdgeInsets.only(left: responsive.wp(5), top: responsive.hp(1.2)),
             child: Text(
               'Verkeerde code. Probeer het opnieuw.',
               style: TextStyle(
                 color: Colors.red.shade600,
-                fontSize: 14,
+                fontSize: responsive.fontSize(14),
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
         ],
-        const SizedBox(height: 20),
+        SizedBox(height: responsive.spacing(20)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(6, (index) => _buildTextField(index)),
@@ -296,7 +299,7 @@ Future<void> _verifyCode() async {
           model: LoginManager.createButtonModel(text: 'Verifiëren', isLoginButton: true),
           onPressed: _verifyCode,
         ),
-        const SizedBox(height: 15),
+        SizedBox(height: responsive.spacing(15)),
         Center(
           child: TextButton(
             onPressed: () {

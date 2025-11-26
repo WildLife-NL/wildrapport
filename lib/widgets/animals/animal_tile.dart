@@ -43,16 +43,19 @@ class AnimalTile extends StatelessWidget {
             // Make the visible container background pure white when idle
             color: AppColors.lightMintGreen100,
           ),
-          child: Column(
-            children: [
-              // Make image container square using AspectRatio
-              AspectRatio(
-                aspectRatio: 1.0, // Square ratio
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    width: double.infinity,
-                    color: AppColors.lightMintGreen100,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                // Make image container square using AspectRatio
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1.0, // Square ratio
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        width: double.infinity,
+                        color: AppColors.lightMintGreen100,
                     child: animal.animalImagePath != null
                         ? Image(
                             image: AssetImage(animal.animalImagePath!),
@@ -79,22 +82,24 @@ class AnimalTile extends StatelessWidget {
                               color: AppColors.brown,
                             ),
                           ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
+                const SizedBox(height: 4),
+                Text(
                   animal.animalName,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

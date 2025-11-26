@@ -7,6 +7,7 @@ import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/questionnaire/shared_white_background.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class QuestionnaireMultipleChoice extends StatefulWidget {
   final Question question;
@@ -56,50 +57,51 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Scaffold(
       body: SharedWhiteBackground(
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
+            padding: EdgeInsets.only(top: responsive.spacing(16), left: responsive.spacing(12)),
             child: Text(
               'Vraag ${widget.index + 1} van ${widget.questionnaire.questions?.length}',
-              style: const TextStyle(
-                fontSize: 16,
+              style: TextStyle(
+                fontSize: responsive.fontSize(16),
                 fontFamily: 'Roboto',
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
           ),
-          const SizedBox(height: 1),
+          SizedBox(height: responsive.spacing(1)),
           Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 12.0),
+            padding: EdgeInsets.only(top: responsive.spacing(16), left: responsive.spacing(12)),
             child: Text(
               widget.question.text,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: responsive.fontSize(20),
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Roboto',
                 color: Colors.black,
               ),
             ),
           ),
-          const SizedBox(height: 1),
+          SizedBox(height: responsive.spacing(1)),
           if (widget.question.description.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 12.0),
+              padding: EdgeInsets.only(left: responsive.spacing(12)),
               child: Text(
                 widget.question.description,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: responsive.fontSize(18),
                   fontFamily: 'Roboto',
                   color: Colors.black,
                 ),
               ),
             ),
-          const SizedBox(height: 24),
+          SizedBox(height: responsive.spacing(24)),
           if (widget.question.answers != null)
             ...widget.question.answers!.map((answer) {
               return widget.question.allowMultipleResponse
@@ -107,8 +109,8 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
                     value: selectedAnswerIDs.contains(answer.id),
                     title: Text(
                       answer.text,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(18),
                         fontFamily: 'Roboto',
                         color: Colors.black,
                       ),
@@ -144,8 +146,8 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
                   RadioListTile<String>(
                     title: Text(
                       answer.text,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: responsive.fontSize(18),
                         fontFamily: 'Roboto',
                         color: Colors.black,
                       ),

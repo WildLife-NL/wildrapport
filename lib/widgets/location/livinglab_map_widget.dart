@@ -607,21 +607,21 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
             _currentPosition!.latitude,
             _currentPosition!.longitude,
           ),
-          width: 40,
-          height: 40,
+          width: 28,
+          height: 28,
           child: Stack(
             children: [
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.blue[100]!.withValues(alpha: 0.3),
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width: 1.5),
                 ),
               ),
               Center(
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  width: 10,
+                  height: 10,
                   decoration: BoxDecoration(
                     color: Colors.blue[600],
                     shape: BoxShape.circle,
@@ -638,14 +638,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       markers.add(
         Marker(
           point: _markedLocation!,
-          width: 80,
-          height: 80,
+          width: 50,
+          height: 50,
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.red.withValues(alpha: 0.3),
             ),
-            child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+            child: const Icon(Icons.location_pin, color: Colors.red, size: 28),
           ),
         ),
       );
