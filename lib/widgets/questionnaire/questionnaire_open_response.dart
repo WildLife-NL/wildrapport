@@ -39,6 +39,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   late TextEditingController _responseController;
   late final ResponseProvider responseProvider;
   String? _validationError;
+  bool _canProceed = true;
   
   // Slider-related state
   bool _isNumericRange = false;
@@ -72,13 +73,22 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     }
     
     // Check for numeric range patterns like [1-5], [0-10], etc.
+    // Supports: [1-5], [0-10], [1-100], etc.
     final rangePattern = RegExp(r'^\[(\d+)-(\d+)\]$');
-    final match = rangePattern.firstMatch(format);
+    final match = rangePattern.firstMatch(format.trim());
     
     if (match != null) {
       _isNumericRange = true;
       _minValue = int.parse(match.group(1)!);
       _maxValue = int.parse(match.group(2)!);
+      
+      // Ensure min is less than max
+      if (_minValue > _maxValue) {
+        final temp = _minValue;
+        _minValue = _maxValue;
+        _maxValue = temp;
+      }
+      
       _sliderValue = _minValue.toDouble();
     } else {
       _isNumericRange = false;
@@ -103,7 +113,12 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     }
     
     _responseController = TextEditingController(text: existingText);
-    _validationError = null;
+    
+    // Validate existing response
+    setState(() {
+      _validationError = _validateText(existingText);
+      _canProceed = _validationError == null || existingText.isEmpty;
+    });
   }
 
   @override
@@ -115,9 +130,18 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   String? _validateText(String text) {
     final format = widget.question.openResponseFormat;
     
-    // If no format specified, only do basic validation
+    // If no format specified, accept any input (including empty)
     if (format == null || format.isEmpty) {
-      // No minimum length requirement - accept any input
+      return null;
+    }
+    
+    // Allow empty text - validation only applies when user has entered something
+    if (text.isEmpty) {
+      return null;
+    }
+    
+    // Skip validation for numeric ranges (handled by slider)
+    if (_isNumericRange) {
       return null;
     }
     
@@ -125,11 +149,24 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     try {
       final regex = RegExp(format);
       if (!regex.hasMatch(text)) {
-        return 'Antwoord voldoet niet aan het vereiste formaat';
+        // Provide helpful error message with format hint
+        String errorMsg = 'Antwoord voldoet niet aan het vereiste formaat';
+        
+        // Add helpful hints for common patterns
+        if (format.contains(r'\d')) {
+          errorMsg += ' (alleen cijfers)';
+        } else if (format.contains('[a-zA-Z]')) {
+          errorMsg += ' (alleen letters)';
+        } else if (format.contains('@')) {
+          errorMsg += ' (e-mailadres)';
+        }
+        
+        return errorMsg;
       }
     } catch (e) {
-      // If regex is invalid, skip validation
-      debugPrint('Invalid regex pattern: $format');
+      // If regex is invalid, log error but don't block user
+      debugPrint('[QuestionnaireOpenResponse] Invalid regex pattern: $format - $e');
+      return null;
     }
     
     return null;
@@ -230,6 +267,8 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
           onChanged: (value) {
             setState(() {
               _validationError = _validateText(value);
+              _canProceed = _validationError == null || value.isEmpty;
+              
               if (existingResponse != null) {
                 responseProvider.setUpdatingResponse(true);
                 responseProvider.updateResponse(
@@ -354,7 +393,9 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onNextPressed: widget.onNextPressed,
+        onNextPressed: _canProceed && _responseController.text.isNotEmpty
+            ? widget.onNextPressed
+            : null,
         onBackPressed: widget.onBackPressed,
         showBackButton: false,
       ),
