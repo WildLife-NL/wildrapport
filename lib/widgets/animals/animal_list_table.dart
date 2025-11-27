@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
@@ -88,6 +89,23 @@ class AnimalListTableState extends State<AnimalListTable> {
     animalSightingManager.updateDescription('');
     setState(() {});
   }
+
+  // Formatter to cap numeric input at a maximum value.
+  // Prevents entering numbers greater than [max] directly.
+  // If user pastes a larger number it is truncated to max.
+  static TextInputFormatter maxValueFormatter(int max) => TextInputFormatter.withFunction(
+        (oldValue, newValue) {
+          if (newValue.text.isEmpty) return newValue;
+          final value = int.tryParse(newValue.text) ?? 0;
+          if (value > max) {
+            return TextEditingValue(
+              text: max.toString(),
+              selection: TextSelection.collapsed(offset: max.toString().length),
+            );
+          }
+          return newValue;
+        },
+      );
 
   @override
   void initState() {
@@ -524,6 +542,11 @@ class AnimalListTableState extends State<AnimalListTable> {
                       maxLines: null,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                        AnimalListTableState.maxValueFormatter(100),
+                      ],
                       decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.symmetric(
@@ -547,7 +570,15 @@ class AnimalListTableState extends State<AnimalListTable> {
                       },
                       onChanged: (value) {
                         if (!mounted) return;
-                        final count = int.tryParse(value) ?? 0;
+                        var count = int.tryParse(value) ?? 0;
+                        if (count > 100) {
+                          count = 100;
+                          final controller = _getController(age, gender);
+                          controller.text = '100';
+                          controller.selection = TextSelection.fromPosition(
+                            TextPosition(offset: controller.text.length),
+                          );
+                        }
                         final key = '${age.name}_${gender.name}';
                         _tempCounts[key] = count;
                         debugPrint('Updated temp count: $key = $count');
