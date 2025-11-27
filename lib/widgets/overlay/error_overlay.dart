@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
 class ErrorOverlay extends StatelessWidget {
@@ -31,14 +30,6 @@ class ErrorOverlay extends StatelessWidget {
                 color: AppColors.lightMintGreen,
                 borderRadius: BorderRadius.circular(responsive.sp(3.1)),
                 border: Border.all(color: Colors.red.shade700, width: responsive.sp(0.2)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    spreadRadius: 0,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -46,26 +37,10 @@ class ErrorOverlay extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(top: responsive.hp(1.5)),
                     child: IconButton(
-                      icon: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Colors.red.shade700, Colors.red.shade500],
-                          ).createShader(bounds);
-                        },
-                        child: Icon(
-                          Icons.error_outline,
-                          size: responsive.sp(4),
-                          color: Colors.red.shade700,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
+                      icon: Icon(
+                        Icons.error_outline,
+                        size: responsive.sp(4),
+                        color: Colors.red.shade700,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       iconSize: responsive.sp(6),
@@ -109,17 +84,11 @@ class ErrorOverlay extends StatelessWidget {
                               children: [
                                 Text(
                                   titleToShow,
-                                  style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
                                     fontWeight: FontWeight.bold,
-                                    fontSize: responsive.fontSize(20),
+                                    fontSize: responsive.fontSize(18),
                                     color: Colors.red.shade700,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black.withValues(alpha: 0.25),
-                                        offset: const Offset(0, 2),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -127,27 +96,15 @@ class ErrorOverlay extends StatelessWidget {
                                 if (bodyToShow.isNotEmpty) ...[
                                   Text(
                                     bodyToShow,
-                                    style: AppTextTheme.textTheme.bodyMedium?.copyWith(
-                                      shadows: [
-                                        Shadow(
-                                          color: Colors.black.withValues(alpha: 0.18),
-                                          offset: const Offset(0, 2),
-                                          blurRadius: 3,
-                                        ),
-                                      ],
+                                    style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: responsive.fontSize(16),
+                                      color: Colors.black,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                   SizedBox(height: responsive.spacing(8)),
                                 ],
-                                // If an instruction was not provided and there is no body,
-                                // show a small default guidance line.
-                                if ((instruction == null || instruction!.isEmpty) && bodyToShow.isEmpty)
-                                  Text(
-                                    'Controleer de invoer en probeer het opnieuw.',
-                                    style: AppTextTheme.textTheme.bodySmall?.copyWith(color: Colors.black54),
-                                    textAlign: TextAlign.center,
-                                  ),
                               ],
                             );
                           }),

@@ -35,13 +35,6 @@ class EncounterMessageOverlay extends StatelessWidget {
                   color: AppColors.lightMintGreen.withOpacity(0.95),
                   borderRadius: BorderRadius.circular(responsive.sp(1.75)),
                   border: Border.all(color: AppColors.darkGreen, width: responsive.sp(0.2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.14),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

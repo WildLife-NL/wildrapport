@@ -63,13 +63,20 @@ class _AnimalCountingState extends State<AnimalCounting> {
   void _validateAndAddToList(BuildContext context) {
     // 1. Validate input first
     List<String> errors = [];
+    bool missingAge = selectedAge == null;
+    bool missingGender = selectedGender == null;
 
-    if (selectedAge == null) {
-      errors.add('Selecteer een leeftijd');
-    }
-
-    if (selectedGender == null) {
-      errors.add('Selecteer een geslacht');
+    // If both are missing, show combined message
+    if (missingAge && missingGender) {
+      errors.add('Selecteer een leeftijd en geslacht');
+    } else {
+      // Show specific messages for what's missing
+      if (missingAge) {
+        errors.add('Selecteer een leeftijd');
+      }
+      if (missingGender) {
+        errors.add('Selecteer een geslacht');
+      }
     }
 
     if (currentCount <= 0) {
