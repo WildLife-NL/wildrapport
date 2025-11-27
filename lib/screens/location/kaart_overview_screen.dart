@@ -566,207 +566,173 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           ],
                         ),
                       ),
-
-                      // Scrollable content
+                      // Scrollable content with Scrollbar
                       Flexible(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Animals section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Dieren',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Animals section
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Dieren',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showAnimalsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showAnimalsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showAnimalsNew,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showAnimalsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showAnimalsMedium,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showAnimalsOld,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Detections section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Detecties',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                                // Detections section
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Detecties',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showDetectionsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showDetectionsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showDetectionsNew,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showDetectionsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showDetectionsMedium,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showDetectionsOld,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Interactions section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.place, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Interacties',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                                // Interactions section
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.place, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Interacties',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showInteractionsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showInteractionsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showInteractionsNew,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showInteractionsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showInteractionsMedium,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showInteractionsOld,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Reset and Apply buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        setDialogState(() {
-                                          setState(() {
-                                            _showAnimals = true;
-                                            _showDetections = true;
-                                            _showInteractions = true;
-                                            _showAnimalsNew = true;
-                                            _showAnimalsMedium = true;
-                                            _showAnimalsOld = true;
-                                            _showDetectionsNew = true;
-                                            _showDetectionsMedium = true;
-                                            _showDetectionsOld = true;
-                                            _showInteractionsNew = true;
-                                            _showInteractionsMedium = true;
-                                            _showInteractionsOld = true;
+                                // Reset and Apply buttons
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          setDialogState(() {
+                                            setState(() {
+                                              _showAnimals = true;
+                                              _showDetections = true;
+                                              _showInteractions = true;
+                                              _showAnimalsNew = true;
+                                              _showAnimalsMedium = true;
+                                              _showAnimalsOld = true;
+                                              _showDetectionsNew = true;
+                                              _showDetectionsMedium = true;
+                                              _showDetectionsOld = true;
+                                              _showInteractionsNew = true;
+                                              _showInteractionsMedium = true;
+                                              _showInteractionsOld = true;
+                                            });
                                           });
-                                        });
-                                      },
-                                      child: const Text('Reset All'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.darkGreen,
-                                        foregroundColor: Colors.white,
+                                        },
+                                        child: const Text('Reset All'),
                                       ),
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Apply'),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.darkGreen,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Apply'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
