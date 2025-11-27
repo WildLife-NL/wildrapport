@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 
 class CustomTimePickerDialog extends StatefulWidget {
   final TimeOfDay initialTime;
@@ -232,7 +233,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       style: TextStyle(
-                        fontSize: responsive.fontSize(32),
+                        fontSize: responsive.fontSize(12), // smaller font
                         fontWeight: FontWeight.bold,
                         color:
                             _errorMessage != null
@@ -263,7 +264,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                       '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: responsive.fontSize(32),
+                        fontSize: responsive.fontSize(12), // smaller font
                         fontWeight: FontWeight.bold,
                         color:
                             _errorMessage != null
@@ -435,20 +436,21 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           child: Text('Annuleren', style: TextStyle(color: AppColors.darkGreen)),
         ),
         SizedBox(width: responsive.spacing(8)),
-        ElevatedButton(
-          onPressed:
-              () => Navigator.of(
-                context,
-              ).pop(TimeOfDay(hour: _selectedHour, minute: _selectedMinute)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.darkGreen,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(responsive.sp(2)),
+        SizedBox(
+          height: responsive.spacing(48),
+          child: WhiteBulkButton(
+            text: 'Bevestigen',
+            showIcon: false,
+            backgroundColor: AppColors.lightMintGreen100,
+            borderColor: AppColors.brown,
+            textStyle: TextStyle(
+              fontFamily: 'Roboto',
+              color: Colors.black,
+              fontSize: responsive.fontSize(12),
+              fontWeight: FontWeight.w600,
             ),
-          ),
-          child: const Text(
-            'Bevestigen',
-            style: TextStyle(color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(TimeOfDay(hour: _selectedHour, minute: _selectedMinute)),
+            showShadow: false,
           ),
         ),
       ],
