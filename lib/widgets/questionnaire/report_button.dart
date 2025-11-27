@@ -95,8 +95,8 @@ class _ReportButtonState extends State<ReportButton> {
                                 : Image.asset(
                                     widget.image!,
                                     fit: BoxFit.contain,
-                                    width: iconSize,
-                                    height: iconSize,
+                                    width: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
+                                    height: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
                                     // tint the image white on hover/press; requires monochrome/transparent PNGs
                                     color: (_isPressed || _isHovered) ? Colors.white : null,
                                     colorBlendMode: BlendMode.srcIn,
