@@ -67,7 +67,13 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   
   void _checkIfNumericRange() {
     final format = widget.question.openResponseFormat;
+    debugPrint('[QuestionnaireOpenResponse] Checking numeric range for question: ${widget.question.text}');
+    debugPrint('[QuestionnaireOpenResponse] openResponseFormat: "$format"');
+    debugPrint('[QuestionnaireOpenResponse] allowOpenResponse: ${widget.question.allowOpenResponse}');
+    debugPrint('[QuestionnaireOpenResponse] answers count: ${widget.question.answers?.length ?? 0}');
+    
     if (format == null || format.isEmpty) {
+      debugPrint('[QuestionnaireOpenResponse] No format specified, not a numeric range');
       _isNumericRange = false;
       return;
     }
@@ -82,6 +88,8 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       _minValue = int.parse(match.group(1)!);
       _maxValue = int.parse(match.group(2)!);
       
+      debugPrint('[QuestionnaireOpenResponse] ✅ Detected numeric range: $_minValue to $_maxValue');
+      
       // Ensure min is less than max
       if (_minValue > _maxValue) {
         final temp = _minValue;
@@ -91,6 +99,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       
       _sliderValue = _minValue.toDouble();
     } else {
+      debugPrint('[QuestionnaireOpenResponse] ❌ Format "$format" does not match numeric range pattern');
       _isNumericRange = false;
     }
   }

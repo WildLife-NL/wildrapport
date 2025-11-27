@@ -15,7 +15,6 @@ import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'dart:async';
-import 'dart:math' as math;
 import 'dart:convert';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
@@ -221,30 +220,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   Future<void> _fetchAllForView() async {
     final map = context.read<MapProvider>();
-    final camera = map.mapController.camera;
-    final center = camera.center;
-    final zoom = camera.zoom;
-
-    final widthPx = MediaQuery.of(context).size.width;
-    final metersPerPixel =
-        156543.03392 *
-        math.cos(center.latitude * math.pi / 180.0) /
-        math.pow(2.0, zoom);
-    final radius = ((widthPx / 2) * metersPerPixel).round().clamp(1000, 30000);
-
-    final now = DateTime.now().toUtc();
-    final after = now.subtract(const Duration(days: 30));
-
-    await map.loadAllPinsForView(
-      lat: center.latitude,
-      lon: center.longitude,
-      radiusMeters: radius,
-      after: after,
-      before: now,
-    );
+    
+    debugPrint('[Map] Fetching data from vicinity endpoint');
+    
+    await map.loadAllPinsFromVicinity();
 
     debugPrint(
-      '[Map] initial totals  animals=${map.animalPins.length} '
+      '[Map] vicinity totals  animals=${map.animalPins.length} '
       'detections=${map.detectionPins.length} interactions=${map.interactions.length} '
       'total=${map.totalPins}',
     );
@@ -347,14 +329,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           _initialZoom,
         );
 
-        final now = DateTime.now().toUtc();
-        await map.loadAllPinsForView(
-          lat: pos.latitude,
-          lon: pos.longitude,
-          radiusMeters: 5000, // start fairly wide
-          after: now.subtract(const Duration(days: 31)),
-          before: now,
-        );
+        debugPrint('[Bootstrap] Loading data from vicinity endpoint');
+        await map.loadAllPinsFromVicinity();
 
         debugPrint(
           '[Map] initial totals  '
@@ -473,7 +449,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     bool showMedium,
     bool showOld,
   ) {
-    if (!showType) return false;
+    if (!showType) {
+      debugPrint('[Filter] Type hidden: showType=$showType');
+      return false;
+    }
 
     final now = DateTime.now();
     final age = now.difference(timestamp);

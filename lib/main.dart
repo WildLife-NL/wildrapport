@@ -9,8 +9,7 @@ import 'package:wildrapport/data_managers/interaction_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
-import 'package:wildrapport/data_managers/animals_api.dart';
-import 'package:wildrapport/data_managers/detections_api.dart';
+import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
@@ -54,10 +53,7 @@ import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
-import 'package:wildrapport/data_managers/interaction_query_api.dart';
-import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
-import 'package:wildrapport/managers/api_managers/animal_pins_manager.dart';
-import 'package:wildrapport/managers/api_managers/detection_pins_manager.dart';
+
 import 'package:wildrapport/data_managers/interaction_types_api.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 
@@ -81,10 +77,6 @@ void main() async {
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
   final appConfig = AppConfig(apiClient);
 
-  final geoApiClient = ApiClient(
-    'https://test-api-geo-prd-wildlifenl.apps.cl01.cp.its.uu.nl',
-  );
-
   final authApi = AuthApi(apiClient);
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
@@ -92,11 +84,8 @@ void main() async {
   final questionnaireAPI = QuestionaireApi(apiClient);
   final responseAPI = ResponseApi(apiClient);
   final belongingApi = BelongingApi(apiClient);
-  final animalsApi = AnimalsApi(apiClient);
-  final detectionsApi = DetectionsApi(apiClient);
+  final vicinityApi = VicinityApi(apiClient);
 
-  final animalPinsManager = AnimalPinsManager(animalsApi);
-  final detectionPinsManager = DetectionPinsManager(detectionsApi);
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
@@ -107,11 +96,7 @@ void main() async {
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
 
-  final interactionQueryApi = InteractionQueryApi(geoApiClient);
-  final interactionQueryManager = InteractionQueryManager(interactionQueryApi);
-  mapProvider.setInteractionsManager(interactionQueryManager);
-  mapProvider.setDetectionPinsManager(detectionPinsManager);
-  mapProvider.setAnimalPinsManager(animalPinsManager);
+  mapProvider.setVicinityApi(vicinityApi);
 
   // Interaction types: fetch/display names for UI
   final interactionTypesApi = InteractionTypesApi(apiClient);
