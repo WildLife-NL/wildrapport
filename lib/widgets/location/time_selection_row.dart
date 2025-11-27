@@ -367,7 +367,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                                   ? Colors.black
                                   : Colors.black.withValues(alpha: 0.7),
                           fontFamily: 'Roboto',
-                          fontSize: context.responsive.fontSize(18),
+                          fontSize: context.responsive.fontSize(14), // Reduced from 18 to 14
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
