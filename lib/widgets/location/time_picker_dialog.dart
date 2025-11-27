@@ -263,7 +263,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                       '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: responsive.fontSize(32),
                         fontWeight: FontWeight.bold,
                         color:
                             _errorMessage != null
@@ -278,7 +278,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               _errorMessage!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
+              style: TextStyle(color: Colors.red, fontSize: responsive.fontSize(12)),
             ),
           ),
       ],
