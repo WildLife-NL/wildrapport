@@ -113,7 +113,7 @@ class QuestionnaireHome extends StatelessWidget {
         // Small close button in top-right corner
         Positioned(
           top: responsive.hp(2),
-          right: responsive.wp(4),
+          right: responsive.wp(2),
           child: IconButton(
             onPressed: () {
               Navigator.push(
