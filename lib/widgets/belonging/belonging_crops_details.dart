@@ -364,14 +364,12 @@ Padding(
                                 LayoutBuilder(
                                   builder: (context, constraints) {
                                     final screenWidth = MediaQuery.of(context).size.width;
-                                    final useAbbreviation = screenWidth < 400;
-                                    
+                                    final double fontSize = screenWidth < 400 ? 9.0 : 12.0;
                                     return InkWell(
                                       onTap: () {
                                         belongingDamageReportProvider.updateSelectedText('eenheden');
                                         _belongingDamageReportManager.updateImpactedAreaType('units');
                                         belongingDamageReportProvider.setErrorState('impactedAreaType', false);
-                                        
                                         final txt = _impactValueController.text;
                                         if (txt.isNotEmpty) {
                                           final intRegex = RegExp(r'^\d+$');
@@ -392,13 +390,13 @@ Padding(
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          useAbbreviation ? 'een' : 'eenheden',
+                                          'eenheden',
                                           style: TextStyle(
                                             color: belongingDamageReportProvider.impactedAreaType == 'units'
                                                 ? Colors.white
                                                 : Colors.black,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ),
