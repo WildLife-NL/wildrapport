@@ -138,8 +138,22 @@ Future<void> _verifyCode() async {
 
   Widget _buildTextField(int index) {
     final responsive = context.responsive;
+    final boxWidth = responsive.breakpointValue<double>(
+      small: responsive.wp(13),
+      medium: responsive.wp(12),
+      large: responsive.wp(11),
+      extraLarge: responsive.wp(10),
+    );
+    final fontSize = responsive.breakpointValue<double>(
+      small: responsive.fontSize(20),
+      medium: responsive.fontSize(22),
+      large: responsive.fontSize(24),
+      extraLarge: responsive.fontSize(24),
+    );
+    
     return Container(
-      width: responsive.wp(11),
+      width: boxWidth,
+      height: boxWidth * 1.2,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(responsive.sp(1.5)),
         color:
@@ -178,6 +192,11 @@ Future<void> _verifyCode() async {
           focusNode: focusNodes[index],
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
           inputFormatters: [
             LengthLimitingTextInputFormatter(1),
             FilteringTextInputFormatter.digitsOnly,
@@ -188,6 +207,7 @@ Future<void> _verifyCode() async {
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
           ),
           onChanged: (value) {
             if (isError) {
