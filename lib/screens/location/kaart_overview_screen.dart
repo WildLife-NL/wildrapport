@@ -13,6 +13,7 @@ import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -781,26 +782,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  /// Helper to build a scrollable bottom sheet that won't overflow
-  Widget _buildBottomSheet(List<Widget> children) {
-    return Container(
-      width: double.infinity,
-      constraints: BoxConstraints(
-        maxWidth: 400,
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: children,
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1431,160 +1412,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 onTap: () {
                                                   showDialog(
                                                     context: context,
-                                                    builder:
-                                                        (_) => Dialog(
-                                                          child: _buildBottomSheet([
-                                                            // Centered icon (use animal icon when available)
-                                                            if (_getAnimalIconPath(
-                                                                  itx.speciesName,
-                                                                ) !=
-                                                                null)
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      bottom:
-                                                                          12,
-                                                                    ),
-                                                                child: Center(
-                                                                  child: Image.asset(
-                                                                    _getAnimalIconPath(
-                                                                      itx.speciesName,
-                                                                    )!,
-                                                                    width: 80,
-                                                                    height: 80,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .contain,
-                                                                    errorBuilder: (
-                                                                      context,
-                                                                      error,
-                                                                      stackTrace,
-                                                                    ) {
-                                                                      return const Icon(
-                                                                        Icons
-                                                                            .place,
-                                                                        size:
-                                                                            64,
-                                                                        color:
-                                                                            AppColors.darkGreen,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            else
-                                                              const Padding(
-                                                                padding:
-                                                                    EdgeInsets.only(
-                                                                      bottom:
-                                                                          12,
-                                                                    ),
-                                                                child: Center(
-                                                                  child: Icon(
-                                                                    Icons.place,
-                                                                    size: 64,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                ),
-                                                              ),
-
-                                                            // Title (species or interaction type)
-                                                            Text(
-                                                              itx.speciesName ??
-                                                                  itx.typeName ??
-                                                                  'Interactie',
-                                                              style: const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 6,
-                                                            ),
-
-                                                            // Date
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    itx.moment
-                                                                        .toLocal();
-                                                                final dateStr =
-                                                                    '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Date: $dateStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 4,
-                                                            ),
-
-                                                            // Time
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    itx.moment
-                                                                        .toLocal();
-                                                                final timeStr =
-                                                                    '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Time: $timeStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-
-                                                            // Location
-                                                            Text(
-                                                              'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                              style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ]),
-                                                        ),
+                                                    builder: (_) => AnimalDetailDialog(
+                                                      animal: itx.toAnimalPin(),
+                                                      animalIconPath: _getAnimalIconPath(itx.speciesName),
+                                                    ),
                                                   );
                                                 },
                                                 child: Builder(
@@ -1654,7 +1485,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         // ── Filter button ───────────────────────────────────────────────────────────
                         Positioned(
                           right: 16,
-                          bottom: 80,
+                          bottom: 140, // moved up to avoid overlap
                           child: FloatingActionButton(
                             heroTag: 'filter_btn',
                             backgroundColor: AppColors.darkGreen,
