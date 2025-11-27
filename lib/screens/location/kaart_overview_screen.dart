@@ -547,21 +547,45 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           children: [
                             const Icon(Icons.filter_list, color: Colors.white),
                             const SizedBox(width: 12),
-                            const Text(
-                              'Filter Map Icons',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final screenWidth = MediaQuery.of(context).size.width;
+                                  double fontSize = 20;
+                                  double iconSize = 24;
+                                  if (screenWidth < 350) {
+                                    fontSize = 16;
+                                    iconSize = 18;
+                                  } else if (screenWidth < 420) {
+                                    fontSize = 14;
+                                    iconSize = 14;
+                                  }
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Filter Map Icons',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: fontSize,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: iconSize,
+                                        ),
+                                        tooltip: 'Toepassen',
+                                        onPressed: () => Navigator.pop(context),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                            ),
-                            const Spacer(),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => Navigator.pop(context),
                             ),
                           ],
                         ),
@@ -692,8 +716,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                                 const SizedBox(height: 16),
 
-                                // Reset and Apply buttons
+                                // Centered Reset button only
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Expanded(
                                       child: OutlinedButton(
@@ -716,17 +741,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           });
                                         },
                                         child: const Text('Reset All'),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.darkGreen,
-                                          foregroundColor: Colors.white,
-                                        ),
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Apply'),
                                       ),
                                     ),
                                   ],
