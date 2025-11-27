@@ -37,6 +37,7 @@ class KaartOverviewScreen extends StatefulWidget {
 
 class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     with TickerProviderStateMixin {
+  late final fm.MapOptions _mapOptions;
   final _location = LocationMapManager();
 
   // cache things we must clean up
@@ -75,6 +76,59 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _mp = context.read<MapProvider>();
+
+    _mapOptions = fm.MapOptions(
+      initialCenter: LatLng(_mp.currentPosition?.latitude ?? 0, _mp.currentPosition?.longitude ?? 0),
+      initialZoom: _initialZoom,
+      onMapReady: () {
+        debugPrint('[Map] ready');
+      },
+      interactionOptions: const fm.InteractionOptions(
+        flags:
+            fm.InteractiveFlag.drag |
+            fm.InteractiveFlag.pinchZoom |
+            fm.InteractiveFlag.doubleTapZoom |
+            fm.InteractiveFlag.scrollWheelZoom |
+            fm.InteractiveFlag.flingAnimation |
+            fm.InteractiveFlag.pinchMove |
+            fm.InteractiveFlag.rotate, // Enable rotation
+      ),
+      onMapEvent: (evt) {
+        final mp = context.read<MapProvider>();
+        final currentZoom = mp.mapController.camera.zoom;
+        final isProgrammatic = evt.source == fm.MapEventSource.mapController;
+
+        // Stop following only on user gestures
+        if (!isProgrammatic &&
+            (evt is fm.MapEventMoveStart || evt is fm.MapEventMove)) {
+          if (_followUser) _followUser = false; // no setState needed
+        }
+
+        // Handle zoom changes only for user gestures
+        if (!isProgrammatic && _lastZoom != currentZoom) {
+          _lastZoom = currentZoom;
+          _queueFetch();
+          final next = currentZoom < _clusterUntilZoom;
+          if (next != _useClusters && mounted) {
+            setState(() => _useClusters = next);
+          }
+          // Recenter only if following AND tracking is enabled (still user-driven)
+          final p = mp.currentPosition ?? mp.selectedPosition;
+          final appStateProvider = context.read<AppStateProvider>();
+          if (_followUser && appStateProvider.isLocationTrackingEnabled && p != null) {
+            mp.mapController.move(
+              LatLng(p.latitude, p.longitude),
+              currentZoom,
+            );
+          }
+        }
+
+        // Only fetch after a user pan ends
+        if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
+          _queueFetch();
+        }
+      },
+    );
 
     _mpListener ??= () {
       debugPrint('[Kaart] 📨 Listener triggered');
@@ -841,68 +895,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                       children: [
                         fm.FlutterMap(
                           mapController: map.mapController,
-                          options: fm.MapOptions(
-                            initialCenter: LatLng(pos.latitude, pos.longitude),
-                            initialZoom: _initialZoom,
-                            onMapReady: () {
-                              debugPrint('[Map] ready');
-                            },
-
-                            interactionOptions: const fm.InteractionOptions(
-                              flags:
-                                  fm.InteractiveFlag.drag |
-                                  fm.InteractiveFlag.pinchZoom |
-                                  fm.InteractiveFlag.doubleTapZoom |
-                                  fm.InteractiveFlag.scrollWheelZoom |
-                                  fm.InteractiveFlag.flingAnimation |
-                                  fm.InteractiveFlag.pinchMove |
-                                  fm.InteractiveFlag.rotate, // Enable rotation
-                            ),
-
-                            onMapEvent: (evt) {
-                              final mp = context.read<MapProvider>();
-                              final currentZoom = mp.mapController.camera.zoom;
-                              final isProgrammatic =
-                                  evt.source == fm.MapEventSource.mapController;
-
-                              // Stop following only on user gestures
-                              if (!isProgrammatic &&
-                                  (evt is fm.MapEventMoveStart ||
-                                      evt is fm.MapEventMove)) {
-                                if (_followUser)
-                                  _followUser = false; // no setState needed
-                              }
-
-                              // Handle zoom changes only for user gestures
-                              if (!isProgrammatic && _lastZoom != currentZoom) {
-                                _lastZoom = currentZoom;
-
-                                _queueFetch();
-
-                                final next = currentZoom < _clusterUntilZoom;
-                                if (next != _useClusters && mounted) {
-                                  setState(() => _useClusters = next);
-                                }
-
-                                // Recenter only if following AND tracking is enabled (still user-driven)
-                                final p =
-                                    mp.currentPosition ?? mp.selectedPosition;
-                                final appStateProvider = context.read<AppStateProvider>();
-                                if (_followUser && appStateProvider.isLocationTrackingEnabled && p != null) {
-                                  mp.mapController.move(
-                                    LatLng(p.latitude, p.longitude),
-                                    currentZoom,
-                                  );
-                                }
-                              }
-
-                              // Only fetch after a user pan ends
-                              if (!isProgrammatic &&
-                                  evt is fm.MapEventMoveEnd) {
-                                _queueFetch();
-                              }
-                            },
-                          ),
+                          options: _mapOptions,
                           children: [
                                                     // ── ROTATE BUTTON ─────────────────────────────
                                                     Positioned(

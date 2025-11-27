@@ -364,7 +364,7 @@ Padding(
                                 LayoutBuilder(
                                   builder: (context, constraints) {
                                     final screenWidth = MediaQuery.of(context).size.width;
-                                    final double fontSize = screenWidth < 400 ? 9.0 : 12.0;
+                                    final double fontSize = screenWidth < 400 ? 12.0 : 12.0;
                                     return InkWell(
                                       onTap: () {
                                         belongingDamageReportProvider.updateSelectedText('eenheden');
