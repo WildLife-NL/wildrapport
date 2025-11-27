@@ -27,6 +27,68 @@ class AnimalListTableState extends State<AnimalListTable> {
     return _opmerkingController.text;
   }
 
+  void clearTextFields() {
+    _opmerkingController.clear();
+    for (var controller in _controllers.values) {
+      controller.clear();
+    }
+  }
+
+  /// Completely reset all table data: description, temporary counts,
+  /// underlying animal view counts in the active sighting.
+  void clearAllData() {
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    final currentSighting =
+        animalSightingManager.getCurrentanimalSighting();
+
+    // Reset description in manager and controller
+    _opmerkingController.clear();
+    animalSightingManager.updateDescription('');
+
+    // Clear temp counts and controllers
+    _tempCounts.clear();
+    for (var controller in _controllers.values) {
+      controller.clear();
+    }
+
+    // Reset all animal view counts to zero
+    if (currentSighting?.animals != null) {
+      for (var animal in currentSighting!.animals!) {
+        final zeroViewCount = ViewCountModel(
+          pasGeborenAmount: 0,
+          onvolwassenAmount: 0,
+          volwassenAmount: 0,
+          unknownAmount: 0,
+        );
+        final updatedAnimal = AnimalModel(
+          animalId: animal.animalId,
+          animalImagePath: animal.animalImagePath,
+          animalName: animal.animalName,
+          genderViewCounts: [
+            AnimalGenderViewCount(
+              gender: animal.gender ?? AnimalGender.onbekend,
+              viewCount: zeroViewCount,
+            ),
+          ],
+          condition: animal.condition,
+        );
+        animalSightingManager.updateAnimal(updatedAnimal);
+      }
+    }
+
+    setState(() {});
+  }
+
+  /// Clear only the remarks (Opmerkingen) field and manager description, keep counts intact.
+  void clearRemarksOnly() {
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    _opmerkingController.clear();
+    animalSightingManager.updateDescription('');
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -462,6 +524,8 @@ class AnimalListTableState extends State<AnimalListTable> {
                 _isEditing
                     ? TextFormField(
                       controller: _getController(age, gender),
+                      minLines: 1,
+                      maxLines: null,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
@@ -521,7 +585,9 @@ class AnimalListTableState extends State<AnimalListTable> {
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            height: 150,
+            // Removed fixed height so the field can expand as user types.
+            // Constrain only the minimum height to keep initial single-line appearance.
+            constraints: const BoxConstraints(minHeight: 52),
             decoration: BoxDecoration(
               color: AppColors.offWhite,
               borderRadius: BorderRadius.circular(25),
@@ -536,6 +602,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _opmerkingController,
+                  minLines: 1,
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,

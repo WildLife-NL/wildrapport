@@ -247,7 +247,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             });
           },
           minLines: 1,
-          maxLines: 10,
+          maxLines: null,
           decoration: InputDecoration(
             hintText: 'Schrijf hier uw antwoord...',
             border: OutlineInputBorder(

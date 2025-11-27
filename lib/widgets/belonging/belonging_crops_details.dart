@@ -168,6 +168,8 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                       TextField(
                         key: const Key('belonging-field'),
                         controller: _belongingController,
+                        minLines: 1,
+                        maxLines: null,
                         onChanged: (value) {
                           _belongingDamageReportManager.updateImpactedCrop(value);
                           belongingDamageReportProvider.setErrorState(
@@ -242,6 +244,8 @@ Padding(
                             child: TextField(
                               key: const Key('area-value'),
                               controller: _impactValueController,
+                              minLines: 1,
+                              maxLines: null,
                               keyboardType: const TextInputType.numberWithOptions(decimal: false),
                               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               decoration: InputDecoration(
@@ -431,6 +435,8 @@ Padding(
                         child: TextField(
                           key: const Key('estimated-damage'),
                           controller: _currentDamageController,
+                          minLines: 1,
+                          maxLines: null,
                           onChanged: (value) {
                             if (value.isEmpty) {
                               _belongingDamageReportManager.updateCurrentDamage(0);
@@ -495,6 +501,8 @@ Padding(
                         child: TextField(
                           key: const Key('estimated-future-damage'),
                           controller: _expectedDamageController,
+                          minLines: 1,
+                          maxLines: null,
                           onChanged: (value) {
                             if (value.isEmpty) {
                               _belongingDamageReportManager.updateExpectedDamage(0);
@@ -554,7 +562,8 @@ Padding(
                       onChanged:
                           (val) => _belongingDamageReportManager
                               .updateDescription(val),
-                      maxLines: 5,
+                      minLines: 1,
+                      maxLines: null,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
