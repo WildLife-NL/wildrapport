@@ -415,13 +415,41 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     required int count,
     required Color color,
   }) {
-    // circular icon with a small count badge
+    final screenWidth = MediaQuery.of(context).size.width;
+    double size;
+    double iconSize;
+    double badgeFontSize;
+    double badgePadH;
+    double badgePadV;
+    double badgeOffset;
+    if (screenWidth < 400) {
+      size = 30;
+      iconSize = 16;
+      badgeFontSize = 9;
+      badgePadH = 4;
+      badgePadV = 1.5;
+      badgeOffset = -4;
+    } else if (screenWidth < 700) {
+      size = 36;
+      iconSize = 19;
+      badgeFontSize = 11;
+      badgePadH = 5;
+      badgePadV = 2;
+      badgeOffset = -5;
+    } else {
+      size = 42;
+      iconSize = 22;
+      badgeFontSize = 12;
+      badgePadH = 6;
+      badgePadV = 2;
+      badgeOffset = -6;
+    }
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: color.withOpacity(0.95),
             shape: BoxShape.circle,
@@ -435,22 +463,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             ],
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: 22, color: Colors.white),
+          child: Icon(icon, size: iconSize, color: Colors.white),
         ),
         Positioned(
-          right: -6,
-          top: -6,
+          right: badgeOffset,
+          top: badgeOffset,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: badgePadH, vertical: badgePadV),
             decoration: BoxDecoration(
               color: Colors.black87,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '$count',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: badgeFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
