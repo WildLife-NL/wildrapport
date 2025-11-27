@@ -388,9 +388,8 @@ class AnimalListTableState extends State<AnimalListTable> {
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Container(
             height: 50.0,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
+            // Removed per-cell border to prevent double thick lines (TableBorder already draws grid)
+            decoration: const BoxDecoration(color: Colors.white),
             child: const Padding(
               padding: EdgeInsets.all(5.0),
               child: Center(
@@ -429,9 +428,8 @@ class AnimalListTableState extends State<AnimalListTable> {
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Container(
         height: 50.0,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 1),
-        ),
+        // Removed per-cell border to avoid doubled lines
+        decoration: const BoxDecoration(color: Colors.white),
         child: Center(
           child: Text(
             icon,
@@ -480,9 +478,8 @@ class AnimalListTableState extends State<AnimalListTable> {
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
           child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
+            // Removed per-cell border (grid handled by TableBorder)
+            decoration: const BoxDecoration(color: Colors.white),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(
@@ -514,9 +511,8 @@ class AnimalListTableState extends State<AnimalListTable> {
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Container(
         height: 50.0,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 1),
-        ),
+        // Removed per-cell border (TableBorder provides lines)
+        decoration: const BoxDecoration(color: Colors.white),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
