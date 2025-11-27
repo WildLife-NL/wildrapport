@@ -874,7 +874,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   fm.InteractiveFlag.doubleTapZoom |
                                   fm.InteractiveFlag.scrollWheelZoom |
                                   fm.InteractiveFlag.flingAnimation |
-                                  fm.InteractiveFlag.pinchMove,
+                                  fm.InteractiveFlag.pinchMove |
+                                  fm.InteractiveFlag.rotate, // Enable rotation
                             ),
 
                             onMapEvent: (evt) {
@@ -922,6 +923,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             },
                           ),
                           children: [
+                                                    // ── ROTATE BUTTON ─────────────────────────────
+                                                    Positioned(
+                                                      top: 16,
+                                                      right: 16,
+                                                      child: FloatingActionButton(
+                                                        heroTag: 'rotate_map',
+                                                        mini: true,
+                                                        backgroundColor: Colors.white,
+                                                        child: const Icon(Icons.explore, color: Colors.black),
+                                                        tooltip: 'Reset map rotation',
+                                                        onPressed: () {
+                                                          // Reset map rotation to north (0 degrees)
+                                                          map.mapController.rotate(0);
+                                                        },
+                                                      ),
+                                                    ),
                             fm.TileLayer(
                               urlTemplate: LocationMapManager.standardTileUrl,
                               userAgentPackageName: 'com.wildrapport.app',
