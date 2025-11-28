@@ -204,6 +204,9 @@ class _LocationScreenState extends State<LocationScreen> {
                   navigationManager.pushReplacementBack(context, const CollisionDetailsScreen());
                 } else {
                   // For other flows, go back to animal list overview
+                  // Clear remarks before returning to overview
+                  final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+                  animalSightingManager.updateDescription('');
                   navigationManager.pushReplacementBack(context, AnimalListOverviewScreen());
                 }
               },
@@ -228,6 +231,9 @@ class _LocationScreenState extends State<LocationScreen> {
             navigationManager.pushReplacementBack(context, const CollisionDetailsScreen());
           } else {
             // For other flows, go back to animal list overview
+            // Clear remarks before returning to overview
+            final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+            animalSightingManager.updateDescription('');
             navigationManager.pushReplacementBack(context, AnimalListOverviewScreen());
           }
         },

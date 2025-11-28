@@ -88,107 +88,120 @@ class _OverzichtScreenState extends State<OverzichtScreen>
         backgroundColor: AppColors.lightMintGreen,
         body: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TopContainer(
-                      userName: userName,
-                      height: topContainerHeight,
-                      welcomeFontSize: welcomeFontSize,
-                      usernameFontSize: usernameFontSize,
-                    ),
-                    SafeArea(
-                      top: false,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: spacing / 2,
-                          horizontal: spacing,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(height: spacing * 3.8),
-                            ActionButtons(
-                              buttons: [
-                                (
-                                  text: 'Kaart',
-                                  icon: Icons.map,
-                                  imagePath: null,
-                                  key: Key('rapporten_kaart_button'),
-                                  onPressed: () {
-                                    context
-                                        .read<NavigationStateInterface>()
-                                        .pushReplacementForward(
-                                          context,
-                                          const KaartOverviewScreen(),
-                                        );
-                                  },
-                                ),
+            final double estimatedContentHeight =
+                (screenSize.height * 0.4).clamp(180.0, 300.0) + // TopContainer
+                (screenSize.height * 0.02).clamp(8.0, 24.0) * 3.8 + // SizedBox
+                (screenSize.height * 0.08).clamp(48.0, 64.0) + // ActionButtons (approx)
+                (screenSize.height * 0.02).clamp(8.0, 24.0) * 1.5 + // SizedBox
+                48.0; // Padding and other elements
 
-                                (
-                                  text: reportButtonLabel,
-                                  icon: Icons.edit_note,
-                                  imagePath: null,
-                                  key: Key('rapporteren_button'),
-                                  onPressed: () {
-                                    try {
-                                      navigationManager.pushReplacementForward(
-                                        context,
-                                        const Rapporteren(),
-                                      );
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Er is een fout opgetreden bij het navigeren',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
+            final bool shouldScroll = estimatedContentHeight > constraints.maxHeight;
 
-                                (
-                                  text: 'Logboek',
-                                  icon: Icons.description,
-                                  imagePath: null,
-                                  key: Key('logboek_button'),
-                                  onPressed: () {
-                                    ToastNotificationHandler.sendToastNotification(
-                                      context,
-                                      "Deze functie is nog niet toegevoegd",
-                                      2,
-                                    );
-                                  },
-                                ),
-
-                                (
-                                  text: 'Uitloggen',
-                                  icon: Icons.logout,
-                                  imagePath: null,
-                                  key: Key('uitloggen_button'),
-                                  onPressed: () {
-                                    context.read<AppStateProvider>().logout();
-                                  },
-                                ),
-                              ],
-                              iconSize: iconSize,
-                              verticalPadding: spacing / 2,
-                              horizontalPadding: spacing,
-                              buttonSpacing: spacing * 3,
-                              buttonHeight: buttonHeight,
-                              buttonFontSize: buttonFontSize,
-                            ),
-                            SizedBox(height: spacing * 1.5),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+            final content = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TopContainer(
+                  userName: userName,
+                  height: topContainerHeight,
+                  welcomeFontSize: welcomeFontSize,
+                  usernameFontSize: usernameFontSize,
                 ),
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: spacing / 2,
+                      horizontal: spacing,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: spacing * 3.8),
+                        ActionButtons(
+                          buttons: [
+                            (
+                              text: 'Kaart',
+                              icon: Icons.map,
+                              imagePath: null,
+                              key: Key('rapporten_kaart_button'),
+                              onPressed: () {
+                                context
+                                    .read<NavigationStateInterface>()
+                                    .pushReplacementForward(
+                                      context,
+                                      const KaartOverviewScreen(),
+                                    );
+                              },
+                            ),
+                            (
+                              text: reportButtonLabel,
+                              icon: Icons.edit_note,
+                              imagePath: null,
+                              key: Key('rapporteren_button'),
+                              onPressed: () {
+                                try {
+                                  navigationManager.pushReplacementForward(
+                                    context,
+                                    const Rapporteren(),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Er is een fout opgetreden bij het navigeren',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            (
+                              text: 'Logboek',
+                              icon: Icons.description,
+                              imagePath: null,
+                              key: Key('logboek_button'),
+                              onPressed: () {
+                                ToastNotificationHandler.sendToastNotification(
+                                  context,
+                                  "Deze functie is nog niet toegevoegd",
+                                  2,
+                                );
+                              },
+                            ),
+                            (
+                              text: 'Uitloggen',
+                              icon: Icons.logout,
+                              imagePath: null,
+                              key: Key('uitloggen_button'),
+                              onPressed: () {
+                                context.read<AppStateProvider>().logout();
+                              },
+                            ),
+                          ],
+                          iconSize: iconSize,
+                          verticalPadding: spacing / 2,
+                          horizontalPadding: spacing,
+                          buttonSpacing: spacing * 3,
+                          buttonHeight: buttonHeight,
+                          buttonFontSize: buttonFontSize,
+                        ),
+                        SizedBox(height: spacing * 1.5),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+
+            return SingleChildScrollView(
+              physics: shouldScroll
+                  ? const AlwaysScrollableScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: content,
               ),
             );
           },

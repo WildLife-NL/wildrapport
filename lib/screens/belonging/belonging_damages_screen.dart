@@ -136,11 +136,19 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
 
   void previousScreen() {
     if (currentIndex > 0) {
+      // When navigating back to the first page, clear all entered values so the form restarts
+      if (currentIndex == 1) {
+        final provider = Provider.of<BelongingDamageReportProvider>(
+          context,
+          listen: false,
+        );
+        provider.clearStateOfValues();
+        provider.resetErrors();
+      }
       setState(() {
         currentIndex--;
       });
-    }
-    else{
+    } else {
       final provider = Provider.of<BelongingDamageReportProvider>(
         context,
         listen: false,

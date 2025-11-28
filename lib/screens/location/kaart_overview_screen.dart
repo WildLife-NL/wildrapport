@@ -13,6 +13,7 @@ import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -35,6 +36,7 @@ class KaartOverviewScreen extends StatefulWidget {
 
 class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     with TickerProviderStateMixin {
+  late final fm.MapOptions _mapOptions;
   final _location = LocationMapManager();
 
   // cache things we must clean up
@@ -73,6 +75,59 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _mp = context.read<MapProvider>();
+
+    _mapOptions = fm.MapOptions(
+      initialCenter: LatLng(_mp.currentPosition?.latitude ?? 0, _mp.currentPosition?.longitude ?? 0),
+      initialZoom: _initialZoom,
+      onMapReady: () {
+        debugPrint('[Map] ready');
+      },
+      interactionOptions: const fm.InteractionOptions(
+        flags:
+            fm.InteractiveFlag.drag |
+            fm.InteractiveFlag.pinchZoom |
+            fm.InteractiveFlag.doubleTapZoom |
+            fm.InteractiveFlag.scrollWheelZoom |
+            fm.InteractiveFlag.flingAnimation |
+            fm.InteractiveFlag.pinchMove |
+            fm.InteractiveFlag.rotate, // Enable rotation
+      ),
+      onMapEvent: (evt) {
+        final mp = context.read<MapProvider>();
+        final currentZoom = mp.mapController.camera.zoom;
+        final isProgrammatic = evt.source == fm.MapEventSource.mapController;
+
+        // Stop following only on user gestures
+        if (!isProgrammatic &&
+            (evt is fm.MapEventMoveStart || evt is fm.MapEventMove)) {
+          if (_followUser) _followUser = false; // no setState needed
+        }
+
+        // Handle zoom changes only for user gestures
+        if (!isProgrammatic && _lastZoom != currentZoom) {
+          _lastZoom = currentZoom;
+          _queueFetch();
+          final next = currentZoom < _clusterUntilZoom;
+          if (next != _useClusters && mounted) {
+            setState(() => _useClusters = next);
+          }
+          // Recenter only if following AND tracking is enabled (still user-driven)
+          final p = mp.currentPosition ?? mp.selectedPosition;
+          final appStateProvider = context.read<AppStateProvider>();
+          if (_followUser && appStateProvider.isLocationTrackingEnabled && p != null) {
+            mp.mapController.move(
+              LatLng(p.latitude, p.longitude),
+              currentZoom,
+            );
+          }
+        }
+
+        // Only fetch after a user pan ends
+        if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
+          _queueFetch();
+        }
+      },
+    );
 
     _mpListener ??= () {
       debugPrint('[Kaart] 📨 Listener triggered');
@@ -391,13 +446,41 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     required int count,
     required Color color,
   }) {
-    // circular icon with a small count badge
+    final screenWidth = MediaQuery.of(context).size.width;
+    double size;
+    double iconSize;
+    double badgeFontSize;
+    double badgePadH;
+    double badgePadV;
+    double badgeOffset;
+    if (screenWidth < 400) {
+      size = 30;
+      iconSize = 16;
+      badgeFontSize = 9;
+      badgePadH = 4;
+      badgePadV = 1.5;
+      badgeOffset = -4;
+    } else if (screenWidth < 700) {
+      size = 36;
+      iconSize = 19;
+      badgeFontSize = 11;
+      badgePadH = 5;
+      badgePadV = 2;
+      badgeOffset = -5;
+    } else {
+      size = 42;
+      iconSize = 22;
+      badgeFontSize = 12;
+      badgePadH = 6;
+      badgePadV = 2;
+      badgeOffset = -6;
+    }
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: color.withOpacity(0.95),
             shape: BoxShape.circle,
@@ -411,22 +494,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             ],
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: 22, color: Colors.white),
+          child: Icon(icon, size: iconSize, color: Colors.white),
         ),
         Positioned(
-          right: -6,
-          top: -6,
+          right: badgeOffset,
+          top: badgeOffset,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: badgePadH, vertical: badgePadV),
             decoration: BoxDecoration(
               color: Colors.black87,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '$count',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: badgeFontSize,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -498,226 +581,206 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           children: [
                             const Icon(Icons.filter_list, color: Colors.white),
                             const SizedBox(width: 12),
-                            const Text(
-                              'Filter Map Icons',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final screenWidth = MediaQuery.of(context).size.width;
+                                  double fontSize = 20;
+                                  double iconSize = 24;
+                                  if (screenWidth < 350) {
+                                    fontSize = 16;
+                                    iconSize = 18;
+                                  } else if (screenWidth < 420) {
+                                    fontSize = 14;
+                                    iconSize = 14;
+                                  }
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Filter Map Icons',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: fontSize,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: iconSize,
+                                        ),
+                                        tooltip: 'Toepassen',
+                                        onPressed: () => Navigator.pop(context),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                            ),
-                            const Spacer(),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => Navigator.pop(context),
                             ),
                           ],
                         ),
                       ),
-
-                      // Scrollable content
+                      // Scrollable content with Scrollbar
                       Flexible(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Animals section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Dieren',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Animals section
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.pets, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Dieren',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showAnimalsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showAnimalsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showAnimalsNew,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showAnimalsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showAnimalsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showAnimalsMedium,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showAnimalsOld,
+                                  (v) => setDialogState(() => setState(() => _showAnimalsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Detections section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Detecties',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                                // Detections section
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.sensors, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Detecties',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showDetectionsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showDetectionsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showDetectionsNew,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showDetectionsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showDetectionsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showDetectionsMedium,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showDetectionsOld,
+                                  (v) => setDialogState(() => setState(() => _showDetectionsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Interactions section
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.place, size: 20, color: AppColors.darkGreen),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Interacties',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.darkGreen,
+                                // Interactions section
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.place, size: 20, color: AppColors.darkGreen),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Interacties',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.darkGreen,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildFilterCheckbox(
-                                'New (< 24 hours)',
-                                _showInteractionsNew,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsNew = v ?? true,
+                                    ],
                                   ),
                                 ),
-                                Icons.fiber_new,
-                              ),
-                              _buildFilterCheckbox(
-                                'Recent (24h - 1 week)',
-                                _showInteractionsMedium,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsMedium = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'New (< 24 hours)',
+                                  _showInteractionsNew,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsNew = v ?? true)),
+                                  Icons.fiber_new,
                                 ),
-                                Icons.access_time,
-                              ),
-                              _buildFilterCheckbox(
-                                'Old (> 1 week)',
-                                _showInteractionsOld,
-                                (v) => setDialogState(
-                                  () => setState(
-                                    () => _showInteractionsOld = v ?? true,
-                                  ),
+                                _buildFilterCheckbox(
+                                  'Recent (24h - 1 week)',
+                                  _showInteractionsMedium,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsMedium = v ?? true)),
+                                  Icons.access_time,
                                 ),
-                                Icons.history,
-                              ),
+                                _buildFilterCheckbox(
+                                  'Old (> 1 week)',
+                                  _showInteractionsOld,
+                                  (v) => setDialogState(() => setState(() => _showInteractionsOld = v ?? true)),
+                                  Icons.history,
+                                ),
 
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 16),
 
-                              // Reset and Apply buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        setDialogState(() {
-                                          setState(() {
-                                            _showAnimals = true;
-                                            _showDetections = true;
-                                            _showInteractions = true;
-                                            _showAnimalsNew = true;
-                                            _showAnimalsMedium = true;
-                                            _showAnimalsOld = true;
-                                            _showDetectionsNew = true;
-                                            _showDetectionsMedium = true;
-                                            _showDetectionsOld = true;
-                                            _showInteractionsNew = true;
-                                            _showInteractionsMedium = true;
-                                            _showInteractionsOld = true;
+                                // Centered Reset button only
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          setDialogState(() {
+                                            setState(() {
+                                              _showAnimals = true;
+                                              _showDetections = true;
+                                              _showInteractions = true;
+                                              _showAnimalsNew = true;
+                                              _showAnimalsMedium = true;
+                                              _showAnimalsOld = true;
+                                              _showDetectionsNew = true;
+                                              _showDetectionsMedium = true;
+                                              _showDetectionsOld = true;
+                                              _showInteractionsNew = true;
+                                              _showInteractionsMedium = true;
+                                              _showInteractionsOld = true;
+                                            });
                                           });
-                                        });
-                                      },
-                                      child: const Text('Reset All'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.darkGreen,
-                                        foregroundColor: Colors.white,
+                                        },
+                                        child: const Text('Reset All'),
                                       ),
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Apply'),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -752,26 +815,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  /// Helper to build a scrollable bottom sheet that won't overflow
-  Widget _buildBottomSheet(List<Widget> children) {
-    return Container(
-      width: double.infinity,
-      constraints: BoxConstraints(
-        maxWidth: 400,
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: children,
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -831,68 +874,24 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                       children: [
                         fm.FlutterMap(
                           mapController: map.mapController,
-                          options: fm.MapOptions(
-                            initialCenter: LatLng(pos.latitude, pos.longitude),
-                            initialZoom: _initialZoom,
-                            onMapReady: () {
-                              debugPrint('[Map] ready');
-                            },
-
-                            interactionOptions: const fm.InteractionOptions(
-                              flags:
-                                  fm.InteractiveFlag.drag |
-                                  fm.InteractiveFlag.pinchZoom |
-                                  fm.InteractiveFlag.doubleTapZoom |
-                                  fm.InteractiveFlag.scrollWheelZoom |
-                                  fm.InteractiveFlag.flingAnimation |
-                                  fm.InteractiveFlag.pinchMove,
-                            ),
-
-                            onMapEvent: (evt) {
-                              final mp = context.read<MapProvider>();
-                              final currentZoom = mp.mapController.camera.zoom;
-                              final isProgrammatic =
-                                  evt.source == fm.MapEventSource.mapController;
-
-                              // Stop following only on user gestures
-                              if (!isProgrammatic &&
-                                  (evt is fm.MapEventMoveStart ||
-                                      evt is fm.MapEventMove)) {
-                                if (_followUser)
-                                  _followUser = false; // no setState needed
-                              }
-
-                              // Handle zoom changes only for user gestures
-                              if (!isProgrammatic && _lastZoom != currentZoom) {
-                                _lastZoom = currentZoom;
-
-                                _queueFetch();
-
-                                final next = currentZoom < _clusterUntilZoom;
-                                if (next != _useClusters && mounted) {
-                                  setState(() => _useClusters = next);
-                                }
-
-                                // Recenter only if following AND tracking is enabled (still user-driven)
-                                final p =
-                                    mp.currentPosition ?? mp.selectedPosition;
-                                final appStateProvider = context.read<AppStateProvider>();
-                                if (_followUser && appStateProvider.isLocationTrackingEnabled && p != null) {
-                                  mp.mapController.move(
-                                    LatLng(p.latitude, p.longitude),
-                                    currentZoom,
-                                  );
-                                }
-                              }
-
-                              // Only fetch after a user pan ends
-                              if (!isProgrammatic &&
-                                  evt is fm.MapEventMoveEnd) {
-                                _queueFetch();
-                              }
-                            },
-                          ),
+                          options: _mapOptions,
                           children: [
+                                                    // ── ROTATE BUTTON ─────────────────────────────
+                                                    Positioned(
+                                                      top: 16,
+                                                      right: 16,
+                                                      child: FloatingActionButton(
+                                                        heroTag: 'rotate_map',
+                                                        mini: true,
+                                                        backgroundColor: Colors.white,
+                                                        child: const Icon(Icons.explore, color: Colors.black),
+                                                        tooltip: 'Reset map rotation',
+                                                        onPressed: () {
+                                                          // Reset map rotation to north (0 degrees)
+                                                          map.mapController.rotate(0);
+                                                        },
+                                                      ),
+                                                    ),
                             fm.TileLayer(
                               urlTemplate: LocationMapManager.standardTileUrl,
                               userAgentPackageName: 'com.wildrapport.app',
@@ -1385,160 +1384,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 onTap: () {
                                                   showDialog(
                                                     context: context,
-                                                    builder:
-                                                        (_) => Dialog(
-                                                          child: _buildBottomSheet([
-                                                            // Centered icon (use animal icon when available)
-                                                            if (_getAnimalIconPath(
-                                                                  itx.speciesName,
-                                                                ) !=
-                                                                null)
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets.only(
-                                                                      bottom:
-                                                                          12,
-                                                                    ),
-                                                                child: Center(
-                                                                  child: Image.asset(
-                                                                    _getAnimalIconPath(
-                                                                      itx.speciesName,
-                                                                    )!,
-                                                                    width: 80,
-                                                                    height: 80,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .contain,
-                                                                    errorBuilder: (
-                                                                      context,
-                                                                      error,
-                                                                      stackTrace,
-                                                                    ) {
-                                                                      return const Icon(
-                                                                        Icons
-                                                                            .place,
-                                                                        size:
-                                                                            64,
-                                                                        color:
-                                                                            AppColors.darkGreen,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            else
-                                                              const Padding(
-                                                                padding:
-                                                                    EdgeInsets.only(
-                                                                      bottom:
-                                                                          12,
-                                                                    ),
-                                                                child: Center(
-                                                                  child: Icon(
-                                                                    Icons.place,
-                                                                    size: 64,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                ),
-                                                              ),
-
-                                                            // Title (species or interaction type)
-                                                            Text(
-                                                              itx.speciesName ??
-                                                                  itx.typeName ??
-                                                                  'Interactie',
-                                                              style: const TextStyle(
-                                                                fontSize: 16,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 6,
-                                                            ),
-
-                                                            // Date
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    itx.moment
-                                                                        .toLocal();
-                                                                final dateStr =
-                                                                    '${local.year.toString().padLeft(4, '0')}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Date: $dateStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 4,
-                                                            ),
-
-                                                            // Time
-                                                            Builder(
-                                                              builder: (
-                                                                context,
-                                                              ) {
-                                                                final local =
-                                                                    itx.moment
-                                                                        .toLocal();
-                                                                final timeStr =
-                                                                    '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-                                                                return Text(
-                                                                  'Time: $timeStr',
-                                                                  style: const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        AppColors
-                                                                            .darkGreen,
-                                                                  ),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                );
-                                                              },
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 8,
-                                                            ),
-
-                                                            // Location
-                                                            Text(
-                                                              'Location: ${itx.lat.toStringAsFixed(5)}, ${itx.lon.toStringAsFixed(5)}',
-                                                              style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    AppColors
-                                                                        .darkGreen,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ]),
-                                                        ),
+                                                    builder: (_) => AnimalDetailDialog(
+                                                      animal: itx.toAnimalPin(),
+                                                      animalIconPath: _getAnimalIconPath(itx.speciesName),
+                                                    ),
                                                   );
                                                 },
                                                 child: Builder(
@@ -1608,7 +1457,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         // ── Filter button ───────────────────────────────────────────────────────────
                         Positioned(
                           right: 16,
-                          bottom: 80,
+                          bottom: 140, // moved up to avoid overlap
                           child: FloatingActionButton(
                             heroTag: 'filter_btn',
                             backgroundColor: AppColors.darkGreen,

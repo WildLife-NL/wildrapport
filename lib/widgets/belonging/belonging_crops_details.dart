@@ -168,6 +168,8 @@ if (belongingDamageReportProvider.impactedAreaType == 'hectare' &&
                       TextField(
                         key: const Key('belonging-field'),
                         controller: _belongingController,
+                        minLines: 1,
+                        maxLines: null,
                         onChanged: (value) {
                           _belongingDamageReportManager.updateImpactedCrop(value);
                           belongingDamageReportProvider.setErrorState(
@@ -242,6 +244,8 @@ Padding(
                             child: TextField(
                               key: const Key('area-value'),
                               controller: _impactValueController,
+                              minLines: 1,
+                              maxLines: null,
                               keyboardType: const TextInputType.numberWithOptions(decimal: false),
                               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                               decoration: InputDecoration(
@@ -360,14 +364,12 @@ Padding(
                                 LayoutBuilder(
                                   builder: (context, constraints) {
                                     final screenWidth = MediaQuery.of(context).size.width;
-                                    final useAbbreviation = screenWidth < 400;
-                                    
+                                    final double fontSize = screenWidth < 400 ? 12.0 : 12.0;
                                     return InkWell(
                                       onTap: () {
                                         belongingDamageReportProvider.updateSelectedText('eenheden');
                                         _belongingDamageReportManager.updateImpactedAreaType('units');
                                         belongingDamageReportProvider.setErrorState('impactedAreaType', false);
-                                        
                                         final txt = _impactValueController.text;
                                         if (txt.isNotEmpty) {
                                           final intRegex = RegExp(r'^\d+$');
@@ -388,13 +390,13 @@ Padding(
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          useAbbreviation ? 'een' : 'eenheden',
+                                          'eenheden',
                                           style: TextStyle(
                                             color: belongingDamageReportProvider.impactedAreaType == 'units'
                                                 ? Colors.white
                                                 : Colors.black,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ),
@@ -431,6 +433,8 @@ Padding(
                         child: TextField(
                           key: const Key('estimated-damage'),
                           controller: _currentDamageController,
+                          minLines: 1,
+                          maxLines: null,
                           onChanged: (value) {
                             if (value.isEmpty) {
                               _belongingDamageReportManager.updateCurrentDamage(0);
@@ -495,6 +499,8 @@ Padding(
                         child: TextField(
                           key: const Key('estimated-future-damage'),
                           controller: _expectedDamageController,
+                          minLines: 1,
+                          maxLines: null,
                           onChanged: (value) {
                             if (value.isEmpty) {
                               _belongingDamageReportManager.updateExpectedDamage(0);
@@ -554,7 +560,8 @@ Padding(
                       onChanged:
                           (val) => _belongingDamageReportManager
                               .updateDescription(val),
-                      maxLines: 5,
+                      minLines: 1,
+                      maxLines: null,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,

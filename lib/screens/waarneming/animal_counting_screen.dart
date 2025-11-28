@@ -96,6 +96,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
           final navigationManager = context.read<NavigationStateInterface>();
           navigationManager.pushReplacementForward(
             context,
+            // Ensure remarks start empty when entering overview
             AnimalListOverviewScreen(),
           );
         },

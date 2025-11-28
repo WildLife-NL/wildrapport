@@ -41,7 +41,12 @@ class _ReportButtonState extends State<ReportButton> {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    final double iconSize = responsive.wp(12);
+    final double iconSize = responsive.breakpointValue<double>(
+      small: responsive.wp(16),
+      medium: responsive.wp(14),
+      large: responsive.wp(13),
+      extraLarge: responsive.wp(12),
+    );
 
     final Color baseColor = AppColors.lightMintGreen; // page background color
     final Color hoverColor = AppColors.darkGreen;
@@ -82,7 +87,7 @@ class _ReportButtonState extends State<ReportButton> {
                             child: widget.icon != null
                                 ? Icon(
                                     widget.icon,
-                                    size: iconSize * 0.6,
+                                    size: iconSize,
                                     color: (_isPressed || _isHovered)
                                         ? Colors.white
                                         : AppColors.brown,
@@ -90,8 +95,8 @@ class _ReportButtonState extends State<ReportButton> {
                                 : Image.asset(
                                     widget.image!,
                                     fit: BoxFit.contain,
-                                    width: iconSize,
-                                    height: iconSize,
+                                    width: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
+                                    height: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
                                     // tint the image white on hover/press; requires monochrome/transparent PNGs
                                     color: (_isPressed || _isHovered) ? Colors.white : null,
                                     colorBlendMode: BlendMode.srcIn,

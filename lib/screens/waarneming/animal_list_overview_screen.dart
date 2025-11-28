@@ -33,6 +33,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
               rightIcon: null,
               showUserIcon: true,
               onLeftIconPressed: () {
+                // Clear only remarks field when leaving overview
+                _animalListTableKey.currentState?.clearRemarksOnly();
                 final navigationManager =
                     context.read<NavigationStateInterface>();
                 navigationManager.pushAndRemoveUntil(
@@ -91,6 +93,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           final navigationManager = context.read<NavigationStateInterface>();
+          _animalListTableKey.currentState?.clearRemarksOnly();
           navigationManager.pushAndRemoveUntil(
             context,
             const AnimalCountingScreen(),

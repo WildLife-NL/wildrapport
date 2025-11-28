@@ -1,3 +1,4 @@
+import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -105,28 +106,19 @@ class _TermsScreenState extends State<TermsScreen> {
               SizedBox(height: responsive.spacing(8)),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (_checked && !_submitting) ? _onAcceptPressed : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.darkGreen,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      vertical: responsive.hp(1.75),
-                    ),
-                    textStyle: TextStyle(
-                      fontSize: responsive.fontSize(16),
-                    ),
+                child: WhiteBulkButton(
+                  text: 'Accepteren & Doorgaan',
+                  showIcon: false,
+                  backgroundColor: AppColors.lightMintGreen100,
+                  borderColor: AppColors.brown,
+                  textStyle: TextStyle(
+                    fontFamily: 'Roboto',
+                    color: Colors.black,
+                    fontSize: responsive.fontSize(16),
+                    fontWeight: FontWeight.w600,
                   ),
-                  child: _submitting
-                      ? SizedBox(
-                          width: responsive.sp(2.5),
-                          height: responsive.sp(2.5),
-                          child: CircularProgressIndicator(
-                            strokeWidth: responsive.sp(0.25),
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Accepteren & Doorgaan'),
+                  onPressed: (_checked && !_submitting) ? _onAcceptPressed : null,
+                  showShadow: false,
                 ),
               ),
             ],

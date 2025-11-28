@@ -18,12 +18,14 @@ class CollisionDetailsScreen extends StatefulWidget {
 
 class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
   final TextEditingController _damageController = TextEditingController();
+  final TextEditingController _detailsController = TextEditingController();
   String? _selectedIntensity;
   String? _selectedUrgency;
 
   @override
   void dispose() {
     _damageController.dispose();
+    _detailsController.dispose();
     super.dispose();
   }
 
@@ -40,6 +42,16 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
               rightIcon: null,
               showUserIcon: true,
               onLeftIconPressed: () {
+                // Clear text controllers
+                _damageController.clear();
+                _detailsController.clear();
+                setState(() {
+                  _selectedIntensity = null;
+                  _selectedUrgency = null;
+                });
+                // Also clear remarks before returning to overview
+                final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+                animalSightingManager.updateDescription('');
                 final navigationManager = context.read<NavigationStateInterface>();
                 navigationManager.pushReplacementBack(
                   context,
@@ -87,6 +99,8 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                             const SizedBox(height: 12),
                             TextField(
                               controller: _damageController,
+                              minLines: 1,
+                              maxLines: null,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 hintText: 'Voer bedrag in',
@@ -234,7 +248,9 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                             ),
                             const SizedBox(height: 12),
                             TextField(
-                              maxLines: 4,
+                              controller: _detailsController,
+                              minLines: 1,
+                              maxLines: null,
                               decoration: InputDecoration(
                                 hintText: 'Beschrijf het ongeval...',
                                 filled: true,

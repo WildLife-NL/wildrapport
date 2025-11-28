@@ -6,7 +6,6 @@ import 'package:wildrapport/interfaces/reporting/response_interface.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_completion_screen.dart';
-import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
@@ -90,15 +89,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     
     debugPrint("[QuestionnaireScreen] Submitting all responses to backend...");
     await _responseManager.submitResponses();
-    _sendToastNotification("Uw antwoorden zijn verstuurd");
 
     setState(() {
       _shouldNavigate = true;
     });
-  }
-
-  void _sendToastNotification(String toastMessage) {
-    ToastNotificationHandler.sendToastNotification(context, toastMessage, 2);
   }
 
   void previousScreen() {

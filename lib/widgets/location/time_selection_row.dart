@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/location/time_picker_dialog.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class TimeSelectionRow extends StatefulWidget {
   final Function(String) onOptionSelected;
@@ -199,11 +200,26 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
+    final responsive = context.responsive;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? now,
       firstDate: DateTime(2000),
       lastDate: now, // Changed from DateTime(2100) to now
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            textTheme: TextTheme(
+              headlineLarge: TextStyle(fontSize: responsive.fontSize(28)), // Year picker
+              headlineMedium: TextStyle(fontSize: responsive.fontSize(24)), // Selected date
+              titleMedium: TextStyle(fontSize: responsive.fontSize(16)), // Month/Year header
+              labelLarge: TextStyle(fontSize: responsive.fontSize(14)), // Day labels
+              bodyLarge: TextStyle(fontSize: responsive.fontSize(14)), // Date numbers
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
@@ -251,7 +267,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                       style: TextStyle(
                         color: Colors.black,
                         fontFamily: 'Roboto',
-                        fontSize: 14,
+                        fontSize: context.responsive.fontSize(14),
                         fontWeight:
                             isSelected ? FontWeight.w500 : FontWeight.normal,
                       ),
@@ -337,7 +353,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                         style: TextStyle(
                           color: Colors.black.withValues(alpha: 0.6),
                           fontFamily: 'Roboto',
-                          fontSize: 13,
+                          fontSize: context.responsive.fontSize(13),
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0.3,
                         ),
@@ -351,7 +367,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                                   ? Colors.black
                                   : Colors.black.withValues(alpha: 0.7),
                           fontFamily: 'Roboto',
-                          fontSize: 18,
+                          fontSize: context.responsive.fontSize(14), // Reduced from 18 to 14
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),

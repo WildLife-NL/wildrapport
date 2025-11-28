@@ -54,12 +54,12 @@ class ValidationOverlay extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Roboto',
                               fontWeight: FontWeight.bold,
-                              fontSize: responsive.fontSize(24),
+                              fontSize: responsive.fontSize(18),
                               color: Colors.black,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: responsive.spacing(20)),
+                          SizedBox(height: responsive.spacing(12)),
                           Text(
                             messages.join('\n'),
                             style: TextStyle(
