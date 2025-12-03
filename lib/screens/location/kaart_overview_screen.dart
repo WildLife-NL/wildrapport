@@ -385,13 +385,29 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // 5) Move camera & load data after first frame so the map is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        map.mapController.move(
-          LatLng(pos!.latitude, pos.longitude),
-          _initialZoom,
-        );
+        if (map.isInitialized) {
+          map.mapController.move(
+            LatLng(pos!.latitude, pos.longitude),
+            _initialZoom,
+          );
+        } else {
+          debugPrint('[Bootstrap] Map controller not initialized yet, skipping move');
+        }
 
         debugPrint('[Bootstrap] Loading data from vicinity endpoint');
-        await map.loadAllPinsFromVicinity();
+        try {
+          await map.loadAllPinsFromVicinity().timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              debugPrint('[Bootstrap] ⚠️ Vicinity API timeout after 15s');
+              // Continue anyway - map will show without pins
+              return;
+            },
+          );
+        } catch (e) {
+          debugPrint('[Bootstrap] ❌ Failed to load vicinity data: $e');
+          // Continue anyway - map will show without pins
+        }
 
         debugPrint(
           '[Map] initial totals  '
