@@ -8,6 +8,10 @@
 -dontwarn io.flutter.embedding.**
 -dontwarn android.**
 
+# Keep ALL classes - aggressive but will fix the issue
+-dontobfuscate
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+
 # Keep flutter_map and related classes
 -keep class net.tlalka.flutter.map.** { *; }
 -keep class com.mapbox.** { *; }
