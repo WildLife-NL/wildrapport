@@ -36,7 +36,7 @@ class KaartOverviewScreen extends StatefulWidget {
 
 class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     with TickerProviderStateMixin {
-  late final fm.MapOptions _mapOptions;
+  fm.MapOptions? _mapOptions;
   final _location = LocationMapManager();
 
   // cache things we must clean up
@@ -76,10 +76,15 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     super.didChangeDependencies();
     _mp = context.read<MapProvider>();
 
-    _mapOptions = fm.MapOptions(
-      initialCenter: LatLng(_mp.currentPosition?.latitude ?? 0, _mp.currentPosition?.longitude ?? 0),
-      initialZoom: _initialZoom,
-      onMapReady: () {
+    // Only initialize once
+    if (_mapOptions == null) {
+      _mapOptions = fm.MapOptions(
+        initialCenter: LatLng(
+          _mp.currentPosition?.latitude ?? LocationMapManager.denBoschCenter.latitude,
+          _mp.currentPosition?.longitude ?? LocationMapManager.denBoschCenter.longitude,
+        ),
+        initialZoom: _initialZoom,
+        onMapReady: () {
         debugPrint('[Map] ready');
       },
       interactionOptions: const fm.InteractionOptions(
@@ -128,6 +133,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         }
       },
     );
+    }
 
     _mpListener ??= () {
       debugPrint('[Kaart] 📨 Listener triggered');
@@ -266,7 +272,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       }
 
       // ✅ keep center on user only when following AND tracking is enabled
-      if (_followUser && appStateProvider.isLocationTrackingEnabled) {
+      if (_followUser && appStateProvider.isLocationTrackingEnabled && _mp.isInitialized) {
         final z = _mp.mapController.camera.zoom;
         _mp.mapController.move(LatLng(pos.latitude, pos.longitude), z);
       }
@@ -867,14 +873,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         body:
             pos == null
                 ? const Center(child: CircularProgressIndicator())
-                : Center(
+                : _mapOptions == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 800),
                     child: Stack(
                       children: [
                         fm.FlutterMap(
                           mapController: map.mapController,
-                          options: _mapOptions,
+                          options: _mapOptions!,
                           children: [
                                                     // ── ROTATE BUTTON ─────────────────────────────
                                                     Positioned(
