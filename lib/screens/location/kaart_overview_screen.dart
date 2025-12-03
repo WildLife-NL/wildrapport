@@ -900,22 +900,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           mapController: map.mapController,
                           options: _mapOptions!,
                           children: [
-                                                    // ── ROTATE BUTTON ─────────────────────────────
-                                                    Positioned(
-                                                      top: 16,
-                                                      right: 16,
-                                                      child: FloatingActionButton(
-                                                        heroTag: 'rotate_map',
-                                                        mini: true,
-                                                        backgroundColor: Colors.white,
-                                                        child: const Icon(Icons.explore, color: Colors.black),
-                                                        tooltip: 'Reset map rotation',
-                                                        onPressed: () {
-                                                          // Reset map rotation to north (0 degrees)
-                                                          map.mapController.rotate(0);
-                                                        },
-                                                      ),
-                                                    ),
                             fm.TileLayer(
                               urlTemplate: LocationMapManager.standardTileUrl,
                               userAgentPackageName: 'com.wildrapport.app',
@@ -1476,6 +1460,23 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           .toList(),
                                 ),
                           ],
+                        ),
+
+                        // ── ROTATE BUTTON ─────────────────────────────
+                        Positioned(
+                          top: 16,
+                          right: 16,
+                          child: FloatingActionButton(
+                            heroTag: 'rotate_map',
+                            mini: true,
+                            backgroundColor: Colors.white,
+                            child: const Icon(Icons.explore, color: Colors.black),
+                            tooltip: 'Reset map rotation',
+                            onPressed: () {
+                              // Reset map rotation to north (0 degrees)
+                              map.mapController.rotate(0);
+                            },
+                          ),
                         ),
 
                         // ── Filter button ───────────────────────────────────────────────────────────
