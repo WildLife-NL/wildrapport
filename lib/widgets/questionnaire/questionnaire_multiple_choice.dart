@@ -102,81 +102,86 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
               ),
             ),
           SizedBox(height: responsive.spacing(24)),
-          if (widget.question.answers != null)
-            ...widget.question.answers!.map((answer) {
-              return widget.question.allowMultipleResponse
-                  ? CheckboxListTile(
-                    value: selectedAnswerIDs.contains(answer.id),
-                    title: Text(
-                      answer.text,
-                      style: TextStyle(
-                        fontSize: responsive.fontSize(18),
-                        fontFamily: 'Roboto',
-                        color: Colors.black,
-                      ),
-                    ),
-                    onChanged: (checked) {
-                      setState(() {
-                        if (checked == true) {
-                          selectedAnswerIDs.add(answer.id);
-                        } else {
-                          selectedAnswerIDs.remove(answer.id);
-                        }
-
-                        final updatedAnswerID = selectedAnswerIDs.join(',');
-
-                        if (existingResponse != null) {
-                          responseProvider.setUpdatingResponse(true);
-                          responseProvider.updateResponse(
-                            existingResponse!.copyWith(answerID: updatedAnswerID),
-                          );
-                        } else {
-                          final newResponse = Response(
-                            answerID: updatedAnswerID,
-                            interactionID: widget.interactionID,
-                            questionID: widget.question.id,
-                          );
-                          responseProvider.addResponse(newResponse);
-                          existingResponse = newResponse;
-                        }
-                      });
-                    },
-                  )
-                  : 
-                  RadioListTile<String>(
-                    title: Text(
-                      answer.text,
-                      style: TextStyle(
-                        fontSize: responsive.fontSize(18),
-                        fontFamily: 'Roboto',
-                        color: Colors.black,
-                      ),
-                    ),
-                    value: answer.id,
-                    groupValue: selectedAnswerID,
-                    onChanged: (String? value) {
-                      setState(() {
-                        selectedAnswerID = value;
-                        if (existingResponse != null) {
-                          responseProvider.setUpdatingResponse(true);
-                          responseProvider.updateResponse(
-                            existingResponse!.copyWith(answerID: value),
-                          );
-                        } else {
-                          final newResponse = Response(
-                            answerID: value,
-                            interactionID: widget.interactionID,
-                            questionID: widget.question.id,
-                          );
-                          responseProvider.addResponse(newResponse);
-                          existingResponse = newResponse;
-                        }
-                      });
-                    },
-                  );
-            }),
           Expanded(
-            child: Container(),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (widget.question.answers != null)
+                    ...widget.question.answers!.map((answer) {
+                      return widget.question.allowMultipleResponse
+                          ? CheckboxListTile(
+                            value: selectedAnswerIDs.contains(answer.id),
+                            title: Text(
+                              answer.text,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(18),
+                                fontFamily: 'Roboto',
+                                color: Colors.black,
+                              ),
+                            ),
+                            onChanged: (checked) {
+                              setState(() {
+                                if (checked == true) {
+                                  selectedAnswerIDs.add(answer.id);
+                                } else {
+                                  selectedAnswerIDs.remove(answer.id);
+                                }
+
+                                final updatedAnswerID = selectedAnswerIDs.join(',');
+
+                                if (existingResponse != null) {
+                                  responseProvider.setUpdatingResponse(true);
+                                  responseProvider.updateResponse(
+                                    existingResponse!.copyWith(answerID: updatedAnswerID),
+                                  );
+                                } else {
+                                  final newResponse = Response(
+                                    answerID: updatedAnswerID,
+                                    interactionID: widget.interactionID,
+                                    questionID: widget.question.id,
+                                  );
+                                  responseProvider.addResponse(newResponse);
+                                  existingResponse = newResponse;
+                                }
+                              });
+                            },
+                          )
+                          : 
+                          RadioListTile<String>(
+                            title: Text(
+                              answer.text,
+                              style: TextStyle(
+                                fontSize: responsive.fontSize(18),
+                                fontFamily: 'Roboto',
+                                color: Colors.black,
+                              ),
+                            ),
+                            value: answer.id,
+                            groupValue: selectedAnswerID,
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedAnswerID = value;
+                                if (existingResponse != null) {
+                                  responseProvider.setUpdatingResponse(true);
+                                  responseProvider.updateResponse(
+                                    existingResponse!.copyWith(answerID: value),
+                                  );
+                                } else {
+                                  final newResponse = Response(
+                                    answerID: value,
+                                    interactionID: widget.interactionID,
+                                    questionID: widget.question.id,
+                                  );
+                                  responseProvider.addResponse(newResponse);
+                                  existingResponse = newResponse;
+                                }
+                              });
+                            },
+                          );
+                    }),
+                ],
+              ),
+            ),
           ),
           CustomBottomAppBar(
             onNextPressed: widget.onNextPressed,
