@@ -62,11 +62,13 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
 
   void _quickLocationCheck() async {
     debugPrint('[CustomLocationMapScreen] Checking cached location');
-    
+
     // Try to use current position from MapProvider if available
     final cachedPosition = _mapProvider.currentPosition;
     if (cachedPosition != null) {
-      debugPrint('[CustomLocationMapScreen] Using cached position from MapProvider');
+      debugPrint(
+        '[CustomLocationMapScreen] Using cached position from MapProvider',
+      );
       setState(() {
         _currentPosition = cachedPosition;
         _currentAddress = _mapProvider.currentAddress;
@@ -105,7 +107,10 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   void _initializeMapView() {
     if (_currentPosition != null) {
       debugPrint('[CustomLocationMapScreen] Initializing map view');
-      final center = LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
+      final center = LatLng(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
       _mapProvider.mapController.move(center, 15);
     }
   }
@@ -148,9 +153,11 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
       return;
     }
 
-    debugPrint('[CustomLocationMapScreen] Confirming location: $_markedLocation');
+    debugPrint(
+      '[CustomLocationMapScreen] Confirming location: $_markedLocation',
+    );
     debugPrint('[CustomLocationMapScreen] Address: $_markedAddress');
-    
+
     final position = Position(
       latitude: _markedLocation!.latitude,
       longitude: _markedLocation!.longitude,
@@ -166,7 +173,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
 
     _mapProvider.setSelectedLocation(position, _markedAddress);
     debugPrint('[CustomLocationMapScreen] Location set in MapProvider');
-    
+
     // Navigate back
     Navigator.pop(context);
   }
@@ -179,7 +186,10 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
 
   void _centerOnCurrentLocation() {
     if (_currentPosition != null) {
-      final center = LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
+      final center = LatLng(
+        _currentPosition!.latitude,
+        _currentPosition!.longitude,
+      );
       _mapProvider.mapController.move(center, 15);
     }
   }
@@ -214,15 +224,14 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
     if (_isLoading) {
       return Container(
         color: AppColors.offWhite,
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    final center = _currentPosition != null
-        ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-        : const LatLng(52.3874, 4.5753); // Default to Netherlands center
+    final center =
+        _currentPosition != null
+            ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+            : const LatLng(52.3874, 4.5753); // Default to Netherlands center
 
     return Scaffold(
       body: Stack(
@@ -238,14 +247,18 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
+                urlTemplate:
+                    _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
                 userAgentPackageName: 'com.wildrapport.app',
               ),
               if (_currentPosition != null)
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                      point: LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ),
                       width: 40,
                       height: 40,
                       rotate: false,
@@ -280,19 +293,23 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
             top: 16,
             right: 16,
             child: LocationDataCard(
-              cityName: _markedLocation != null
-                  ? _getLocationCity(_markedAddress)
-                  : _getLocationCity(_currentAddress),
-              streetName: _markedLocation != null
-                  ? _getLocationStreet(_markedAddress)
-                  : _getLocationStreet(_currentAddress),
-              houseNumber: _markedLocation != null
-                  ? _getLocationHouseNumber(_markedAddress)
-                  : _getLocationHouseNumber(_currentAddress),
+              cityName:
+                  _markedLocation != null
+                      ? _getLocationCity(_markedAddress)
+                      : _getLocationCity(_currentAddress),
+              streetName:
+                  _markedLocation != null
+                      ? _getLocationStreet(_markedAddress)
+                      : _getLocationStreet(_currentAddress),
+              houseNumber:
+                  _markedLocation != null
+                      ? _getLocationHouseNumber(_markedAddress)
+                      : _getLocationHouseNumber(_currentAddress),
               isLoading: _isLoading,
               isCurrentLocation: _markedLocation == null,
               latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
-              longitude: _markedLocation?.longitude ?? _currentPosition?.longitude,
+              longitude:
+                  _markedLocation?.longitude ?? _currentPosition?.longitude,
             ),
           ),
           Positioned(
@@ -316,10 +333,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
                   mini: true,
                   backgroundColor: Colors.white,
                   onPressed: _centerOnCurrentLocation,
-                  child: Icon(
-                    Icons.my_location,
-                    color: AppColors.darkGreen,
-                  ),
+                  child: Icon(Icons.my_location, color: AppColors.darkGreen),
                 ),
               ],
             ),

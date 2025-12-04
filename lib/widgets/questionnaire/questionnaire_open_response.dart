@@ -35,12 +35,12 @@ class QuestionnaireOpenResponse extends StatefulWidget {
 }
 
 class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
-  Response? existingResponse;  
+  Response? existingResponse;
   late TextEditingController _responseController;
   late final ResponseProvider responseProvider;
   String? _validationError;
   bool _canProceed = true;
-  
+
   // Slider-related state
   bool _isNumericRange = false;
   int _minValue = 0;
@@ -64,42 +64,54 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       _initializeController();
     }
   }
-  
+
   void _checkIfNumericRange() {
     final format = widget.question.openResponseFormat;
-    debugPrint('[QuestionnaireOpenResponse] Checking numeric range for question: ${widget.question.text}');
+    debugPrint(
+      '[QuestionnaireOpenResponse] Checking numeric range for question: ${widget.question.text}',
+    );
     debugPrint('[QuestionnaireOpenResponse] openResponseFormat: "$format"');
-    debugPrint('[QuestionnaireOpenResponse] allowOpenResponse: ${widget.question.allowOpenResponse}');
-    debugPrint('[QuestionnaireOpenResponse] answers count: ${widget.question.answers?.length ?? 0}');
-    
+    debugPrint(
+      '[QuestionnaireOpenResponse] allowOpenResponse: ${widget.question.allowOpenResponse}',
+    );
+    debugPrint(
+      '[QuestionnaireOpenResponse] answers count: ${widget.question.answers?.length ?? 0}',
+    );
+
     if (format == null || format.isEmpty) {
-      debugPrint('[QuestionnaireOpenResponse] No format specified, not a numeric range');
+      debugPrint(
+        '[QuestionnaireOpenResponse] No format specified, not a numeric range',
+      );
       _isNumericRange = false;
       return;
     }
-    
+
     // Check for numeric range patterns like [1-5], [0-10], etc.
     // Supports: [1-5], [0-10], [1-100], etc.
     final rangePattern = RegExp(r'^\[(\d+)-(\d+)\]$');
     final match = rangePattern.firstMatch(format.trim());
-    
+
     if (match != null) {
       _isNumericRange = true;
       _minValue = int.parse(match.group(1)!);
       _maxValue = int.parse(match.group(2)!);
-      
-      debugPrint('[QuestionnaireOpenResponse] ✅ Detected numeric range: $_minValue to $_maxValue');
-      
+
+      debugPrint(
+        '[QuestionnaireOpenResponse] ✅ Detected numeric range: $_minValue to $_maxValue',
+      );
+
       // Ensure min is less than max
       if (_minValue > _maxValue) {
         final temp = _minValue;
         _minValue = _maxValue;
         _maxValue = temp;
       }
-      
+
       _sliderValue = _minValue.toDouble();
     } else {
-      debugPrint('[QuestionnaireOpenResponse] ❌ Format "$format" does not match numeric range pattern');
+      debugPrint(
+        '[QuestionnaireOpenResponse] ❌ Format "$format" does not match numeric range pattern',
+      );
       _isNumericRange = false;
     }
   }
@@ -110,9 +122,9 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     existingResponse = responseProvider.responses.firstWhereOrNull(
       (response) => response.questionID == widget.question.id,
     );
-    
+
     final existingText = existingResponse?.text ?? '';
-    
+
     // If numeric range, initialize slider value from existing response
     if (_isNumericRange && existingText.isNotEmpty) {
       final numValue = int.tryParse(existingText);
@@ -120,9 +132,9 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
         _sliderValue = numValue.toDouble();
       }
     }
-    
+
     _responseController = TextEditingController(text: existingText);
-    
+
     // Validate existing response
     setState(() {
       _validationError = _validateText(existingText);
@@ -138,29 +150,29 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
 
   String? _validateText(String text) {
     final format = widget.question.openResponseFormat;
-    
+
     // If no format specified, accept any input (including empty)
     if (format == null || format.isEmpty) {
       return null;
     }
-    
+
     // Allow empty text - validation only applies when user has entered something
     if (text.isEmpty) {
       return null;
     }
-    
+
     // Skip validation for numeric ranges (handled by slider)
     if (_isNumericRange) {
       return null;
     }
-    
+
     // Validate against the regex pattern
     try {
       final regex = RegExp(format);
       if (!regex.hasMatch(text)) {
         // Provide helpful error message with format hint
         String errorMsg = 'Antwoord voldoet niet aan het vereiste formaat';
-        
+
         // Add helpful hints for common patterns
         if (format.contains(r'\d')) {
           errorMsg += ' (alleen cijfers)';
@@ -169,18 +181,20 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
         } else if (format.contains('@')) {
           errorMsg += ' (e-mailadres)';
         }
-        
+
         return errorMsg;
       }
     } catch (e) {
       // If regex is invalid, log error but don't block user
-      debugPrint('[QuestionnaireOpenResponse] Invalid regex pattern: $format - $e');
+      debugPrint(
+        '[QuestionnaireOpenResponse] Invalid regex pattern: $format - $e',
+      );
       return null;
     }
-    
+
     return null;
   }
-  
+
   Widget _buildSlider() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,10 +204,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
           decoration: BoxDecoration(
             color: AppColors.offWhite,
             borderRadius: BorderRadius.circular(12.0),
-            border: Border.all(
-              color: AppColors.darkGreen,
-              width: 2,
-            ),
+            border: Border.all(color: AppColors.darkGreen, width: 2),
           ),
           child: Column(
             children: [
@@ -220,7 +231,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
                     _sliderValue = value;
                     final stringValue = value.toInt().toString();
                     _responseController.text = stringValue;
-                    
+
                     if (existingResponse != null) {
                       responseProvider.setUpdatingResponse(true);
                       responseProvider.updateResponse(
@@ -265,7 +276,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       ],
     );
   }
-  
+
   Widget _buildTextField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +288,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             setState(() {
               _validationError = _validateText(value);
               _canProceed = _validationError == null || value.isEmpty;
-              
+
               if (existingResponse != null) {
                 responseProvider.setUpdatingResponse(true);
                 responseProvider.updateResponse(
@@ -301,14 +312,16 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide(
-                color: _validationError != null ? Colors.red : AppColors.darkGreen,
+                color:
+                    _validationError != null ? Colors.red : AppColors.darkGreen,
                 width: 2,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide(
-                color: _validationError != null ? Colors.red : AppColors.darkGreen,
+                color:
+                    _validationError != null ? Colors.red : AppColors.darkGreen,
                 width: 2,
               ),
             ),
@@ -348,7 +361,9 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     return Scaffold(
       body: SharedWhiteBackground(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16.0), // optional padding
+          padding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+          ), // optional padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -402,9 +417,10 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onNextPressed: _canProceed && _responseController.text.isNotEmpty
-            ? widget.onNextPressed
-            : null,
+        onNextPressed:
+            _canProceed && _responseController.text.isNotEmpty
+                ? widget.onNextPressed
+                : null,
         onBackPressed: widget.onBackPressed,
         showBackButton: true,
       ),

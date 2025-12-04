@@ -50,7 +50,10 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
   void _handleBackNavigation(BuildContext context) {
     // Go back to animals screen, keeping all added animals
     final navigationManager = context.read<NavigationStateInterface>();
-    navigationManager.pushReplacementBack(context, const AnimalsScreen(appBarTitle: 'Selecteer Dier'));
+    navigationManager.pushReplacementBack(
+      context,
+      const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+    );
   }
 
   @override

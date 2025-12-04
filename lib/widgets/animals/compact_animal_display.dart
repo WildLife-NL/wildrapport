@@ -14,7 +14,8 @@ class CompactAnimalDisplay extends StatelessWidget {
     final responsive = context.responsive;
 
     // Calculate responsive dimensions
-    final double calculatedHeight = height ?? responsive.hp(17); // 17% of screen height
+    final double calculatedHeight =
+        height ?? responsive.hp(17); // 17% of screen height
     final double minHeight = responsive.sp(13);
     final double maxHeight = responsive.sp(20);
     final double finalHeight = calculatedHeight.clamp(minHeight, maxHeight);
@@ -55,13 +56,13 @@ class CompactAnimalDisplay extends StatelessWidget {
                       ),
                     )
                     : SizedBox(
-                          height: finalHeight - (finalPadding * 2),
-                          child: Icon(
-                            Icons.help_outline,
-                            color: AppColors.brown,
-                            size: (finalHeight - (finalPadding * 2)) * 0.3,
-                          ),
-                        ),
+                      height: finalHeight - (finalPadding * 2),
+                      child: Icon(
+                        Icons.help_outline,
+                        color: AppColors.brown,
+                        size: (finalHeight - (finalPadding * 2)) * 0.3,
+                      ),
+                    ),
           ),
           Padding(
             padding: EdgeInsets.only(top: finalPadding * 0.75),

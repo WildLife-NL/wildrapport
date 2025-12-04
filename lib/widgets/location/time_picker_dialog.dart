@@ -10,15 +10,15 @@ class TimeInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text;
-    
+
     // Remove any non-digit characters
     String digitsOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     // Limit to 4 digits
     if (digitsOnly.length > 4) {
       digitsOnly = digitsOnly.substring(0, 4);
     }
-    
+
     // Format as HH:MM
     String formatted;
     if (digitsOnly.isEmpty) {
@@ -28,7 +28,7 @@ class TimeInputFormatter extends TextInputFormatter {
     } else {
       formatted = '${digitsOnly.substring(0, 2)}:${digitsOnly.substring(2)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -94,7 +94,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   void _handleTimeInput(String value) {
     // Remove any non-digit characters
     String digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     setState(() {
       _errorMessage = null; // Clear error when typing
     });
@@ -143,7 +143,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(responsive.sp(3.75))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(responsive.sp(3.75)),
+      ),
       child: Container(
         width: responsive.wp(75),
         padding: EdgeInsets.all(responsive.spacing(20)),
@@ -201,10 +203,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(responsive.sp(2)),
-                  border: Border.all(
-                    color: AppColors.darkGreen,
-                    width: 2,
-                  ),
+                  border: Border.all(color: AppColors.darkGreen, width: 2),
                 ),
                 child: TextField(
                   controller: _timeController,
@@ -216,18 +215,16 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     color: AppColors.darkGreen,
                     letterSpacing: 4,
                   ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      hintText: 'HH:MM',
-                      hintStyle: TextStyle(
-                        color: AppColors.darkGreen.withValues(alpha: 0.3),
-                        fontSize: responsive.fontSize(32),
-                      ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    hintText: 'HH:MM',
+                    hintStyle: TextStyle(
+                      color: AppColors.darkGreen.withValues(alpha: 0.3),
+                      fontSize: responsive.fontSize(32),
                     ),
-                  inputFormatters: [
-                    TimeInputFormatter(),
-                  ],
+                  ),
+                  inputFormatters: [TimeInputFormatter()],
                   onChanged: _handleTimeInput,
                   autofocus: true,
                 ),
@@ -284,7 +281,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           ),
         ),
         ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(TimeOfDay(hour: _selectedHour, minute: _selectedMinute)),
+          onPressed:
+              () => Navigator.of(
+                context,
+              ).pop(TimeOfDay(hour: _selectedHour, minute: _selectedMinute)),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.lightMintGreen100,
             foregroundColor: Colors.black,

@@ -129,7 +129,9 @@ class AnimalListOverviewScreen extends StatelessWidget {
 
           if (context.mounted) {
             // Check if this is a collision report (verkeersongeval)
-            final isCollision = appStateProvider.currentReportType == ReportType.verkeersongeval;
+            final isCollision =
+                appStateProvider.currentReportType ==
+                ReportType.verkeersongeval;
             debugPrint(
               '[AnimalListOverviewScreen] Report type: ${appStateProvider.currentReportType}, isCollision: $isCollision',
             );

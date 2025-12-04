@@ -47,9 +47,12 @@ class CustomAppBar extends StatelessWidget {
     final appStateProvider = context.watch<AppStateProvider>();
 
     // Use fixed centerText if useFixedText is true, otherwise use report type's display text
-    final displayText = useFixedText
-        ? (centerText ?? '')
-        : (appStateProvider.currentReportType?.displayText ?? centerText ?? '');
+    final displayText =
+        useFixedText
+            ? (centerText ?? '')
+            : (appStateProvider.currentReportType?.displayText ??
+                centerText ??
+                '');
 
     // Calculate responsive dimensions using ResponsiveUtils
     final double barHeight = responsive.hp(3.5); // 3.5% of screen height
@@ -73,100 +76,102 @@ class CustomAppBar extends StatelessWidget {
         height: finalHeight,
         color: Colors.transparent,
         child: Row(
-        children: [
-          // Left section (1/4 of space)
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (leftIcon != null)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: responsive.wp(4), // 4% of screen width
-                    ),
-                    child: GestureDetector(
-                      onTap:
-                          onLeftIconPressed ??
-                          () {
-                            Navigator.of(context).pop();
-                          },
-                      child: Icon(
-                        leftIcon ?? Icons.arrow_back_ios,
-                        color: iconColor ?? AppColors.brown,
-                        size: finalIconSize,
+          children: [
+            // Left section (1/4 of space)
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (leftIcon != null)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: responsive.wp(4), // 4% of screen width
+                      ),
+                      child: GestureDetector(
+                        onTap:
+                            onLeftIconPressed ??
+                            () {
+                              Navigator.of(context).pop();
+                            },
+                        child: Icon(
+                          leftIcon ?? Icons.arrow_back_ios,
+                          color: iconColor ?? AppColors.brown,
+                          size: finalIconSize,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Center text (2/4 of space)
-          Expanded(
-            flex: 2,
-            child: Center(
-                child: Text(
-                displayText,
-                style: TextStyle(
-                  color: textColor ?? AppColors.brown,
-                  fontSize: finalFontSize,
-                  fontFamily: 'Overpass',
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+                ],
               ),
             ),
-          ),
 
-          // Right section (1/4 of space)
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (rightIcon != null)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      right: responsive.wp(8), // 8% of screen width
-                    ),
-                    child: GestureDetector(
-                      onTap: onRightIconPressed,
-                      child: Icon(
-                        rightIcon,
-                        color: iconColor ?? AppColors.brown,
-                        size: finalIconSize,
-                      ),
-                    ),
-                  )
-                else if (showUserIcon)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      right: responsive.wp(8), // 8% of screen width
-                      bottom: responsive.hp(0.8), // nudge slightly upward
-                    ),
-                    child: GestureDetector(
-                      onTap: onUserIconPressed ?? () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ProfileScreen(),
-                          ),
-                        );
-                      },
-                      child: Icon(
-                        Icons.person,
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                        size: userIconSize,
-                      ),
-                    ),
+            // Center text (2/4 of space)
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Text(
+                  displayText,
+                  style: TextStyle(
+                    color: textColor ?? AppColors.brown,
+                    fontSize: finalFontSize,
+                    fontFamily: 'Overpass',
+                    fontWeight: FontWeight.bold,
                   ),
-              ],
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
-          ),
-        ],
+
+            // Right section (1/4 of space)
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (rightIcon != null)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: responsive.wp(8), // 8% of screen width
+                      ),
+                      child: GestureDetector(
+                        onTap: onRightIconPressed,
+                        child: Icon(
+                          rightIcon,
+                          color: iconColor ?? AppColors.brown,
+                          size: finalIconSize,
+                        ),
+                      ),
+                    )
+                  else if (showUserIcon)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        right: responsive.wp(8), // 8% of screen width
+                        bottom: responsive.hp(0.8), // nudge slightly upward
+                      ),
+                      child: GestureDetector(
+                        onTap:
+                            onUserIconPressed ??
+                            () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const ProfileScreen(),
+                                ),
+                              );
+                            },
+                        child: Icon(
+                          Icons.person,
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          size: userIconSize,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }

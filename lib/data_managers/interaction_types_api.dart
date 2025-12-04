@@ -21,7 +21,12 @@ class InteractionTypesApi implements InteractionTypesApiInterface {
         final body = res.body.trim();
         if (body.isEmpty) return const [];
         final decoded = json.decode(body);
-        final List list = decoded is List ? decoded : (decoded is Map && decoded['items'] is List) ? decoded['items'] : const [];
+        final List list =
+            decoded is List
+                ? decoded
+                : (decoded is Map && decoded['items'] is List)
+                ? decoded['items']
+                : const [];
         return list
             .whereType<Map<String, dynamic>>()
             .map(InteractionType.fromJson)

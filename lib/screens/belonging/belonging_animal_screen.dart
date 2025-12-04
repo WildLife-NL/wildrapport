@@ -32,7 +32,8 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   @override
   void initState() {
     super.initState();
-    _belongingDamageReportProvider = context.read<BelongingDamageReportProvider>();
+    _belongingDamageReportProvider =
+        context.read<BelongingDamageReportProvider>();
     _animalManager = context.read<AnimalManagerInterface>();
     // Ensure search is reset when (re)entering this screen
     _searchController.text = '';
@@ -115,7 +116,10 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
               userIconScale: 1.15,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 24.0,
+              ),
               child: Column(
                 children: [
                   // Search box
@@ -124,7 +128,10 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.lightMintGreen,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.darkGreen, width: 1.5),
+                      border: Border.all(
+                        color: AppColors.darkGreen,
+                        width: 1.5,
+                      ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -135,21 +142,27 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                           child: TextField(
                             controller: _searchController,
                             style: const TextStyle(fontSize: 16),
-                              decoration: InputDecoration(
-                                hintText: 'zoeken',
+                            decoration: InputDecoration(
+                              hintText: 'zoeken',
                               border: InputBorder.none,
                               isCollapsed: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                              suffixIcon: (_searchController.text.isNotEmpty)
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear, color: AppColors.darkGreen),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        _animalManager.updateSearchTerm('');
-                                        setState(() {});
-                                      },
-                                    )
-                                  : null,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                              suffixIcon:
+                                  (_searchController.text.isNotEmpty)
+                                      ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear,
+                                          color: AppColors.darkGreen,
+                                        ),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          _animalManager.updateSearchTerm('');
+                                          setState(() {});
+                                        },
+                                      )
+                                      : null,
                             ),
                             onChanged: (val) {
                               _animalManager.updateSearchTerm(val);
@@ -169,46 +182,68 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                 isLoading: _isLoading,
                 scrollController: _scrollController,
                 onAnimalSelected: (AnimalModel selectedAnimal) async {
-                debugPrint('[BelongingAnimalScreen] Next button pressed');
-                final permissionManager = context.read<PermissionInterface>();
-                final navigationManager = context.read<NavigationStateInterface>();
+                  debugPrint('[BelongingAnimalScreen] Next button pressed');
+                  final permissionManager = context.read<PermissionInterface>();
+                  final navigationManager =
+                      context.read<NavigationStateInterface>();
 
-                // Check if location permission is already granted
-                final hasPermission = await permissionManager.isPermissionGranted(PermissionType.location);
-                debugPrint('[BelongingAnimalScreen] Location permission status: $hasPermission');
+                  // Check if location permission is already granted
+                  final hasPermission = await permissionManager
+                      .isPermissionGranted(PermissionType.location);
+                  debugPrint(
+                    '[BelongingAnimalScreen] Location permission status: $hasPermission',
+                  );
 
-                if (!hasPermission) {
-                  debugPrint('[BelongingAnimalScreen] Requesting location permission');
-                  bool permissionGranted = false;
+                  if (!hasPermission) {
+                    debugPrint(
+                      '[BelongingAnimalScreen] Requesting location permission',
+                    );
+                    bool permissionGranted = false;
+                    if (context.mounted) {
+                      permissionGranted = await permissionManager
+                          .requestPermission(
+                            context,
+                            PermissionType.location,
+                            showRationale: true,
+                          );
+                    }
+                    debugPrint(
+                      '[BelongingAnimalScreen] Permission request result: $permissionGranted',
+                    );
+                    if (!permissionGranted) {
+                      debugPrint(
+                        '[BelongingAnimalScreen] Permission denied, setting pending snackbar',
+                      );
+                      _pendingSnackBarMessage =
+                          'Locatie toegang is nodig om door te gaan';
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => _handlePendingSnackBar(),
+                      );
+                      return;
+                    }
+                  }
+                  // Navigate to LocationScreen if permission is granted
+                  debugPrint(
+                    '[BelongingAnimalScreen]: Navigating to LocationScreen',
+                  );
+                  debugPrint(
+                    '[BelongingAnimalScreen]: Selected animal name: ${selectedAnimal.animalName}',
+                  );
+                  debugPrint(
+                    '[BelongingAnimalScreen]: Selected animal ID: ${selectedAnimal.animalId!}',
+                  );
+                  _belongingDamageReportProvider.setSuspectedAnimal(
+                    selectedAnimal.animalId!,
+                  );
                   if (context.mounted) {
-                    permissionGranted = await permissionManager.requestPermission(
+                    debugPrint("[BelongingAnimalScreen]: to LocationScreen");
+                    navigationManager.pushReplacementForward(
                       context,
-                      PermissionType.location,
-                      showRationale: true,
+                      const BelongingLocationScreen(),
                     );
                   }
-                  debugPrint('[BelongingAnimalScreen] Permission request result: $permissionGranted');
-                  if (!permissionGranted) {
-                    debugPrint('[BelongingAnimalScreen] Permission denied, setting pending snackbar');
-                    _pendingSnackBarMessage = 'Locatie toegang is nodig om door te gaan';
-                    WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingSnackBar());
-                    return;
-                  }
-                }
-                // Navigate to LocationScreen if permission is granted
-                debugPrint('[BelongingAnimalScreen]: Navigating to LocationScreen');
-                debugPrint('[BelongingAnimalScreen]: Selected animal name: ${selectedAnimal.animalName}');
-                debugPrint('[BelongingAnimalScreen]: Selected animal ID: ${selectedAnimal.animalId!}');
-                _belongingDamageReportProvider.setSuspectedAnimal(selectedAnimal.animalId!);
-                if (context.mounted) {
-                  debugPrint("[BelongingAnimalScreen]: to LocationScreen");
-                  navigationManager.pushReplacementForward(
-                    context,
-                    const BelongingLocationScreen(),
-                  );
-                }
-              },
-              onRetry: _loadAnimals,
+                },
+                onRetry: _loadAnimals,
               ),
             ),
           ],

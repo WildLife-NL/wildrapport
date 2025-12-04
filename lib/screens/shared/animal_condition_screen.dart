@@ -38,7 +38,10 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
 
       final navigationManager = context.read<NavigationStateInterface>();
       // Navigate back to previous screen
-      navigationManager.pushReplacementBack(context, const AnimalConditionScreen());
+      navigationManager.pushReplacementBack(
+        context,
+        const AnimalConditionScreen(),
+      );
     } catch (e) {
       setState(() {
         isLoading = false;

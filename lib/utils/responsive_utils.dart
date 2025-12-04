@@ -140,11 +140,11 @@ class ResponsiveUtils {
 
   /// Max content width (useful to constrain long-form text on desktop).
   double get maxContentWidth => breakpointValue<double>(
-        small: _width,
-        medium: _width * 0.95,
-        large: 1000,
-        extraLarge: 1200,
-      );
+    small: _width,
+    medium: _width * 0.95,
+    large: 1000,
+    extraLarge: 1200,
+  );
 
   /// Responsive padding convenience.
   EdgeInsets responsivePadding({double horizontal = 16, double vertical = 16}) {
@@ -162,7 +162,12 @@ class ResponsiveUtils {
   /// LayoutBuilder helper exposing constraints + utils.
   static Widget layoutBuilder({
     required BuildContext context,
-    required Widget Function(BuildContext ctx, BoxConstraints constraints, ResponsiveUtils ru) builder,
+    required Widget Function(
+      BuildContext ctx,
+      BoxConstraints constraints,
+      ResponsiveUtils ru,
+    )
+    builder,
   }) {
     final ru = context.responsive;
     return LayoutBuilder(
@@ -172,6 +177,7 @@ class ResponsiveUtils {
 }
 
 enum DeviceType { mobile, tablet, desktop }
+
 enum Breakpoint { small, medium, large, extraLarge }
 
 extension ResponsiveContext on BuildContext {

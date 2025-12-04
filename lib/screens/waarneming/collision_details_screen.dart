@@ -50,9 +50,11 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                   _selectedUrgency = null;
                 });
                 // Also clear remarks before returning to overview
-                final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+                final animalSightingManager =
+                    context.read<AnimalSightingReportingInterface>();
                 animalSightingManager.updateDescription('');
-                final navigationManager = context.read<NavigationStateInterface>();
+                final navigationManager =
+                    context.read<NavigationStateInterface>();
                 navigationManager.pushReplacementBack(
                   context,
                   AnimalListOverviewScreen(),
@@ -251,9 +253,9 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                               controller: _detailsController,
                               minLines: 1,
                               maxLines: null,
-                                decoration: InputDecoration(
-                                  hintText: 'Beschrijf het ongeval...',
-                                  filled: true,
+                              decoration: InputDecoration(
+                                hintText: 'Beschrijf het ongeval...',
+                                filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -297,7 +299,8 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           final navigationManager = context.read<NavigationStateInterface>();
-          final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+          final animalSightingManager =
+              context.read<AnimalSightingReportingInterface>();
           _damageController.clear();
           _detailsController.clear();
           animalSightingManager.updateDescription('');
@@ -350,10 +353,7 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.darkGreen : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.darkGreen,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.darkGreen, width: 1.5),
         ),
         child: Center(
           child: Text(

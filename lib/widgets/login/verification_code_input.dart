@@ -16,8 +16,6 @@ import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
-
-
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
   final String email;
@@ -52,89 +50,87 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
     loginManager = context.read<LoginInterface>();
   }
 
-Future<void> _routeAfterLogin() async {
-  try {
-    // Try Provider first, fall back to a local instance so we don’t crash
-    ProfileApiInterface profileApi;
+  Future<void> _routeAfterLogin() async {
     try {
-      profileApi = context.read<ProfileApiInterface>();
-    } catch (_) {
-      profileApi = ProfileApi(AppConfig.shared.apiClient);
-    }
+      // Try Provider first, fall back to a local instance so we don’t crash
+      ProfileApiInterface profileApi;
+      try {
+        profileApi = context.read<ProfileApiInterface>();
+      } catch (_) {
+        profileApi = ProfileApi(AppConfig.shared.apiClient);
+      }
 
-    final profile = await profileApi.fetchMyProfile(); // also caches
-    if (!mounted) return;
+      final profile = await profileApi.fetchMyProfile(); // also caches
+      if (!mounted) return;
 
-    if (profile.reportAppTerms == true) {
+      if (profile.reportAppTerms == true) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+          (_) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const TermsScreen()),
+          (_) => false,
+        );
+      }
+    } catch (e) {
+      // If anything goes wrong, keep the OLD behavior: go to Overzicht
+      if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const OverzichtScreen()),
         (_) => false,
       );
-    } else {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const TermsScreen()),
-        (_) => false,
-      );
     }
-  } catch (e) {
-    // If anything goes wrong, keep the OLD behavior: go to Overzicht
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const OverzichtScreen()),
-      (_) => false,
-    );
   }
-}
 
+  Future<void> _verifyCode() async {
+    FocusScope.of(context).unfocus();
+    final code = controllers.map((c) => c.text).join();
 
-Future<void> _verifyCode() async {
-  FocusScope.of(context).unfocus();
-  final code = controllers.map((c) => c.text).join();
+    setState(() {
+      isLoading = true;
+      isError = false;
+    });
 
-  setState(() {
-    isLoading = true;
-    isError = false;
-  });
+    bool navigated = false;
 
-  bool navigated = false;
+    try {
+      final response = await loginManager.verifyCode(widget.email, code);
+      verifiedUser = response;
 
-  try {
-    final response = await loginManager.verifyCode(widget.email, code);
-    verifiedUser = response;
+      // let the animation play once
+      await Future.delayed(const Duration(milliseconds: 1500));
 
-    // let the animation play once
-    await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted && verifiedUser != null) {
+        await _routeAfterLogin();
+        navigated = true;
+      }
+    } catch (e) {
+      // token-saved-despite-error fallback
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('bearer_token');
 
-    if (mounted && verifiedUser != null) {
-      await _routeAfterLogin();
-      navigated = true;
-    }
-  } catch (e) {
-    // token-saved-despite-error fallback
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('bearer_token');
-
-    if (token != null && mounted) {
-      await _routeAfterLogin();
-      navigated = true;
-    } else {
-      setState(() {
-        isError = true;
-        verifiedUser = null;
-      });
-      if (context.mounted) {
-        for (var c in controllers) c.clear();
-        focusNodes[0].requestFocus();
+      if (token != null && mounted) {
+        await _routeAfterLogin();
+        navigated = true;
+      } else {
+        setState(() {
+          isError = true;
+          verifiedUser = null;
+        });
+        if (context.mounted) {
+          for (var c in controllers) c.clear();
+          focusNodes[0].requestFocus();
+        }
+      }
+    } finally {
+      // if we didn’t navigate, stop the loader
+      if (mounted && !navigated) {
+        setState(() => isLoading = false);
       }
     }
-  } finally {
-    // if we didn’t navigate, stop the loader
-    if (mounted && !navigated) {
-      setState(() => isLoading = false);
-    }
   }
-}
-
 
   Widget _buildTextField(int index) {
     final responsive = context.responsive;
@@ -150,7 +146,7 @@ Future<void> _verifyCode() async {
       large: responsive.fontSize(24),
       extraLarge: responsive.fontSize(24),
     );
-    
+
     return Container(
       width: boxWidth,
       height: boxWidth * 1.2,
@@ -160,8 +156,14 @@ Future<void> _verifyCode() async {
             isError ? Colors.red.shade50.withValues(alpha: 0.9) : Colors.white,
         border:
             isError
-                ? Border.all(color: Colors.red.shade300, width: responsive.sp(0.12))
-                : Border.all(color: Colors.grey[300]!, width: responsive.sp(0.12)),
+                ? Border.all(
+                  color: Colors.red.shade300,
+                  width: responsive.sp(0.12),
+                )
+                : Border.all(
+                  color: Colors.grey[300]!,
+                  width: responsive.sp(0.12),
+                ),
         boxShadow: [
           BoxShadow(
             color:
@@ -298,7 +300,10 @@ Future<void> _verifyCode() async {
         ),
         if (isError) ...[
           Padding(
-            padding: EdgeInsets.only(left: responsive.wp(5), top: responsive.hp(1.2)),
+            padding: EdgeInsets.only(
+              left: responsive.wp(5),
+              top: responsive.hp(1.2),
+            ),
             child: Text(
               'Verkeerde code. Probeer het opnieuw.',
               style: TextStyle(
@@ -316,7 +321,10 @@ Future<void> _verifyCode() async {
         ),
         const Spacer(),
         BrownButton(
-          model: LoginManager.createButtonModel(text: 'Verifiëren', isLoginButton: true),
+          model: LoginManager.createButtonModel(
+            text: 'Verifiëren',
+            isLoginButton: true,
+          ),
           onPressed: _verifyCode,
         ),
         SizedBox(height: responsive.spacing(15)),
@@ -372,4 +380,3 @@ Future<void> _verifyCode() async {
     }
   }
 }
-

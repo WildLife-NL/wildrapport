@@ -62,8 +62,10 @@ class MapProvider extends ChangeNotifier {
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
     // Prefer using the cache manager if available
     if (_trackingCacheManager != null) {
-      debugPrint('[MapProvider] 📍 Sending tracking ping via cache manager: ${pos.latitude}, ${pos.longitude}');
-      
+      debugPrint(
+        '[MapProvider] 📍 Sending tracking ping via cache manager: ${pos.latitude}, ${pos.longitude}',
+      );
+
       try {
         final notice = await _trackingCacheManager!.sendOrCacheReading(
           lat: pos.latitude,
@@ -73,12 +75,18 @@ class MapProvider extends ChangeNotifier {
 
         if (notice != null) {
           _lastTrackingNotice = notice;
-          debugPrint('[MapProvider] 🔔 Got tracking notice, calling notifyListeners()');
+          debugPrint(
+            '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
+          );
           notifyListeners(); // if any UI wants to react to changes
-          debugPrint('[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
-              ' sev=${notice.severity ?? '-'}');
+          debugPrint(
+            '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
+            ' sev=${notice.severity ?? '-'}',
+          );
         } else {
-          debugPrint('[MapProvider] ✓ tracking-reading cached or sent; no notice from backend');
+          debugPrint(
+            '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
+          );
         }
         return notice;
       } catch (e) {
@@ -86,7 +94,7 @@ class MapProvider extends ChangeNotifier {
         return null;
       }
     }
-    
+
     // Fallback to direct API call if cache manager not available
     if (_trackingApi == null) {
       debugPrint(
@@ -157,8 +165,6 @@ class MapProvider extends ChangeNotifier {
   final List<InteractionQueryResult> _interactions = [];
   bool _interactionsLoading = false;
   String? _interactionsError;
-
-
 
   List<InteractionQueryResult> get interactions =>
       List.unmodifiable(_interactions);
@@ -285,13 +291,13 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   /// Load all pins from the vicinity endpoint (single API call)
   /// This is more efficient than calling loadAnimalPins, loadDetectionPins, and loadInteractions separately
   Future<void> loadAllPinsFromVicinity() async {
     if (_vicinityApi == null) {
-      debugPrint('[MapProvider] ⚠️ VicinityApi not set - falling back to individual calls');
+      debugPrint(
+        '[MapProvider] ⚠️ VicinityApi not set - falling back to individual calls',
+      );
       return;
     }
 
@@ -363,7 +369,9 @@ class MapProvider extends ChangeNotifier {
   /// Starts periodic pings. Fires one immediately, then repeats.
   void startTracking({Duration? interval}) {
     if (_trackingCacheManager == null && _trackingApi == null) {
-      debugPrint('[MapProvider] Cannot start tracking: Neither TrackingCacheManager nor TrackingApi is set');
+      debugPrint(
+        '[MapProvider] Cannot start tracking: Neither TrackingCacheManager nor TrackingApi is set',
+      );
       return;
     }
     _trackingTimer?.cancel();

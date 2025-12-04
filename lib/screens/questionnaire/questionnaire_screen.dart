@@ -39,8 +39,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void nextScreen() {
     debugPrint("${responseProvider.answerID}");
-    debugPrint("[QuestionnaireScreen] Total responses in provider: ${responseProvider.responses.length}");
-    
+    debugPrint(
+      "[QuestionnaireScreen] Total responses in provider: ${responseProvider.responses.length}",
+    );
+
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
       // Find the response for the current question instead of using .last
@@ -48,10 +50,14 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         (r) => r.questionID == responseProvider.questionID,
         orElse: () => responseProvider.responses.last,
       );
-      
-      debugPrint("[QuestionnaireScreen] Storing response for question: ${responseProvider.questionID}");
-      debugPrint("[QuestionnaireScreen] Answer: ${currentResponse.answerID}, Text: ${currentResponse.text}");
-      
+
+      debugPrint(
+        "[QuestionnaireScreen] Storing response for question: ${responseProvider.questionID}",
+      );
+      debugPrint(
+        "[QuestionnaireScreen] Answer: ${currentResponse.answerID}, Text: ${currentResponse.text}",
+      );
+
       _responseManager.storeResponse(
         currentResponse,
         widget.questionnaire.id,
@@ -68,8 +74,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   void lastNextScreen() async {
-    debugPrint("[QuestionnaireScreen] Final submit - Total responses: ${responseProvider.responses.length}");
-    
+    debugPrint(
+      "[QuestionnaireScreen] Final submit - Total responses: ${responseProvider.responses.length}",
+    );
+
     if (responseProvider.interactionID != null &&
         responseProvider.questionID != null) {
       // Find the response for the last question
@@ -77,16 +85,18 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         (r) => r.questionID == responseProvider.questionID,
         orElse: () => responseProvider.responses.last,
       );
-      
-      debugPrint("[QuestionnaireScreen] Storing last response for question: ${responseProvider.questionID}");
-      
+
+      debugPrint(
+        "[QuestionnaireScreen] Storing last response for question: ${responseProvider.questionID}",
+      );
+
       await _responseManager.storeResponse(
         lastResponse,
         widget.questionnaire.id,
         responseProvider.questionID!,
       );
     }
-    
+
     debugPrint("[QuestionnaireScreen] Submitting all responses to backend...");
     await _responseManager.submitResponses();
 
@@ -106,13 +116,14 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   }
 
   Future<void> _loadQuestionnaire() async {
-    final questionnaireScreens = await _questionnaireManager.buildQuestionnaireLayout(
-      widget.questionnaire,
-      widget.interactionID,
-      nextScreen,
-      lastNextScreen,
-      previousScreen,
-    );
+    final questionnaireScreens = await _questionnaireManager
+        .buildQuestionnaireLayout(
+          widget.questionnaire,
+          widget.interactionID,
+          nextScreen,
+          lastNextScreen,
+          previousScreen,
+        );
 
     if (mounted) {
       setState(() {

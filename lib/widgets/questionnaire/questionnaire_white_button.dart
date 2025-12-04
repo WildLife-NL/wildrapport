@@ -19,7 +19,8 @@ class QuestionnaireWhiteButton extends StatefulWidget {
   });
 
   @override
-  State<QuestionnaireWhiteButton> createState() => _QuestionnaireWhiteButtonState();
+  State<QuestionnaireWhiteButton> createState() =>
+      _QuestionnaireWhiteButtonState();
 }
 
 class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
@@ -38,7 +39,7 @@ class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     final bool isActive = _isPressed || _isHovered;
-    
+
     return MouseRegion(
       onEnter: _onEnter,
       onExit: _onExit,
@@ -77,5 +78,3 @@ class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
     );
   }
 }
-
-

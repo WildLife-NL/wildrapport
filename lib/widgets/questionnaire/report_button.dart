@@ -84,23 +84,34 @@ class _ReportButtonState extends State<ReportButton> {
                         SizedBox(
                           height: iconSize,
                           child: Center(
-                            child: widget.icon != null
-                                ? Icon(
-                                    widget.icon,
-                                    size: iconSize,
-                                    color: (_isPressed || _isHovered)
-                                        ? Colors.white
-                                        : AppColors.brown,
-                                  )
-                                : Image.asset(
-                                    widget.image!,
-                                    fit: BoxFit.contain,
-                                    width: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
-                                    height: widget.image!.contains('accident') ? iconSize : iconSize * 0.75,
-                                    // tint the image white on hover/press; requires monochrome/transparent PNGs
-                                    color: (_isPressed || _isHovered) ? Colors.white : null,
-                                    colorBlendMode: BlendMode.srcIn,
-                                  ),
+                            child:
+                                widget.icon != null
+                                    ? Icon(
+                                      widget.icon,
+                                      size: iconSize,
+                                      color:
+                                          (_isPressed || _isHovered)
+                                              ? Colors.white
+                                              : AppColors.brown,
+                                    )
+                                    : Image.asset(
+                                      widget.image!,
+                                      fit: BoxFit.contain,
+                                      width:
+                                          widget.image!.contains('accident')
+                                              ? iconSize
+                                              : iconSize * 0.75,
+                                      height:
+                                          widget.image!.contains('accident')
+                                              ? iconSize
+                                              : iconSize * 0.75,
+                                      // tint the image white on hover/press; requires monochrome/transparent PNGs
+                                      color:
+                                          (_isPressed || _isHovered)
+                                              ? Colors.white
+                                              : null,
+                                      colorBlendMode: BlendMode.srcIn,
+                                    ),
                           ),
                         ),
                         SizedBox(height: responsive.hp(2)),
@@ -108,7 +119,10 @@ class _ReportButtonState extends State<ReportButton> {
                           widget.text,
                           style: AppTextTheme.textTheme.titleMedium?.copyWith(
                             fontSize: responsive.fontSize(18),
-                            color: (_isPressed || _isHovered) ? Colors.white : Colors.black,
+                            color:
+                                (_isPressed || _isHovered)
+                                    ? Colors.white
+                                    : Colors.black,
                             fontWeight: FontWeight.w600,
                           ),
                           textAlign: TextAlign.center,
@@ -126,4 +140,3 @@ class _ReportButtonState extends State<ReportButton> {
     );
   }
 }
-

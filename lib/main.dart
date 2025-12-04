@@ -68,7 +68,7 @@ void main() async {
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager();
-  
+
   // Load location tracking preference
   await appStateProvider.loadLocationTrackingPreference();
 
@@ -157,7 +157,7 @@ void main() async {
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
-  Provider<InteractionTypesManager>.value(value: interactionTypesManager),
+        Provider<InteractionTypesManager>.value(value: interactionTypesManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),

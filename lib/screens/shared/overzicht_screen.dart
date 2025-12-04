@@ -91,11 +91,15 @@ class _OverzichtScreenState extends State<OverzichtScreen>
             final double estimatedContentHeight =
                 (screenSize.height * 0.4).clamp(180.0, 300.0) + // TopContainer
                 (screenSize.height * 0.02).clamp(8.0, 24.0) * 3.8 + // SizedBox
-                (screenSize.height * 0.08).clamp(48.0, 64.0) + // ActionButtons (approx)
+                (screenSize.height * 0.08).clamp(
+                  48.0,
+                  64.0,
+                ) + // ActionButtons (approx)
                 (screenSize.height * 0.02).clamp(8.0, 24.0) * 1.5 + // SizedBox
                 48.0; // Padding and other elements
 
-            final bool shouldScroll = estimatedContentHeight > constraints.maxHeight;
+            final bool shouldScroll =
+                estimatedContentHeight > constraints.maxHeight;
 
             final content = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,13 +198,12 @@ class _OverzichtScreenState extends State<OverzichtScreen>
             );
 
             return SingleChildScrollView(
-              physics: shouldScroll
-                  ? const AlwaysScrollableScrollPhysics()
-                  : const NeverScrollableScrollPhysics(),
+              physics:
+                  shouldScroll
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: content,
               ),
             );

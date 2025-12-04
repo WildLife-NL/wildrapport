@@ -21,7 +21,7 @@ class QuestionnaireHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    
+
     return Stack(
       children: [
         // Main content
@@ -116,7 +116,9 @@ class QuestionnaireHome extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const OverzichtScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const OverzichtScreen(),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -152,7 +154,9 @@ class QuestionnaireHome extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const OverzichtScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const OverzichtScreen(),
+                ),
               );
             },
             icon: Icon(
@@ -167,4 +171,3 @@ class QuestionnaireHome extends StatelessWidget {
     );
   }
 }
-

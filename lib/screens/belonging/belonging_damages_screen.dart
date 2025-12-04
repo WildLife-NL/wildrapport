@@ -160,15 +160,11 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
       final provider = Provider.of<BelongingDamageReportProvider>(
         context,
         listen: false,
-      );      
+      );
       final navigationManager = context.read<NavigationStateInterface>();
       provider.clearStateOfValues();
       provider.resetErrors();
-      navigationManager.pushReplacementForward(
-        context,
-        const Rapporteren(),
-      );
-
+      navigationManager.pushReplacementForward(context, const Rapporteren());
     }
   }
 

@@ -28,12 +28,14 @@ class QuestionnaireManager implements QuestionnaireInterface {
     VoidCallback previousScreen,
   ) async {
     final List<Widget> questionnaireWidgets = [];
-    questionnaireWidgets.add(QuestionnaireHome(
-      nextScreen: nextScreen,
-      amountOfQuestions: questionnaire.questions!.length,
-      questionnaireName: questionnaire.name,
-      questionnaireDescription: questionnaire.interactionType.description,
-    ));
+    questionnaireWidgets.add(
+      QuestionnaireHome(
+        nextScreen: nextScreen,
+        amountOfQuestions: questionnaire.questions!.length,
+        questionnaireName: questionnaire.name,
+        questionnaireDescription: questionnaire.interactionType.description,
+      ),
+    );
 
     final int length = questionnaire.questions!.length;
 
@@ -44,7 +46,9 @@ class QuestionnaireManager implements QuestionnaireInterface {
         debugPrint("Question ID: ${question.id}");
         debugPrint("Description: ${question.description}");
         debugPrint("Allow Open Response: ${question.allowOpenResponse}");
-        debugPrint("Allow Multiple Response: ${question.allowMultipleResponse}");
+        debugPrint(
+          "Allow Multiple Response: ${question.allowMultipleResponse}",
+        );
         debugPrint("Has Answers: ${question.answers?.isNotEmpty ?? false}");
         if (question.answers != null && question.answers!.isNotEmpty) {
           debugPrint("Answers count: ${question.answers!.length}");
@@ -64,12 +68,16 @@ class QuestionnaireManager implements QuestionnaireInterface {
         // 1. If question has predefined answers → Multiple Choice (radio/checkbox)
         // 2. If allowOpenResponse is true → Open Response (text field or slider based on format)
         // 3. Otherwise → Multiple Choice
-        
-        final bool hasAnswers = question.answers != null && question.answers!.isNotEmpty;
-        final bool needsOpenResponse = question.allowOpenResponse && !hasAnswers;
 
-        debugPrint("🔍 Decision: hasAnswers=$hasAnswers, needsOpenResponse=$needsOpenResponse");
-        
+        final bool hasAnswers =
+            question.answers != null && question.answers!.isNotEmpty;
+        final bool needsOpenResponse =
+            question.allowOpenResponse && !hasAnswers;
+
+        debugPrint(
+          "🔍 Decision: hasAnswers=$hasAnswers, needsOpenResponse=$needsOpenResponse",
+        );
+
         if (needsOpenResponse) {
           debugPrint("✅ Using QuestionnaireOpenResponse widget");
           // Open response: could be text field or slider depending on openResponseFormat
@@ -80,7 +88,7 @@ class QuestionnaireManager implements QuestionnaireInterface {
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,
               interactionID: interactionID,
-              index: index, 
+              index: index,
             ),
           );
         } else {

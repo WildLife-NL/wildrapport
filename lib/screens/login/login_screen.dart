@@ -18,7 +18,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen>
+    with PermissionChecker<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   late final LoginInterface _loginManager;
   bool showVerification = false;
@@ -58,45 +59,51 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
       _pendingErrorMessage = null;
     });
 
-    _loginManager.sendLoginCode(emailController.text).then((response) {
-      if (!response) {
-        _pendingErrorMessage = 'Login mislukt. Probeer het later opnieuw.';
-      } else {
-        debugPrint("Verification Code Sent To Email!");
-      }
-    }).catchError((e) {
-      String userFriendlyMessage =
-          'Er is een fout opgetreden. Probeer het later opnieuw.';
-      debugPrint('Login error: $e');
+    _loginManager
+        .sendLoginCode(emailController.text)
+        .then((response) {
+          if (!response) {
+            _pendingErrorMessage = 'Login mislukt. Probeer het later opnieuw.';
+          } else {
+            debugPrint("Verification Code Sent To Email!");
+          }
+        })
+        .catchError((e) {
+          String userFriendlyMessage =
+              'Er is een fout opgetreden. Probeer het later opnieuw.';
+          debugPrint('Login error: $e');
 
-      if (e.toString().contains('SocketException') ||
-          e.toString().contains('Connection refused') ||
-          e.toString().contains('Network is unreachable')) {
-        userFriendlyMessage =
-            'Geen internetverbinding. Controleer uw netwerk en probeer het opnieuw.';
-      } else if (e.toString().contains('timed out')) {
-        userFriendlyMessage =
-            'De server reageert niet. Probeer het later opnieuw.';
-      } else if (e.toString().contains('Unauthorized') ||
-          e.toString().contains('401')) {
-        userFriendlyMessage =
-            'Ongeldige inloggegevens. Controleer uw e-mailadres en probeer het opnieuw.';
-      }
+          if (e.toString().contains('SocketException') ||
+              e.toString().contains('Connection refused') ||
+              e.toString().contains('Network is unreachable')) {
+            userFriendlyMessage =
+                'Geen internetverbinding. Controleer uw netwerk en probeer het opnieuw.';
+          } else if (e.toString().contains('timed out')) {
+            userFriendlyMessage =
+                'De server reageert niet. Probeer het later opnieuw.';
+          } else if (e.toString().contains('Unauthorized') ||
+              e.toString().contains('401')) {
+            userFriendlyMessage =
+                'Ongeldige inloggegevens. Controleer uw e-mailadres en probeer het opnieuw.';
+          }
 
-      _pendingErrorMessage = userFriendlyMessage;
-    }).whenComplete(() {
-      if (_pendingErrorMessage != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {
-            showVerification = false;
-          });
-          showDialog(
-            context: context,
-            builder: (context) => ErrorOverlay(messages: [_pendingErrorMessage!]),
-          );
+          _pendingErrorMessage = userFriendlyMessage;
+        })
+        .whenComplete(() {
+          if (_pendingErrorMessage != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setState(() {
+                showVerification = false;
+              });
+              showDialog(
+                context: context,
+                builder:
+                    (context) =>
+                        ErrorOverlay(messages: [_pendingErrorMessage!]),
+              );
+            });
+          }
         });
-      }
-    });
   }
 
   @override
@@ -106,69 +113,74 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
       body: ResponsiveUtils.layoutBuilder(
         context: context,
         builder: (ctx, constraints, ru) {
-          final isSideBySide = constraints.maxWidth >= 600; // breakpoint for tablet
-          final showTwoColumn = constraints.maxWidth >= 900; // wider layout adjustments
+          final isSideBySide =
+              constraints.maxWidth >= 600; // breakpoint for tablet
+          final showTwoColumn =
+              constraints.maxWidth >= 900; // wider layout adjustments
           final branding = Container(
-              decoration: BoxDecoration(
-                color: AppColors.darkGreen,
-                borderRadius: BorderRadius.zero,
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          'assets/LogoWildlifeNL.png',
-                          width: ru.breakpointValue<double>(
-                            small: ru.wp(60),
-                            medium: ru.wp(40),
-                            large: ru.wp(35),
-                            extraLarge: ru.wp(30),
-                          ),
-                          fit: BoxFit.contain,
+            decoration: BoxDecoration(
+              color: AppColors.darkGreen,
+              borderRadius: BorderRadius.zero,
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/LogoWildlifeNL.png',
+                        width: ru.breakpointValue<double>(
+                          small: ru.wp(60),
+                          medium: ru.wp(40),
+                          large: ru.wp(35),
+                          extraLarge: ru.wp(30),
                         ),
-                        SizedBox(height: ru.spacing(12)),
-                        Text(
-                          'Wild Rapport',
-                          style: AppTextTheme.textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: ru.adaptiveFont(
-                              small: 22,
-                              medium: 24,
-                              large: 26,
-                              extraLarge: 28,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(height: ru.spacing(12)),
+                      Text(
+                        'Wild Rapport',
+                        style:
+                            AppTextTheme.textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: ru.adaptiveFont(
+                                small: 22,
+                                medium: 24,
+                                large: 26,
+                                extraLarge: 28,
+                              ),
+                            ) ??
+                            TextStyle(
+                              color: Colors.white,
+                              fontSize: ru.adaptiveFont(
+                                small: 22,
+                                medium: 24,
+                                large: 26,
+                                extraLarge: 28,
+                              ),
+                              fontWeight: FontWeight.w700,
                             ),
-                          ) ?? TextStyle(
-                            color: Colors.white,
-                            fontSize: ru.adaptiveFont(
-                              small: 22,
-                              medium: 24,
-                              large: 26,
-                              extraLarge: 28,
-                            ),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    bottom: ru.hp(-2.5),
-                    right: ru.wp(-2.5),
-                    child: SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            );
+                ),
+                Positioned(
+                  bottom: ru.hp(-2.5),
+                  right: ru.wp(-2.5),
+                  child: SizedBox.shrink(),
+                ),
+              ],
+            ),
+          );
 
           final form = Padding(
             padding: EdgeInsets.all(ru.spacing(20)),
-            child: showVerification
-                  ? VerificationCodeInput(
+            child:
+                showVerification
+                    ? VerificationCodeInput(
                       onBack: () {
                         setState(() {
                           showVerification = false;
@@ -176,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                       },
                       email: emailController.text,
                     )
-                  : Transform.translate(
+                    : Transform.translate(
                       offset: Offset(0, ru.hp(-2.5)),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -226,8 +238,8 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                               controller: emailController,
                               minLines: 1,
                               maxLines: null,
-                                decoration: InputDecoration(
-                                  hintText: 'e-mailadres',
+                              decoration: InputDecoration(
+                                hintText: 'e-mailadres',
                                 hintStyle: TextStyle(
                                   color: Colors.grey,
                                   fontSize: ru.fontSize(14),
@@ -285,14 +297,8 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
 
           return Row(
             children: [
-              Expanded(
-                flex: showTwoColumn ? 3 : 2,
-                child: branding,
-              ),
-              Expanded(
-                flex: showTwoColumn ? 4 : 3,
-                child: form,
-              ),
+              Expanded(flex: showTwoColumn ? 3 : 2, child: branding),
+              Expanded(flex: showTwoColumn ? 4 : 3, child: form),
             ],
           );
         },

@@ -10,7 +10,12 @@ class ErrorOverlay extends StatelessWidget {
   /// messages: one or more descriptive messages. If the first message is
   /// short it will be used as the title and the remainder shown as details.
   /// Optionally provide [title] and [instruction] to override defaults.
-  const ErrorOverlay({super.key, required this.messages, this.title, this.instruction});
+  const ErrorOverlay({
+    super.key,
+    required this.messages,
+    this.title,
+    this.instruction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +34,10 @@ class ErrorOverlay extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.lightMintGreen,
                 borderRadius: BorderRadius.circular(responsive.sp(3.1)),
-                border: Border.all(color: Colors.red.shade700, width: responsive.sp(0.2)),
+                border: Border.all(
+                  color: Colors.red.shade700,
+                  width: responsive.sp(0.2),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -48,66 +56,75 @@ class ErrorOverlay extends StatelessWidget {
                   ),
                   Flexible(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.wp(5), responsive.hp(1), responsive.wp(5), responsive.hp(2.5)),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.wp(5),
+                        responsive.hp(1),
+                        responsive.wp(5),
+                        responsive.hp(2.5),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Determine title and body from provided values
-                          Builder(builder: (context) {
-                            final rawTitle = title;
-                            String titleToShow;
-                            String bodyToShow = '';
+                          Builder(
+                            builder: (context) {
+                              final rawTitle = title;
+                              String titleToShow;
+                              String bodyToShow = '';
 
-                            if (rawTitle != null && rawTitle.isNotEmpty) {
-                              titleToShow = rawTitle;
-                              bodyToShow = messages.join('\n');
-                            } else if (messages.isNotEmpty) {
-                              // If first message is short, use it as title
-                              if (messages.first.length <= 60 && messages.length > 1) {
-                                titleToShow = messages.first;
-                                bodyToShow = messages.sublist(1).join('\n');
-                              } else if (messages.length == 1 && messages.first.length <= 80) {
-                                // Single, reasonably short message -> show as title with optional instruction
-                                titleToShow = messages.first;
-                                bodyToShow = instruction ?? '';
-                              } else {
-                                // Long first message -> use generic title and show full message as body
-                                titleToShow = 'Fout';
+                              if (rawTitle != null && rawTitle.isNotEmpty) {
+                                titleToShow = rawTitle;
                                 bodyToShow = messages.join('\n');
+                              } else if (messages.isNotEmpty) {
+                                // If first message is short, use it as title
+                                if (messages.first.length <= 60 &&
+                                    messages.length > 1) {
+                                  titleToShow = messages.first;
+                                  bodyToShow = messages.sublist(1).join('\n');
+                                } else if (messages.length == 1 &&
+                                    messages.first.length <= 80) {
+                                  // Single, reasonably short message -> show as title with optional instruction
+                                  titleToShow = messages.first;
+                                  bodyToShow = instruction ?? '';
+                                } else {
+                                  // Long first message -> use generic title and show full message as body
+                                  titleToShow = 'Fout';
+                                  bodyToShow = messages.join('\n');
+                                }
+                              } else {
+                                titleToShow = 'Fout';
+                                bodyToShow = instruction ?? '';
                               }
-                            } else {
-                              titleToShow = 'Fout';
-                              bodyToShow = instruction ?? '';
-                            }
 
-                            return Column(
-                              children: [
-                                Text(
-                                  titleToShow,
-                                  style: TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: responsive.fontSize(18),
-                                    color: Colors.red.shade700,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: responsive.spacing(12)),
-                                if (bodyToShow.isNotEmpty) ...[
+                              return Column(
+                                children: [
                                   Text(
-                                    bodyToShow,
+                                    titleToShow,
                                     style: TextStyle(
                                       fontFamily: 'Roboto',
-                                      fontSize: responsive.fontSize(16),
-                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: responsive.fontSize(18),
+                                      color: Colors.red.shade700,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  SizedBox(height: responsive.spacing(8)),
+                                  SizedBox(height: responsive.spacing(12)),
+                                  if (bodyToShow.isNotEmpty) ...[
+                                    Text(
+                                      bodyToShow,
+                                      style: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontSize: responsive.fontSize(16),
+                                        color: Colors.black,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: responsive.spacing(8)),
+                                  ],
                                 ],
-                              ],
-                            );
-                          }),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),

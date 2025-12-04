@@ -65,9 +65,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
       final selectedCategory = _animalSightingManager.convertStringToCategory(
         status,
       );
-  _animalSightingManager.updateCategory(selectedCategory);
-  debugPrint('[CategoryScreen] Selected category: $selectedCategory');
-      debugPrint('[CategoryScreen] Current sighting after update: ${_animalSightingManager.getCurrentanimalSighting()?.toJson()}');
+      _animalSightingManager.updateCategory(selectedCategory);
+      debugPrint('[CategoryScreen] Selected category: $selectedCategory');
+      debugPrint(
+        '[CategoryScreen] Current sighting after update: ${_animalSightingManager.getCurrentanimalSighting()?.toJson()}',
+      );
 
       if (mounted) {
         _navigationManager.dispose(); // Clean up resources

@@ -54,14 +54,20 @@ class _LocationDisplayState extends State<LocationDisplay>
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: responsive.wp(3), vertical: responsive.hp(1)),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.wp(3),
+        vertical: responsive.hp(1),
+      ),
       child: Container(
         constraints: BoxConstraints(minHeight: responsive.hp(8)),
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(responsive.sp(2)),
         ),
-        padding: EdgeInsets.symmetric(horizontal: responsive.wp(3), vertical: responsive.hp(1)),
+        padding: EdgeInsets.symmetric(
+          horizontal: responsive.wp(3),
+          vertical: responsive.hp(1),
+        ),
         child:
             widget.isLoading
                 ? Center(

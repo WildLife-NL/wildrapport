@@ -6,10 +6,7 @@ import '../../constants/app_colors.dart';
 class DetectionDetailDialog extends StatelessWidget {
   final DetectionPin detection;
 
-  const DetectionDetailDialog({
-    super.key,
-    required this.detection,
-  });
+  const DetectionDetailDialog({super.key, required this.detection});
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +119,7 @@ class DetectionDetailDialog extends StatelessWidget {
     final local = detection.detectedAt.toLocal();
     final now = DateTime.now();
     final difference = now.difference(local);
-    
+
     String timeAgo;
     if (difference.inMinutes < 60) {
       timeAgo = '${difference.inMinutes} minuten geleden';

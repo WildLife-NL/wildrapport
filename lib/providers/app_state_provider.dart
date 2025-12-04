@@ -20,7 +20,7 @@ class AppStateProvider with ChangeNotifier {
   String? _cachedAddress;
   DateTime? _lastLocationUpdate;
   static const Duration locationCacheTimeout = Duration(minutes: 15);
-  
+
   // Location tracking preference
   bool _isLocationTrackingEnabled = true;
   bool get isLocationTrackingEnabled => _isLocationTrackingEnabled;
@@ -84,7 +84,9 @@ class AppStateProvider with ChangeNotifier {
   }
 
   void initializeReport(ReportType reportType) {
-    debugPrint('\x1B[36m[AppStateProvider] 🔷 Initializing report with type: $reportType\x1B[0m');
+    debugPrint(
+      '\x1B[36m[AppStateProvider] 🔷 Initializing report with type: $reportType\x1B[0m',
+    );
     _currentReportType = reportType;
     final report = switch (reportType) {
       ReportType.waarneming => SightingReport(
@@ -108,7 +110,9 @@ class AppStateProvider with ChangeNotifier {
     };
 
     _activeReports['currentReport'] = report;
-    debugPrint('\x1B[36m[AppStateProvider] 🔷 Report initialized. Current type: $_currentReportType\x1B[0m');
+    debugPrint(
+      '\x1B[36m[AppStateProvider] 🔷 Report initialized. Current type: $_currentReportType\x1B[0m',
+    );
     notifyListeners();
   }
 
@@ -173,11 +177,16 @@ class AppStateProvider with ChangeNotifier {
   Future<void> loadLocationTrackingPreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _isLocationTrackingEnabled = prefs.getBool('location_tracking_enabled') ?? true;
-      debugPrint('[AppStateProvider] Loaded location tracking preference: $_isLocationTrackingEnabled');
+      _isLocationTrackingEnabled =
+          prefs.getBool('location_tracking_enabled') ?? true;
+      debugPrint(
+        '[AppStateProvider] Loaded location tracking preference: $_isLocationTrackingEnabled',
+      );
       notifyListeners();
     } catch (e) {
-      debugPrint('[AppStateProvider] Failed to load location tracking preference: $e');
+      debugPrint(
+        '[AppStateProvider] Failed to load location tracking preference: $e',
+      );
       _isLocationTrackingEnabled = true; // Default to enabled
     }
   }
@@ -188,10 +197,14 @@ class AppStateProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('location_tracking_enabled', enabled);
       _isLocationTrackingEnabled = enabled;
-      debugPrint('[AppStateProvider] Location tracking ${enabled ? "enabled" : "disabled"}');
+      debugPrint(
+        '[AppStateProvider] Location tracking ${enabled ? "enabled" : "disabled"}',
+      );
       notifyListeners();
     } catch (e) {
-      debugPrint('[AppStateProvider] Failed to save location tracking preference: $e');
+      debugPrint(
+        '[AppStateProvider] Failed to save location tracking preference: $e',
+      );
     }
   }
 

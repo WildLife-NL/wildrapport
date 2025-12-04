@@ -27,6 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _userName = prefs.getString('userName') ?? 'User';
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
@@ -83,10 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.offWhite,
                     ),
                     child: Center(
-                      child: Icon(
-                        Icons.person,
-                        size: responsive.sp(5),
-                      ),
+                      child: Icon(Icons.person, size: responsive.sp(5)),
                     ),
                   ),
                   SizedBox(width: responsive.wp(3.5)),
@@ -132,7 +130,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          await appStateProvider.setLocationTrackingEnabled(true);
+                          await appStateProvider.setLocationTrackingEnabled(
+                            true,
+                          );
                         },
                         child: Container(
                           width: responsive.wp(25),
@@ -140,8 +140,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: responsive.hp(1),
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(responsive.sp(2.5)),
-                            color: locationTrackingEnabled ? AppColors.offWhite : Colors.transparent,
+                            borderRadius: BorderRadius.circular(
+                              responsive.sp(2.5),
+                            ),
+                            color:
+                                locationTrackingEnabled
+                                    ? AppColors.offWhite
+                                    : Colors.transparent,
                             border: Border.all(
                               color: AppColors.offWhite,
                               width: responsive.sp(0.2),
@@ -151,7 +156,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               'Aan',
                               style: TextStyle(
-                                color: locationTrackingEnabled ? AppColors.darkGreen : AppColors.offWhite,
+                                color:
+                                    locationTrackingEnabled
+                                        ? AppColors.darkGreen
+                                        : AppColors.offWhite,
                                 fontWeight: FontWeight.w600,
                                 fontSize: responsive.fontSize(14),
                               ),
@@ -162,7 +170,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(width: responsive.wp(2)),
                       GestureDetector(
                         onTap: () async {
-                          await appStateProvider.setLocationTrackingEnabled(false);
+                          await appStateProvider.setLocationTrackingEnabled(
+                            false,
+                          );
                         },
                         child: Container(
                           width: responsive.wp(25),
@@ -170,8 +180,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: responsive.hp(1),
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(responsive.sp(2.5)),
-                            color: !locationTrackingEnabled ? AppColors.offWhite : Colors.transparent,
+                            borderRadius: BorderRadius.circular(
+                              responsive.sp(2.5),
+                            ),
+                            color:
+                                !locationTrackingEnabled
+                                    ? AppColors.offWhite
+                                    : Colors.transparent,
                             border: Border.all(
                               color: AppColors.offWhite,
                               width: responsive.sp(0.2),
@@ -181,7 +196,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               'Uit',
                               style: TextStyle(
-                                color: !locationTrackingEnabled ? AppColors.darkGreen : AppColors.offWhite,
+                                color:
+                                    !locationTrackingEnabled
+                                        ? AppColors.darkGreen
+                                        : AppColors.offWhite,
                                 fontWeight: FontWeight.w600,
                                 fontSize: responsive.fontSize(14),
                               ),
@@ -202,53 +220,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     children: [
                       // Delete account - outlined
-                      _outlinedButton(context, 'Account verwijderen', onPressed: () {
-                        // placeholder
-                      }),
+                      _outlinedButton(
+                        context,
+                        'Account verwijderen',
+                        onPressed: () {
+                          // placeholder
+                        },
+                      ),
 
                       SizedBox(height: responsive.spacing(12)),
 
                       // Log out - filled white
-                      _filledButton(context, 'Afmelden', onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text(
-                              'Afmelden?',
-                              style: TextStyle(fontSize: responsive.fontSize(18)),
-                            ),
-                            content: Text(
-                              'Wilt u uitloggen?',
-                              style: TextStyle(fontSize: responsive.fontSize(14)),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(),
-                                child: Text(
-                                  'Annuleren',
-                                  style: TextStyle(fontSize: responsive.fontSize(14)),
+                      _filledButton(
+                        context,
+                        'Afmelden',
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (ctx) => AlertDialog(
+                                  title: Text(
+                                    'Afmelden?',
+                                    style: TextStyle(
+                                      fontSize: responsive.fontSize(18),
+                                    ),
+                                  ),
+                                  content: Text(
+                                    'Wilt u uitloggen?',
+                                    style: TextStyle(
+                                      fontSize: responsive.fontSize(14),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: Text(
+                                        'Annuleren',
+                                        style: TextStyle(
+                                          fontSize: responsive.fontSize(14),
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.of(ctx).pop();
+                                        final appStateProvider =
+                                            context.read<AppStateProvider>();
+                                        await appStateProvider.logout();
+                                      },
+                                      child: Text(
+                                        'Afmelden',
+                                        style: TextStyle(
+                                          fontSize: responsive.fontSize(14),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(ctx).pop();
-                                  final appStateProvider = context.read<AppStateProvider>();
-                                  await appStateProvider.logout();
-                                },
-                                child: Text(
-                                  'Afmelden',
-                                  style: TextStyle(fontSize: responsive.fontSize(14)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                          );
+                        },
+                      ),
 
                       SizedBox(height: responsive.spacing(12)),
 
                       // Update Info
-                      _filledButton(context, 'Gegevens bijwerken', onPressed: () {}),
+                      _filledButton(
+                        context,
+                        'Gegevens bijwerken',
+                        onPressed: () {},
+                      ),
                     ],
                   ),
                 ),
@@ -260,7 +300,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _filledButton(BuildContext context, String text, {required VoidCallback onPressed}) {
+  Widget _filledButton(
+    BuildContext context,
+    String text, {
+    required VoidCallback onPressed,
+  }) {
     final responsive = context.responsive;
     return SizedBox(
       width: double.infinity,
@@ -268,14 +312,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: ButtonStyle(
           // default background: light mint; on hover/pressed: light green
           backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(MaterialState.hovered) || states.contains(MaterialState.pressed)) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.pressed)) {
               return AppColors.lightGreen; // 0xFF1F4A14
             }
             return AppColors.lightMintGreen; // 0xFFF1F5F2
           }),
           // default text: black; on hover/pressed: offWhite
           foregroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(MaterialState.hovered) || states.contains(MaterialState.pressed)) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.pressed)) {
               return AppColors.offWhite;
             }
             return AppColors.black;
@@ -303,26 +349,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _outlinedButton(BuildContext context, String text, {required VoidCallback onPressed}) {
+  Widget _outlinedButton(
+    BuildContext context,
+    String text, {
+    required VoidCallback onPressed,
+  }) {
     final responsive = context.responsive;
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(MaterialState.hovered) || states.contains(MaterialState.pressed)) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.pressed)) {
               return AppColors.lightGreen;
             }
             return AppColors.lightMintGreen;
           }),
           foregroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(MaterialState.hovered) || states.contains(MaterialState.pressed)) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.pressed)) {
               return AppColors.offWhite;
             }
             return AppColors.black;
           }),
           side: MaterialStateProperty.resolveWith<BorderSide?>((states) {
-            if (states.contains(MaterialState.hovered) || states.contains(MaterialState.pressed)) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.pressed)) {
               return BorderSide(
                 color: AppColors.lightGreen,
                 width: responsive.sp(0.2),

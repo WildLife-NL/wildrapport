@@ -26,6 +26,7 @@ class CustomBottomAppBar extends StatelessWidget {
     debugPrint('CustomBottomAppBar: Next button pressed');
     onNextPressed?.call();
   }
+
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;

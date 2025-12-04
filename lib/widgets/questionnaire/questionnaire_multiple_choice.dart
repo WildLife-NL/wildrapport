@@ -32,9 +32,10 @@ class QuestionnaireMultipleChoice extends StatefulWidget {
       _QuestionnaireMultipleChoiceState();
 }
 
-class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoice> {
+class _QuestionnaireMultipleChoiceState
+    extends State<QuestionnaireMultipleChoice> {
   late final ResponseProvider responseProvider;
-  Response? existingResponse;  
+  Response? existingResponse;
   String? selectedAnswerID;
   List<String> selectedAnswerIDs = [];
 
@@ -61,134 +62,144 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
     return Scaffold(
       body: SharedWhiteBackground(
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: responsive.spacing(16), left: responsive.spacing(12)),
-            child: Text(
-              'Vraag ${widget.index + 1} van ${widget.questionnaire.questions?.length}',
-              style: TextStyle(
-                fontSize: responsive.fontSize(16),
-                fontFamily: 'Roboto',
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(height: responsive.spacing(1)),
-          Padding(
-            padding: EdgeInsets.only(top: responsive.spacing(16), left: responsive.spacing(12)),
-            child: Text(
-              widget.question.text,
-              style: TextStyle(
-                fontSize: responsive.fontSize(20),
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Roboto',
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(height: responsive.spacing(1)),
-          if (widget.question.description.isNotEmpty)
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Padding(
-              padding: EdgeInsets.only(left: responsive.spacing(12)),
+              padding: EdgeInsets.only(
+                top: responsive.spacing(16),
+                left: responsive.spacing(12),
+              ),
               child: Text(
-                widget.question.description,
+                'Vraag ${widget.index + 1} van ${widget.questionnaire.questions?.length}',
                 style: TextStyle(
-                  fontSize: responsive.fontSize(18),
+                  fontSize: responsive.fontSize(16),
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            SizedBox(height: responsive.spacing(1)),
+            Padding(
+              padding: EdgeInsets.only(
+                top: responsive.spacing(16),
+                left: responsive.spacing(12),
+              ),
+              child: Text(
+                widget.question.text,
+                style: TextStyle(
+                  fontSize: responsive.fontSize(20),
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Roboto',
                   color: Colors.black,
                 ),
               ),
             ),
-          SizedBox(height: responsive.spacing(24)),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  if (widget.question.answers != null)
-                    ...widget.question.answers!.map((answer) {
-                      return widget.question.allowMultipleResponse
-                          ? CheckboxListTile(
-                            value: selectedAnswerIDs.contains(answer.id),
-                            title: Text(
-                              answer.text,
-                              style: TextStyle(
-                                fontSize: responsive.fontSize(18),
-                                fontFamily: 'Roboto',
-                                color: Colors.black,
+            SizedBox(height: responsive.spacing(1)),
+            if (widget.question.description.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.only(left: responsive.spacing(12)),
+                child: Text(
+                  widget.question.description,
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(18),
+                    fontFamily: 'Roboto',
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            SizedBox(height: responsive.spacing(24)),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (widget.question.answers != null)
+                      ...widget.question.answers!.map((answer) {
+                        return widget.question.allowMultipleResponse
+                            ? CheckboxListTile(
+                              value: selectedAnswerIDs.contains(answer.id),
+                              title: Text(
+                                answer.text,
+                                style: TextStyle(
+                                  fontSize: responsive.fontSize(18),
+                                  fontFamily: 'Roboto',
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            onChanged: (checked) {
-                              setState(() {
-                                if (checked == true) {
-                                  selectedAnswerIDs.add(answer.id);
-                                } else {
-                                  selectedAnswerIDs.remove(answer.id);
-                                }
+                              onChanged: (checked) {
+                                setState(() {
+                                  if (checked == true) {
+                                    selectedAnswerIDs.add(answer.id);
+                                  } else {
+                                    selectedAnswerIDs.remove(answer.id);
+                                  }
 
-                                final updatedAnswerID = selectedAnswerIDs.join(',');
+                                  final updatedAnswerID = selectedAnswerIDs
+                                      .join(',');
 
-                                if (existingResponse != null) {
-                                  responseProvider.setUpdatingResponse(true);
-                                  responseProvider.updateResponse(
-                                    existingResponse!.copyWith(answerID: updatedAnswerID),
-                                  );
-                                } else {
-                                  final newResponse = Response(
-                                    answerID: updatedAnswerID,
-                                    interactionID: widget.interactionID,
-                                    questionID: widget.question.id,
-                                  );
-                                  responseProvider.addResponse(newResponse);
-                                  existingResponse = newResponse;
-                                }
-                              });
-                            },
-                          )
-                          : 
-                          RadioListTile<String>(
-                            title: Text(
-                              answer.text,
-                              style: TextStyle(
-                                fontSize: responsive.fontSize(18),
-                                fontFamily: 'Roboto',
-                                color: Colors.black,
+                                  if (existingResponse != null) {
+                                    responseProvider.setUpdatingResponse(true);
+                                    responseProvider.updateResponse(
+                                      existingResponse!.copyWith(
+                                        answerID: updatedAnswerID,
+                                      ),
+                                    );
+                                  } else {
+                                    final newResponse = Response(
+                                      answerID: updatedAnswerID,
+                                      interactionID: widget.interactionID,
+                                      questionID: widget.question.id,
+                                    );
+                                    responseProvider.addResponse(newResponse);
+                                    existingResponse = newResponse;
+                                  }
+                                });
+                              },
+                            )
+                            : RadioListTile<String>(
+                              title: Text(
+                                answer.text,
+                                style: TextStyle(
+                                  fontSize: responsive.fontSize(18),
+                                  fontFamily: 'Roboto',
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            value: answer.id,
-                            groupValue: selectedAnswerID,
-                            onChanged: (String? value) {
-                              setState(() {
-                                selectedAnswerID = value;
-                                if (existingResponse != null) {
-                                  responseProvider.setUpdatingResponse(true);
-                                  responseProvider.updateResponse(
-                                    existingResponse!.copyWith(answerID: value),
-                                  );
-                                } else {
-                                  final newResponse = Response(
-                                    answerID: value,
-                                    interactionID: widget.interactionID,
-                                    questionID: widget.question.id,
-                                  );
-                                  responseProvider.addResponse(newResponse);
-                                  existingResponse = newResponse;
-                                }
-                              });
-                            },
-                          );
-                    }),
-                ],
+                              value: answer.id,
+                              groupValue: selectedAnswerID,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  selectedAnswerID = value;
+                                  if (existingResponse != null) {
+                                    responseProvider.setUpdatingResponse(true);
+                                    responseProvider.updateResponse(
+                                      existingResponse!.copyWith(
+                                        answerID: value,
+                                      ),
+                                    );
+                                  } else {
+                                    final newResponse = Response(
+                                      answerID: value,
+                                      interactionID: widget.interactionID,
+                                      questionID: widget.question.id,
+                                    );
+                                    responseProvider.addResponse(newResponse);
+                                    existingResponse = newResponse;
+                                  }
+                                });
+                              },
+                            );
+                      }),
+                  ],
+                ),
               ),
             ),
-          ),
-          CustomBottomAppBar(
-            onNextPressed: widget.onNextPressed,
-            onBackPressed: widget.onBackPressed,
-            showBackButton: true,
-          ),
-        ],
+            CustomBottomAppBar(
+              onNextPressed: widget.onNextPressed,
+              onBackPressed: widget.onBackPressed,
+              showBackButton: true,
+            ),
+          ],
         ),
       ),
     );

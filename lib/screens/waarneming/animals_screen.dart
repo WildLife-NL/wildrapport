@@ -77,13 +77,15 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         _error = null;
       });
 
-      final selectedCategory = _animalSightingManager.getCurrentanimalSighting()?.category;
-      debugPrint('[AnimalsScreen] Selected category used for query: $selectedCategory');
+      final selectedCategory =
+          _animalSightingManager.getCurrentanimalSighting()?.category;
+      debugPrint(
+        '[AnimalsScreen] Selected category used for query: $selectedCategory',
+      );
 
       final animals = await _animalManager.getAnimalsByCategory(
         category: selectedCategory,
       );
-
 
       debugPrint(
         '[AnimalsScreen] Successfully loaded ${animals.length} animals',
@@ -148,7 +150,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
 
   @override
   Widget build(BuildContext context) {
-  // dropdownInterface removed - using custom search/filter UI instead
+    // dropdownInterface removed - using custom search/filter UI instead
 
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
@@ -172,7 +174,10 @@ class _AnimalsScreenState extends State<AnimalsScreen>
             ),
             Padding(
               // increase vertical padding to move elements slightly down
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 24.0,
+              ),
               child: Column(
                 children: [
                   // Search box (larger) — use same mint background as page, no shadow
@@ -181,7 +186,10 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                     decoration: BoxDecoration(
                       color: AppColors.lightMintGreen,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.darkGreen, width: 1.5),
+                      border: Border.all(
+                        color: AppColors.darkGreen,
+                        width: 1.5,
+                      ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
@@ -192,21 +200,27 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                           child: TextField(
                             controller: _searchController,
                             style: const TextStyle(fontSize: 16),
-                              decoration: InputDecoration(
-                                hintText: 'zoeken',
+                            decoration: InputDecoration(
+                              hintText: 'zoeken',
                               border: InputBorder.none,
                               isCollapsed: true,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                              suffixIcon: (_searchController.text.isNotEmpty)
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear, color: AppColors.darkGreen),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        _animalManager.updateSearchTerm('');
-                                        setState(() {});
-                                      },
-                                    )
-                                  : null,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                              suffixIcon:
+                                  (_searchController.text.isNotEmpty)
+                                      ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear,
+                                          color: AppColors.darkGreen,
+                                        ),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          _animalManager.updateSearchTerm('');
+                                          setState(() {});
+                                        },
+                                      )
+                                      : null,
                             ),
                             onChanged: (val) {
                               _animalManager.updateSearchTerm(val);

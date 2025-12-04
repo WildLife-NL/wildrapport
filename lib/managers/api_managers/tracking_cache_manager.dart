@@ -11,11 +11,11 @@ import 'package:wildrapport/utils/connection_checker.dart';
 /// and automatically retries sending them when connection is restored.
 class TrackingCacheManager {
   static const String _cacheKey = 'cached_tracking_readings';
-  
+
   final TrackingApiInterface trackingApi;
   final Connectivity _connectivity;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
-  
+
   bool _isRetryingSend = false;
   bool _isInitialized = false;
 
@@ -23,15 +23,13 @@ class TrackingCacheManager {
   final String redLog = '\x1B[31m';
   final String yellowLog = '\x1B[93m';
 
-  TrackingCacheManager({
-    required this.trackingApi,
-    Connectivity? connectivity,
-  }) : _connectivity = connectivity ?? Connectivity();
+  TrackingCacheManager({required this.trackingApi, Connectivity? connectivity})
+    : _connectivity = connectivity ?? Connectivity();
 
   /// Initialize connectivity monitoring
   void init() {
     if (_isInitialized) return;
-    
+
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
     );
@@ -47,15 +45,21 @@ class TrackingCacheManager {
 
   /// Handle connectivity changes - try to send cached data when connection is restored
   void _handleConnectivityChange(List<ConnectivityResult> results) async {
-    debugPrint('$yellowLog[TrackingCacheManager] Connectivity changed: $results');
+    debugPrint(
+      '$yellowLog[TrackingCacheManager] Connectivity changed: $results',
+    );
 
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
 
     if (hasConnection) {
-      debugPrint('$greenLog[TrackingCacheManager] Connection restored, trying to send cached readings');
+      debugPrint(
+        '$greenLog[TrackingCacheManager] Connection restored, trying to send cached readings',
+      );
       await _trySendCachedReadings();
     } else {
-      debugPrint('$yellowLog[TrackingCacheManager] No internet connection – tracking readings will be cached');
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] No internet connection – tracking readings will be cached',
+      );
     }
   }
 
@@ -74,14 +78,20 @@ class TrackingCacheManager {
       if (hasConnection) {
         try {
           await _trySendCachedReadings();
-          debugPrint('$greenLog[TrackingCacheManager] Successfully sent cached readings');
+          debugPrint(
+            '$greenLog[TrackingCacheManager] Successfully sent cached readings',
+          );
           _isRetryingSend = false;
           break; // Stop retrying after success
         } catch (e) {
-          debugPrint('$yellowLog[TrackingCacheManager] Retry failed: $e. Will try again in 10 seconds.');
+          debugPrint(
+            '$yellowLog[TrackingCacheManager] Retry failed: $e. Will try again in 10 seconds.',
+          );
         }
       } else {
-        debugPrint('$yellowLog[TrackingCacheManager] No internet. Will check again in 10 seconds.');
+        debugPrint(
+          '$yellowLog[TrackingCacheManager] No internet. Will check again in 10 seconds.',
+        );
       }
       await Future.delayed(Duration(seconds: 10));
     }
@@ -90,7 +100,9 @@ class TrackingCacheManager {
   /// Try to send all cached readings
   Future<void> _trySendCachedReadings() async {
     if (!await ConnectionChecker.hasInternetConnection()) {
-      debugPrint('$yellowLog[TrackingCacheManager] Internet not fully ready. Retry later.');
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] Internet not fully ready. Retry later.',
+      );
       _scheduleRetryUntilSuccess();
       return;
     }
@@ -100,27 +112,31 @@ class TrackingCacheManager {
   /// Cache a tracking reading to local storage
   Future<void> cacheReading(TrackingReading reading) async {
     try {
-      debugPrint('$yellowLog[TrackingCacheManager] Caching tracking reading: $reading');
-      
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] Caching tracking reading: $reading',
+      );
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String>? cachedJson = prefs.getStringList(_cacheKey);
-      
+
       List<TrackingReading> readings = [];
       if (cachedJson != null) {
-        readings = cachedJson
-            .map((json) => TrackingReading.fromJson(jsonDecode(json)))
-            .toList();
+        readings =
+            cachedJson
+                .map((json) => TrackingReading.fromJson(jsonDecode(json)))
+                .toList();
       }
-      
+
       readings.add(reading);
-      
-      List<String> updatedJson = readings
-          .map((reading) => jsonEncode(reading.toJson()))
-          .toList();
-      
+
+      List<String> updatedJson =
+          readings.map((reading) => jsonEncode(reading.toJson())).toList();
+
       await prefs.setStringList(_cacheKey, updatedJson);
-      
-      debugPrint('$greenLog[TrackingCacheManager] Cached reading successfully. Total cached: ${readings.length}');
+
+      debugPrint(
+        '$greenLog[TrackingCacheManager] Cached reading successfully. Total cached: ${readings.length}',
+      );
     } catch (e, stackTrace) {
       debugPrint('$redLog[TrackingCacheManager] Failed to cache reading: $e');
       debugPrint('$redLog$stackTrace');
@@ -133,48 +149,58 @@ class TrackingCacheManager {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String>? cachedJson = prefs.getStringList(_cacheKey);
-      
+
       if (cachedJson == null || cachedJson.isEmpty) {
         return [];
       }
-      
+
       return cachedJson
           .map((json) => TrackingReading.fromJson(jsonDecode(json)))
           .toList();
     } catch (e) {
-      debugPrint('$redLog[TrackingCacheManager] Failed to get cached readings: $e');
+      debugPrint(
+        '$redLog[TrackingCacheManager] Failed to get cached readings: $e',
+      );
       return [];
     }
   }
 
   /// Send all cached readings to the server
   Future<void> sendCachedReadings() async {
-    debugPrint('$yellowLog[TrackingCacheManager] === Starting sendCachedReadings ===');
-    
+    debugPrint(
+      '$yellowLog[TrackingCacheManager] === Starting sendCachedReadings ===',
+    );
+
     List<TrackingReading> cachedReadings = await getCachedReadings();
-    
+
     if (cachedReadings.isEmpty) {
       debugPrint('$yellowLog[TrackingCacheManager] No cached readings to send');
       return;
     }
-    
-    debugPrint('$yellowLog[TrackingCacheManager] Found ${cachedReadings.length} cached readings to send');
-    
+
+    debugPrint(
+      '$yellowLog[TrackingCacheManager] Found ${cachedReadings.length} cached readings to send',
+    );
+
     // Use ConnectionChecker for testability
     final hasConnection = await ConnectionChecker.hasInternetConnection();
-    
+
     if (!hasConnection) {
-      debugPrint('$yellowLog[TrackingCacheManager] No connection, keeping readings in cache');
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] No connection, keeping readings in cache',
+      );
       return;
     }
-    
+
     List<TrackingReading> failedReadings = [];
     int successCount = 0;
-    
+
     for (int i = 0; i < cachedReadings.length; i++) {
       TrackingReading reading = cachedReadings[i];
-      debugPrint('$yellowLog[TrackingCacheManager] Sending cached reading ${i + 1}/${cachedReadings.length}: $reading');
-      
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] Sending cached reading ${i + 1}/${cachedReadings.length}: $reading',
+      );
+
       try {
         await trackingApi.addTrackingReading(
           lat: reading.latitude,
@@ -182,29 +208,38 @@ class TrackingCacheManager {
           timestampUtc: reading.timestampUtc,
         );
         successCount++;
-        debugPrint('$greenLog[TrackingCacheManager] Reading ${i + 1} sent successfully');
+        debugPrint(
+          '$greenLog[TrackingCacheManager] Reading ${i + 1} sent successfully',
+        );
       } catch (e) {
         debugPrint('$redLog[TrackingCacheManager] Reading ${i + 1} failed: $e');
         failedReadings.add(reading);
       }
     }
-    
+
     debugPrint('$yellowLog[TrackingCacheManager] === Send Summary ===');
-    debugPrint('$yellowLog[TrackingCacheManager] Total: ${cachedReadings.length}, '
-        'Successful: $successCount, Failed: ${failedReadings.length}');
-    
+    debugPrint(
+      '$yellowLog[TrackingCacheManager] Total: ${cachedReadings.length}, '
+      'Successful: $successCount, Failed: ${failedReadings.length}',
+    );
+
     // Update cache with only failed readings
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     if (failedReadings.isEmpty) {
       await prefs.remove(_cacheKey);
-      debugPrint('$greenLog[TrackingCacheManager] All cached readings sent successfully and cache cleared');
+      debugPrint(
+        '$greenLog[TrackingCacheManager] All cached readings sent successfully and cache cleared',
+      );
     } else {
-      List<String> updatedJson = failedReadings
-          .map((reading) => jsonEncode(reading.toJson()))
-          .toList();
+      List<String> updatedJson =
+          failedReadings
+              .map((reading) => jsonEncode(reading.toJson()))
+              .toList();
       await prefs.setStringList(_cacheKey, updatedJson);
-      debugPrint('$yellowLog[TrackingCacheManager] ${failedReadings.length} readings failed, kept in cache');
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] ${failedReadings.length} readings failed, kept in cache',
+      );
     }
   }
 
@@ -214,21 +249,27 @@ class TrackingCacheManager {
     required double lon,
     required DateTime timestampUtc,
   }) async {
-    debugPrint('$yellowLog[TrackingCacheManager] Attempting to send tracking reading');
-    
+    debugPrint(
+      '$yellowLog[TrackingCacheManager] Attempting to send tracking reading',
+    );
+
     // Check if we have internet connection
     bool hasConnection = await ConnectionChecker.hasInternetConnection();
-    
+
     if (!hasConnection) {
-      debugPrint('$yellowLog[TrackingCacheManager] No internet connection, caching reading');
-      await cacheReading(TrackingReading(
-        latitude: lat,
-        longitude: lon,
-        timestampUtc: timestampUtc,
-      ));
+      debugPrint(
+        '$yellowLog[TrackingCacheManager] No internet connection, caching reading',
+      );
+      await cacheReading(
+        TrackingReading(
+          latitude: lat,
+          longitude: lon,
+          timestampUtc: timestampUtc,
+        ),
+      );
       return null;
     }
-    
+
     // Try to send the reading
     try {
       final notice = await trackingApi.addTrackingReading(
@@ -237,21 +278,23 @@ class TrackingCacheManager {
         timestampUtc: timestampUtc,
       );
       debugPrint('$greenLog[TrackingCacheManager] Reading sent successfully');
-      
+
       // If successful, try to send any cached readings too
       _trySendCachedReadings();
-      
+
       return notice;
     } catch (e) {
       debugPrint('$redLog[TrackingCacheManager] Failed to send reading: $e');
       debugPrint('$yellowLog[TrackingCacheManager] Caching reading for later');
-      
-      await cacheReading(TrackingReading(
-        latitude: lat,
-        longitude: lon,
-        timestampUtc: timestampUtc,
-      ));
-      
+
+      await cacheReading(
+        TrackingReading(
+          latitude: lat,
+          longitude: lon,
+          timestampUtc: timestampUtc,
+        ),
+      );
+
       return null;
     }
   }
