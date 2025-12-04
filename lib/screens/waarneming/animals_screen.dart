@@ -9,7 +9,6 @@ import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 
 class AnimalsScreen extends StatefulWidget {
@@ -216,71 +215,6 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Filter pills (moved down, slightly larger)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _animalManager.updateFilter(FilterType.mostViewed.displayText);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _animalManager.getSelectedFilter() == FilterType.mostViewed.displayText
-                                  ? AppColors.darkGreen
-                                  : AppColors.lightMintGreen,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(color: AppColors.darkGreen, width: 1.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Meest gezien',
-                                style: TextStyle(
-                                  color: _animalManager.getSelectedFilter() == FilterType.mostViewed.displayText
-                                      ? Colors.white
-                                      : AppColors.darkGreen,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _animalManager.updateFilter(FilterType.alphabetical.displayText);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _animalManager.getSelectedFilter() == FilterType.alphabetical.displayText
-                                  ? AppColors.darkGreen
-                                  : AppColors.lightMintGreen,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(color: AppColors.darkGreen, width: 1.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'A-Z',
-                                style: TextStyle(
-                                  color: _animalManager.getSelectedFilter() == FilterType.alphabetical.displayText
-                                      ? Colors.white
-                                      : AppColors.darkGreen,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
