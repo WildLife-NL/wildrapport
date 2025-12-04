@@ -554,8 +554,8 @@ class AnimalListTableState extends State<AnimalListTable> {
                           vertical: 8,
                         ),
                         border: InputBorder.none,
-                        hintText: 'type..',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        label: Text('type..'),
+                        labelStyle: TextStyle(color: Colors.grey),
                       ),
                       onTap: () {
                         // Clear the text when tapped
@@ -633,7 +633,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'typ hier...',
+                    label: Text('typ hier...'),
                   ),
                   style: const TextStyle(fontSize: 16, height: 1.5),
                 ),

@@ -133,8 +133,8 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                           child: TextField(
                             controller: _searchController,
                             style: const TextStyle(fontSize: 16),
-                            decoration: InputDecoration(
-                              hintText: 'zoeken',
+                              decoration: InputDecoration(
+                                hintText: 'zoeken',
                               border: InputBorder.none,
                               isCollapsed: true,
                               contentPadding: const EdgeInsets.symmetric(vertical: 14),

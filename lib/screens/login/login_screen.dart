@@ -226,8 +226,8 @@ class _LoginScreenState extends State<LoginScreen> with PermissionChecker<LoginS
                               controller: emailController,
                               minLines: 1,
                               maxLines: null,
-                              decoration: InputDecoration(
-                                hintText: 'e-mailadres',
+                                decoration: InputDecoration(
+                                  hintText: 'e-mailadres',
                                 hintStyle: TextStyle(
                                   color: Colors.grey,
                                   fontSize: ru.fontSize(14),

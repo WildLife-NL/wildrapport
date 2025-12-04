@@ -216,15 +216,15 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     color: AppColors.darkGreen,
                     letterSpacing: 4,
                   ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    hintText: 'HH:MM',
-                    hintStyle: TextStyle(
-                      color: AppColors.darkGreen.withValues(alpha: 0.3),
-                      fontSize: responsive.fontSize(32),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      hintText: 'HH:MM',
+                      hintStyle: TextStyle(
+                        color: AppColors.darkGreen.withValues(alpha: 0.3),
+                        fontSize: responsive.fontSize(32),
+                      ),
                     ),
-                  ),
                   inputFormatters: [
                     TimeInputFormatter(),
                   ],

@@ -248,10 +248,10 @@ Padding(
                               maxLines: null,
                               keyboardType: const TextInputType.numberWithOptions(decimal: false),
                               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: 'Typ hier...',
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  hintText: 'Typ hier...',
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
@@ -449,7 +449,7 @@ Padding(
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: 'Bedrag in €',
+                            label: const Text('Bedrag in €'),
                             prefixText: '€ ',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
@@ -515,7 +515,7 @@ Padding(
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: 'Bedrag in €',
+                            label: const Text('Bedrag in €'),
                             prefixText: '€ ',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),

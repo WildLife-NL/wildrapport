@@ -251,9 +251,9 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                               controller: _detailsController,
                               minLines: 1,
                               maxLines: null,
-                              decoration: InputDecoration(
-                                hintText: 'Beschrijf het ongeval...',
-                                filled: true,
+                                decoration: InputDecoration(
+                                  hintText: 'Beschrijf het ongeval...',
+                                  filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
