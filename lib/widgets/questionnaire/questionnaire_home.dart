@@ -107,6 +107,40 @@ class QuestionnaireHome extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: responsive.spacing(16)),
+              // "Save for Later" button - smaller and rounded
+              SizedBox(
+                width: responsive.wp(60),
+                height: responsive.hp(6),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const OverzichtScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(responsive.sp(2)),
+                      side: BorderSide(
+                        color: AppColors.darkGreen,
+                        width: responsive.sp(0.2),
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    "Voor later opslaan",
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: responsive.fontSize(14),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
