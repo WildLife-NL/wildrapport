@@ -248,6 +248,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
                       point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                       width: 40,
                       height: 40,
+                      rotate: false,
                       child: const Icon(
                         Icons.my_location,
                         color: Colors.blue,
@@ -263,6 +264,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
                       point: _markedLocation!,
                       width: 40,
                       height: 40,
+                      rotate: false,
                       child: const Icon(
                         Icons.location_pin,
                         color: Colors.red,

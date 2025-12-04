@@ -1030,6 +1030,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               width:
                                                   44, // bigger, easier tap target
                                               height: 44,
+                                              rotate: false,
                                               child: GestureDetector(
                                                 behavior:
                                                     HitTestBehavior.opaque,
@@ -1143,6 +1144,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   24.0,
                                                   44.0,
                                                 ),
+                                                rotate: false,
                                                 child: GestureDetector(
                                                   behavior:
                                                       HitTestBehavior.opaque,
@@ -1213,6 +1215,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 24.0,
                                                 44.0,
                                               ),
+                                              rotate: false,
                                               child: GestureDetector(
                                                 behavior:
                                                     HitTestBehavior.opaque,
@@ -1247,6 +1250,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     point: LatLng(pos.latitude, pos.longitude),
                                     width: 40,
                                     height: 40,
+                                    rotate: false,
                                     child: const Icon(
                                       Icons.my_location,
                                       size: 30,
@@ -1279,6 +1283,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 point: LatLng(itx.lat, itx.lon),
                                                 width: 44, // easier tap target
                                                 height: 44,
+                                                rotate: false,
                                                 child: GestureDetector(
                                                   behavior:
                                                       HitTestBehavior.opaque,
@@ -1386,6 +1391,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               point: LatLng(itx.lat, itx.lon),
                                               width: 44,
                                               height: 44,
+                                              rotate: false,
                                               child: GestureDetector(
                                                 behavior:
                                                     HitTestBehavior.opaque,
