@@ -15,6 +15,9 @@ import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
+import 'package:wildrapport/data_managers/tracking_api.dart';
+import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
@@ -70,6 +73,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _showInteractionsNew = true;
   bool _showInteractionsMedium = false;
   bool _showInteractionsOld = false;
+
+  // Tracking history state
+  bool _showTrackingHistory = false;
+  List<TrackingReadingResponse> _trackingHistory = [];
+  bool _loadingTrackingHistory = false;
+  int _trackingHistoryMinutes = 5; // Default: show last 5 minutes
 
   @override
   void didChangeDependencies() {
@@ -460,6 +469,142 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       map.setSelectedLocation(pos, address);
     } catch (e) {
       debugPrint('[Kaart] Reverse geocoding failed: $e');
+    }
+  }
+
+  /// Load tracking history from API
+  Future<void> _loadTrackingHistory() async {
+    if (_loadingTrackingHistory) return;
+
+    setState(() {
+      _loadingTrackingHistory = true;
+    });
+
+    try {
+      final trackingApi = TrackingApi(AppConfig.shared.apiClient);
+      
+      final readings = await trackingApi.getMyTrackingReadings().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Request timeout after 10 seconds');
+        },
+      );
+      
+      if (!mounted) return;
+      
+      if (readings.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Geen tracking gegevens beschikbaar'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        setState(() => _loadingTrackingHistory = false);
+        return;
+      }
+      
+      // CRITICAL DIAGNOSTIC: Show timestamp range in database
+      final sorted = List<TrackingReadingResponse>.from(readings);
+      sorted.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      
+      final oldest = sorted.first.timestamp;
+      final newest = sorted.last.timestamp;
+      final now = DateTime.now();
+      
+      debugPrint('[TRACKING] 🔴 CRITICAL DATA:');
+      debugPrint('[TRACKING] Now: ${now.toIso8601String()}');
+      debugPrint('[TRACKING] Newest in DB: ${newest.toIso8601String()} (${now.difference(newest).inSeconds}s ago)');
+      debugPrint('[TRACKING] Oldest in DB: ${oldest.toIso8601String()} (${now.difference(oldest).inSeconds}s ago)');
+      debugPrint('[TRACKING] Total readings: ${readings.length}');
+      
+      // Filter to configurable time window
+      final threshold = now.subtract(Duration(minutes: _trackingHistoryMinutes));
+      
+      final filteredReadings = readings
+          .where((r) => r.timestamp.isAfter(threshold))
+          .toList();
+      
+      // IMPORTANT: If no recent data found, also filter out OLD junk data (>24h old)
+      // This handles stale test data in the database
+      if (filteredReadings.isEmpty && readings.isNotEmpty) {
+        final oneDayAgo = now.subtract(const Duration(days: 1));
+        final recentOnlyReadings = readings
+            .where((r) => r.timestamp.isAfter(oneDayAgo))
+            .toList();
+        
+        if (recentOnlyReadings.isNotEmpty) {
+          debugPrint('[TRACKING] No data in 5min window, but found ${recentOnlyReadings.length} readings from last 24h');
+          setState(() {
+            _trackingHistory = recentOnlyReadings;
+            _showTrackingHistory = true;
+            _loadingTrackingHistory = false;
+          });
+          
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${recentOnlyReadings.length} locaties van laatste 24 uur (geen recente in 5min)'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          return;
+        }
+      }
+      
+      setState(() {
+        _trackingHistory = filteredReadings;
+        _showTrackingHistory = true;
+        _loadingTrackingHistory = false;
+      });
+      
+      // Show success message
+      if (!mounted) return;
+      
+      String message;
+      if (filteredReadings.isEmpty) {
+        // Show data from last 24 hours as fallback
+        final oneDayAgo = now.subtract(const Duration(days: 1));
+        final recentOnlyReadings = readings
+            .where((r) => r.timestamp.isAfter(oneDayAgo))
+            .toList();
+        
+        if (recentOnlyReadings.isNotEmpty) {
+          message = '${recentOnlyReadings.length} locaties van vandaag (geen pingen in ${_trackingHistoryMinutes} min)';
+        } else {
+          message = 'Geen locaties in laatste ${_trackingHistoryMinutes} minuten';
+        }
+      } else {
+        message = '${filteredReadings.length} locaties van laatste ${_trackingHistoryMinutes} minuten';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } on TimeoutException {
+      if (!mounted) return;
+      setState(() {
+        _loadingTrackingHistory = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Verzoek timeout - probeer opnieuw'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadingTrackingHistory = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fout: ${e.toString()}'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -1255,6 +1400,34 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 ],
                               ),
 
+                            // ── TRACKING HISTORY ─────────────────────────────────────────────────────
+                            if (_showTrackingHistory && _trackingHistory.isNotEmpty)
+                              fm.PolylineLayer(
+                                polylines: [
+                                  fm.Polyline(
+                                    points: _trackingHistory
+                                        .map((r) => LatLng(r.latitude, r.longitude))
+                                        .toList(),
+                                    color: Colors.blue.withOpacity(0.6),
+                                    strokeWidth: 2.0,
+                                  ),
+                                ],
+                              ),
+                            
+                            if (_showTrackingHistory && _trackingHistory.isNotEmpty)
+                              fm.CircleLayer(
+                                circles: _trackingHistory.map((reading) {
+                                  return fm.CircleMarker(
+                                    point: LatLng(reading.latitude, reading.longitude),
+                                    radius: 4,
+                                    color: Colors.blue.withOpacity(0.8),
+                                    borderColor: Colors.white,
+                                    borderStrokeWidth: 1,
+                                    useRadiusInMeter: false,
+                                  );
+                                }).toList(),
+                              ),
+
                             // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
                             _useClusters
                                 ? cl.MarkerClusterLayerWidget(
@@ -1476,6 +1649,44 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               // Reset map rotation to north (0 degrees)
                               map.mapController.rotate(0);
                             },
+                          ),
+                        ),
+
+                        // ── Tracking History button ─────────────────────────────────────────────────
+                        Positioned(
+                          right: 16,
+                          bottom: 200,
+                          child: FloatingActionButton(
+                            heroTag: 'tracking_history_btn',
+                            backgroundColor: _showTrackingHistory 
+                                ? Colors.blue 
+                                : AppColors.darkGreen,
+                            child: _loadingTrackingHistory
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Icon(
+                                    _showTrackingHistory ? Icons.timeline : Icons.history,
+                                    color: Colors.white,
+                                  ),
+                            onPressed: _loadingTrackingHistory
+                                ? null
+                                : () {
+                                    if (_showTrackingHistory) {
+                                      // Toggle off
+                                      setState(() {
+                                        _showTrackingHistory = false;
+                                      });
+                                    } else {
+                                      // Load and show
+                                      _loadTrackingHistory();
+                                    }
+                                  },
                           ),
                         ),
 

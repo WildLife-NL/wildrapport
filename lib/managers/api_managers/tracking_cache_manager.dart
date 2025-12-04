@@ -161,19 +161,26 @@ class TrackingCacheManager {
     debugPrint('$yellowLog[TrackingCacheManager] Found ${cachedReadings.length} cached readings to send');
     
     // Use ConnectionChecker for testability
+    debugPrint('$yellowLog[TrackingCacheManager] Checking internet connection...');
     final hasConnection = await ConnectionChecker.hasInternetConnection();
+    debugPrint('$yellowLog[TrackingCacheManager] Connection check result: $hasConnection');
     
     if (!hasConnection) {
-      debugPrint('$yellowLog[TrackingCacheManager] No connection, keeping readings in cache');
+      debugPrint('$redLog[TrackingCacheManager] ❌ No connection, keeping ${cachedReadings.length} readings in cache');
       return;
     }
+    
+    debugPrint('$greenLog[TrackingCacheManager] ✅ Connection available, proceeding to send ${cachedReadings.length} readings');
     
     List<TrackingReading> failedReadings = [];
     int successCount = 0;
     
     for (int i = 0; i < cachedReadings.length; i++) {
       TrackingReading reading = cachedReadings[i];
-      debugPrint('$yellowLog[TrackingCacheManager] Sending cached reading ${i + 1}/${cachedReadings.length}: $reading');
+      // Only print every 100th reading and the first/last
+      if (i == 0 || i == cachedReadings.length - 1 || (i + 1) % 100 == 0) {
+        debugPrint('$yellowLog[TrackingCacheManager] Sending cached reading ${i + 1}/${cachedReadings.length}: $reading');
+      }
       
       try {
         await trackingApi.addTrackingReading(
@@ -182,7 +189,9 @@ class TrackingCacheManager {
           timestampUtc: reading.timestampUtc,
         );
         successCount++;
-        debugPrint('$greenLog[TrackingCacheManager] Reading ${i + 1} sent successfully');
+        if (i == 0 || i == cachedReadings.length - 1 || (i + 1) % 100 == 0) {
+          debugPrint('$greenLog[TrackingCacheManager] Reading ${i + 1} sent successfully');
+        }
       } catch (e) {
         debugPrint('$redLog[TrackingCacheManager] Reading ${i + 1} failed: $e');
         failedReadings.add(reading);
