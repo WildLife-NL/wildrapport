@@ -192,12 +192,18 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     _pendingSnackBarMessage = interactionResponseModel == null
         ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel"
         : "interactie succesvol verstuurd";
-    _pendingNavigationScreen = interactionResponseModel != null
-        ? QuestionnaireScreen(
-            questionnaire: interactionResponseModel.questionnaire,
-            interactionID: interactionResponseModel.interactionID,
-          )
-        : const OverzichtScreen();
+    
+    // Only show questionnaire screen if there are actually questions
+    if (interactionResponseModel != null &&
+        interactionResponseModel.questionnaire.questions != null &&
+        interactionResponseModel.questionnaire.questions!.isNotEmpty) {
+      _pendingNavigationScreen = QuestionnaireScreen(
+        questionnaire: interactionResponseModel.questionnaire,
+        interactionID: interactionResponseModel.interactionID,
+      );
+    } else {
+      _pendingNavigationScreen = const OverzichtScreen();
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _handlePendingActions());
 

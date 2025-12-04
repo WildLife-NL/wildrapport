@@ -19,7 +19,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
@@ -160,9 +160,9 @@ class _LocationScreenState extends State<LocationScreen> {
     if (responseModel != null) {
       if (responseModel.questionnaire.questions == null ||
           responseModel.questionnaire.questions!.isEmpty) {
-        debugPrint('\x1B[31m[LocationScreen] Received empty questionnaire\x1B[0m');
-        _pendingSnackBarMessage = 'Geen vragen beschikbaar voor deze melding';
-        _pendingNavigationScreen = const Rapporteren();
+        debugPrint('\x1B[33m[LocationScreen] No questionnaire returned, skipping questionnaire screen\x1B[0m');
+        _pendingSnackBarMessage = 'Melding succesvol verstuurd';
+        _pendingNavigationScreen = const OverzichtScreen();
         _pendingRemoveUntil = true;
       } else {
         debugPrint('\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m');
