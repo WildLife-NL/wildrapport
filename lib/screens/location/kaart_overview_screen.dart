@@ -481,6 +481,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     required IconData icon,
     required int count,
     required Color color,
+    required double mapRotation,
   }) {
     final screenWidth = MediaQuery.of(context).size.width;
     double size;
@@ -511,7 +512,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       badgePadV = 2;
       badgeOffset = -6;
     }
-    return Stack(
+    return Transform.rotate(
+      angle: -mapRotation * math.pi / 180,
+      child: Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
@@ -555,6 +558,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -1084,6 +1088,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.pets,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
+                                          mapRotation: map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
@@ -1285,6 +1290,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.sensors,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
+                                          mapRotation: map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
@@ -1514,6 +1520,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.place,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
+                                          mapRotation: map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
