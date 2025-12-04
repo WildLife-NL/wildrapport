@@ -160,7 +160,7 @@ class _RapporterenState extends State<Rapporteren> {
           SafeArea(
             bottom: false,
             child: CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Rapporteren',
               rightIcon: null,
               onLeftIconPressed: () => _handleBackNavigation(context),

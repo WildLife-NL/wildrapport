@@ -186,13 +186,10 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: "Schademelding",
               rightIcon: null,
               showUserIcon: true,
-              onLeftIconPressed: () {
-                previousScreen();
-              },
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -204,7 +201,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,
               showNextButton: currentIndex < 1,
-              showBackButton: false,
+              showBackButton: true,
             ),
             const InvisibleMapPreloader(),
           ],

@@ -108,7 +108,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             child: Column(
               children: [
                 CustomAppBar(
-                  leftIcon: Icons.arrow_back_ios,
+                  leftIcon: null,
                   centerText: 'animalSightingen',
                   // remove rightIcon so the user/profile icon is shown like Rapporteren
                   rightIcon: null,
@@ -157,9 +157,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: _handleBackNavigation,
-        onNextPressed: () {},
+        onNextPressed: null,
         showNextButton: false,
-        showBackButton: false,
+        showBackButton: true,
       ),
     );
   }

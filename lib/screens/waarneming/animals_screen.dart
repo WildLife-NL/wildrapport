@@ -8,6 +8,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 
@@ -152,10 +153,11 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: widget.appBarTitle,
               // no right icon here so the user/profile icon is shown like Rapporteren
               rightIcon: null,
@@ -219,16 +221,24 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                 ],
               ),
             ),
-            ScrollableAnimalGrid(
-              animals: _animals, // Pass directly without the ?? []
-              isLoading: _isLoading,
-              error: _error,
-              scrollController: _scrollController,
-              onAnimalSelected: _handleAnimalSelection,
-              onRetry: _loadAnimals,
+            Expanded(
+              child: ScrollableAnimalGrid(
+                animals: _animals, // Pass directly without the ?? []
+                isLoading: _isLoading,
+                error: _error,
+                scrollController: _scrollController,
+                onAnimalSelected: _handleAnimalSelection,
+                onRetry: _loadAnimals,
+              ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomAppBar(
+        onBackPressed: _handleBackNavigation,
+        onNextPressed: null,
+        showNextButton: false,
+        showBackButton: true,
       ),
     );
   }

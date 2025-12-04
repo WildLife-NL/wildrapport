@@ -190,26 +190,10 @@ class _LocationScreenState extends State<LocationScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Locatie',
               rightIcon: null,
               showUserIcon: true,
-              onLeftIconPressed: () {
-                final navigationManager = context.read<NavigationStateInterface>();
-                final appStateProvider = context.read<AppStateProvider>();
-                final reportType = appStateProvider.currentReportType;
-                
-                // For collision flow, go back to collision details screen
-                if (reportType == ReportType.verkeersongeval) {
-                  navigationManager.pushReplacementBack(context, const CollisionDetailsScreen());
-                } else {
-                  // For other flows, go back to animal list overview
-                  // Clear remarks before returning to overview
-                  final animalSightingManager = context.read<AnimalSightingReportingInterface>();
-                  animalSightingManager.updateDescription('');
-                  navigationManager.pushReplacementBack(context, AnimalListOverviewScreen());
-                }
-              },
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -239,7 +223,7 @@ class _LocationScreenState extends State<LocationScreen> {
         },
         onNextPressed: _handleNextPressed,
         showNextButton: true,
-        showBackButton: false,
+        showBackButton: true,
       ),
     );
   }

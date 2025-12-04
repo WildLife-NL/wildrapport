@@ -28,7 +28,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Waarneming',
               rightIcon: null,
               showUserIcon: true,
@@ -149,8 +149,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
             }
           }
         },
-        showBackButton: false,
         showNextButton: true,
+        showBackButton: true,
       ),
     );
   }

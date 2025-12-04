@@ -7,6 +7,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 
@@ -93,10 +94,11 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: widget.appBarTitle,
               rightIcon: null,
               showUserIcon: true,
@@ -161,11 +163,12 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                 ],
               ),
             ),
-            ScrollableAnimalGrid(
-              animals: _animals,
-              isLoading: _isLoading,
-              scrollController: _scrollController,
-              onAnimalSelected: (AnimalModel selectedAnimal) async {
+            Expanded(
+              child: ScrollableAnimalGrid(
+                animals: _animals,
+                isLoading: _isLoading,
+                scrollController: _scrollController,
+                onAnimalSelected: (AnimalModel selectedAnimal) async {
                 debugPrint('[BelongingAnimalScreen] Next button pressed');
                 final permissionManager = context.read<PermissionInterface>();
                 final navigationManager = context.read<NavigationStateInterface>();
@@ -206,9 +209,20 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                 }
               },
               onRetry: _loadAnimals,
+              ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CustomBottomAppBar(
+        onBackPressed: () {
+          debugPrint('[BelongingAnimalScreen] Back button pressed');
+          _animalManager.updateSearchTerm('');
+          Navigator.pop(context);
+        },
+        onNextPressed: null,
+        showNextButton: false,
+        showBackButton: true,
       ),
     );
   }

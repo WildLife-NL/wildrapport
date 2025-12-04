@@ -64,7 +64,7 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
             child: Column(
               children: [
                 CustomAppBar(
-                  leftIcon: Icons.arrow_back_ios,
+                  leftIcon: null,
                   centerText: "Selecteer dier Conditie",
                   rightIcon: Icons.menu,
                   onLeftIconPressed: () {
@@ -102,8 +102,9 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
             const OverzichtScreen(),
           ); // Adjust destination as needed
         },
-        onNextPressed: () {},
+        onNextPressed: null,
         showNextButton: false,
+        showBackButton: true,
       ),
     );
   }

@@ -218,16 +218,10 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
           child: Column(
             children: [
               CustomAppBar(
-                leftIcon: Icons.arrow_back_ios,
+                leftIcon: null,
                 centerText: 'Locatie',
                 rightIcon: null,
                 showUserIcon: true,
-                onLeftIconPressed: () {
-                  navigationManager.pushReplacementBack(
-                    context,
-                    const BelongingAnimalScreen(appBarTitle: 'Kies Dier'),
-                  );
-                },
                 iconColor: Colors.black,
                 textColor: Colors.black,
                 fontScale: 1.15,
@@ -251,7 +245,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
           },
           onNextPressed: _handleNextPressed,
           showNextButton: true,
-          showBackButton: false,
+          showBackButton: true,
         ),
       ),
     );

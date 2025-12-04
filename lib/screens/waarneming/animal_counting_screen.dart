@@ -61,7 +61,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Telling toevoegen',
               // Show the profile/user icon on the right (like other screens)
               rightIcon: null,
@@ -101,8 +101,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
           );
         },
         showNextButton: _hasAddedItems,
-        // Hide the bottom "Terug" button — top app bar already provides back navigation
-        showBackButton: false,
+        showBackButton: _hasAddedItems,
       ),
     );
   }

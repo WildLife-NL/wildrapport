@@ -186,7 +186,7 @@ class _QuestionnaireMultipleChoiceState extends State<QuestionnaireMultipleChoic
           CustomBottomAppBar(
             onNextPressed: widget.onNextPressed,
             onBackPressed: widget.onBackPressed,
-            showBackButton: false,
+            showBackButton: true,
           ),
         ],
         ),

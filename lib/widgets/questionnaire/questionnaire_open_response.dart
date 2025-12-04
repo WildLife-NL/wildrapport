@@ -406,7 +406,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
             ? widget.onNextPressed
             : null,
         onBackPressed: widget.onBackPressed,
-        showBackButton: false,
+        showBackButton: true,
       ),
     );
   }
