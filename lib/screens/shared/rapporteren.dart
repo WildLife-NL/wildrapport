@@ -5,8 +5,9 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/shared/category_screen.dart';
+
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
@@ -79,7 +80,7 @@ class _RapporterenState extends State<Rapporteren> {
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     } else if (typeName == 'schademelding' || typeName.contains('crop damage')) {
       selectedReportType = ReportType.gewasschade;
@@ -90,7 +91,7 @@ class _RapporterenState extends State<Rapporteren> {
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     } else {
       // Default to waarneming for unknown types
@@ -99,7 +100,7 @@ class _RapporterenState extends State<Rapporteren> {
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     }
 

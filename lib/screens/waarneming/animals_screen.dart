@@ -6,7 +6,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
-import 'package:wildrapport/screens/shared/category_screen.dart';
+import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
@@ -143,7 +143,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     // Reset search before navigating back
     _animalManager.updateSearchTerm('');
     // Do not dispose the navigation manager here — keep shared state alive for previous flow
-    _navigationManager.pushReplacementBack(context, const CategoryScreen());
+    _navigationManager.pushAndRemoveUntil(context, const Rapporteren());
   }
 
   @override
