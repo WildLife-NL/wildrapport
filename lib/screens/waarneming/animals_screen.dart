@@ -6,7 +6,6 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
-import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -144,8 +143,8 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     debugPrint('[AnimalsScreen] Back button pressed');
     // Reset search before navigating back
     _animalManager.updateSearchTerm('');
-    // Do not dispose the navigation manager here — keep shared state alive for previous flow
-    _navigationManager.pushAndRemoveUntil(context, const Rapporteren());
+    // Use Navigator.pop to go back to the existing Rapporteren screen
+    Navigator.pop(context);
   }
 
   @override
@@ -164,6 +163,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
               // no right icon here so the user/profile icon is shown like Rapporteren
               rightIcon: null,
               showUserIcon: true,
+              useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
               // match Rapporteren app bar styling exactly
               iconColor: Colors.black,

@@ -166,9 +166,11 @@ class _RapporterenState extends State<Rapporteren> {
           SafeArea(
             bottom: false,
             child: CustomAppBar(
-              leftIcon: null,
+              leftIcon: Icons.arrow_back_ios_new,
               centerText: 'Rapporteren',
               rightIcon: null,
+              showUserIcon: true,
+              useFixedText: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
               // make title and arrow black and larger for this screen - more on smaller screens
@@ -181,6 +183,7 @@ class _RapporterenState extends State<Rapporteren> {
                 extraLarge: 1.15,
               ),
               iconScale: 1.15,
+              userIconScale: 1.15,
             ),
           ),
           Expanded(
