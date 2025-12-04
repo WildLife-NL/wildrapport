@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
@@ -124,6 +125,13 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
         setState(() {
           currentIndex++;
         });
+      } else {
+        // Navigate to BelongingAnimalScreen when form is complete
+        final navigationManager = context.read<NavigationStateInterface>();
+        navigationManager.pushReplacementForward(
+          context,
+          const BelongingAnimalScreen(appBarTitle: 'Kies Dier'),
+        );
       }
     } else {
       // Handle invalid form state, display error messages, or highlight fields

@@ -4,7 +4,6 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
-import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -158,71 +157,6 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Filter pills
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _animalManager.updateFilter(FilterType.mostViewed.displayText);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _animalManager.getSelectedFilter() == FilterType.mostViewed.displayText
-                                  ? AppColors.darkGreen
-                                  : AppColors.lightMintGreen,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(color: AppColors.darkGreen, width: 1.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Meest gezien',
-                                style: TextStyle(
-                                  color: _animalManager.getSelectedFilter() == FilterType.mostViewed.displayText
-                                      ? Colors.white
-                                      : AppColors.darkGreen,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _animalManager.updateFilter(FilterType.alphabetical.displayText);
-                            setState(() {});
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _animalManager.getSelectedFilter() == FilterType.alphabetical.displayText
-                                  ? AppColors.darkGreen
-                                  : AppColors.lightMintGreen,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(color: AppColors.darkGreen, width: 1.5),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'A-Z',
-                                style: TextStyle(
-                                  color: _animalManager.getSelectedFilter() == FilterType.alphabetical.displayText
-                                      ? Colors.white
-                                      : AppColors.darkGreen,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
