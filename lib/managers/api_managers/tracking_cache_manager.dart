@@ -183,6 +183,7 @@ class TrackingCacheManager {
     );
 
     // Use ConnectionChecker for testability
+    debugPrint('$yellowLog[TrackingCacheManager] Checking internet connection...');
     final hasConnection = await ConnectionChecker.hasInternetConnection();
 
     if (!hasConnection) {

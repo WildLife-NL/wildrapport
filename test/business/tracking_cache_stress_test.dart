@@ -24,7 +24,16 @@ class MockTrackingApi implements TrackingApiInterface {
 
     return null;
   }
+
+  @override
+  Future<List<TrackingReadingResponse>> getMyTrackingReadings() async {
+    if (shouldFail) {
+      throw Exception('Network error');
+    }
+    return [];
+  }
 }
+
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

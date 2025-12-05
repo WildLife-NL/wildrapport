@@ -25,6 +25,14 @@ class MockTrackingApi implements TrackingApiInterface {
 
     return null; // No notice for testing
   }
+
+  @override
+  Future<List<TrackingReadingResponse>> getMyTrackingReadings() async {
+    if (shouldFail) {
+      throw Exception('Network error');
+    }
+    return []; // Return empty list for testing
+  }
 }
 
 void main() {
