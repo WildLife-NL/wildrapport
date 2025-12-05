@@ -1815,8 +1815,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                         // ── ROTATE BUTTON ─────────────────────────────
                         Positioned(
-                          top: 16,
-                          right: 16,
+                          bottom: 16,
+                          left: 12,
                           child: FloatingActionButton(
                             heroTag: 'rotate_map',
                             mini: true,
@@ -1835,10 +1835,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                         // ── Tracking History button ─────────────────────────────────────────────────
                         Positioned(
-                          right: 16,
-                          bottom: 200,
+                          left: 72,
+                          bottom: 16,
                           child: FloatingActionButton(
                             heroTag: 'tracking_history_btn',
+                            mini: true,
                             backgroundColor: _showTrackingHistory 
                                 ? Colors.blue 
                                 : AppColors.darkGreen,
@@ -1873,10 +1874,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                         // ── Filter button ───────────────────────────────────────────────────────────
                         Positioned(
-                          right: 16,
-                          bottom: 140, // moved up to avoid overlap
+                          left: 132,
+                          bottom: 16,
                           child: FloatingActionButton(
                             heroTag: 'filter_btn',
+                            mini: true,
                             backgroundColor: AppColors.darkGreen,
                             child: const Icon(
                               Icons.filter_list,
