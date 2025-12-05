@@ -23,7 +23,6 @@ class LoginOverlay extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.offWhite,
                 borderRadius: BorderRadius.circular(responsive.sp(3.1)),
-                
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

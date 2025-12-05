@@ -9,51 +9,37 @@ void main() {
         "animals": [
           {
             "ID": "3892eb50-4697-4c72-aadc-32b766bce3c0",
-            "location": {
-              "latitude": 51.6978,
-              "longitude": 5.3037
-            },
+            "location": {"latitude": 51.6978, "longitude": 5.3037},
             "locationTimestamp": "2025-11-26T14:15:22Z",
             "name": "Bambi",
             "species": {
               "ID": "species-123",
               "commonName": "Ree",
-              "name": "Capreolus capreolus"
-            }
-          }
+              "name": "Capreolus capreolus",
+            },
+          },
         ],
         "detections": [
           {
-            "location": {
-              "latitude": 51.6978,
-              "longitude": 5.3037
-            },
+            "location": {"latitude": 51.6978, "longitude": 5.3037},
             "sensorID": "camera-001",
             "species": {
               "ID": "species-456",
               "commonName": "Vos",
-              "name": "Vulpes vulpes"
+              "name": "Vulpes vulpes",
             },
-            "timestamp": "2025-11-26T12:00:00Z"
-          }
+            "timestamp": "2025-11-26T12:00:00Z",
+          },
         ],
         "interactions": [
           {
             "ID": "interaction-789",
-            "location": {
-              "latitude": 51.6978,
-              "longitude": 5.3037
-            },
+            "location": {"latitude": 51.6978, "longitude": 5.3037},
             "moment": "2025-11-26T10:00:00Z",
-            "species": {
-              "commonName": "Wolf"
-            },
-            "type": {
-              "ID": 1,
-              "name": "waarneming"
-            }
-          }
-        ]
+            "species": {"commonName": "Wolf"},
+            "type": {"ID": 1, "name": "waarneming"},
+          },
+        ],
       };
 
       final vicinity = Vicinity.fromJson(json);
@@ -82,11 +68,7 @@ void main() {
     });
 
     test('should handle empty arrays gracefully', () {
-      final json = {
-        "animals": [],
-        "detections": [],
-        "interactions": []
-      };
+      final json = {"animals": [], "detections": [], "interactions": []};
 
       final vicinity = Vicinity.fromJson(json);
 
@@ -112,22 +94,22 @@ void main() {
             "ID": "valid-animal",
             "location": {"latitude": 51.6978, "longitude": 5.3037},
             "locationTimestamp": "2025-11-26T14:15:22Z",
-            "species": {"commonName": "Ree"}
+            "species": {"commonName": "Ree"},
           },
           {
             // Missing required location field
             "ID": "invalid-animal",
-            "species": {"commonName": "Vos"}
+            "species": {"commonName": "Vos"},
           },
           {
             "ID": "another-valid-animal",
             "location": {"latitude": 52.0, "longitude": 5.0},
             "locationTimestamp": "2025-11-26T15:00:00Z",
-            "species": {"commonName": "Wolf"}
-          }
+            "species": {"commonName": "Wolf"},
+          },
         ],
         "detections": [],
-        "interactions": []
+        "interactions": [],
       };
 
       final vicinity = Vicinity.fromJson(json);

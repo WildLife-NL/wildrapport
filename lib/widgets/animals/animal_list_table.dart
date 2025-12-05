@@ -40,8 +40,7 @@ class AnimalListTableState extends State<AnimalListTable> {
   void clearAllData() {
     final animalSightingManager =
         context.read<AnimalSightingReportingInterface>();
-    final currentSighting =
-        animalSightingManager.getCurrentanimalSighting();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
 
     // Reset description in manager and controller
     _opmerkingController.clear();
@@ -93,19 +92,18 @@ class AnimalListTableState extends State<AnimalListTable> {
   // Formatter to cap numeric input at a maximum value.
   // Prevents entering numbers greater than [max] directly.
   // If user pastes a larger number it is truncated to max.
-  static TextInputFormatter maxValueFormatter(int max) => TextInputFormatter.withFunction(
-        (oldValue, newValue) {
-          if (newValue.text.isEmpty) return newValue;
-          final value = int.tryParse(newValue.text) ?? 0;
-          if (value > max) {
-            return TextEditingValue(
-              text: max.toString(),
-              selection: TextSelection.collapsed(offset: max.toString().length),
-            );
-          }
-          return newValue;
-        },
-      );
+  static TextInputFormatter maxValueFormatter(int max) =>
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (newValue.text.isEmpty) return newValue;
+        final value = int.tryParse(newValue.text) ?? 0;
+        if (value > max) {
+          return TextEditingValue(
+            text: max.toString(),
+            selection: TextSelection.collapsed(offset: max.toString().length),
+          );
+        }
+        return newValue;
+      });
 
   @override
   void initState() {
@@ -273,7 +271,7 @@ class AnimalListTableState extends State<AnimalListTable> {
 
     // Sum up counts from ALL animals in the list (not just the first one)
     int totalCount = 0;
-    
+
     for (final animal in currentSighting.animals!) {
       // Find the gender view count for the specified gender
       final genderViewCount = animal.genderViewCounts.firstWhere(
@@ -380,8 +378,11 @@ class AnimalListTableState extends State<AnimalListTable> {
                             _buildHeaderRow(usedGenders),
                             ...List.generate(
                               4,
-                              (index) =>
-                                  _buildDataRow(index + 1, usedGenders, context),
+                              (index) => _buildDataRow(
+                                index + 1,
+                                usedGenders,
+                                context,
+                              ),
                             ),
                           ],
                         ),
@@ -441,7 +442,7 @@ class AnimalListTableState extends State<AnimalListTable> {
         icon = '?';
         break;
     }
-    
+
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Container(
@@ -451,10 +452,7 @@ class AnimalListTableState extends State<AnimalListTable> {
         child: Center(
           child: Text(
             icon,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -554,8 +552,8 @@ class AnimalListTableState extends State<AnimalListTable> {
                           vertical: 8,
                         ),
                         border: InputBorder.none,
-                        hintText: 'type..',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        label: Text('type..'),
+                        labelStyle: TextStyle(color: Colors.grey),
                       ),
                       onTap: () {
                         // Clear the text when tapped
@@ -633,7 +631,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'typ hier...',
+                    label: Text('typ hier...'),
                   ),
                   style: const TextStyle(fontSize: 16, height: 1.5),
                 ),

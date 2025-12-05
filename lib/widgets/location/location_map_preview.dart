@@ -31,11 +31,18 @@ class LocationMapPreview extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_off, size: responsive.sp(4), color: Colors.grey[400]),
+                  Icon(
+                    Icons.location_off,
+                    size: responsive.sp(4),
+                    color: Colors.grey[400],
+                  ),
                   SizedBox(height: responsive.spacing(8)),
                   Text(
                     'Geen locatie geselecteerd',
-                    style: TextStyle(color: Colors.grey[600], fontSize: responsive.fontSize(12)),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: responsive.fontSize(12),
+                    ),
                   ),
                 ],
               ),

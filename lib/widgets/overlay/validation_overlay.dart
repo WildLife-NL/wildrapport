@@ -16,7 +16,8 @@ class ValidationOverlay extends StatelessWidget {
         color: AppColors.lightMintGreen.withValues(alpha: 0.5),
         child: Center(
           child: GestureDetector(
-            onTap: () {}, // Prevents taps on the container from closing the overlay
+            onTap:
+                () {}, // Prevents taps on the container from closing the overlay
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: responsive.wp(5)),
               constraints: BoxConstraints(maxWidth: responsive.wp(80)),
@@ -45,7 +46,12 @@ class ValidationOverlay extends StatelessWidget {
                   ),
                   Flexible(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(responsive.wp(5), responsive.hp(1), responsive.wp(5), responsive.hp(2.5)),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.wp(5),
+                        responsive.hp(1),
+                        responsive.wp(5),
+                        responsive.hp(2.5),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
+import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
@@ -124,6 +125,13 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
         setState(() {
           currentIndex++;
         });
+      } else {
+        // Navigate to BelongingLocationScreen when form is complete
+        final navigationManager = context.read<NavigationStateInterface>();
+        navigationManager.pushReplacementForward(
+          context,
+          const BelongingLocationScreen(),
+        );
       }
     } else {
       // Handle invalid form state, display error messages, or highlight fields
@@ -152,15 +160,11 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
       final provider = Provider.of<BelongingDamageReportProvider>(
         context,
         listen: false,
-      );      
+      );
       final navigationManager = context.read<NavigationStateInterface>();
       provider.clearStateOfValues();
       provider.resetErrors();
-      navigationManager.pushReplacementForward(
-        context,
-        const Rapporteren(),
-      );
-
+      navigationManager.pushReplacementBack(context, const BelongingAnimalScreen(appBarTitle: 'Kies Dier'));
     }
   }
 
@@ -178,13 +182,10 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: "Schademelding",
               rightIcon: null,
               showUserIcon: true,
-              onLeftIconPressed: () {
-                previousScreen();
-              },
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -196,7 +197,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
               onNextPressed: nextScreen,
               onBackPressed: previousScreen,
               showNextButton: currentIndex < 1,
-              showBackButton: false,
+              showBackButton: true,
             ),
             const InvisibleMapPreloader(),
           ],

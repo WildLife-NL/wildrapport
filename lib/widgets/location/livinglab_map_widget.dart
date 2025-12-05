@@ -609,6 +609,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           ),
           width: 28,
           height: 28,
+          rotate: false,
           child: Stack(
             children: [
               Container(
@@ -640,6 +641,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
           point: _markedLocation!,
           width: 50,
           height: 50,
+          rotate: false,
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,

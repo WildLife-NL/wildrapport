@@ -51,11 +51,7 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     debugPrint("PUT: $uri");
-    return await http.put(
-      uri,
-      body: jsonEncode(body),
-      headers: headers,
-    );
+    return await http.put(uri, body: jsonEncode(body), headers: headers);
   }
 
   Future<http.Response> delete(
@@ -79,11 +75,7 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     debugPrint("PATCH: $uri");
-    return await http.patch(
-      uri,
-      body: jsonEncode(body),
-      headers: headers,
-    );
+    return await http.patch(uri, body: jsonEncode(body), headers: headers);
   }
 
   Future<Map<String, String>> _buildHeaders(

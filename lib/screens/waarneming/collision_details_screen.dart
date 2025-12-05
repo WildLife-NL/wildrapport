@@ -37,7 +37,7 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Dieraanrijding Details',
               rightIcon: null,
               showUserIcon: true,
@@ -50,9 +50,11 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                   _selectedUrgency = null;
                 });
                 // Also clear remarks before returning to overview
-                final animalSightingManager = context.read<AnimalSightingReportingInterface>();
+                final animalSightingManager =
+                    context.read<AnimalSightingReportingInterface>();
                 animalSightingManager.updateDescription('');
-                final navigationManager = context.read<NavigationStateInterface>();
+                final navigationManager =
+                    context.read<NavigationStateInterface>();
                 navigationManager.pushReplacementBack(
                   context,
                   AnimalListOverviewScreen(),
@@ -295,7 +297,18 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
         ),
       ),
       bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: () {},
+        onBackPressed: () {
+          final navigationManager = context.read<NavigationStateInterface>();
+          final animalSightingManager =
+              context.read<AnimalSightingReportingInterface>();
+          _damageController.clear();
+          _detailsController.clear();
+          animalSightingManager.updateDescription('');
+          navigationManager.pushReplacementBack(
+            context,
+            AnimalListOverviewScreen(),
+          );
+        },
         onNextPressed: () async {
           final permissionManager = context.read<PermissionInterface>();
           final navigationManager = context.read<NavigationStateInterface>();
@@ -322,8 +335,8 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
             );
           }
         },
-        showBackButton: false,
         showNextButton: true,
+        showBackButton: true,
       ),
     );
   }
@@ -340,10 +353,7 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.darkGreen : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppColors.darkGreen,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.darkGreen, width: 1.5),
         ),
         child: Center(
           child: Text(

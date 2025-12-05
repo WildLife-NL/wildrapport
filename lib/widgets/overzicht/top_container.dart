@@ -29,7 +29,8 @@ class TopContainer extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.darkGreen,
-            borderRadius: BorderRadius.zero, // straight bottom edge to match mock
+            borderRadius:
+                BorderRadius.zero, // straight bottom edge to match mock
           ),
           child: Center(
             child: Padding(
@@ -67,14 +68,14 @@ class TopContainer extends StatelessWidget {
             // move icon a bit lower for visual alignment
             top: height * 0.12,
             child: GestureDetector(
-              onTap: onUserIconPressed ?? () {
-                debugPrint('[TopContainer] user icon tapped');
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ProfileScreen(),
-                  ),
-                );
-              },
+              onTap:
+                  onUserIconPressed ??
+                  () {
+                    debugPrint('[TopContainer] user icon tapped');
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                    );
+                  },
               child: Icon(
                 Icons.person,
                 color: AppColors.offWhite,

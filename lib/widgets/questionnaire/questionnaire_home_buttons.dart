@@ -19,7 +19,7 @@ class QuestionnaireHomeButtons extends StatelessWidget {
     final responsive = context.responsive;
     final buttonWidth = responsive.wp(80); // 80% of screen width
     final buttonSpacing = responsive.hp(2); // 2% of screen height
-    
+
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -69,6 +69,3 @@ class QuestionnaireHomeButtons extends StatelessWidget {
     );
   }
 }
-
-
-

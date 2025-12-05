@@ -10,10 +10,10 @@ class TrackingReading {
   });
 
   Map<String, dynamic> toJson() => {
-        'latitude': latitude,
-        'longitude': longitude,
-        'timestampUtc': timestampUtc.toIso8601String(),
-      };
+    'latitude': latitude,
+    'longitude': longitude,
+    'timestampUtc': timestampUtc.toIso8601String(),
+  };
 
   factory TrackingReading.fromJson(Map<String, dynamic> json) {
     return TrackingReading(

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ConnectionChecker {
-  static Future<bool> Function([int?]) _hasInternetConnectionImpl = _defaultHasInternetConnection;
-  
+  static Future<bool> Function([int?]) _hasInternetConnectionImpl =
+      _defaultHasInternetConnection;
+
   static Future<bool> _defaultHasInternetConnection([int? amount]) async {
     try {
       // First, check connectivity_plus plugin result
@@ -27,15 +28,13 @@ class ConnectionChecker {
       return false;
     }
   }
-  
+
   // Setter for testing
   static set setHasInternetConnection(Future<bool> Function([int?]) testImpl) {
     _hasInternetConnectionImpl = testImpl;
   }
-  
+
   static Future<bool> hasInternetConnection([int? amount]) async {
     return _hasInternetConnectionImpl(amount);
   }
 }
-
-

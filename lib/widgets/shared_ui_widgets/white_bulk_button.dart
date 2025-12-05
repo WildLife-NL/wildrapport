@@ -63,44 +63,51 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
     final responsive = context.responsive;
     final bool active = _isHovered || _isPressed;
 
-  final Color initialBg = widget.backgroundColor ?? AppColors.offWhite;
-  final Color initialBorder = widget.borderColor ?? Colors.transparent;
+    final Color initialBg = widget.backgroundColor ?? AppColors.offWhite;
+    final Color initialBorder = widget.borderColor ?? Colors.transparent;
 
-  // When active (hover/press) use hover colors if provided, otherwise fallback
-  // to the previous darkGreen behavior for background, and to initialBg for border.
-  final Color bgColor = active
-    ? (widget.hoverBackgroundColor ?? AppColors.darkGreen)
-    : initialBg;
-  final Color borderColor = active
-    ? (widget.hoverBorderColor ?? initialBg)
-    : initialBorder;
+    // When active (hover/press) use hover colors if provided, otherwise fallback
+    // to the previous darkGreen behavior for background, and to initialBg for border.
+    final Color bgColor =
+        active
+            ? (widget.hoverBackgroundColor ?? AppColors.darkGreen)
+            : initialBg;
+    final Color borderColor =
+        active ? (widget.hoverBorderColor ?? initialBg) : initialBorder;
 
     // Base style from theme (buttons should use Roboto / titleMedium)
     final baseStyle = AppTextTheme.textTheme.titleMedium?.copyWith(
-      shadows: widget.showShadow
-          ? [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.25),
-                offset: const Offset(0, 2),
-                blurRadius: 4,
-              ),
-            ]
-          : null,
+      shadows:
+          widget.showShadow
+              ? [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ]
+              : null,
     );
 
     // Combine styles in order of precedence
     final effectiveStyle = baseStyle
         ?.copyWith(
-          fontSize: widget.fontSize ?? widget.textStyle?.fontSize ?? baseStyle.fontSize,
-          fontWeight: widget.fontWeight ?? widget.textStyle?.fontWeight ?? baseStyle.fontWeight,
+          fontSize:
+              widget.fontSize ??
+              widget.textStyle?.fontSize ??
+              baseStyle.fontSize,
+          fontWeight:
+              widget.fontWeight ??
+              widget.textStyle?.fontWeight ??
+              baseStyle.fontWeight,
           color: widget.textStyle?.color ?? baseStyle.color,
         )
         .merge(widget.textStyle);
 
-    final Color defaultTextColor = widget.textStyle?.color ?? effectiveStyle?.color ?? Colors.black;
-    final TextStyle finalTextStyle = (effectiveStyle ?? const TextStyle()).copyWith(
-      color: active ? Colors.white : defaultTextColor,
-    );
+    final Color defaultTextColor =
+        widget.textStyle?.color ?? effectiveStyle?.color ?? Colors.black;
+    final TextStyle finalTextStyle = (effectiveStyle ?? const TextStyle())
+        .copyWith(color: active ? Colors.white : defaultTextColor);
 
     return MouseRegion(
       onEnter: _onEnter,
@@ -115,17 +122,21 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: borderColor, width: borderColor != Colors.transparent ? 2 : 0),
-            boxShadow: widget.showShadow
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      spreadRadius: 0,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+            border: Border.all(
+              color: borderColor,
+              width: borderColor != Colors.transparent ? 2 : 0,
+            ),
+            boxShadow:
+                widget.showShadow
+                    ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.25),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : null,
           ),
           child: Material(
             color: Colors.transparent,
@@ -139,7 +150,10 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (widget.leftWidget != null) widget.leftWidget! else const SizedBox(),
+                    if (widget.leftWidget != null)
+                      widget.leftWidget!
+                    else
+                      const SizedBox(),
                     Expanded(
                       child: Text(
                         widget.text,
@@ -153,10 +167,14 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
                     else if (widget.showIcon)
                       CircleIconContainer(
                         icon: Icons.arrow_forward_ios,
-                        iconColor: active ? Colors.white : (widget.arrowColor ?? AppColors.brown),
+                        iconColor:
+                            active
+                                ? Colors.white
+                                : (widget.arrowColor ?? AppColors.brown),
                         size: responsive.sp(4.8),
                         iconSize: responsive.sp(2.8),
-                        backgroundColor: widget.backgroundColor ?? AppColors.offWhite,
+                        backgroundColor:
+                            widget.backgroundColor ?? AppColors.offWhite,
                         showShadow: widget.showShadow,
                       )
                     else

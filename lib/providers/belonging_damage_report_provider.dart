@@ -19,7 +19,7 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   String? inputErrorImpactArea;
   String? selectedText = 'm²'; // Default display text
 
-    // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
+  // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
   // Use these names everywhere new code touches the provider.
   double get estimatedDamage => currentDamage;
   double get estimatedLoss => expectedDamage;

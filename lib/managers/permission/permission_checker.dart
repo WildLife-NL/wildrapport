@@ -28,7 +28,9 @@ mixin PermissionChecker<T extends StatefulWidget> on State<T> {
 
   Future<void> _checkPermissions() async {
     if (_permissionManager == null || _appStateProvider == null) {
-      debugPrint('\x1B[31m[${widget.runtimeType}] Providers not initialized\x1B[0m');
+      debugPrint(
+        '\x1B[31m[${widget.runtimeType}] Providers not initialized\x1B[0m',
+      );
       return;
     }
 
@@ -49,22 +51,28 @@ mixin PermissionChecker<T extends StatefulWidget> on State<T> {
 
   void _requestPermissions() {
     if (_permissionManager == null || _appStateProvider == null) {
-      debugPrint('\x1B[31m[${widget.runtimeType}] Providers not initialized\x1B[0m');
+      debugPrint(
+        '\x1B[31m[${widget.runtimeType}] Providers not initialized\x1B[0m',
+      );
       return;
     }
 
     // Use fresh context here
-    _permissionManager!.requestPermission(
-      context,
-      PermissionType.location,
-      showRationale: true,
-    ).then((hasPermission) {
-      if (hasPermission) {
-        _handlePermissionGranted();
-      } else {
-        debugPrint('\x1B[31m[${widget.runtimeType}] Location permission denied\x1B[0m');
-      }
-    });
+    _permissionManager!
+        .requestPermission(
+          context,
+          PermissionType.location,
+          showRationale: true,
+        )
+        .then((hasPermission) {
+          if (hasPermission) {
+            _handlePermissionGranted();
+          } else {
+            debugPrint(
+              '\x1B[31m[${widget.runtimeType}] Location permission denied\x1B[0m',
+            );
+          }
+        });
   }
 
   Future<void> _handlePermissionGranted() async {

@@ -26,43 +26,18 @@ class CustomBottomAppBar extends StatelessWidget {
     debugPrint('CustomBottomAppBar: Next button pressed');
     onNextPressed?.call();
   }
+
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
 
-    final double barHeight = responsive.hp(13); // increased from 10
-    final double minHeight = responsive.spacing(90); // increased from 70
-    final double maxHeight = responsive.spacing(120); // increased from 100
-
-    final double fontSize = responsive.breakpointValue<double>(
-      small: responsive.fontSize(14),
-      medium: responsive.fontSize(15),
-      large: responsive.fontSize(16),
-      extraLarge: responsive.fontSize(16),
-    );
-
-    final double iconSize = responsive.sp(2.5);
-    final double minIconSize = responsive.sp(2.2);
-    final double maxIconSize = responsive.sp(3);
-
-    // Use a larger, consistent button height and width for all 'Next' buttons
-    final double buttonHeight = responsive.breakpointValue<double>(
-      small: responsive.spacing(100),
-      medium: responsive.spacing(100),
-      large: responsive.spacing(100),
-      extraLarge: responsive.spacing(100),
-    );
-
-    final double buttonWidth = responsive.breakpointValue<double>(
-      small: responsive.wp(65),
-      medium: responsive.wp(65),
-      large: responsive.wp(65),
-      extraLarge: responsive.wp(65),
-    );
-
-    final double finalHeight = barHeight.clamp(minHeight, maxHeight);
-    final double finalIconSize = iconSize.clamp(minIconSize, maxIconSize);
-    final double horizontalPadding = responsive.wp(6);
+    // Fixed sizes for consistent button appearance across the entire app
+    const double buttonHeight = 56.0;
+    const double buttonWidth = 280.0;
+    const double buttonFontSize = 16.0;
+    
+    final double barHeight = buttonHeight + 40; // padding around button
+    final double finalHeight = barHeight;
 
     return Container(
       height: finalHeight,
@@ -72,41 +47,35 @@ class CustomBottomAppBar extends StatelessWidget {
           padding: EdgeInsets.only(bottom: responsive.spacing(10)),
           child: Center(
             child: Row(
-              mainAxisAlignment:
-                  showNextButton && showBackButton
-                      ? MainAxisAlignment.spaceBetween
-                      : showNextButton
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (showBackButton)
-                  GestureDetector(
-                    onTap: _handleBackPress,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: horizontalPadding),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.arrow_back_ios,
-                            color: AppColors.brown,
-                            size: finalIconSize,
-                          ),
-                          SizedBox(width: responsive.wp(3)),
-                          Text(
-                            'Terug',
-                            style: TextStyle(
-                              color: AppColors.brown,
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                  SizedBox(
+                    width: showNextButton ? buttonWidth * 0.45 : buttonWidth,
+                    height: buttonHeight,
+                    child: WhiteBulkButton(
+                      text: 'Vorige',
+                      showIcon: false,
+                      height: buttonHeight,
+                      backgroundColor: AppColors.lightMintGreen100,
+                      borderColor: AppColors.brown,
+                      hoverBackgroundColor: AppColors.brown,
+                      hoverBorderColor: AppColors.lightMintGreen100,
+                      textStyle: TextStyle(
+                        fontFamily: 'Roboto',
+                        color: Colors.black,
+                        fontSize: buttonFontSize,
+                        fontWeight: FontWeight.w600,
                       ),
+                      showShadow: false,
+                      onPressed: _handleBackPress,
                     ),
                   ),
+                if (showBackButton && showNextButton)
+                  SizedBox(width: responsive.wp(4)),
                 if (showNextButton)
                   SizedBox(
-                    width: buttonWidth,
+                    width: showBackButton ? buttonWidth * 0.45 : buttonWidth,
                     height: buttonHeight,
                     child: WhiteBulkButton(
                       text: 'Volgende',
@@ -119,7 +88,7 @@ class CustomBottomAppBar extends StatelessWidget {
                       textStyle: TextStyle(
                         fontFamily: 'Roboto',
                         color: Colors.black,
-                        fontSize: responsive.fontSize(20),
+                        fontSize: buttonFontSize,
                         fontWeight: FontWeight.w600,
                       ),
                       showShadow: false,

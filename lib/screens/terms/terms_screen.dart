@@ -87,9 +87,10 @@ class _TermsScreenState extends State<TermsScreen> {
                     child: Checkbox(
                       value: _checked,
                       activeColor: AppColors.darkGreen,
-                      onChanged: _submitting
-                          ? null
-                          : (v) => setState(() => _checked = v ?? false),
+                      onChanged:
+                          _submitting
+                              ? null
+                              : (v) => setState(() => _checked = v ?? false),
                     ),
                   ),
                   Expanded(
@@ -117,7 +118,8 @@ class _TermsScreenState extends State<TermsScreen> {
                     fontSize: responsive.fontSize(16),
                     fontWeight: FontWeight.w600,
                   ),
-                  onPressed: (_checked && !_submitting) ? _onAcceptPressed : null,
+                  onPressed:
+                      (_checked && !_submitting) ? _onAcceptPressed : null,
                   showShadow: false,
                 ),
               ),

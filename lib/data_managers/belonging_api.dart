@@ -22,8 +22,8 @@ class BelongingApi implements BelongingApiInterface {
       final json = jsonDecode(response.body) as List;
       return json.map((e) => Belonging.fromJson(e)).toList();
     } else {
-        debugPrint("Failed to get belongings!");
-        return [];
+      debugPrint("Failed to get belongings!");
+      return [];
     }
   }
 }

@@ -21,11 +21,7 @@ class MockTrackingApi implements TrackingApiInterface {
       throw Exception('Network error');
     }
 
-    sentReadings.add({
-      'lat': lat,
-      'lon': lon,
-      'timestamp': timestampUtc,
-    });
+    sentReadings.add({'lat': lat, 'lon': lon, 'timestamp': timestampUtc});
 
     return null; // No notice for testing
   }
@@ -51,11 +47,12 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       mockApi = MockTrackingApi();
       cacheManager = TrackingCacheManager(trackingApi: mockApi);
-      
+
       // Mock ConnectionChecker to control internet availability in tests
-      ConnectionChecker.setHasInternetConnection = ([_]) async => mockHasInternet;
+      ConnectionChecker.setHasInternetConnection =
+          ([_]) async => mockHasInternet;
       mockHasInternet = true; // Default to having internet
-      
+
       // Note: Not calling init() to avoid connectivity plugin issues in tests
     });
 
@@ -91,16 +88,20 @@ void main() {
 
     test('should send cached readings when connection is available', () async {
       // Cache some readings
-      await cacheManager.cacheReading(TrackingReading(
-        latitude: 52.0,
-        longitude: 5.0,
-        timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
-      ));
-      await cacheManager.cacheReading(TrackingReading(
-        latitude: 52.1,
-        longitude: 5.1,
-        timestampUtc: DateTime.utc(2025, 11, 20, 12, 5, 0),
-      ));
+      await cacheManager.cacheReading(
+        TrackingReading(
+          latitude: 52.0,
+          longitude: 5.0,
+          timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
+        ),
+      );
+      await cacheManager.cacheReading(
+        TrackingReading(
+          latitude: 52.1,
+          longitude: 5.1,
+          timestampUtc: DateTime.utc(2025, 11, 20, 12, 5, 0),
+        ),
+      );
 
       // Verify they are cached
       final cachedBefore = await cacheManager.getCachedReadings();
@@ -121,16 +122,20 @@ void main() {
 
     test('should keep failed readings in cache', () async {
       // Cache some readings
-      await cacheManager.cacheReading(TrackingReading(
-        latitude: 52.0,
-        longitude: 5.0,
-        timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
-      ));
-      await cacheManager.cacheReading(TrackingReading(
-        latitude: 52.1,
-        longitude: 5.1,
-        timestampUtc: DateTime.utc(2025, 11, 20, 12, 5, 0),
-      ));
+      await cacheManager.cacheReading(
+        TrackingReading(
+          latitude: 52.0,
+          longitude: 5.0,
+          timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
+        ),
+      );
+      await cacheManager.cacheReading(
+        TrackingReading(
+          latitude: 52.1,
+          longitude: 5.1,
+          timestampUtc: DateTime.utc(2025, 11, 20, 12, 5, 0),
+        ),
+      );
 
       // Make API fail
       mockApi.shouldFail = true;
@@ -143,23 +148,26 @@ void main() {
       expect(cachedAfter.length, 2);
     });
 
-    test('should send reading immediately when connection is available', () async {
-      mockApi.shouldFail = false;
-      mockHasInternet = true;
+    test(
+      'should send reading immediately when connection is available',
+      () async {
+        mockApi.shouldFail = false;
+        mockHasInternet = true;
 
-      await cacheManager.sendOrCacheReading(
-        lat: 52.0,
-        lon: 5.0,
-        timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
-      );
+        await cacheManager.sendOrCacheReading(
+          lat: 52.0,
+          lon: 5.0,
+          timestampUtc: DateTime.utc(2025, 11, 20, 12, 0, 0),
+        );
 
-      // Should be sent immediately
-      expect(mockApi.sentReadings.length, 1);
+        // Should be sent immediately
+        expect(mockApi.sentReadings.length, 1);
 
-      // Should not be cached
-      final cached = await cacheManager.getCachedReadings();
-      expect(cached.length, 0);
-    });
+        // Should not be cached
+        final cached = await cacheManager.getCachedReadings();
+        expect(cached.length, 0);
+      },
+    );
 
     test('should cache reading when API fails', () async {
       mockApi.shouldFail = true;
@@ -208,11 +216,13 @@ void main() {
 
       // Cache multiple readings
       for (int i = 0; i < 3; i++) {
-        await cacheManager.cacheReading(TrackingReading(
-          latitude: 52.0 + i * 0.1,
-          longitude: 5.0 + i * 0.1,
-          timestampUtc: timestamps[i],
-        ));
+        await cacheManager.cacheReading(
+          TrackingReading(
+            latitude: 52.0 + i * 0.1,
+            longitude: 5.0 + i * 0.1,
+            timestampUtc: timestamps[i],
+          ),
+        );
       }
 
       final cached = await cacheManager.getCachedReadings();

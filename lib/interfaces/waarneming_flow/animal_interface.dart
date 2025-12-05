@@ -19,4 +19,3 @@ abstract class AnimalManagerInterface {
   void removeListener(Function() listener);
   Future<List<AnimalModel>> getAnimalsByCategory({AnimalCategory? category});
 }
-

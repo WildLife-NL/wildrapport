@@ -3,18 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 
-class TrackingApi implements TrackingApiInterface { 
+class TrackingApi implements TrackingApiInterface {
   final ApiClient client;
   TrackingApi(this.client);
 
   @override
   Future<TrackingNotice?> addTrackingReading({
-    required double lat,      
+    required double lat,
     required double lon,
     required DateTime timestampUtc,
   }) async {
-    debugPrint('[TrackingApi] Sending location: $lat, $lon at ${timestampUtc.toIso8601String()}');
-    
+    debugPrint(
+      '[TrackingApi] Sending location: $lat, $lon at ${timestampUtc.toIso8601String()}',
+    );
+
     // Build request body EXACTLY like the /tracking-reading/ docs:
     // {
     //   "location": { "latitude": ..., "longitude": ... },
@@ -27,7 +29,11 @@ class TrackingApi implements TrackingApiInterface {
 
     // Your ApiClient.post works like ApiClient.put in ProfileApi:
     // path, bodyMap, authenticated: true
-    final res = await client.post('/tracking-reading/', body, authenticated: true);
+    final res = await client.post(
+      '/tracking-reading/',
+      body,
+      authenticated: true,
+    );
 
     debugPrint('[TrackingApi] Response status: ${res.statusCode}');
 
@@ -37,9 +43,10 @@ class TrackingApi implements TrackingApiInterface {
     }
 
     // Debug: see exactly what backend returns (truncate if too long)
-    final responsePreview = res.body.length > 500 
-        ? '${res.body.substring(0, 500)}...[truncated]'
-        : res.body;
+    final responsePreview =
+        res.body.length > 500
+            ? '${res.body.substring(0, 500)}...[truncated]'
+            : res.body;
     debugPrint('[TrackingApi] Response body: $responsePreview');
 
     // Try to extract an optional message from the response
@@ -50,21 +57,24 @@ class TrackingApi implements TrackingApiInterface {
       // Preferred shape: conveyance.message.text (+ optional severity)
       final conv = decoded['conveyance'];
       debugPrint('[TrackingApi] conveyance present: ${conv != null}');
-      
+
       final msgObj = conv?['message'];
       debugPrint('[TrackingApi] message object present: ${msgObj != null}');
-      
+
       if (msgObj != null && msgObj is Map) {
         debugPrint('[TrackingApi] message keys: ${msgObj.keys.toList()}');
       }
-      
+
       final msgText1 = (msgObj is Map ? msgObj['text'] : null)?.toString();
-      final sev1 = msgObj is Map && msgObj['severity'] is num
-          ? (msgObj['severity'] as num).toInt()
-          : null;
-      
+      final sev1 =
+          msgObj is Map && msgObj['severity'] is num
+              ? (msgObj['severity'] as num).toInt()
+              : null;
+
       if (msgText1 != null && msgText1.isNotEmpty) {
-        debugPrint('[TrackingApi] ✓ Found message: "$msgText1" (severity: $sev1)');
+        debugPrint(
+          '[TrackingApi] ✓ Found message: "$msgText1" (severity: $sev1)',
+        );
         return TrackingNotice(msgText1, severity: sev1);
       }
 
@@ -76,11 +86,15 @@ class TrackingApi implements TrackingApiInterface {
       }
       if (message is Map && (message['text']?.toString().isNotEmpty ?? false)) {
         final sev2 =
-            message['severity'] is num ? (message['severity'] as num).toInt() : null;
-        debugPrint('[TrackingApi] ✓ Found message (map): "${message['text']}" (severity: $sev2)');
+            message['severity'] is num
+                ? (message['severity'] as num).toInt()
+                : null;
+        debugPrint(
+          '[TrackingApi] ✓ Found message (map): "${message['text']}" (severity: $sev2)',
+        );
         return TrackingNotice(message['text'].toString(), severity: sev2);
       }
-      
+
       debugPrint('[TrackingApi] No message found in response');
     } catch (e) {
       debugPrint('[TrackingApi] Error parsing message: $e');

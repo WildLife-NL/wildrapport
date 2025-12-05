@@ -5,9 +5,10 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/shared/category_screen.dart';
+
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
+import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';
@@ -66,40 +67,46 @@ class _RapporterenState extends State<Rapporteren> {
     final navigationManager = context.read<NavigationStateInterface>();
     final appStateProvider = context.read<AppStateProvider>();
 
-    debugPrint('[Rapporteren] Selected interaction type: ${interactionType.name} (ID: ${interactionType.id})');
+    debugPrint(
+      '[Rapporteren] Selected interaction type: ${interactionType.name} (ID: ${interactionType.id})',
+    );
 
     Widget nextScreen;
     ReportType selectedReportType;
 
     // Map interaction type name to ReportType enum
     final typeName = interactionType.name.toLowerCase();
-    
+
     if (typeName == 'waarneming' || typeName.contains('sighting')) {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
-    } else if (typeName == 'schademelding' || typeName.contains('crop damage')) {
+    } else if (typeName == 'schademelding' ||
+        typeName.contains('crop damage')) {
       selectedReportType = ReportType.gewasschade;
-      nextScreen = BelongingDamagesScreen();
+      nextScreen = BelongingAnimalScreen(appBarTitle: 'Kies Dier');
       _initializeMapInBackground();
-    } else if (typeName == 'dieraanrijding' || typeName.contains('animal collision')) {
+    } else if (typeName == 'dieraanrijding' ||
+        typeName.contains('animal collision')) {
       selectedReportType = ReportType.verkeersongeval;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     } else {
       // Default to waarneming for unknown types
-      debugPrint('[Rapporteren] Unknown interaction type: ${interactionType.name}, defaulting to waarneming');
+      debugPrint(
+        '[Rapporteren] Unknown interaction type: ${interactionType.name}, defaulting to waarneming',
+      );
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
       animalSightingManager.createanimalSighting();
-      nextScreen = const CategoryScreen();
+      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     }
 
@@ -159,9 +166,11 @@ class _RapporterenState extends State<Rapporteren> {
           SafeArea(
             bottom: false,
             child: CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: Icons.arrow_back_ios_new,
               centerText: 'Rapporteren',
               rightIcon: null,
+              showUserIcon: true,
+              useFixedText: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
               // make title and arrow black and larger for this screen - more on smaller screens
@@ -174,6 +183,7 @@ class _RapporterenState extends State<Rapporteren> {
                 extraLarge: 1.15,
               ),
               iconScale: 1.15,
+              userIconScale: 1.15,
             ),
           ),
           Expanded(
@@ -187,52 +197,74 @@ class _RapporterenState extends State<Rapporteren> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : _interactionTypes == null || _interactionTypes!.isEmpty
+                      child:
+                          _isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : _interactionTypes == null ||
+                                  _interactionTypes!.isEmpty
                               ? Center(
-                                  child: Text(
-                                    'Geen interactietypen beschikbaar',
-                                    style: TextStyle(fontSize: responsive.fontSize(16)),
-                                  ),
-                                )
-                              : Center(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: _interactionTypes!.map((type) {
-                                        // Map interaction types to appropriate icons
-                                        String icon;
-                                        final typeName = type.name.toLowerCase();
-                                        if (typeName == 'waarneming' || typeName.contains('sighting')) {
-                                          icon = 'assets/icons/binoculars.png';
-                                        } else if (typeName == 'schademelding' || typeName.contains('crop damage')) {
-                                          icon = 'assets/icons/agriculture.png';
-                                        } else if (typeName == 'dieraanrijding' || typeName.contains('animal collision')) {
-                                          icon = 'assets/icons/accident.png';
-                                        } else {
-                                          icon = 'assets/icons/binoculars.png'; // Default icon
-                                        }
-
-                                        return Padding(
-                                          padding: EdgeInsets.only(
-                                            bottom: responsive.hp(3),
-                                          ),
-                                          child: SizedBox(
-                                            width: responsive.wp(90),
-                                            height: responsive.hp(22),
-                                            child: ReportButton(
-                                              image: icon,
-                                              text: type.name,
-                                              onPressed: () => _handleReportTypeSelection(type),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
+                                child: Text(
+                                  'Geen interactietypen beschikbaar',
+                                  style: TextStyle(
+                                    fontSize: responsive.fontSize(16),
                                   ),
                                 ),
+                              )
+                              : Center(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children:
+                                        _interactionTypes!.map((type) {
+                                          // Map interaction types to appropriate icons
+                                          String icon;
+                                          final typeName =
+                                              type.name.toLowerCase();
+                                          if (typeName == 'waarneming' ||
+                                              typeName.contains('sighting')) {
+                                            icon =
+                                                'assets/icons/binoculars.png';
+                                          } else if (typeName ==
+                                                  'schademelding' ||
+                                              typeName.contains(
+                                                'crop damage',
+                                              )) {
+                                            icon =
+                                                'assets/icons/agriculture.png';
+                                          } else if (typeName ==
+                                                  'dieraanrijding' ||
+                                              typeName.contains(
+                                                'animal collision',
+                                              )) {
+                                            icon = 'assets/icons/accident.png';
+                                          } else {
+                                            icon =
+                                                'assets/icons/binoculars.png'; // Default icon
+                                          }
+
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: responsive.hp(3),
+                                            ),
+                                            child: SizedBox(
+                                              width: responsive.wp(90),
+                                              height: responsive.hp(22),
+                                              child: ReportButton(
+                                                image: icon,
+                                                text: type.name,
+                                                onPressed:
+                                                    () =>
+                                                        _handleReportTypeSelection(
+                                                          type,
+                                                        ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                  ),
+                                ),
+                              ),
                     ),
                   ],
                 ),

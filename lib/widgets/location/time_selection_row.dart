@@ -210,11 +210,21 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         return Theme(
           data: Theme.of(context).copyWith(
             textTheme: TextTheme(
-              headlineLarge: TextStyle(fontSize: responsive.fontSize(28)), // Year picker
-              headlineMedium: TextStyle(fontSize: responsive.fontSize(24)), // Selected date
-              titleMedium: TextStyle(fontSize: responsive.fontSize(16)), // Month/Year header
-              labelLarge: TextStyle(fontSize: responsive.fontSize(14)), // Day labels
-              bodyLarge: TextStyle(fontSize: responsive.fontSize(14)), // Date numbers
+              headlineLarge: TextStyle(
+                fontSize: responsive.fontSize(28),
+              ), // Year picker
+              headlineMedium: TextStyle(
+                fontSize: responsive.fontSize(24),
+              ), // Selected date
+              titleMedium: TextStyle(
+                fontSize: responsive.fontSize(16),
+              ), // Month/Year header
+              labelLarge: TextStyle(
+                fontSize: responsive.fontSize(14),
+              ), // Day labels
+              bodyLarge: TextStyle(
+                fontSize: responsive.fontSize(14),
+              ), // Date numbers
             ),
           ),
           child: child!,
@@ -367,7 +377,9 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                                   ? Colors.black
                                   : Colors.black.withValues(alpha: 0.7),
                           fontFamily: 'Roboto',
-                          fontSize: context.responsive.fontSize(14), // Reduced from 18 to 14
+                          fontSize: context.responsive.fontSize(
+                            14,
+                          ), // Reduced from 18 to 14
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),

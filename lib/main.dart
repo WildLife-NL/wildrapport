@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/data_managers/belonging_api.dart';
@@ -65,10 +66,16 @@ import 'package:wildrapport/utils/token_validator.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Lock orientation to portrait mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager();
-  
+
   // Load location tracking preference
   await appStateProvider.loadLocationTrackingPreference();
 
@@ -157,7 +164,7 @@ void main() async {
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
-  Provider<InteractionTypesManager>.value(value: interactionTypesManager),
+        Provider<InteractionTypesManager>.value(value: interactionTypesManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),

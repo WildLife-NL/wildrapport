@@ -60,7 +60,10 @@ class InteractionApi implements InteractionApiInterface {
                 "longitude": report.userSelectedLocation?.longtitude,
               },
               "reportOfDamage": {
-                "belonging": report.possesion.possesionName,  // Send the free text name as required by API schema
+                "belonging":
+                    report
+                        .possesion
+                        .possesionName, // Send the free text name as required by API schema
                 "estimatedDamage": report.currentImpactDamages.toInt(),
                 "estimatedLoss": report.estimatedTotalDamages.toInt(),
                 "impactType": report.impactedAreaType,
@@ -72,7 +75,11 @@ class InteractionApi implements InteractionApiInterface {
             debugPrint("$yellowLog[InteractionAPI]: GEWASSCHADE Payload:");
             debugPrint("$yellowLog${jsonEncode(payload)}");
             debugPrint("$yellowLog========================================");
-            response = await client.post('interaction/', payload, authenticated: true);
+            response = await client.post(
+              'interaction/',
+              payload,
+              authenticated: true,
+            );
           } else {
             throw Exception(
               "Invalid report type for gewasschade: ${interaction.report.runtimeType}",
@@ -121,19 +128,25 @@ class InteractionApi implements InteractionApiInterface {
         debugPrint("$yellowLog[InteractionAPI]: CHECKING FOR QUESTIONNAIRE");
         final questionnaireJson = json['questionnaire'];
         final String interactionID = json['ID'];
-        
-        debugPrint("$yellowLog[InteractionAPI]: InteractionID from backend: $interactionID");
-        debugPrint("$yellowLog[InteractionAPI]: Questionnaire in response: ${questionnaireJson != null ? 'YES' : 'NO'}");
-        
+
+        debugPrint(
+          "$yellowLog[InteractionAPI]: InteractionID from backend: $interactionID",
+        );
+        debugPrint(
+          "$yellowLog[InteractionAPI]: Questionnaire in response: ${questionnaireJson != null ? 'YES' : 'NO'}",
+        );
+
         if (questionnaireJson != null) {
           debugPrint("$yellowLog[InteractionAPI]: Questionnaire data:");
           debugPrint("$yellowLog${jsonEncode(questionnaireJson)}");
         }
         debugPrint("$yellowLog========================================");
-        
+
         if (questionnaireJson == null) {
           // Graceful handling: not all interactions yield questionnaires.
-          debugPrint("$yellowLog[InteractionAPI]: ▶ No questionnaire returned. Proceeding without questionnaire.");
+          debugPrint(
+            "$yellowLog[InteractionAPI]: ▶ No questionnaire returned. Proceeding without questionnaire.",
+          );
           return InteractionResponse.empty(interactionID: interactionID);
         }
 
@@ -164,5 +177,6 @@ class InteractionApi implements InteractionApiInterface {
       throw Exception("Failed to send interaction: $e");
     }
   }
+
   // Removed fallback questionnaire fetch by hardcoded ID; questionnaires must come from backend response
 }

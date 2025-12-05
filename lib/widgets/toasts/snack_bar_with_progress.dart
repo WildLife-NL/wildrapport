@@ -19,7 +19,10 @@ class SnackBarWithProgress extends StatelessWidget {
       duration: duration,
       behavior: SnackBarBehavior.floating,
       backgroundColor: AppColors.offWhite,
-      padding: EdgeInsets.symmetric(horizontal: responsive.spacing(16), vertical: responsive.spacing(12)),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.spacing(16),
+        vertical: responsive.spacing(12),
+      ),
       margin: EdgeInsets.only(
         bottom: responsive.height - responsive.hp(25),
         right: responsive.spacing(20),

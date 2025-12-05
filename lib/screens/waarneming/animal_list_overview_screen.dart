@@ -28,7 +28,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Waarneming',
               rightIcon: null,
               showUserIcon: true,
@@ -129,7 +129,9 @@ class AnimalListOverviewScreen extends StatelessWidget {
 
           if (context.mounted) {
             // Check if this is a collision report (verkeersongeval)
-            final isCollision = appStateProvider.currentReportType == ReportType.verkeersongeval;
+            final isCollision =
+                appStateProvider.currentReportType ==
+                ReportType.verkeersongeval;
             debugPrint(
               '[AnimalListOverviewScreen] Report type: ${appStateProvider.currentReportType}, isCollision: $isCollision',
             );
@@ -149,8 +151,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
             }
           }
         },
-        showBackButton: false,
         showNextButton: true,
+        showBackButton: true,
       ),
     );
   }

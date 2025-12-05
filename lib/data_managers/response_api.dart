@@ -27,7 +27,7 @@ class ResponseApi implements ResponseApiInterface {
       "questionID": questionID,
       "text": text,
     };
-    
+
     debugPrint("$yellowLog========================================");
     debugPrint("$yellowLog [ResponseApi]: SENDING RESPONSE TO BACKEND");
     debugPrint("$yellowLog [ResponseApi]: Endpoint: POST /response/");
@@ -37,17 +37,24 @@ class ResponseApi implements ResponseApiInterface {
     debugPrint("$yellowLog [ResponseApi]: Text: $text");
     debugPrint("$yellowLog [ResponseApi]: Full Payload: $payload");
     debugPrint("$yellowLog========================================");
-    
-    http.Response response = await client.post('response/', payload, authenticated: true);
+
+    http.Response response = await client.post(
+      'response/',
+      payload,
+      authenticated: true,
+    );
 
     debugPrint("$yellowLog========================================");
     debugPrint("$yellowLog [ResponseApi]: BACKEND RESPONSE RECEIVED");
     debugPrint("$yellowLog [ResponseApi]: Status: ${response.statusCode}");
     debugPrint("$yellowLog [ResponseApi]: Body: ${response.body}");
     debugPrint("$yellowLog========================================");
-    
-    if (response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created) {
-      debugPrint("$greenLog✓ [ResponseApi]: Response successfully submitted to backend!");
+
+    if (response.statusCode == HttpStatus.ok ||
+        response.statusCode == HttpStatus.created) {
+      debugPrint(
+        "$greenLog✓ [ResponseApi]: Response successfully submitted to backend!",
+      );
       return true;
     } else {
       debugPrint("$redLog✗ [ResponseApi]: FAILED to submit response!");

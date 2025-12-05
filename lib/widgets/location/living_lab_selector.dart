@@ -89,7 +89,10 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
     return GestureDetector(
       onTap: () => _selectLab(labName),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: responsive.hp(2), horizontal: responsive.wp(3.5)),
+        padding: EdgeInsets.symmetric(
+          vertical: responsive.hp(2),
+          horizontal: responsive.wp(3.5),
+        ),
         margin: EdgeInsets.only(
           bottom: responsive.spacing(6),
         ), // Slight space between options
@@ -109,7 +112,12 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
                 ),
               ),
             ),
-            if (isSelected) Icon(Icons.check, color: AppColors.brown, size: responsive.sp(16)),
+            if (isSelected)
+              Icon(
+                Icons.check,
+                color: AppColors.brown,
+                size: responsive.sp(16),
+              ),
           ],
         ),
       ),
@@ -158,7 +166,11 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
                     ),
                   ),
                 ),
-                Icon(Icons.chevron_left, color: AppColors.brown, size: responsive.sp(22)),
+                Icon(
+                  Icons.chevron_left,
+                  color: AppColors.brown,
+                  size: responsive.sp(22),
+                ),
               ],
             ),
             SizedBox(height: responsive.spacing(12)),
@@ -189,9 +201,17 @@ class _LivingLabSelectorState extends State<LivingLabSelector>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.location_on_rounded, color: AppColors.brown, size: responsive.sp(22)),
+          Icon(
+            Icons.location_on_rounded,
+            color: AppColors.brown,
+            size: responsive.sp(22),
+          ),
           SizedBox(width: responsive.spacing(6)),
-          Icon(Icons.chevron_right, color: AppColors.brown, size: responsive.sp(24)),
+          Icon(
+            Icons.chevron_right,
+            color: AppColors.brown,
+            size: responsive.sp(24),
+          ),
         ],
       ),
     );

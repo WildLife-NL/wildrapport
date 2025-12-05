@@ -36,26 +36,27 @@ class AnimalDetailDialog extends StatelessWidget {
                         color: AppColors.darkGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: animalIconPath != null
-                          ? Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Image.asset(
-                                animalIconPath!,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                    Icons.pets,
-                                    size: 32,
-                                    color: AppColors.darkGreen,
-                                  );
-                                },
+                      child:
+                          animalIconPath != null
+                              ? Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Image.asset(
+                                  animalIconPath!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.pets,
+                                      size: 32,
+                                      color: AppColors.darkGreen,
+                                    );
+                                  },
+                                ),
+                              )
+                              : const Icon(
+                                Icons.pets,
+                                size: 32,
+                                color: AppColors.darkGreen,
                               ),
-                            )
-                          : const Icon(
-                              Icons.pets,
-                              size: 32,
-                              color: AppColors.darkGreen,
-                            ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -106,7 +107,7 @@ class AnimalDetailDialog extends StatelessWidget {
     final local = animal.seenAt.toLocal();
     final now = DateTime.now();
     final difference = now.difference(local);
-    
+
     String timeAgo;
     if (difference.inMinutes < 60) {
       timeAgo = '${difference.inMinutes} minuten geleden';

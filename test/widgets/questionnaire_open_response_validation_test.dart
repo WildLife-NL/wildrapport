@@ -72,12 +72,12 @@ void main() {
 
     test('should validate numeric-only pattern', () {
       final pattern = '^\\d+\$';
-      
+
       // Valid inputs
       expect(_validateText('123', pattern), isNull);
       expect(_validateText('0', pattern), isNull);
       expect(_validateText('999999', pattern), isNull);
-      
+
       // Invalid inputs
       expect(_validateText('abc', pattern), isNotNull);
       expect(_validateText('12a', pattern), isNotNull);
@@ -87,12 +87,12 @@ void main() {
 
     test('should validate letter-only pattern', () {
       final pattern = '^[a-zA-Z]+\$';
-      
+
       // Valid inputs
       expect(_validateText('abc', pattern), isNull);
       expect(_validateText('ABC', pattern), isNull);
       expect(_validateText('AbCdEf', pattern), isNull);
-      
+
       // Invalid inputs
       expect(_validateText('abc123', pattern), isNotNull);
       expect(_validateText('a b c', pattern), isNotNull);
@@ -101,12 +101,12 @@ void main() {
 
     test('should validate email pattern', () {
       final pattern = '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$';
-      
+
       // Valid inputs
       expect(_validateText('test@example.com', pattern), isNull);
       expect(_validateText('user.name@domain.co.uk', pattern), isNull);
       expect(_validateText('a@b.com', pattern), isNull);
-      
+
       // Invalid inputs
       expect(_validateText('notanemail', pattern), isNotNull);
       expect(_validateText('@example.com', pattern), isNotNull);
@@ -116,11 +116,11 @@ void main() {
 
     test('should validate phone pattern', () {
       final pattern = '^\\+31\\d{9}\$';
-      
+
       // Valid inputs
       expect(_validateText('+31612345678', pattern), isNull);
       expect(_validateText('+31987654321', pattern), isNull);
-      
+
       // Invalid inputs
       expect(_validateText('0612345678', pattern), isNotNull);
       expect(_validateText('+316123456', pattern), isNotNull); // Too short
@@ -191,17 +191,17 @@ bool _isNumericRange(String pattern) {
   if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) {
     return false;
   }
-  
+
   final content = trimmed.substring(1, trimmed.length - 1).trim();
   final parts = content.split('-');
-  
+
   if (parts.length != 2) {
     return false;
   }
-  
+
   final min = int.tryParse(parts[0].trim());
   final max = int.tryParse(parts[1].trim());
-  
+
   return min != null && max != null;
 }
 
@@ -209,21 +209,21 @@ Map<String, int>? _extractRange(String pattern) {
   if (!_isNumericRange(pattern)) {
     return null;
   }
-  
+
   final trimmed = pattern.trim();
   final content = trimmed.substring(1, trimmed.length - 1).trim();
   final parts = content.split('-');
-  
+
   int min = int.parse(parts[0].trim());
   int max = int.parse(parts[1].trim());
-  
+
   // Swap if reversed
   if (min > max) {
     final temp = min;
     min = max;
     max = temp;
   }
-  
+
   return {'min': min, 'max': max};
 }
 
@@ -232,17 +232,17 @@ String? _validateText(String text, String? regex) {
   if (text.trim().isEmpty) {
     return null;
   }
-  
+
   // No regex means no validation
   if (regex == null || regex.isEmpty) {
     return null;
   }
-  
+
   // Skip validation for numeric range patterns
   if (_isNumericRange(regex)) {
     return null;
   }
-  
+
   try {
     final regExp = RegExp(regex);
     if (!regExp.hasMatch(text)) {
