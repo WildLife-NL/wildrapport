@@ -146,10 +146,10 @@ class BelongingDamageReportProvider extends ChangeNotifier {
 
   void setPolygonArea(PolygonArea area) {
     polygonArea = area;
-    // Auto-set impactedArea from polygon area in hectares
-    impactedArea = area.getAreaInHectares();
-    impactedAreaType = 'hectare';
-    selectedText = 'hectare';
+    // Store impacted area in square meters for accuracy and consistency
+    impactedArea = area.calculateAreaInSquareMeters();
+    impactedAreaType = 'vierkante meters';
+    selectedText = 'm²';
     notifyListeners();
   }
 

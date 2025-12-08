@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
+import 'package:provider/provider.dart';
+import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
 class AreaSelectionMap extends StatefulWidget {
@@ -31,6 +33,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   late LatLng _centerPoint;
   LatLng? _currentLocation;
   StreamSubscription<Position>? _liveLocationSub;
+  double? _unitPricePerM2;
 
   @override
   void initState() {
@@ -323,7 +326,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             right: 0,
             child: Container(
               color: AppColors.darkGreen.withOpacity(0.95),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 44),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -354,13 +357,15 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Area: ${PolygonArea(points: _polygonPoints).getAreaInHectares().toStringAsFixed(2)} hectares',
+                        'Area: ${PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    if (_unitPricePerM2 != null) _buildEstimatedCost(context),
                     const SizedBox(height: 12),
                   ],
 
@@ -452,6 +457,25 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                   ),
                   const SizedBox(height: 12),
 
+                  // Unit price button (placed under Undo/Clear)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _promptUnitPrice,
+                      icon: const Icon(Icons.euro),
+                      label: Text(
+                        _unitPricePerM2 == null
+                            ? 'Set price (€/m²)'
+                            : 'Price: €${_unitPricePerM2!.toStringAsFixed(4)}/m²',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.lightMintGreen,
+                        foregroundColor: AppColors.black,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   // Confirm button
                   if (_polygonPoints.length >= 3)
                     SizedBox(
@@ -476,5 +500,84 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
         ],
       ),
     );
+  }
+
+  Widget _buildEstimatedCost(BuildContext context) {
+    final areaM2 = (_polygonPoints.length >= 3)
+        ? PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters()
+        : 0.0;
+    final price = _unitPricePerM2 ?? 0.0;
+    final total = areaM2 * price;
+
+    // Persist in provider so it carries back to the form
+    if (total > 0) {
+      final provider = context.read<BelongingDamageReportProvider>();
+      provider.setEstimatedDamage(total);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Estimated Cost',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            '€ ${total.toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _promptUnitPrice() async {
+    final controller = TextEditingController(
+      text: _unitPricePerM2?.toStringAsFixed(4) ?? '',
+    );
+    final result = await showDialog<double?>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Price per m²'),
+          content: TextField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(
+              prefixText: '€ ',
+              hintText: 'e.g. 0.1250',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final parsed = double.tryParse(controller.text.replaceAll(',', '.'));
+                Navigator.pop(ctx, parsed);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null && result > 0) {
+      setState(() {
+        _unitPricePerM2 = result;
+      });
+    }
   }
 }

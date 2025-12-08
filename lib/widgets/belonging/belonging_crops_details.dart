@@ -402,11 +402,11 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             icon: const Icon(Icons.map),
                             label: Text(
                               belongingDamageReportProvider.polygonArea ==
-                                      null
-                                  ? 'Draw Area on Map'
-                                  : 'Area Modified (${belongingDamageReportProvider.polygonArea!.getAreaInHectares().toStringAsFixed(2)} ha)',
+                                  null
+                                ? 'Draw Area on Map'
+                                : 'Area Modified (${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²)',
                               style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                                const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.darkGreen,
