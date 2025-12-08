@@ -117,49 +117,47 @@ class ProfileApi implements ProfileApiInterface {
       final updated = Profile.fromJson(json);
       await _cacheProfile(updated);
       return updated;
-    } else {
-      // If the server explicitly rejects PATCH/PUT for partial body (405), try
-      // the safer approach: fetch the current full profile, update the flag and
-      // PUT the complete resource. Some servers require the full resource on PUT.
-      if (response.statusCode == HttpStatus.methodNotAllowed) {
+    } else if (response.statusCode == HttpStatus.unprocessableEntity ||
+        response.statusCode == HttpStatus.methodNotAllowed) {
+      // If the server rejects partial body (422 or 405), fetch the current full
+      // profile, update the flag, and PUT the complete resource.
+      debugPrint(
+        '[ProfileApi] Server returned ${response.statusCode}; attempting full-profile PUT',
+      );
+      try {
+        final current = await fetchMyProfile();
+        final fullBody = current.toJson()..['reportAppTerms'] = accepted;
         debugPrint(
-          '[ProfileApi] Server returned 405; attempting full-profile PUT',
+          '[ProfileApi] PUT /profile/me/ fullBody: ${jsonEncode(fullBody)}',
         );
-        try {
-          final current = await fetchMyProfile();
-          final fullBody = current.toJson()..['reportAppTerms'] = accepted;
-          debugPrint(
-            '[ProfileApi] PUT /profile/me/ fullBody: ${jsonEncode(fullBody)}',
-          );
-          final putResponse = await client.put(
-            '/profile/me/',
-            fullBody,
-            authenticated: true,
-          );
-          debugPrint(
-            '[ProfileApi] PUT Response (${putResponse.statusCode}): ${putResponse.body}',
-          );
-          if (putResponse.statusCode == HttpStatus.ok) {
-            final Map<String, dynamic> json = jsonDecode(putResponse.body);
-            final updated = Profile.fromJson(json);
-            await _cacheProfile(updated);
-            return updated;
-          } else {
-            throw Exception(
-              'Failed to update reportAppTerms via full PUT (${putResponse.statusCode}): ${putResponse.body}',
-            );
-          }
-        } catch (e) {
+        final putResponse = await client.put(
+          '/profile/me/',
+          fullBody,
+          authenticated: true,
+        );
+        debugPrint(
+          '[ProfileApi] PUT Response (${putResponse.statusCode}): ${putResponse.body}',
+        );
+        if (putResponse.statusCode == HttpStatus.ok) {
+          final Map<String, dynamic> json = jsonDecode(putResponse.body);
+          final updated = Profile.fromJson(json);
+          await _cacheProfile(updated);
+          return updated;
+        } else {
           throw Exception(
-            'Failed to update reportAppTerms (after 405 fallback): $e',
+            'Failed to update reportAppTerms via full PUT (${putResponse.statusCode}): ${putResponse.body}',
           );
         }
+      } catch (e) {
+        throw Exception(
+          'Failed to update reportAppTerms (after full-profile PUT): $e',
+        );
       }
-
-      throw Exception(
-        "Failed to update reportAppTerms (${response.statusCode}): ${response.body}",
-      );
     }
+
+    throw Exception(
+      "Failed to update reportAppTerms (${response.statusCode}): ${response.body}",
+    );
   }
 
   @override
