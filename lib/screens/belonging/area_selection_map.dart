@@ -30,6 +30,10 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   bool _isDrawing = false;
   bool _isGpsRecording = false;
   List<LatLng> _gpsTrack = [];
+  final List<LatLng> _recentPositions = [];
+  final int _smoothingWindow = 5;
+  final double _accuracyThresholdM = 10; // only accept points with <= 10m accuracy
+  final double _minPointDistanceM = 2; // ignore tiny jitter
   late LatLng _centerPoint;
   LatLng? _currentLocation;
   StreamSubscription<Position>? _liveLocationSub;
@@ -97,19 +101,35 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     try {
       final positionStream = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 5, // Update every 5 meters
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 1, // Update roughly every 1 meter
         ),
       );
 
       positionStream.listen((Position position) {
-        if (_isGpsRecording) {
-          setState(() {
-            final point = LatLng(position.latitude, position.longitude);
-            _gpsTrack.add(point);
-            _polygonPoints = List.from(_gpsTrack);
-          });
+        if (!_isGpsRecording) return;
+        // Accuracy filter
+        if (position.accuracy > _accuracyThresholdM) return;
+
+        final newPoint = LatLng(position.latitude, position.longitude);
+        // Distance filter (to last accepted point)
+        if (_gpsTrack.isNotEmpty) {
+          final last = _gpsTrack.last;
+          final meters = const Distance().distance(last, newPoint);
+          if (meters < _minPointDistanceM) return;
         }
+
+        // Smoothing: maintain recent positions and add averaged point
+        _recentPositions.add(newPoint);
+        if (_recentPositions.length > _smoothingWindow) {
+          _recentPositions.removeAt(0);
+        }
+        final averaged = _averageLatLng(_recentPositions);
+
+        setState(() {
+          _gpsTrack.add(averaged);
+          _polygonPoints = List.from(_gpsTrack);
+        });
       });
     } catch (e) {
       debugPrint('GPS recording error: $e');
@@ -174,7 +194,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       }
 
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.best,
       );
       final here = LatLng(pos.latitude, pos.longitude);
       if (!mounted) return;
@@ -210,11 +230,15 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       _liveLocationSub?.cancel();
       final stream = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 3,
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 1,
         ),
       );
       _liveLocationSub = stream.listen((pos) {
+        // Ignore low-accuracy points (> threshold)
+        if (pos.accuracy > _accuracyThresholdM) {
+          return;
+        }
         final here = LatLng(pos.latitude, pos.longitude);
         if (!mounted) return;
         setState(() {
@@ -267,6 +291,19 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                           border: Border.all(color: Colors.white, width: 3),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              // Optional accuracy circle around current location
+              if (_currentLocation != null)
+                fm.CircleLayer(
+                  circles: [
+                    fm.CircleMarker(
+                      point: _currentLocation!,
+                      color: Colors.blue.withOpacity(0.12),
+                      borderStrokeWidth: 1,
+                      useRadiusInMeter: true,
+                      radius: _accuracyThresholdM, // visualize acceptable radius
                     ),
                   ],
                 ),
@@ -579,5 +616,15 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
         _unitPricePerM2 = result;
       });
     }
+  }
+
+  LatLng _averageLatLng(List<LatLng> points) {
+    if (points.isEmpty) return const LatLng(0, 0);
+    double lat = 0, lng = 0;
+    for (final p in points) {
+      lat += p.latitude;
+      lng += p.longitude;
+    }
+    return LatLng(lat / points.length, lng / points.length);
   }
 }
