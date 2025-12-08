@@ -1892,7 +1892,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: const [
                                 BoxShadow(
