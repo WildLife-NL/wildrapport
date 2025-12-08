@@ -430,6 +430,23 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                               ),
                             ),
                           ),
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkGreen,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            "Here you will chose a way to indicate your crop damage, you can chose to walk around the damage or you can put pins on the map. After introducing a value of a unit the map also calculated the price of your damage",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              height: 1.8,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
