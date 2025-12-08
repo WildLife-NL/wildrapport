@@ -154,7 +154,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Damaged Area'),
-        backgroundColor: AppColors.darkGreen,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 0,
       ),
       body: Stack(
@@ -228,7 +228,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             right: 0,
             child: Container(
               color: AppColors.darkGreen.withOpacity(0.95),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -320,7 +320,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
 
                   // Secondary action buttons
                   Row(
@@ -355,7 +355,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
 
                   // Confirm button
                   if (_polygonPoints.length >= 3)
@@ -372,6 +372,8 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         ),
                       ),
                     ),
+                  // Extra spacing to make the bottom container feel larger
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
