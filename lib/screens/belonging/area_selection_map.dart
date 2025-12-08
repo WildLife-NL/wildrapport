@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,6 +29,8 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   bool _isGpsRecording = false;
   List<LatLng> _gpsTrack = [];
   late LatLng _centerPoint;
+  LatLng? _currentLocation;
+  StreamSubscription<Position>? _liveLocationSub;
 
   @override
   void initState() {
@@ -39,10 +42,13 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     }
     
     _centerPoint = widget.initialCenter ?? const LatLng(51.7, 5.27);
+    _loadCurrentLocation();
+    _startLiveLocationUpdates();
   }
 
   @override
   void dispose() {
+    _liveLocationSub?.cancel();
     _mapController.dispose();
     super.dispose();
   }
@@ -149,6 +155,74 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     }
   }
 
+  Future<void> _loadCurrentLocation() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return;
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      final here = LatLng(pos.latitude, pos.longitude);
+      if (!mounted) return;
+      setState(() {
+        _currentLocation = here;
+        if (widget.initialCenter == null) {
+          _centerPoint = here;
+        }
+      });
+      // Move map to current location if no explicit initial center provided
+      if (widget.initialCenter == null) {
+        _mapController.move(here, 16);
+      }
+    } catch (e) {
+      debugPrint('Current location error: $e');
+    }
+  }
+
+  Future<void> _startLiveLocationUpdates() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      _liveLocationSub?.cancel();
+      final stream = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 3,
+        ),
+      );
+      _liveLocationSub = stream.listen((pos) {
+        final here = LatLng(pos.latitude, pos.longitude);
+        if (!mounted) return;
+        setState(() {
+          _currentLocation = here;
+        });
+      });
+    } catch (e) {
+      debugPrint('Live location stream error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,6 +249,24 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                 urlTemplate:
                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
+              // Current location marker
+              if (_currentLocation != null)
+                fm.MarkerLayer(
+                  markers: [
+                    fm.Marker(
+                      point: _currentLocation!,
+                      width: 24,
+                      height: 24,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.blue,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               // Draw polygon
               if (_polygonPoints.isNotEmpty)
                 fm.PolygonLayer(
