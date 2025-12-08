@@ -13,9 +13,8 @@ class TrackingApi implements TrackingApiInterface {
     required double lon,
     required DateTime timestampUtc,
   }) async {
-    debugPrint(
-      '[TrackingApi] Sending location: $lat, $lon at ${timestampUtc.toIso8601String()}',
-    );
+    // Reduced logging - only log errors or messages
+    // debugPrint('[TrackingApi] Sending location: $lat, $lon at ${timestampUtc.toIso8601String()}');
 
     // Build request body EXACTLY like the /tracking-reading/ docs:
     // {
@@ -35,35 +34,20 @@ class TrackingApi implements TrackingApiInterface {
       authenticated: true,
     );
 
-    debugPrint('[TrackingApi] Response status: ${res.statusCode}');
-
+    // Only log non-success responses
     if (res.statusCode < 200 || res.statusCode >= 300) {
+      debugPrint('[TrackingApi] Response status: ${res.statusCode}');
       debugPrint('[TrackingApi] ERROR - Status ${res.statusCode}: ${res.body}');
       throw Exception('[TrackingApi] Failed (${res.statusCode}): ${res.body}');
     }
 
-    // Debug: see exactly what backend returns (truncate if too long)
-    final responsePreview =
-        res.body.length > 500
-            ? '${res.body.substring(0, 500)}...[truncated]'
-            : res.body;
-    debugPrint('[TrackingApi] Response body: $responsePreview');
-
     // Try to extract an optional message from the response
     try {
       final Map<String, dynamic> decoded = jsonDecode(res.body);
-      debugPrint('[TrackingApi] Parsed JSON successfully');
 
       // Preferred shape: conveyance.message.text (+ optional severity)
       final conv = decoded['conveyance'];
-      debugPrint('[TrackingApi] conveyance present: ${conv != null}');
-
       final msgObj = conv?['message'];
-      debugPrint('[TrackingApi] message object present: ${msgObj != null}');
-
-      if (msgObj != null && msgObj is Map) {
-        debugPrint('[TrackingApi] message keys: ${msgObj.keys.toList()}');
-      }
 
       final msgText1 = (msgObj is Map ? msgObj['text'] : null)?.toString();
       final sev1 =
@@ -72,16 +56,14 @@ class TrackingApi implements TrackingApiInterface {
               : null;
 
       if (msgText1 != null && msgText1.isNotEmpty) {
-        debugPrint(
-          '[TrackingApi] ✓ Found message: "$msgText1" (severity: $sev1)',
-        );
+        debugPrint('[TrackingApi] Message received: "$msgText1"');
         return TrackingNotice(msgText1, severity: sev1);
       }
 
       // Fallbacks: { "message": "..." } or { "message": { "text": "..." } }
       final message = decoded['message'];
       if (message is String && message.isNotEmpty) {
-        debugPrint('[TrackingApi] ✓ Found message (string): "$message"');
+        debugPrint('[TrackingApi] Message received: "$message"');
         return TrackingNotice(message);
       }
       if (message is Map && (message['text']?.toString().isNotEmpty ?? false)) {
@@ -89,13 +71,12 @@ class TrackingApi implements TrackingApiInterface {
             message['severity'] is num
                 ? (message['severity'] as num).toInt()
                 : null;
-        debugPrint(
-          '[TrackingApi] ✓ Found message (map): "${message['text']}" (severity: $sev2)',
-        );
+        debugPrint('[TrackingApi] Message received: "${message['text']}"');
         return TrackingNotice(message['text'].toString(), severity: sev2);
       }
 
-      debugPrint('[TrackingApi] No message found in response');
+      // Only log when messages are expected but missing
+      // debugPrint('[TrackingApi] No message found in response');
     } catch (e) {
       debugPrint('[TrackingApi] Error parsing message: $e');
       // Non-JSON or unexpected shape → no notice

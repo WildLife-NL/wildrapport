@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class TopContainer extends StatelessWidget {
+class TopContainer extends StatefulWidget {
   final String userName;
   final double height;
   final double welcomeFontSize;
@@ -21,11 +22,44 @@ class TopContainer extends StatelessWidget {
   });
 
   @override
+  State<TopContainer> createState() => _TopContainerState();
+}
+
+class _TopContainerState extends State<TopContainer> {
+  String _version = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    if (!_isLoading) return; // Prevent multiple loads
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _version = 'v${packageInfo.version}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
-          height: height,
+          height: widget.height,
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.darkGreen,
@@ -34,42 +68,54 @@ class TopContainer extends StatelessWidget {
           ),
           child: Center(
             child: Padding(
-              padding: EdgeInsets.only(top: height * 0.06),
+              padding: EdgeInsets.only(top: widget.height * 0.06),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Welkom Bij Wild Rapport',
+                    'Welkom bij Wild Rapport',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.offWhite,
-                      fontSize: welcomeFontSize,
+                      fontSize: widget.welcomeFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: height * 0.03),
+                  SizedBox(height: widget.height * 0.03),
                   Text(
-                    userName,
+                    widget.userName,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.offWhite,
-                      fontSize: usernameFontSize,
+                      fontSize: widget.usernameFontSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  if (_version.isNotEmpty)
+                    SizedBox(height: widget.height * 0.02),
+                  if (_version.isNotEmpty)
+                    Text(
+                      _version,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.offWhite.withOpacity(0.7),
+                        fontSize: widget.welcomeFontSize * 0.7,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
         ),
-        if (showUserIcon)
+        if (widget.showUserIcon)
           Positioned(
             right: 12,
             // move icon a bit lower for visual alignment
-            top: height * 0.12,
+            top: widget.height * 0.12,
             child: GestureDetector(
               onTap:
-                  onUserIconPressed ??
+                  widget.onUserIconPressed ??
                   () {
                     debugPrint('[TopContainer] user icon tapped');
                     Navigator.of(context).push(
@@ -80,7 +126,7 @@ class TopContainer extends StatelessWidget {
                 Icons.person,
                 color: AppColors.offWhite,
                 // slightly smaller than before
-                size: height * 0.14,
+                size: widget.height * 0.14,
               ),
             ),
           ),

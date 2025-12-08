@@ -198,9 +198,12 @@ class TrackingCacheManager {
 
     for (int i = 0; i < cachedReadings.length; i++) {
       TrackingReading reading = cachedReadings[i];
-      debugPrint(
-        '$yellowLog[TrackingCacheManager] Sending cached reading ${i + 1}/${cachedReadings.length}: $reading',
-      );
+      // Only log every 50 readings to reduce spam
+      if ((i + 1) % 50 == 0 || i == 0 || i == cachedReadings.length - 1) {
+        debugPrint(
+          '$yellowLog[TrackingCacheManager] Progress: ${i + 1}/${cachedReadings.length} readings processed',
+        );
+      }
 
       try {
         await trackingApi.addTrackingReading(
@@ -209,9 +212,6 @@ class TrackingCacheManager {
           timestampUtc: reading.timestampUtc,
         );
         successCount++;
-        debugPrint(
-          '$greenLog[TrackingCacheManager] Reading ${i + 1} sent successfully',
-        );
       } catch (e) {
         debugPrint('$redLog[TrackingCacheManager] Reading ${i + 1} failed: $e');
         failedReadings.add(reading);

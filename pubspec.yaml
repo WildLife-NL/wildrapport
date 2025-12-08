@@ -27,6 +27,7 @@ dependencies:
   intl: ^0.20.2
   connectivity_plus: ^6.1.4
   collection: ^1.17.1
+  package_info_plus: ^8.0.3
 
 dev_dependencies:
   flutter_test:
