@@ -161,4 +161,28 @@ class ProfileApi implements ProfileApiInterface {
       );
     }
   }
+
+  @override
+  Future<void> deleteMyProfile() async {
+    debugPrint('[ProfileApi] DELETE /profile/me/');
+
+    final http.Response response = await client.delete(
+      '/profile/me/',
+      authenticated: true,
+    );
+
+    debugPrint('[ProfileApi] DELETE Response (${response.statusCode})');
+
+    if (response.statusCode == HttpStatus.noContent) {
+      // 204 No Content - Success
+      debugPrint('$greenLog Profile successfully deleted!');
+    } else if (response.statusCode == HttpStatus.ok) {
+      // Some APIs return 200 OK instead of 204
+      debugPrint('$greenLog Profile successfully deleted (200 OK)!');
+    } else {
+      throw Exception(
+        "$redLog Failed to delete profile (${response.statusCode}): ${response.body}",
+      );
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -224,7 +225,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         'Account verwijderen',
                         onPressed: () {
-                          // placeholder
+                          showDialog(
+                            context: context,
+                            builder:
+                                (ctx) => AlertDialog(
+                                  title: Text(
+                                    'Account verwijderen?',
+                                    style: TextStyle(
+                                      fontSize: responsive.fontSize(18),
+                                    ),
+                                  ),
+                                  content: Text(
+                                    'Dit zal uw account en alle bijbehorende gegevens permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt.',
+                                    style: TextStyle(
+                                      fontSize: responsive.fontSize(14),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: Text(
+                                        'Annuleren',
+                                        style: TextStyle(
+                                          fontSize: responsive.fontSize(14),
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.of(ctx).pop();
+                                        
+                                        // Show loading indicator
+                                        if (!mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Account wordt verwijderd...'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+
+                                        try {
+                                          final profileApi = context.read<ProfileApiInterface>();
+                                          final appStateProvider = context.read<AppStateProvider>();
+                                          
+                                          // Call the API to delete the profile
+                                          await profileApi.deleteMyProfile();
+                                          
+                                          // If successful, clean up and redirect
+                                          await appStateProvider.deleteProfile();
+                                        } catch (e) {
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Fout bij verwijderen: $e'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Text(
+                                        'Verwijderen',
+                                        style: TextStyle(
+                                          fontSize: responsive.fontSize(14),
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
                         },
                       ),
 

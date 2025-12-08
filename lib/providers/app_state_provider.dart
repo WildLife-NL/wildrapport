@@ -232,4 +232,30 @@ class AppStateProvider with ChangeNotifier {
       (route) => false,
     );
   }
+
+  Future<void> deleteProfile() async {
+    // This method is called from ProfileScreen after user confirms deletion.
+    // Reset in-memory app state first
+    _screenStates.clear();
+    _activeReports.clear();
+    _currentReportType = null;
+    _cachedPosition = null;
+    _cachedAddress = null;
+    _lastLocationUpdate = null;
+    notifyListeners();
+
+    // Remove persisted auth/session
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('bearer_token');
+    } catch (e, st) {
+      debugPrint('[AppStateProvider] deleteProfile(): failed to clear token: $e\n$st');
+    }
+
+    // Navigate to LoginScreen & clear back stack
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
 }
