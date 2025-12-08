@@ -32,7 +32,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.initialProfile.userName);
     _postcodeController = TextEditingController(text: widget.initialProfile.postcode ?? '');
-    _dateOfBirthController = TextEditingController(text: widget.initialProfile.dateOfBirth ?? '');
+    
+    // Handle dateOfBirth - extract YYYY-MM-DD from ISO 8601 if needed
+    String dateOfBirthStr = '';
+    if (widget.initialProfile.dateOfBirth != null && widget.initialProfile.dateOfBirth!.isNotEmpty) {
+      dateOfBirthStr = widget.initialProfile.dateOfBirth!.contains('T')
+          ? widget.initialProfile.dateOfBirth!.split('T')[0]
+          : widget.initialProfile.dateOfBirth!;
+    }
+    _dateOfBirthController = TextEditingController(text: dateOfBirthStr);
+    
     _descriptionController = TextEditingController(text: widget.initialProfile.description ?? '');
     _selectedGender = widget.initialProfile.gender;
   }
@@ -47,18 +56,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _selectDate() async {
+    DateTime? initialDate;
+    
+    if (_dateOfBirthController.text.isNotEmpty) {
+      try {
+        // Handle both formats: YYYY-MM-DD and ISO 8601
+        String dateStr = _dateOfBirthController.text;
+        if (dateStr.contains('T')) {
+          // ISO 8601 format: 2001-10-29T00:00:00Z
+          dateStr = dateStr.split('T')[0];
+        }
+        initialDate = DateTime.parse(dateStr);
+      } catch (e) {
+        initialDate = DateTime.now();
+      }
+    } else {
+      initialDate = DateTime.now();
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _dateOfBirthController.text.isNotEmpty
-          ? DateTime.parse(_dateOfBirthController.text)
-          : DateTime.now(),
+      initialDate: initialDate,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
 
     if (picked != null) {
       setState(() {
-        _dateOfBirthController.text = picked.toString().split(' ')[0]; // Format: YYYY-MM-DD
+        // Format as YYYY-MM-DD
+        _dateOfBirthController.text =
+            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       });
     }
   }
