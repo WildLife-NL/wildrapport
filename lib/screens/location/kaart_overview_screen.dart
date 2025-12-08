@@ -81,6 +81,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _loadingTrackingHistory = false;
   int _trackingHistoryMinutes = 5; // Default: show last 5 minutes
 
+  // Scale bar state
+  double _scaleBarWidth = 80;
+  String _scaleBarLabel = '100 m';
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -98,6 +102,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         initialZoom: _initialZoom,
         onMapReady: () {
           debugPrint('[Map] ready');
+          _updateScaleBar();
         },
         interactionOptions: const fm.InteractionOptions(
           flags:
@@ -133,6 +138,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             if (next != _useClusters && mounted) {
               setState(() => _useClusters = next);
             }
+            _updateScaleBar();
             // Recenter only if following AND tracking is enabled (still user-driven)
             final p = mp.currentPosition ?? mp.selectedPosition;
             final appStateProvider = context.read<AppStateProvider>();
@@ -149,6 +155,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           // Only fetch after a user pan ends
           if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
             _queueFetch();
+            _updateScaleBar();
           }
         },
       );
@@ -496,16 +503,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     try {
       final trackingApi = TrackingApi(AppConfig.shared.apiClient);
-      
+
       final readings = await trackingApi.getMyTrackingReadings().timeout(
         const Duration(seconds: 10),
         onTimeout: () {
           throw TimeoutException('Request timeout after 10 seconds');
         },
       );
-      
+
       if (!mounted) return;
-      
+
       if (readings.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -516,86 +523,93 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         setState(() => _loadingTrackingHistory = false);
         return;
       }
-      
+
       // CRITICAL DIAGNOSTIC: Show timestamp range in database
       final sorted = List<TrackingReadingResponse>.from(readings);
       sorted.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-      
+
       final oldest = sorted.first.timestamp;
       final newest = sorted.last.timestamp;
       final now = DateTime.now();
-      
+
       debugPrint('[TRACKING] 🔴 CRITICAL DATA:');
       debugPrint('[TRACKING] Now: ${now.toIso8601String()}');
-      debugPrint('[TRACKING] Newest in DB: ${newest.toIso8601String()} (${now.difference(newest).inSeconds}s ago)');
-      debugPrint('[TRACKING] Oldest in DB: ${oldest.toIso8601String()} (${now.difference(oldest).inSeconds}s ago)');
+      debugPrint(
+        '[TRACKING] Newest in DB: ${newest.toIso8601String()} (${now.difference(newest).inSeconds}s ago)',
+      );
+      debugPrint(
+        '[TRACKING] Oldest in DB: ${oldest.toIso8601String()} (${now.difference(oldest).inSeconds}s ago)',
+      );
       debugPrint('[TRACKING] Total readings: ${readings.length}');
-      
+
       // Filter to configurable time window
-      final threshold = now.subtract(Duration(minutes: _trackingHistoryMinutes));
-      
-      final filteredReadings = readings
-          .where((r) => r.timestamp.isAfter(threshold))
-          .toList();
-      
+      final threshold = now.subtract(
+        Duration(minutes: _trackingHistoryMinutes),
+      );
+
+      final filteredReadings =
+          readings.where((r) => r.timestamp.isAfter(threshold)).toList();
+
       // IMPORTANT: If no recent data found, also filter out OLD junk data (>24h old)
       // This handles stale test data in the database
       if (filteredReadings.isEmpty && readings.isNotEmpty) {
         final oneDayAgo = now.subtract(const Duration(days: 1));
-        final recentOnlyReadings = readings
-            .where((r) => r.timestamp.isAfter(oneDayAgo))
-            .toList();
-        
+        final recentOnlyReadings =
+            readings.where((r) => r.timestamp.isAfter(oneDayAgo)).toList();
+
         if (recentOnlyReadings.isNotEmpty) {
-          debugPrint('[TRACKING] No data in 5min window, but found ${recentOnlyReadings.length} readings from last 24h');
+          debugPrint(
+            '[TRACKING] No data in 5min window, but found ${recentOnlyReadings.length} readings from last 24h',
+          );
           setState(() {
             _trackingHistory = recentOnlyReadings;
             _showTrackingHistory = true;
             _loadingTrackingHistory = false;
           });
-          
+
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${recentOnlyReadings.length} locaties van laatste 24 uur (geen recente in 5min)'),
+              content: Text(
+                '${recentOnlyReadings.length} locaties van laatste 24 uur (geen recente in 5min)',
+              ),
               duration: const Duration(seconds: 3),
             ),
           );
           return;
         }
       }
-      
+
       setState(() {
         _trackingHistory = filteredReadings;
         _showTrackingHistory = true;
         _loadingTrackingHistory = false;
       });
-      
+
       // Show success message
       if (!mounted) return;
-      
+
       String message;
       if (filteredReadings.isEmpty) {
         // Show data from last 24 hours as fallback
         final oneDayAgo = now.subtract(const Duration(days: 1));
-        final recentOnlyReadings = readings
-            .where((r) => r.timestamp.isAfter(oneDayAgo))
-            .toList();
-        
+        final recentOnlyReadings =
+            readings.where((r) => r.timestamp.isAfter(oneDayAgo)).toList();
+
         if (recentOnlyReadings.isNotEmpty) {
-          message = '${recentOnlyReadings.length} locaties van vandaag (geen pingen in ${_trackingHistoryMinutes} min)';
+          message =
+              '${recentOnlyReadings.length} locaties van vandaag (geen pingen in ${_trackingHistoryMinutes} min)';
         } else {
-          message = 'Geen locaties in laatste ${_trackingHistoryMinutes} minuten';
+          message =
+              'Geen locaties in laatste ${_trackingHistoryMinutes} minuten';
         }
       } else {
-        message = '${filteredReadings.length} locaties van laatste ${_trackingHistoryMinutes} minuten';
+        message =
+            '${filteredReadings.length} locaties van laatste ${_trackingHistoryMinutes} minuten';
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: const Duration(seconds: 3),
-        ),
+        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
       );
     } on TimeoutException {
       if (!mounted) return;
@@ -660,49 +674,49 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     return Transform.rotate(
       angle: -mapRotation * math.pi / 180,
       child: Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.95),
-            shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(
-                blurRadius: 6,
-                spreadRadius: 1,
-                offset: Offset(0, 2),
-                color: Colors.black26,
-              ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Icon(icon, size: iconSize, color: Colors.white),
-        ),
-        Positioned(
-          right: badgeOffset,
-          top: badgeOffset,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: badgePadH,
-              vertical: badgePadV,
-            ),
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: size,
+            height: size,
             decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(12),
+              color: color.withOpacity(0.95),
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(
+                  blurRadius: 6,
+                  spreadRadius: 1,
+                  offset: Offset(0, 2),
+                  color: Colors.black26,
+                ),
+              ],
             ),
-            child: Text(
-              '$count',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: badgeFontSize,
-                fontWeight: FontWeight.w700,
+            alignment: Alignment.center,
+            child: Icon(icon, size: iconSize, color: Colors.white),
+          ),
+          Positioned(
+            right: badgeOffset,
+            top: badgeOffset,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: badgePadH,
+                vertical: badgePadV,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: badgeFontSize,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -734,6 +748,46 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       return showMedium;
     } else {
       return showOld;
+    }
+  }
+
+  void _updateScaleBar() {
+    if (!_mp.isInitialized) return;
+
+    final center = _mp.mapController.camera.center;
+    final zoom = _mp.mapController.camera.zoom;
+    if (center == null || zoom.isNaN) return;
+
+    const earthCircumference = 40075016.686; // meters
+    final metersPerPixel =
+        math.cos(center.latitude * math.pi / 180) *
+        earthCircumference /
+        (256 * math.pow(2, zoom));
+
+    const candidates = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+
+    double chosenMeters = candidates.first.toDouble();
+    double chosenWidth = chosenMeters / metersPerPixel;
+
+    for (final m in candidates) {
+      final widthPx = m / metersPerPixel;
+      if (widthPx >= 60 && widthPx <= 160) {
+        chosenMeters = m.toDouble();
+        chosenWidth = widthPx;
+        break;
+      }
+    }
+
+    final label =
+        chosenMeters >= 1000
+            ? '${(chosenMeters / 1000).toStringAsFixed(chosenMeters % 1000 == 0 ? 0 : 1)} km'
+            : '${chosenMeters.toInt()} m';
+
+    if ((chosenWidth - _scaleBarWidth).abs() > 0.5 || _scaleBarLabel != label) {
+      setState(() {
+        _scaleBarWidth = chosenWidth.clamp(40, 200);
+        _scaleBarLabel = label;
+      });
     }
   }
 
@@ -1233,7 +1287,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.pets,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
-                                          mapRotation: map.mapController.camera.rotation,
+                                          mapRotation:
+                                              map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
@@ -1435,7 +1490,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.sensors,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
-                                          mapRotation: map.mapController.camera.rotation,
+                                          mapRotation:
+                                              map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
@@ -1540,31 +1596,43 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               ),
 
                             // ── TRACKING HISTORY ─────────────────────────────────────────────────────
-                            if (_showTrackingHistory && _trackingHistory.isNotEmpty)
+                            if (_showTrackingHistory &&
+                                _trackingHistory.isNotEmpty)
                               fm.PolylineLayer(
                                 polylines: [
                                   fm.Polyline(
-                                    points: _trackingHistory
-                                        .map((r) => LatLng(r.latitude, r.longitude))
-                                        .toList(),
+                                    points:
+                                        _trackingHistory
+                                            .map(
+                                              (r) => LatLng(
+                                                r.latitude,
+                                                r.longitude,
+                                              ),
+                                            )
+                                            .toList(),
                                     color: Colors.blue.withOpacity(0.6),
                                     strokeWidth: 2.0,
                                   ),
                                 ],
                               ),
-                            
-                            if (_showTrackingHistory && _trackingHistory.isNotEmpty)
+
+                            if (_showTrackingHistory &&
+                                _trackingHistory.isNotEmpty)
                               fm.CircleLayer(
-                                circles: _trackingHistory.map((reading) {
-                                  return fm.CircleMarker(
-                                    point: LatLng(reading.latitude, reading.longitude),
-                                    radius: 4,
-                                    color: Colors.blue.withOpacity(0.8),
-                                    borderColor: Colors.white,
-                                    borderStrokeWidth: 1,
-                                    useRadiusInMeter: false,
-                                  );
-                                }).toList(),
+                                circles:
+                                    _trackingHistory.map((reading) {
+                                      return fm.CircleMarker(
+                                        point: LatLng(
+                                          reading.latitude,
+                                          reading.longitude,
+                                        ),
+                                        radius: 4,
+                                        color: Colors.blue.withOpacity(0.8),
+                                        borderColor: Colors.white,
+                                        borderStrokeWidth: 1,
+                                        useRadiusInMeter: false,
+                                      );
+                                    }).toList(),
                               ),
 
                             // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
@@ -1693,7 +1761,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           icon: Icons.place,
                                           count: markers.length,
                                           color: AppColors.darkGreen,
-                                          mapRotation: map.mapController.camera.rotation,
+                                          mapRotation:
+                                              map.mapController.camera.rotation,
                                         ),
                                   ),
                                 )
@@ -1813,6 +1882,53 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           ],
                         ),
 
+                        // ── SCALE BAR ─────────────────────────────────────────────────────────────
+                        Positioned(
+                          left: 12,
+                          bottom: 88,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _scaleBarLabel,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                SizedBox(
+                                  width: _scaleBarWidth,
+                                  height: 6,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
                         // ── ROTATE BUTTON ─────────────────────────────
                         Positioned(
                           bottom: 16,
@@ -1840,35 +1956,40 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           child: FloatingActionButton(
                             heroTag: 'tracking_history_btn',
                             mini: true,
-                            backgroundColor: _showTrackingHistory 
-                                ? Colors.blue 
-                                : AppColors.darkGreen,
-                            child: _loadingTrackingHistory
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
+                            backgroundColor:
+                                _showTrackingHistory
+                                    ? Colors.blue
+                                    : AppColors.darkGreen,
+                            child:
+                                _loadingTrackingHistory
+                                    ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : Icon(
+                                      _showTrackingHistory
+                                          ? Icons.timeline
+                                          : Icons.history,
                                       color: Colors.white,
-                                      strokeWidth: 2,
                                     ),
-                                  )
-                                : Icon(
-                                    _showTrackingHistory ? Icons.timeline : Icons.history,
-                                    color: Colors.white,
-                                  ),
-                            onPressed: _loadingTrackingHistory
-                                ? null
-                                : () {
-                                    if (_showTrackingHistory) {
-                                      // Toggle off
-                                      setState(() {
-                                        _showTrackingHistory = false;
-                                      });
-                                    } else {
-                                      // Load and show
-                                      _loadTrackingHistory();
-                                    }
-                                  },
+                            onPressed:
+                                _loadingTrackingHistory
+                                    ? null
+                                    : () {
+                                      if (_showTrackingHistory) {
+                                        // Toggle off
+                                        setState(() {
+                                          _showTrackingHistory = false;
+                                        });
+                                      } else {
+                                        // Load and show
+                                        _loadTrackingHistory();
+                                      }
+                                    },
                           ),
                         ),
 
