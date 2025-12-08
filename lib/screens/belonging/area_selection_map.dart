@@ -7,6 +7,7 @@ import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+// Draggable plugin removed due to dependency issues; implementing tap-to-move editing instead.
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class AreaSelectionMap extends StatefulWidget {
@@ -39,6 +40,8 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   LatLng? _currentLocation;
   StreamSubscription<Position>? _liveLocationSub;
   double? _unitPricePerM2;
+  int? _selectedPointIndex;
+  bool _editPinsMode = false;
 
   @override
   void initState() {
@@ -62,6 +65,14 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   }
 
   void _onMapTap(LatLng point) {
+    // If editing pins, move the selected pin to tap location
+    if (_editPinsMode && _selectedPointIndex != null) {
+      setState(() {
+        _polygonPoints[_selectedPointIndex!] = point;
+      });
+      return;
+    }
+
     if (!_isDrawing || _isGpsRecording) return;
 
     setState(() {
@@ -157,6 +168,8 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       _gpsTrack.clear();
       _isDrawing = false;
       _isGpsRecording = false;
+      _selectedPointIndex = null;
+      _editPinsMode = false;
     });
   }
 
@@ -334,39 +347,54 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                     ),
                   ],
                 ),
-              // Draw points
+              // Points with tap-to-select for editing
               fm.MarkerLayer(
                 markers: _polygonPoints
                     .asMap()
                     .entries
-                    .map(
-                      (entry) => fm.Marker(
-                        point: entry.value,
-                        width: 40,
-                        height: 40,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
+                    .map((entry) {
+                  final idx = entry.key;
+                  final point = entry.value;
+                  final isSelected = _selectedPointIndex == idx && _editPinsMode;
+                  return fm.Marker(
+                    point: point,
+                    width: 40,
+                    height: 40,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedPointIndex = idx;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Pin ${idx + 1} selected. Tap on map to move.'),
+                            duration: const Duration(seconds: 2),
                           ),
-                          child: Center(
-                            child: Text(
-                              '${entry.key + 1}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.orange : Colors.blue,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${idx + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                    )
-                    .toList(),
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -477,6 +505,24 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                   // Secondary action buttons
                   Row(
                     children: [
+                      // Edit pins toggle
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _editPinsMode = !_editPinsMode;
+                              if (!_editPinsMode) _selectedPointIndex = null;
+                            });
+                          },
+                          icon: Icon(_editPinsMode ? Icons.edit_off : Icons.edit),
+                          label: Text(_editPinsMode ? 'Stop Edit' : 'Edit Pins'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       // Undo button
                       if (_polygonPoints.isNotEmpty)
                         Expanded(
