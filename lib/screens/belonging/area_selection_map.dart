@@ -153,8 +153,11 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Damaged Area'),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        title: const Text(
+          'Select Damaged Area',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: AppColors.darkGreen,
         elevation: 0,
       ),
       body: Stack(
