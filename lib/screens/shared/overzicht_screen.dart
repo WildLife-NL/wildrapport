@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/managers/permission/permission_checker.dart';
-import 'package:wildrapport/utils/toast_notification_handler.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 
@@ -165,11 +165,20 @@ class _OverzichtScreenState extends State<OverzichtScreen>
                               imagePath: null,
                               key: Key('logboek_button'),
                               onPressed: () {
-                                ToastNotificationHandler.sendToastNotification(
-                                  context,
-                                  "Deze functie is nog niet toegevoegd",
-                                  2,
-                                );
+                                try {
+                                  navigationManager.pushReplacementForward(
+                                    context,
+                                    const LogbookScreen(),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Er is een fout opgetreden bij het navigeren',
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                             ),
                             (

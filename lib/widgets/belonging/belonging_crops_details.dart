@@ -403,7 +403,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             label: Text(
                               belongingDamageReportProvider.polygonArea ==
                                   null
-                                ? 'Draw Area on Map'
+                                ? 'Select Area on Map'
                                 : 'Area Modified (${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²)',
                               style:
                                 const TextStyle(fontWeight: FontWeight.bold),
