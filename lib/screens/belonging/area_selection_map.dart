@@ -7,6 +7,7 @@ import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class AreaSelectionMap extends StatefulWidget {
   final Function(PolygonArea) onAreaSelected;
@@ -253,15 +254,29 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Select Damaged Area',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: AppColors.darkGreen,
-        elevation: 0,
-      ),
-      body: Stack(
+      backgroundColor: AppColors.darkGreen,
+      body: Column(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: CustomAppBar(
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Select Damaged Area',
+              rightIcon: null,
+              showUserIcon: true,
+              onLeftIconPressed: () {
+                Navigator.of(context).pop();
+              },
+              iconColor: Colors.white,
+              textColor: Colors.white,
+              fontScale: 1.15,
+              iconScale: 1.15,
+              userIconScale: 1.15,
+              useFixedText: true,
+            ),
+          ),
+          Expanded(
+            child: Stack(
         children: [
           // Map
           fm.FlutterMap(
@@ -533,6 +548,9 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
           ),
         ],
       ),
