@@ -5,6 +5,8 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
+import 'package:wildrapport/models/beta_models/profile_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -356,7 +358,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _filledButton(
                         context,
                         'Gegevens bijwerken',
-                        onPressed: () {},
+                        onPressed: () async {
+                          try {
+                            final profileApi = context.read<ProfileApiInterface>();
+                            final currentProfile = await profileApi.fetchMyProfile();
+                            
+                            if (!mounted) return;
+                            final updatedProfile = await Navigator.of(context).push<Profile>(
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(
+                                  initialProfile: currentProfile,
+                                ),
+                              ),
+                            );
+
+                            if (updatedProfile != null && mounted) {
+                              setState(() {
+                                _userName = updatedProfile.userName;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Profiel bijgewerkt'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Fout bij laden profiel: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
