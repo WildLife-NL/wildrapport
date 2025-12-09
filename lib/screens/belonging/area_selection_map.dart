@@ -349,6 +349,30 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                     ),
                   ],
                 ),
+              // Live GPS track visuals (polyline + small points), similar to Kaart
+              if (_isGpsRecording && _gpsTrack.isNotEmpty)
+                fm.PolylineLayer(
+                  polylines: [
+                    fm.Polyline(
+                      points: _gpsTrack,
+                      color: Colors.blue.withOpacity(0.6),
+                      strokeWidth: 2.0,
+                    ),
+                  ],
+                ),
+              if (_isGpsRecording && _gpsTrack.isNotEmpty)
+                fm.CircleLayer(
+                  circles: _gpsTrack.map((p) {
+                    return fm.CircleMarker(
+                      point: p,
+                      radius: 3,
+                      color: Colors.blue.withOpacity(0.8),
+                      borderColor: Colors.white,
+                      borderStrokeWidth: 1,
+                      useRadiusInMeter: false,
+                    );
+                  }).toList(),
+                ),
               // Points with tap-to-select for editing
               fm.MarkerLayer(
                 markers: _polygonPoints
