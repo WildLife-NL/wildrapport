@@ -269,6 +269,8 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         systemDateTime: DateTime.now(),
         systemLocation: systemReportLocation,
         userSelectedLocation: userReportLocation,
+        polygonArea: formProvider.polygonArea,
+        damageCategory: formProvider.damageCategory,
       );
 
       debugPrint("✅ Report created: $report");

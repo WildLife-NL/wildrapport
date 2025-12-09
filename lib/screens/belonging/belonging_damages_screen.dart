@@ -63,6 +63,31 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
     debugPrint("validateImpactedArea: ${formProvider.hasErrorImpactedArea}");
     debugPrint("validateImpactedArea: ${formProvider.impactedAreaType}");
 
+    // For crops damage: validate polygon area with minimum 3 points
+    if (formProvider.damageCategory == 'crops') {
+      if (formProvider.polygonArea == null || 
+          formProvider.polygonArea!.points.isEmpty ||
+          formProvider.polygonArea!.points.length < 3) {
+        isValid = false;
+        debugPrint("Polygon area invalid or has fewer than 3 points");
+        formProvider.setErrorState('impactedArea', true);
+        return isValid;
+      }
+      return isValid;
+    }
+
+    // For livestock damage: validate amount > 0
+    if (formProvider.damageCategory == 'livestock') {
+      if (formProvider.livestockAmount == null || formProvider.livestockAmount! <= 0) {
+        isValid = false;
+        debugPrint("Livestock amount invalid");
+        formProvider.setErrorState('impactedArea', true);
+        return isValid;
+      }
+      return isValid;
+    }
+
+    // Legacy validation for when damage category is not set
     if (formProvider.impactedArea == null) {
       isValid = false;
       debugPrint("impactedArea has error");

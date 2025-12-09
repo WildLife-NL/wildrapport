@@ -1885,14 +1885,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         // ── SCALE BAR ─────────────────────────────────────────────────────────────
                         Positioned(
                           left: 12,
-                          bottom: 88,
+                          bottom: 120,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: const [
                                 BoxShadow(
@@ -1931,7 +1931,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                         // ── ROTATE BUTTON ─────────────────────────────
                         Positioned(
-                          bottom: 16,
+                          bottom: 56,
                           left: 12,
                           child: FloatingActionButton(
                             heroTag: 'rotate_map',
@@ -1952,7 +1952,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         // ── Tracking History button ─────────────────────────────────────────────────
                         Positioned(
                           left: 72,
-                          bottom: 16,
+                          bottom: 56,
                           child: FloatingActionButton(
                             heroTag: 'tracking_history_btn',
                             mini: true,
@@ -1996,7 +1996,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         // ── Filter button ───────────────────────────────────────────────────────────
                         Positioned(
                           left: 132,
-                          bottom: 16,
+                          bottom: 56,
                           child: FloatingActionButton(
                             heroTag: 'filter_btn',
                             mini: true,

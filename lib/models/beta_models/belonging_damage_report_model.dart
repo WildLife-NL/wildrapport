@@ -3,6 +3,7 @@ import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 
 class BelongingDamageReport implements Reportable, PossesionReportFields {
   final String? possesionDamageReportID;
@@ -11,7 +12,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   final Possesion possesion; // what got damaged (crop etc.)
 
   @override
-  final String impactedAreaType; // e.g. "square-meters"
+  final String impactedAreaType; // e.g. "square-meters" or "units"
 
   @override
   final double impactedArea; // numeric value (already in correct unit)
@@ -40,6 +41,10 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   @override
   final DateTime systemDateTime;
 
+  // New fields for map-based area reporting
+  final PolygonArea? polygonArea; // Polygon drawn on map
+  final String? damageCategory; // 'livestock' or 'crops'
+
   BelongingDamageReport({
     this.possesionDamageReportID,
     required this.possesion,
@@ -53,6 +58,8 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     this.systemLocation,
     this.userSelectedDateTime,
     required this.systemDateTime,
+    this.polygonArea,
+    this.damageCategory,
   });
 
   // ⬇⬇⬇ THIS IS THE IMPORTANT PART ⬇⬇⬇
@@ -136,5 +143,10 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
                 ? DateTime.parse(json["userSelectedDateTime"])
                 : null,
         systemDateTime: DateTime.parse(json["systemDateTime"]),
+        polygonArea:
+            json["polygonArea"] != null
+                ? PolygonArea.fromJson(json["polygonArea"])
+                : null,
+        damageCategory: json["damageCategory"],
       );
 }

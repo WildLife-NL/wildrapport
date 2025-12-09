@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 
 class BelongingDamageReportProvider extends ChangeNotifier {
   String impactedCrop = '';
@@ -18,6 +19,11 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   bool expanded = false;
   String? inputErrorImpactArea;
   String? selectedText = 'm²'; // Default display text
+
+  // Map-based area reporting fields
+  String damageCategory = 'crops'; // 'crops' or 'livestock'
+  PolygonArea? polygonArea;
+  int? livestockAmount;
 
   // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
   // Use these names everywhere new code touches the provider.
@@ -132,6 +138,33 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     impactedArea = null;
   }
 
+  // Map-based area reporting methods
+  void setDamageCategory(String category) {
+    damageCategory = category;
+    notifyListeners();
+  }
+
+  void setPolygonArea(PolygonArea area) {
+    polygonArea = area;
+    // Store impacted area in square meters for accuracy and consistency
+    impactedArea = area.calculateAreaInSquareMeters();
+    impactedAreaType = 'vierkante meters';
+    selectedText = 'm²';
+    notifyListeners();
+  }
+
+  void setLivestockAmount(int amount) {
+    livestockAmount = amount;
+    impactedArea = amount.toDouble();
+    impactedAreaType = 'units';
+    notifyListeners();
+  }
+
+  void clearPolygonArea() {
+    polygonArea = null;
+    notifyListeners();
+  }
+
   void setErrorState(String field, bool hasError) {
     if (field == 'impactedCrop') {
       hasErrorImpactedCrop = hasError;
@@ -155,6 +188,9 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     hasErrorImpactedAreaType = false;
     hasErrorImpactedArea = false;
     selectedText = null;
+    damageCategory = 'crops';
+    polygonArea = null;
+    livestockAmount = null;
     resetInputErrorImpactArea();
     notifyListeners();
   }

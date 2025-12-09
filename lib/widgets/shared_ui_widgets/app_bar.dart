@@ -161,7 +161,7 @@ class CustomAppBar extends StatelessWidget {
                             },
                         child: Icon(
                           Icons.person,
-                          color: const Color.fromARGB(255, 0, 0, 0),
+                          color: iconColor ?? AppColors.brown,
                           size: userIconSize,
                         ),
                       ),
