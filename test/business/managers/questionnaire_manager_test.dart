@@ -308,5 +308,111 @@ void main() {
       // Act & Assert
       expect(() => questionnaireManager.getQuestionnaire(), throwsException);
     });
+
+    test(
+      'should render MultipleChoice widget with per-answer text fields when question has answers',
+      () async {
+        // Arrange - Create a question with multiple choice answers
+        final questionnaire = Questionnaire(
+          id: 'q_with_answers',
+          experiment: mockExperiment,
+          interactionType: mockInteractionType,
+          name: 'Test Multiple Choice Questionnaire',
+          questions: [
+            Question(
+              id: 'q1_multi',
+              allowMultipleResponse: true,
+              allowOpenResponse: true,
+              description: 'Multiple choice with per-answer text',
+              index: 0,
+              text: 'Select one or more options and provide feedback:',
+              answers: [
+                Answer(
+                  id: 'a1',
+                  text: 'Option 1',
+                  description: 'First option',
+                ),
+                Answer(
+                  id: 'a2',
+                  text: 'Option 2',
+                  description: 'Second option',
+                ),
+                Answer(
+                  id: 'a3',
+                  text: 'Option 3',
+                  description: 'Third option',
+                ),
+              ],
+              openResponseFormat: '',
+            ),
+          ],
+        );
+
+        mockNextScreen() {}
+        mockLastNextScreen() {}
+        mockPreviousScreen() {}
+
+        // Act
+        final widgets = await questionnaireManager.buildQuestionnaireLayout(
+          questionnaire,
+          'interaction123',
+          mockNextScreen,
+          mockLastNextScreen,
+          mockPreviousScreen,
+        );
+
+        // Assert
+        expect(widgets.length, 2); // Home screen + 1 question
+        expect(widgets[0], isA<QuestionnaireHome>());
+        
+        // Should render MultipleChoice widget because answers are provided
+        expect(widgets[1], isA<QuestionnaireMultipleChoice>());
+      },
+    );
+
+    test(
+      'should render OpenResponse widget when question has no answers despite allowMultipleResponse=true',
+      () async {
+        // Arrange - Create a question claiming to have multiple responses but no answers
+        final questionnaire = Questionnaire(
+          id: 'q_no_answers',
+          experiment: mockExperiment,
+          interactionType: mockInteractionType,
+          name: 'Test Questionnaire - No Answers',
+          questions: [
+            Question(
+              id: 'q1_no_answers',
+              allowMultipleResponse: true,
+              allowOpenResponse: true,
+              description: 'Multiple response but no answers provided',
+              index: 0,
+              text: 'This question has no predefined answers',
+              answers: null, // No answers provided
+              openResponseFormat: '',
+            ),
+          ],
+        );
+
+        mockNextScreen() {}
+        mockLastNextScreen() {}
+        mockPreviousScreen() {}
+
+        // Act
+        final widgets = await questionnaireManager.buildQuestionnaireLayout(
+          questionnaire,
+          'interaction123',
+          mockNextScreen,
+          mockLastNextScreen,
+          mockPreviousScreen,
+        );
+
+        // Assert
+        expect(widgets.length, 2); // Home screen + 1 question
+        expect(widgets[0], isA<QuestionnaireHome>());
+        
+        // Should render OpenResponse widget because no answers provided
+        expect(widgets[1], isA<QuestionnaireOpenResponse>());
+      },
+    );
   });
 }

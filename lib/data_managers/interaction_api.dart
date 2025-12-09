@@ -139,6 +139,35 @@ class InteractionApi implements InteractionApiInterface {
         if (questionnaireJson != null) {
           debugPrint("$yellowLog[InteractionAPI]: Questionnaire data:");
           debugPrint("$yellowLog${jsonEncode(questionnaireJson)}");
+          
+          // Detailed breakdown of questions and answers
+          debugPrint("$yellowLog════════════════════════════════════════");
+          debugPrint("$yellowLog[InteractionAPI]: DETAILED QUESTION ANALYSIS");
+          debugPrint("$yellowLog════════════════════════════════════════");
+          final questionsArray = questionnaireJson['questions'];
+          if (questionsArray != null && questionsArray is List) {
+            debugPrint("$yellowLog📋 Total questions: ${questionsArray.length}");
+            for (int i = 0; i < questionsArray.length; i++) {
+              final q = questionsArray[i];
+              debugPrint("$yellowLog────────────────────────────────────────");
+              debugPrint("$yellowLog[Q${i + 1}] ${q['text']}");
+              debugPrint("$yellowLog    ID: ${q['ID']}");
+              debugPrint("$yellowLog    allowMultipleResponse: ${q['allowMultipleResponse']}");
+              debugPrint("$yellowLog    allowOpenResponse: ${q['allowOpenResponse']}");
+              
+              final answers = q['answers'];
+              if (answers != null && answers is List) {
+                debugPrint("$yellowLog    ✅ Has ${answers.length} answers:");
+                for (int j = 0; j < answers.length; j++) {
+                  final a = answers[j];
+                  debugPrint("$yellowLog       [A${j + 1}] ${a['text']} (ID: ${a['ID']})");
+                }
+              } else {
+                debugPrint("$yellowLog    ❌ NO ANSWERS PROVIDED by backend!");
+              }
+            }
+          }
+          debugPrint("$yellowLog════════════════════════════════════════");
         }
         debugPrint("$yellowLog========================================");
 

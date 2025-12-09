@@ -39,6 +39,16 @@ class QuestionnaireManager implements QuestionnaireInterface {
 
     final int length = questionnaire.questions!.length;
 
+    // Debug: Log the raw questionnaire data from backend
+    debugPrint("════════════════════════════════════════════════════════════════");
+    debugPrint("[QuestionnaireManager] 📋 QUESTIONNAIRE DETAILS FROM BACKEND");
+    debugPrint("────────────────────────────────────────────────────────────────");
+    debugPrint("Questionnaire ID: ${questionnaire.id}");
+    debugPrint("Questionnaire Name: ${questionnaire.name}");
+    debugPrint("Interaction Type: ${questionnaire.interactionType.name}");
+    debugPrint("Total Questions: ${questionnaire.questions?.length ?? 0}");
+    debugPrint("════════════════════════════════════════════════════════════════");
+
     if (questionnaire.questions != null) {
       for (final (index, question) in questionnaire.questions!.indexed) {
         debugPrint("═══════════════════════════════════════════════");
@@ -53,8 +63,11 @@ class QuestionnaireManager implements QuestionnaireInterface {
         if (question.answers != null && question.answers!.isNotEmpty) {
           debugPrint("Answers count: ${question.answers!.length}");
           for (var ans in question.answers!) {
-            debugPrint("  - Answer: ${ans.text}");
+            debugPrint("  - Answer ID: ${ans.id}");
+            debugPrint("    Answer Text: ${ans.text}");
           }
+        } else {
+          debugPrint("❌ Answers: NULL or EMPTY - Backend did not provide answer choices");
         }
         debugPrint("Open Response Format: '${question.openResponseFormat}'");
         debugPrint("index: $index");
@@ -77,6 +90,14 @@ class QuestionnaireManager implements QuestionnaireInterface {
         debugPrint(
           "🔍 Decision: hasAnswers=$hasAnswers, needsOpenResponse=$needsOpenResponse",
         );
+
+        // Warning: Question claims to allow multiple responses but has no answers
+        if (question.allowMultipleResponse && !hasAnswers) {
+          debugPrint(
+            "⚠️  WARNING: allowMultipleResponse=true but no answers provided by backend. "
+            "Question will render as open response instead.",
+          );
+        }
 
         if (needsOpenResponse) {
           debugPrint("✅ Using QuestionnaireOpenResponse widget");
