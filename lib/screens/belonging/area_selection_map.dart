@@ -9,6 +9,7 @@ import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 // Draggable plugin removed due to dependency issues; implementing tap-to-move editing instead.
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:intl/intl.dart';
 
 class AreaSelectionMap extends StatefulWidget {
   final Function(PolygonArea) onAreaSelected;
@@ -266,6 +267,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
 
   @override
   Widget build(BuildContext context) {
+    final areaFmt = NumberFormat('#,##0', 'nl_NL');
     return Scaffold(
       backgroundColor: AppColors.darkGreen,
       body: Column(
@@ -437,7 +439,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Area: ${PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
+                        'Area: ${areaFmt.format(PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters())} m²',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
@@ -564,7 +566,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                       label: Text(
                         _unitPricePerM2 == null
                             ? 'Set price (€/m²)'
-                            : 'Price: €${_unitPricePerM2!.toStringAsFixed(4)}/m²',
+                            : 'Price: €${_formatPrice(_unitPricePerM2!)}/m²',
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.lightMintGreen,
@@ -630,7 +632,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Text(
-            '€ ${total.toStringAsFixed(2)}',
+            '€ ${NumberFormat('#,##0.00', 'nl_NL').format(total)}',
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -643,7 +645,10 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
 
   Future<void> _promptUnitPrice() async {
     final controller = TextEditingController(
-      text: _unitPricePerM2?.toStringAsFixed(4) ?? '',
+      // Show existing value without forced trailing zeros, using comma decimal
+      text: _unitPricePerM2 != null
+          ? _unitPricePerM2!.toString().replaceAll('.', ',')
+          : '',
     );
     final result = await showDialog<double?>(
       context: context,
@@ -655,7 +660,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
               prefixText: '€ ',
-              hintText: 'e.g. 0.1250',
+              hintText: 'e.g. 2,50',
             ),
           ),
           actions: [
@@ -690,5 +695,26 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       lng += p.longitude;
     }
     return LatLng(lat / points.length, lng / points.length);
+  }
+
+  String _formatPrice(double value) {
+    // Format with up to 4 decimals, trim trailing zeros, and use comma decimal
+    String s = value.toStringAsFixed(4); // e.g., 2.0000 or 2.5000
+    s = s.replaceAll('.', ',');
+    // Trim trailing zeros
+    while (s.contains(',') && s.endsWith('0')) {
+      s = s.substring(0, s.length - 1);
+    }
+    // If ends with comma after trimming all zeros, remove the comma
+    if (s.endsWith(',')) {
+      s = s.substring(0, s.length - 1);
+    }
+    // Add thousands separators for integer part
+    final parts = s.split(',');
+    final intPart = parts[0].replaceAll('.', '');
+    final formattedInt = NumberFormat('#,##0', 'nl_NL').format(int.parse(intPart));
+    return parts.length == 2 && parts[1].isNotEmpty
+        ? '$formattedInt,${parts[1]}'
+        : formattedInt;
   }
 }
