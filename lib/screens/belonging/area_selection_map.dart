@@ -517,7 +517,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                             });
                           },
                           icon: Icon(_editPinsMode ? Icons.edit_off : Icons.edit),
-                          label: Text(_editPinsMode ? 'Stop Edit' : 'Edit Pins'),
+                          label: Text(_editPinsMode ? 'Stop Edit' : 'Edit'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
                             side: const BorderSide(color: Colors.white),

@@ -400,13 +400,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                               }
                             },
                             icon: const Icon(Icons.map),
-                            label: Text(
-                              belongingDamageReportProvider.polygonArea ==
-                                  null
-                                ? 'Select Area on Map'
-                                : 'Area Modified (${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²)',
-                              style:
-                                const TextStyle(fontWeight: FontWeight.bold),
+                            label: const Text(
+                              'Select Area on Map',
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.darkGreen,
@@ -431,21 +427,49 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             ),
                           ),
                         const SizedBox(height: 20),
+                        const SizedBox(height: 12),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: AppColors.darkGreen,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            "Here you will chose a way to indicate your crop damage, you can chose to walk around the damage or you can put pins on the map. After introducing a value of a unit the map also calculated the price of your damage",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              height: 1.8,
-                            ),
-                          ),
+                          child: belongingDamageReportProvider.polygonArea == null
+                              ? const Text(
+                                  "Here you will chose a way to indicate your crop damage, you can chose to walk around the damage or you can put pins on the map. After introducing a value of a unit the map also calculated the price of your damage",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    height: 1.8,
+                                  ),
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Area: ${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 22,
+                                        height: 1.6,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      (belongingDamageReportProvider.estimatedDamage > 0)
+                                          ? 'Cost: € ${belongingDamageReportProvider.estimatedDamage.toStringAsFixed(2)}'
+                                          : 'Cost:',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 22,
+                                        height: 1.6,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
                       ],
                     ),
