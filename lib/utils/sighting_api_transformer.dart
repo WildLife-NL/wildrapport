@@ -30,9 +30,10 @@ class SightingApiTransformer {
     );
     debugPrint('System Location: ${systemLocation.toJson()}');
 
+    // Prefer manual location; if not provided, fall back to system
     final manualLocation = sighting.locations!.firstWhere(
       (loc) => loc.source == LocationSource.manual,
-      orElse: () => throw StateError('Manual location is required'),
+      orElse: () => systemLocation,
     );
     debugPrint('Manual Location: ${manualLocation.toJson()}');
 

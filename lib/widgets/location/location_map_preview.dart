@@ -17,42 +17,9 @@ class LocationMapPreview extends StatelessWidget {
     final responsive = context.responsive;
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
-        // Show placeholder for unknown location
-        if (mapProvider.selectedAddress.isEmpty) {
-          return Container(
-            height: responsive.hp(10),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(responsive.sp(3.75)),
-              ),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.location_off,
-                    size: responsive.sp(4),
-                    color: Colors.grey[400],
-                  ),
-                  SizedBox(height: responsive.spacing(8)),
-                  Text(
-                    'Geen locatie geselecteerd',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: responsive.fontSize(12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        // Show loading animation when either position is null OR address is empty
-        if (mapProvider.currentPosition == null ||
-            mapProvider.selectedAddress.isEmpty) {
+        // Show loading only when neither current nor selected position is known
+        if (mapProvider.currentPosition == null &&
+            mapProvider.selectedPosition == null) {
           return Container(
             height: responsive.hp(14),
             decoration: BoxDecoration(
