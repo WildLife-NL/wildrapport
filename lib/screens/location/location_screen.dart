@@ -347,11 +347,11 @@ Future<InteractionResponse?> submitReport(
 
 AccidentReport _buildAccidentReportFromSighting(dynamic sighting) {
   // Extract locations
-  final systemLocation = sighting.locations!.firstWhere(
+  final LocationModel systemLocation = sighting.locations!.firstWhere(
     (loc) => loc.source == LocationSource.system,
     orElse: () => throw StateError('System location is required'),
   );
-  final manualLocation = sighting.locations!.firstWhere(
+  final LocationModel manualLocation = sighting.locations!.firstWhere(
     (loc) => loc.source == LocationSource.manual,
     orElse: () => systemLocation, // fall back to system if manual not set
   );
