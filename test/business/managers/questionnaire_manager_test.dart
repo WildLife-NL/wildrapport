@@ -10,8 +10,6 @@ import 'package:wildrapport/models/api_models/user.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_home.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_multiple_choice.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_open_response.dart';
-
-// Import the generated mocks from mock_generator.mocks.dart
 import '../../business/mock_generator.mocks.dart';
 
 void main() {
@@ -327,21 +325,9 @@ void main() {
               index: 0,
               text: 'Select one or more options and provide feedback:',
               answers: [
-                Answer(
-                  id: 'a1',
-                  text: 'Option 1',
-                  description: 'First option',
-                ),
-                Answer(
-                  id: 'a2',
-                  text: 'Option 2',
-                  description: 'Second option',
-                ),
-                Answer(
-                  id: 'a3',
-                  text: 'Option 3',
-                  description: 'Third option',
-                ),
+                Answer(id: 'a1', index: 0, text: 'Option 1'),
+                Answer(id: 'a2', index: 1, text: 'Option 2'),
+                Answer(id: 'a3', index: 2, text: 'Option 3'),
               ],
               openResponseFormat: '',
             ),
@@ -364,7 +350,7 @@ void main() {
         // Assert
         expect(widgets.length, 2); // Home screen + 1 question
         expect(widgets[0], isA<QuestionnaireHome>());
-        
+
         // Should render MultipleChoice widget because answers are provided
         expect(widgets[1], isA<QuestionnaireMultipleChoice>());
       },
@@ -409,7 +395,7 @@ void main() {
         // Assert
         expect(widgets.length, 2); // Home screen + 1 question
         expect(widgets[0], isA<QuestionnaireHome>());
-        
+
         // Should render OpenResponse widget because no answers provided
         expect(widgets[1], isA<QuestionnaireOpenResponse>());
       },

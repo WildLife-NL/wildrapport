@@ -24,7 +24,6 @@ import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 
-// Small helper struct for icon styling by age
 class _IconStyle {
   final Color color;
   final double size;
