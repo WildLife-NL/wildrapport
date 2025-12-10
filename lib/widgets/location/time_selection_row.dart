@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/location/time_picker_dialog.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/models/enums/date_time_type.dart';
 
 class TimeSelectionRow extends StatefulWidget {
   final Function(String) onOptionSelected;
@@ -28,21 +29,20 @@ class TimeSelectionRow extends StatefulWidget {
 class _TimeSelectionRowState extends State<TimeSelectionRow> {
   DateTime? _selectedDate;
   DateTime? _selectedTime;
-  String _selectedOption = 'Nu';
+  String _selectedOption = DateTimeType.current.displayText;
   final TextEditingController _timeController = TextEditingController();
   final FocusNode _timeFocusNode = FocusNode();
 
-  // Constants - using shorter terms
-  static const _options = [
-    'Nu',
-    'Onbekend',
-    'Kiezen',
-  ]; // Changed 'Zelf selecteren' to 'Kiezen'
+  // Options aligned with enum display texts, without 'Onbekend'
+  static final List<String> _options = <String>[
+    DateTimeType.current.displayText,
+    DateTimeType.custom.displayText,
+  ];
 
   @override
   void initState() {
     super.initState();
-    _selectedOption = widget.initialSelection ?? 'Nu';
+    _selectedOption = widget.initialSelection ?? DateTimeType.current.displayText;
     _selectedDate = widget.initialDate;
     _selectedTime = widget.initialTime;
     _timeController.text = _formatTime(_selectedTime);
@@ -63,7 +63,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   void _handleSelection(String option) {
     setState(() {
       _selectedOption = option;
-      if (option == 'Nu') {
+      if (option == DateTimeType.current.displayText) {
         final now = DateTime.now();
         widget.onDateSelected?.call(now);
         widget.onTimeSelected?.call(now);
@@ -90,14 +90,10 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         padding: const EdgeInsets.symmetric(
           vertical: 12,
           horizontal: 4,
-        ), // Reduced horizontal padding
+        ),
         child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // Changed to spaceBetween
-          children:
-              _options
-                  .map((option) => _buildCheckboxWithLabel(option))
-                  .toList(),
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: _options.map((option) => _buildCheckboxWithLabel(option)).toList(),
         ),
       ),
     );
@@ -105,24 +101,17 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
 
   Widget _buildDateTimeSelectors() {
     final DateTime currentTime = DateTime.now();
-    final bool isCustomSelection = _selectedOption == 'Kiezen';
-    final bool isCurrentTime = _selectedOption == 'Nu';
-    final bool isUnknown = _selectedOption == 'Onbekend';
+    final bool isCustomSelection = _selectedOption == DateTimeType.custom.displayText;
+    final bool isCurrentTime = _selectedOption == DateTimeType.current.displayText;
 
     final displayDate = isCurrentTime ? currentTime : _selectedDate;
     final displayTime = isCurrentTime ? currentTime : _selectedTime;
 
     return Row(
       children: [
-        _buildDateSelector(
-          isUnknown ? null : (displayDate ?? currentTime),
-          isCustomSelection,
-        ),
+        _buildDateSelector(displayDate ?? currentTime, isCustomSelection),
         const SizedBox(width: 16),
-        _buildTimeSelector(
-          isUnknown ? null : (displayTime ?? currentTime),
-          isCustomSelection,
-        ),
+        _buildTimeSelector(displayTime ?? currentTime, isCustomSelection),
       ],
     );
   }
@@ -130,10 +119,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   Widget _buildDateSelector(DateTime? date, bool enabled) {
     return _buildDateTimeField(
       label: 'Datum',
-      value:
-          date != null
-              ? '${date.day}-${date.month}-${date.year}'
-              : '--/--/----',
+      value: date != null ? '${date.day}-${date.month}-${date.year}' : '--/--/----',
       icon: Icons.calendar_today,
       onTap: enabled ? () => _selectDate(context) : null,
       enabled: enabled,
@@ -143,10 +129,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   Widget _buildTimeSelector(DateTime? time, bool enabled) {
     return _buildDateTimeField(
       label: 'Tijd',
-      value:
-          time != null
-              ? _formatTime(time)
-              : '--:--', // Changed to show dashes when time is null (Onbekend)
+      value: time != null ? _formatTime(time) : '--:--',
       icon: Icons.access_time,
       onTap: enabled ? () => _showTimePicker(context) : null,
       enabled: enabled,
@@ -158,14 +141,12 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
   void _showTimePicker(BuildContext context) async {
     final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
-      builder:
-          (BuildContext context) => CustomTimePickerDialog(
-            initialTime:
-                _selectedTime != null
-                    ? TimeOfDay.fromDateTime(_selectedTime!)
-                    : TimeOfDay.now(),
-            selectedDate: _selectedDate ?? DateTime.now(), // Add this parameter
-          ),
+      builder: (BuildContext context) => CustomTimePickerDialog(
+        initialTime: _selectedTime != null
+            ? TimeOfDay.fromDateTime(_selectedTime!)
+            : TimeOfDay.now(),
+        selectedDate: _selectedDate ?? DateTime.now(),
+      ),
     );
 
     if (picked != null) {
@@ -205,26 +186,26 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
       context: context,
       initialDate: _selectedDate ?? now,
       firstDate: DateTime(2000),
-      lastDate: now, // Changed from DateTime(2100) to now
+      lastDate: now,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             textTheme: TextTheme(
               headlineLarge: TextStyle(
                 fontSize: responsive.fontSize(28),
-              ), // Year picker
+              ),
               headlineMedium: TextStyle(
                 fontSize: responsive.fontSize(24),
-              ), // Selected date
+              ),
               titleMedium: TextStyle(
                 fontSize: responsive.fontSize(16),
-              ), // Month/Year header
+              ),
               labelLarge: TextStyle(
                 fontSize: responsive.fontSize(14),
-              ), // Day labels
+              ),
               bodyLarge: TextStyle(
                 fontSize: responsive.fontSize(14),
-              ), // Date numbers
+              ),
             ),
           ),
           child: child!,
@@ -249,7 +230,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
           child: InkWell(
             onTap: () => _handleSelection(label),
             borderRadius: BorderRadius.circular(15),
-            hoverColor: AppColors.darkGreen.withOpacity(0.1),
+            hoverColor: AppColors.darkGreen.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               child: Row(
@@ -267,7 +248,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      side: BorderSide(color: Colors.black, width: 2),
+                      side: const BorderSide(color: Colors.black, width: 2),
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -297,16 +278,15 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     return BoxDecoration(
       color: isSelected ? AppColors.offWhite : Colors.transparent,
       borderRadius: BorderRadius.circular(15),
-      boxShadow:
-          isSelected
-              ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ]
-              : [],
+      boxShadow: isSelected
+          ? [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                offset: const Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ]
+          : [],
     );
   }
 
@@ -325,24 +305,15 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
         child: Container(
           height: 70,
           decoration: BoxDecoration(
-            color:
-                enabled
-                    ? AppColors.offWhite
-                    : AppColors.offWhite.withValues(alpha: 0.7),
+            color: enabled ? AppColors.offWhite : AppColors.offWhite.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color:
-                  enabled
-                      ? Colors.black.withValues(alpha: 0.15)
-                      : Colors.black.withValues(alpha: 0.05),
+              color: enabled ? Colors.black.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.05),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color:
-                    enabled
-                        ? Colors.black.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.04),
+                color: enabled ? Colors.black.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
                 offset: const Offset(0, 2),
                 blurRadius: 6,
                 spreadRadius: 0,
@@ -372,14 +343,9 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                       Text(
                         value,
                         style: TextStyle(
-                          color:
-                              enabled
-                                  ? Colors.black
-                                  : Colors.black.withValues(alpha: 0.7),
+                          color: enabled ? Colors.black : Colors.black.withValues(alpha: 0.7),
                           fontFamily: 'Roboto',
-                          fontSize: context.responsive.fontSize(
-                            14,
-                          ), // Reduced from 18 to 14
+                          fontSize: context.responsive.fontSize(14),
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
@@ -392,10 +358,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Icon(
                   icon,
-                  color:
-                      enabled
-                          ? Colors.black.withValues(alpha: 0.7)
-                          : Colors.black.withValues(alpha: 0.4),
+                  color: enabled ? Colors.black.withValues(alpha: 0.7) : Colors.black.withValues(alpha: 0.4),
                   size: 22,
                 ),
               ),
@@ -406,3 +369,4 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
     );
   }
 }
+

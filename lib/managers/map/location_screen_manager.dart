@@ -98,19 +98,12 @@ class LocationScreenManager implements LocationScreenInterface {
 
     // Getting date time information
     final dateTimeInfo = {
-      'dateTime':
-          _selectedDateTime == DateTimeType.current.displayText
-              ? DateTime.now().toIso8601String()
-              : _selectedDateTime == DateTimeType.unknown.displayText
-              ? null
-              : _customDateTime
-                  ?.toIso8601String(), // This can be null if _customDateTime wasn't set
-      'type':
-          _selectedDateTime == DateTimeType.current.displayText
-              ? 'current'
-              : _selectedDateTime == DateTimeType.unknown.displayText
-              ? 'unknown'
-              : 'custom',
+      'dateTime': _selectedDateTime == DateTimeType.current.displayText
+        ? DateTime.now().toIso8601String()
+        : _customDateTime?.toIso8601String(),
+      'type': _selectedDateTime == DateTimeType.current.displayText
+        ? 'current'
+        : 'custom',
     };
 
     final result = {
@@ -119,8 +112,7 @@ class LocationScreenManager implements LocationScreenInterface {
       'dateTime': dateTimeInfo,
       'isLocationUnknown':
           selectedLocation == null || mapProvider.selectedAddress.isEmpty,
-      'isDateTimeUnknown':
-          _selectedDateTime == DateTimeType.unknown.displayText,
+      'isDateTimeUnknown': false,
     };
 
     return result;
@@ -134,8 +126,6 @@ class LocationScreenManager implements LocationScreenInterface {
     _selectedDateTime = option;
 
     if (option == DateTimeType.current.displayText) {
-      _customDateTime = null;
-    } else if (option == DateTimeType.unknown.displayText) {
       _customDateTime = null;
     } else if (date != null || time != null) {
       // This combines the date and time if both are provided
