@@ -80,9 +80,11 @@ class _LocationScreenState extends State<LocationScreen> {
       );
       debugPrint('\x1B[35m[LocationScreen] LocationInfo: $locationInfo\x1B[0m');
 
-      // 1. must have a chosen place
-      if (locationInfo['selectedLocation'] == null) {
-        _pendingSnackBarMessage = 'Selecteer eerst een locatie';
+      // 1. Require a location source: either user-selected OR current GPS
+      final hasUserSelection = locationInfo['selectedLocation'] != null;
+      final hasCurrentGps = locationInfo['currentGpsLocation'] != null;
+      if (!hasUserSelection && !hasCurrentGps) {
+        _pendingSnackBarMessage = 'Locatie niet beschikbaar. Schakel locatie in.';
         WidgetsBinding.instance.addPostFrameCallback(
           (_) => _handlePendingActions(),
         );
@@ -107,7 +109,7 @@ class _LocationScreenState extends State<LocationScreen> {
         );
       }
 
-      if (locationInfo['selectedLocation'] != null) {
+      if (hasUserSelection) {
         final userLocation = LocationModel(
           latitude: locationInfo['selectedLocation']['latitude'],
           longitude: locationInfo['selectedLocation']['longitude'],
@@ -116,6 +118,17 @@ class _LocationScreenState extends State<LocationScreen> {
         animalSightingManager.updateLocation(userLocation);
         debugPrint(
           '\x1B[35m[LocationScreen] Updated user location: ${userLocation.latitude}, ${userLocation.longitude}\x1B[0m',
+        );
+      } else if (hasCurrentGps) {
+        // No manual selection: default manual to current GPS so API has both
+        final userLocation = LocationModel(
+          latitude: locationInfo['currentGpsLocation']['latitude'],
+          longitude: locationInfo['currentGpsLocation']['longitude'],
+          source: LocationSource.manual,
+        );
+        animalSightingManager.updateLocation(userLocation);
+        debugPrint(
+          '\x1B[35m[LocationScreen] Defaulted manual location to current GPS\x1B[0m',
         );
       }
 
@@ -340,7 +353,7 @@ AccidentReport _buildAccidentReportFromSighting(dynamic sighting) {
   );
   final manualLocation = sighting.locations!.firstWhere(
     (loc) => loc.source == LocationSource.manual,
-    orElse: () => throw StateError('Manual location is required'),
+    orElse: () => systemLocation, // fall back to system if manual not set
   );
 
   // Convert locations to ReportLocation format
