@@ -755,7 +755,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     final center = _mp.mapController.camera.center;
     final zoom = _mp.mapController.camera.zoom;
-    if (center == null || zoom.isNaN) return;
 
     const earthCircumference = 40075016.686; // meters
     final metersPerPixel =

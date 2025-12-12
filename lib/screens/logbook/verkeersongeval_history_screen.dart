@@ -56,10 +56,28 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
                     );
                   }
                   if (snapshot.hasError) {
-                    return const _EmptyState(
-                      title: 'Fout bij laden',
-                      subtitle:
-                          'Kon verkeersongevallen niet laden. Probeer opnieuw.',
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.error_outline,
+                                color: Colors.red, size: 48),
+                            SizedBox(height: 16),
+                            Text(
+                              'Fout bij laden',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Kon verkeersongevallen niet laden. Probeer opnieuw.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   }
 
@@ -67,10 +85,28 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
                   final filtered = data.where(_isAanrijding).toList();
 
                   if (filtered.isEmpty) {
-                    return const _EmptyState(
-                      title: 'Nog geen verkeersongevallen',
-                      subtitle:
-                          'Na het indienen van een verkeersongeval wordt deze hier zichtbaar.',
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.history,
+                                color: AppColors.darkGreen, size: 64),
+                            SizedBox(height: 16),
+                            Text(
+                              'Nog geen verkeersongevallen',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Na het indienen van een verkeersongeval wordt deze hier zichtbaar.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   }
 
@@ -91,31 +127,6 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  const _EmptyState({required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(subtitle),
-        ],
-      ),
-    );
-  }
-}
-
 class _InteractionTile extends StatelessWidget {
   final MyInteraction interaction;
   const _InteractionTile({required this.interaction});
@@ -131,37 +142,115 @@ class _InteractionTile extends StatelessWidget {
             : interaction.species.name;
     final collision = interaction.reportOfCollision;
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        title: Text(
-          species,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (collision != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  'Dieren betrokken: ${collision.involvedAnimals.length}',
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(_formatDateTime(interaction.moment)),
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => _DetailSheet(interaction: interaction),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAF5),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(color: Colors.grey.shade200),
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => _DetailSheet(interaction: interaction),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.darkGreen,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Dieraanrijding',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  _formatDateTime(interaction.moment),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
             ),
-          );
-        },
+            const SizedBox(height: 12),
+            Text(
+              species,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF5B3C1A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Divider(color: Colors.grey.shade300, height: 1),
+            const SizedBox(height: 12),
+            const Text(
+              'Aanrijding',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            if (collision != null) ...[
+              const SizedBox(height: 6),
+              Text('Dieren betrokken: ${collision.involvedAnimals.length}'),
+              Text('Intensiteit: ${collision.intensity}'),
+              Text('Urgentie: ${collision.urgency}'),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.location_on, color: Colors.grey.shade600, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'Lat: ${interaction.place.latitude.toStringAsFixed(5)}, Lon: ${interaction.place.longitude.toStringAsFixed(5)}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+            if (interaction.questionnaire != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Vragenlijst: ${interaction.questionnaire!.name}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF5B3C1A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -223,9 +312,6 @@ class _DetailSheet extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
-                Text('Ingediend door:', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                const SizedBox(height: 4),
-                Text(interaction.user.name, textAlign: TextAlign.center),
                 const SizedBox(height: 12),
                 if (interaction.species.category.isNotEmpty) ...[
                   Text('Dierencategorie:', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),

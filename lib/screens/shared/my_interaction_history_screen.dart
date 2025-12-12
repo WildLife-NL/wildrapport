@@ -4,7 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/screens/shared/interaction_detail_screen.dart';
@@ -44,7 +44,7 @@ class _MyInteractionHistoryScreenState
               showUserIcon: true,
               onLeftIconPressed: () {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+                  MaterialPageRoute(builder: (_) => const LogbookScreen()),
                 );
               },
               iconColor: Colors.black,
