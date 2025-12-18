@@ -8,6 +8,8 @@ import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/screens/shared/interaction_detail_screen.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
+import 'package:wildrapport/models/api_models/interaction_type.dart';
 
 class MyInteractionHistoryScreen extends StatefulWidget {
   const MyInteractionHistoryScreen({super.key});
@@ -20,13 +22,9 @@ class MyInteractionHistoryScreen extends StatefulWidget {
 class _MyInteractionHistoryScreenState
     extends State<MyInteractionHistoryScreen> {
   late Future<List<MyInteraction>> _interactionsFuture;
-  String _selectedFilter = 'Alle';
-  static const List<String> _filters = <String>[
-    'Alle',
-    'Waarneming',
-    'Schademelding',
-    'Verkeersongeval',
-  ];
+  String _selectedFilterLabel = 'Alle';
+  int? _selectedTypeId; // null => All
+  List<InteractionType> _types = const [];
 
   @override
   void initState() {
@@ -34,6 +32,22 @@ class _MyInteractionHistoryScreenState
     final apiClient = context.read<ApiClient>();
     final myInteractionApi = MyInteractionApi(apiClient);
     _interactionsFuture = myInteractionApi.getMyInteractions();
+
+    // Fetch interaction types for dynamic filter options
+    _fetchTypes();
+  }
+
+  Future<void> _fetchTypes() async {
+    try {
+      final typesManager = context.read<InteractionTypesManager>();
+      final fetched = await typesManager.ensureFetched();
+      if (!mounted) return;
+      setState(() {
+        _types = fetched;
+      });
+    } catch (_) {
+      // Keep empty list on failure
+    }
   }
 
   @override
@@ -77,16 +91,37 @@ class _MyInteractionHistoryScreenState
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: _selectedFilter,
-                          items: _filters
-                              .map((f) => DropdownMenuItem(
-                                    value: f,
-                                    child: Text(f),
-                                  ))
-                              .toList(),
+                          value: _selectedFilterLabel,
+                          items: [
+                            const DropdownMenuItem(
+                              value: 'Alle',
+                              child: Text('Alle'),
+                            ),
+                            ..._types.map(
+                              (t) => DropdownMenuItem(
+                                value: t.name,
+                                child: Text(t.name),
+                              ),
+                            ),
+                          ],
                           onChanged: (val) {
                             if (val == null) return;
-                            setState(() => _selectedFilter = val);
+                            setState(() {
+                              _selectedFilterLabel = val;
+                              if (val == 'Alle') {
+                                _selectedTypeId = null;
+                              } else {
+                                final match = _types.firstWhere(
+                                  (t) => t.name == val,
+                                  orElse: () => InteractionType(
+                                    id: -1,
+                                    name: val,
+                                    description: '',
+                                  ),
+                                );
+                                _selectedTypeId = match.id >= 0 ? match.id : null;
+                              }
+                            });
                           },
                           isExpanded: true,
                         ),
@@ -185,17 +220,8 @@ class _MyInteractionHistoryScreenState
   }
 
   List<MyInteraction> _applyFilter(List<MyInteraction> items) {
-    switch (_selectedFilter) {
-      case 'Waarneming':
-        return items.where((i) => i.reportOfSighting != null).toList();
-      case 'Schademelding':
-        return items.where((i) => i.reportOfDamage != null).toList();
-      case 'Verkeersongeval':
-        return items.where((i) => i.reportOfCollision != null).toList();
-      case 'Alle':
-      default:
-        return items;
-    }
+    if (_selectedTypeId == null) return items; // All
+    return items.where((i) => i.type.id == _selectedTypeId).toList();
   }
 }
 
