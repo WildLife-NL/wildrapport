@@ -12,7 +12,7 @@ class AnimalManager
         AnimalSelectionInterface,
         AnimalManagerInterface {
   final _listeners = <Function()>[];
-  String _selectedFilter = 'Filteren';
+  String _selectedFilter = FilterType.alphabetical.displayText;
   final SpeciesApiInterface _speciesApi;
   final FilterInterface _filterManager;
   List<AnimalModel>? _cachedAnimals;
