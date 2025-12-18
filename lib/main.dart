@@ -30,6 +30,7 @@ import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/reporting/response_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/api_managers/interaction_manager.dart';
@@ -172,6 +173,7 @@ void main() async {
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
         Provider<BelongingDamageReportInterface>.value(value: belongingManager),
         Provider<ResponseInterface>.value(value: responseManager),
+        Provider<ResponseApiInterface>.value(value: responseAPI),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),

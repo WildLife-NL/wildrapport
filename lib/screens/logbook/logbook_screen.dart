@@ -7,6 +7,7 @@ import 'package:wildrapport/screens/logbook/verkeersongeval_history_screen.dart'
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
+import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
 
 class LogbookScreen extends StatelessWidget {
   const LogbookScreen({super.key});
@@ -40,6 +41,13 @@ class LogbookScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const MyInteractionHistoryScreen()),
+    );
+  }
+
+  void _openMyResponses(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyResponsesScreen()),
     );
   }
 
@@ -103,6 +111,11 @@ class LogbookScreen extends StatelessWidget {
                         _ReportButton(
                           label: 'Mijn interacties',
                           onTap: () => _openAllInteractions(context),
+                        ),
+                        const SizedBox(height: 12),
+                        _ReportButton(
+                          label: 'Mijn antwoorden',
+                          onTap: () => _openMyResponses(context),
                         ),
                       ],
                     ),
