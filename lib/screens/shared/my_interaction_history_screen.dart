@@ -20,6 +20,13 @@ class MyInteractionHistoryScreen extends StatefulWidget {
 class _MyInteractionHistoryScreenState
     extends State<MyInteractionHistoryScreen> {
   late Future<List<MyInteraction>> _interactionsFuture;
+  String _selectedFilter = 'Alle';
+  static const List<String> _filters = <String>[
+    'Alle',
+    'Waarneming',
+    'Schademelding',
+    'Verkeersongeval',
+  ];
 
   @override
   void initState() {
@@ -53,6 +60,41 @@ class _MyInteractionHistoryScreenState
               iconScale: 1.15,
               userIconScale: 1.15,
               useFixedText: true,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                children: [
+                  const Icon(Icons.filter_list, size: 20, color: Colors.black54),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.darkGreen, width: 1.5),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedFilter,
+                          items: _filters
+                              .map((f) => DropdownMenuItem(
+                                    value: f,
+                                    child: Text(f),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val == null) return;
+                            setState(() => _selectedFilter = val);
+                          },
+                          isExpanded: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: FutureBuilder<List<MyInteraction>>(
@@ -121,7 +163,8 @@ class _MyInteractionHistoryScreenState
                       ),
                     );
                   } else {
-                    final interactions = snapshot.data!;
+                    final all = snapshot.data!;
+                    final interactions = _applyFilter(all);
                     return ListView.builder(
                       padding: const EdgeInsets.all(16.0),
                       itemCount: interactions.length,
@@ -139,6 +182,20 @@ class _MyInteractionHistoryScreenState
         ),
       ),
     );
+  }
+
+  List<MyInteraction> _applyFilter(List<MyInteraction> items) {
+    switch (_selectedFilter) {
+      case 'Waarneming':
+        return items.where((i) => i.reportOfSighting != null).toList();
+      case 'Schademelding':
+        return items.where((i) => i.reportOfDamage != null).toList();
+      case 'Verkeersongeval':
+        return items.where((i) => i.reportOfCollision != null).toList();
+      case 'Alle':
+      default:
+        return items;
+    }
   }
 }
 

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/models/enums/report_type.dart';
-import 'package:wildrapport/screens/logbook/schademelding_history_screen.dart';
-import 'package:wildrapport/screens/logbook/waarneming_history_screen.dart';
-import 'package:wildrapport/screens/logbook/verkeersongeval_history_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
@@ -12,31 +8,6 @@ import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
 
 class LogbookScreen extends StatelessWidget {
   const LogbookScreen({super.key});
-
-  void _openReport(BuildContext context, ReportType type) {
-    switch (type) {
-      case ReportType.gewasschade:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SchademeldingHistoryScreen()),
-        );
-        break;
-      case ReportType.waarneming:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const WaarnemingHistoryScreen()),
-        );
-        break;
-      case ReportType.verkeersongeval:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const VerkeersongevalHistoryScreen(),
-          ),
-        );
-        break;
-    }
-  }
 
   void _openAllInteractions(BuildContext context) {
     Navigator.push(
@@ -94,28 +65,7 @@ class LogbookScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _ReportButton(
-                          label: ReportType.gewasschade.displayText,
-                          onTap:
-                              () =>
-                                  _openReport(context, ReportType.gewasschade),
-                        ),
-                        const SizedBox(height: 12),
-                        _ReportButton(
-                          label: ReportType.waarneming.displayText,
-                          onTap:
-                              () => _openReport(context, ReportType.waarneming),
-                        ),
-                        const SizedBox(height: 12),
-                        _ReportButton(
-                          label: ReportType.verkeersongeval.displayText,
-                          onTap:
-                              () => _openReport(
-                                context,
-                                ReportType.verkeersongeval,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
+                        
                         _ReportButton(
                           label: 'Mijn interacties',
                           onTap: () => _openAllInteractions(context),
