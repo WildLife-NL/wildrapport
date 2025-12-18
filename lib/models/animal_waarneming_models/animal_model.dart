@@ -7,6 +7,7 @@ class AnimalModel {
   final String? animalId;
   final String? animalImagePath;
   final String animalName;
+  final String? category;
   final List<AnimalGenderViewCount> genderViewCounts;
   final AnimalCondition? condition;
 
@@ -14,6 +15,7 @@ class AnimalModel {
     this.animalId,
     this.animalImagePath,
     required this.animalName,
+    this.category,
     required this.genderViewCounts,
     this.condition,
   });
@@ -34,6 +36,7 @@ class AnimalModel {
       animalId: animalId,
       animalImagePath: animalImagePath,
       animalName: animalName,
+      category: category,
       genderViewCounts: [
         AnimalGenderViewCount(
           gender: newGender,
@@ -49,6 +52,7 @@ class AnimalModel {
       animalId: animalId,
       animalImagePath: animalImagePath,
       animalName: animalName,
+      category: category,
       genderViewCounts: [
         AnimalGenderViewCount(
           gender: gender ?? AnimalGender.onbekend,

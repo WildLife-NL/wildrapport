@@ -29,17 +29,17 @@ class AnimalManager
 
       final species = await _speciesApi.getAllSpecies();
       debugPrint('[AnimalManager] species fetched: ${species.length}');
-      _cachedAnimals =
-          species
-              .map(
-                (s) => AnimalModel(
-                  animalId: s.id, // Added animalId from species
-                  animalImagePath: _assetForCommonName(s.commonName),
-                  animalName: s.commonName,
-                  genderViewCounts: [], // Initialize with empty list
-                ),
-              )
-              .toList();
+      _cachedAnimals = species
+          .map(
+            (s) => AnimalModel(
+              animalId: s.id,
+              animalImagePath: _assetForCommonName(s.commonName),
+              animalName: s.commonName,
+              category: s.category,
+              genderViewCounts: [],
+            ),
+          )
+          .toList();
 
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
@@ -150,30 +150,30 @@ class AnimalManager
     AnimalCategory? category,
   }) async {
     final animals = await getAnimals();
-    debugPrint(
-      '[AnimalManager] getAnimalsByCategory called with category: $category; total animals fetched: ${animals.length}',
-    );
+    debugPrint('[AnimalManager] getAnimalsByCategory legacy enum used: $category');
     if (category == null) return animals;
+    // Legacy: keep old behavior if enum is provided
+    return animals;
+  }
 
-    return animals.where((a) {
-      final name = a.animalName.toLowerCase();
+  /// Returns unique backend categories derived from species data.
+  Future<List<String>> getBackendCategories() async {
+    // Prefer cached animals to avoid extra API call
+    final animals = _cachedAnimals ?? await getAnimals();
+    final set = <String>{};
+    for (final a in animals) {
+      final c = a.category?.trim();
+      if (c != null && c.isNotEmpty) set.add(c);
+    }
+    final list = set.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    debugPrint('[AnimalManager] categories fetched: ${list.length}');
+    return list;
+  }
 
-      switch (category) {
-        case AnimalCategory.evenhoevigen:
-          return name.contains('ree') ||
-              name.contains('hert') ||
-              name.contains('zwijn');
-        case AnimalCategory.knaagdieren:
-          return name.contains('bever') ||
-              name.contains('rat') ||
-              name.contains('muis');
-        case AnimalCategory.roofdieren:
-          return name.contains('vos') ||
-              name.contains('wolf') ||
-              name.contains('das');
-        case AnimalCategory.andere:
-          return true;
-      }
-    }).toList();
+  /// Filter animals by a backend-provided category name. Null or empty returns all.
+  Future<List<AnimalModel>> getAnimalsByBackendCategory({String? category}) async {
+    final animals = await getAnimals();
+    if (category == null || category.isEmpty || category == 'Alle') return animals;
+    return animals.where((a) => (a.category ?? '').toLowerCase() == category.toLowerCase()).toList();
   }
 }
