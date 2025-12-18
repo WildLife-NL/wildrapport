@@ -6,6 +6,7 @@ import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/data_managers/response_api.dart';
 import 'package:wildrapport/models/api_models/my_response.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/managers/api_managers/response_manager.dart';
 
 class MyResponsesScreen extends StatefulWidget {
   const MyResponsesScreen({super.key});
@@ -26,8 +27,21 @@ class _MyResponsesScreenState extends State<MyResponsesScreen> {
   Future<List<MyResponse>> _load() async {
     final apiClient = context.read<ApiClient>();
     final responseApi = ResponseApi(apiClient);
+    // Ensure any locally cached responses are submitted before fetching
+    try {
+      await context.read<ResponseManager>().submitResponses();
+    } catch (_) {}
     final raw = await responseApi.getMyResponsesRaw();
-    return raw.map((e) => MyResponse.fromJson(e as Map<String, dynamic>)).toList();
+    return raw
+        .map((e) => MyResponse.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _future = _load();
+    });
+    await _future;
   }
 
   @override
@@ -38,11 +52,13 @@ class _MyResponsesScreenState extends State<MyResponsesScreen> {
         bottom: false,
         child: Column(
           children: [
-            const CustomAppBar(
+            CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Mijn antwoorden',
-              rightIcon: null,
-              showUserIcon: true,
+              rightIcon: Icons.refresh,
+              onLeftIconPressed: () => Navigator.of(context).pop(),
+              onRightIconPressed: _refresh,
+              showUserIcon: false,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -67,13 +83,19 @@ class _MyResponsesScreenState extends State<MyResponsesScreen> {
                   }
                   final items = snap.data ?? const <MyResponse>[];
                   if (items.isEmpty) {
-                    return const Center(child: Text('Geen antwoorden gevonden'));
+                    return const Center(
+                      child: Text('Geen antwoorden gevonden'),
+                    );
                   }
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) => _ResponseTile(items[i]),
+                  return RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(12),
+                      itemCount: items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, i) => _ResponseTile(items[i]),
+                    ),
                   );
                 },
               ),
@@ -97,6 +119,14 @@ class _ResponseTile extends StatelessWidget {
     final answerText = r.answer?.text;
     final freeText = r.freeText;
     final ts = DateFormat('dd-MM-yyyy HH:mm').format(r.timestamp.toLocal());
+    final conveyMsg = r.conveyance?.messageText;
+    final conveyAnimal = r.conveyance?.animalName;
+    final conveyTs =
+        r.conveyance != null
+            ? DateFormat(
+              'dd-MM-yyyy HH:mm',
+            ).format(r.conveyance!.timestamp.toLocal())
+            : null;
 
     return Card(
       color: Colors.white,
@@ -128,7 +158,10 @@ class _ResponseTile extends StatelessWidget {
             if (questionText != null && questionText.isNotEmpty)
               Text(
                 questionText,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             if (answerText != null && answerText.isNotEmpty)
               Padding(
@@ -136,7 +169,10 @@ class _ResponseTile extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Antwoord: ', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Antwoord: ',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     Expanded(child: Text(answerText)),
                   ],
                 ),
@@ -147,8 +183,39 @@ class _ResponseTile extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Tekst: ', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'Tekst: ',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     Expanded(child: Text(freeText)),
+                  ],
+                ),
+              ),
+            if (conveyMsg != null && conveyMsg.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Bericht: ',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    Expanded(child: Text(conveyMsg)),
+                  ],
+                ),
+              ),
+            if (conveyAnimal != null && conveyAnimal.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Dier: ',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    Expanded(child: Text(conveyAnimal)),
                   ],
                 ),
               ),
@@ -158,10 +225,34 @@ class _ResponseTile extends StatelessWidget {
                 children: [
                   const Icon(Icons.schedule, size: 16, color: Colors.black54),
                   const SizedBox(width: 6),
-                  Text(ts, style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                  Text(
+                    ts,
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
+                  ),
                 ],
               ),
             ),
+            if (conveyTs != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.notifications,
+                      size: 16,
+                      color: Colors.black54,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      conveyTs,
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

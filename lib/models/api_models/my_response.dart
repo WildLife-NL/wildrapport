@@ -7,6 +7,7 @@ class MyResponse {
   final ResponseAnswer? answer;
   final ResponseQuestion? question;
   final ResponseInteraction? interaction;
+  final Conveyance? conveyance;
 
   MyResponse({
     required this.id,
@@ -15,6 +16,7 @@ class MyResponse {
     this.answer,
     this.question,
     this.interaction,
+    this.conveyance,
   });
 
   factory MyResponse.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class MyResponse {
         answer: json['answer'] != null ? ResponseAnswer.fromJson(json['answer']) : null,
         question: json['question'] != null ? ResponseQuestion.fromJson(json['question']) : null,
         interaction: json['interaction'] != null ? ResponseInteraction.fromJson(json['interaction']) : null,
+        conveyance: json['conveyance'] != null ? Conveyance.fromJson(json['conveyance']) : null,
       );
     } catch (e) {
       if (kDebugMode) {
@@ -33,6 +36,48 @@ class MyResponse {
       }
       rethrow;
     }
+  }
+}
+
+class Conveyance {
+  final String id;
+  final DateTime timestamp;
+  final String? messageText;
+  final String? animalName;
+
+  Conveyance({
+    required this.id,
+    required this.timestamp,
+    this.messageText,
+    this.animalName,
+  });
+
+  factory Conveyance.fromJson(Map<String, dynamic> json) {
+    String? msgText;
+    final msg = json['message'];
+    if (msg is Map<String, dynamic>) {
+      msgText = msg['text']?.toString();
+      msgText ??= msg['message']?.toString();
+    } else if (msg != null) {
+      msgText = msg.toString();
+    }
+
+    String? name;
+    final animal = json['animal'];
+    if (animal is Map<String, dynamic>) {
+      name = animal['name']?.toString();
+      if ((name == null || name.isEmpty) && animal['species'] is Map<String, dynamic>) {
+        final species = animal['species'] as Map<String, dynamic>;
+        name = (species['commonName'] ?? species['name'])?.toString();
+      }
+    }
+
+    return Conveyance(
+      id: json['ID']?.toString() ?? '',
+      timestamp: DateTime.tryParse(json['timestamp']?.toString() ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0),
+      messageText: msgText,
+      animalName: name,
+    );
   }
 }
 
