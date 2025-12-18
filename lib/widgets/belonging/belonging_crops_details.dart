@@ -172,7 +172,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Describe Your Damage",
+                        "Beschrijf uw schade",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Roboto',
@@ -242,7 +242,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                         const Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
-                            'This field is required',
+                            'Dit veld is verplicht',
                             style: TextStyle(
                               color: Colors.red,
                               fontSize: 12,
@@ -261,7 +261,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Category",
+                        "Categorie",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Roboto',
@@ -274,8 +274,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                belongingDamageReportProvider
-                                    .setDamageCategory('crops');
+                                belongingDamageReportProvider.setDamageCategory(
+                                  'crops',
+                                );
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -297,7 +298,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Crops',
+                                    'Gewassen',
                                     style: TextStyle(
                                       color:
                                           belongingDamageReportProvider
@@ -316,8 +317,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                belongingDamageReportProvider
-                                    .setDamageCategory('livestock');
+                                belongingDamageReportProvider.setDamageCategory(
+                                  'livestock',
+                                );
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -339,7 +341,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Livestock',
+                                    'Vee',
                                     style: TextStyle(
                                       color:
                                           belongingDamageReportProvider
@@ -368,7 +370,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Select Damaged Area on Map",
+                          "Selecteer beschadigd gebied op de kaart",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',
@@ -380,45 +382,45 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () async {
-                              final result = await Navigator.of(context)
-                                  .push<PolygonArea>(
+                              final result = await Navigator.of(
+                                context,
+                              ).push<PolygonArea>(
                                 MaterialPageRoute(
-                                  builder: (context) => AreaSelectionMap(
-                                    onAreaSelected: (area) {
-                                      belongingDamageReportProvider
-                                          .setPolygonArea(area);
-                                    },
-                                    existingArea:
-                                        belongingDamageReportProvider
-                                            .polygonArea,
-                                  ),
+                                  builder:
+                                      (context) => AreaSelectionMap(
+                                        onAreaSelected: (area) {
+                                          belongingDamageReportProvider
+                                              .setPolygonArea(area);
+                                        },
+                                        existingArea:
+                                            belongingDamageReportProvider
+                                                .polygonArea,
+                                      ),
                                 ),
                               );
                               if (result != null) {
-                                belongingDamageReportProvider
-                                    .setPolygonArea(result);
+                                belongingDamageReportProvider.setPolygonArea(
+                                  result,
+                                );
                               }
                             },
                             icon: const Icon(Icons.map),
                             label: const Text(
-                              'Select Area on Map',
+                              'Selecteer gebied op kaart',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.darkGreen,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ),
-                        if (belongingDamageReportProvider.polygonArea ==
-                            null)
+                        if (belongingDamageReportProvider.polygonArea == null)
                           const Padding(
                             padding: EdgeInsets.only(top: 8),
                             child: Text(
-                              'No area selected',
+                              'Geen gebied geselecteerd',
                               style: TextStyle(
                                 color: Colors.red,
                                 fontSize: 12,
@@ -435,55 +437,58 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             color: AppColors.darkGreen,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: belongingDamageReportProvider.polygonArea == null
-                              ? const Text(
-                                  "Here you will chose a way to indicate your crop damage, you can chose to walk around the damage or you can put pins on the map. After introducing a value of a unit the map also calculated the price of your damage",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    height: 1.8,
+                          child:
+                              belongingDamageReportProvider.polygonArea == null
+                                  ? const Text(
+                                    "Hier kiest u hoe u gewasschade aangeeft: loop de schade af of plaats pinnen op de kaart. Na het invullen van een waarde per eenheid berekent de kaart ook de kosten van uw schade.",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      height: 1.8,
+                                    ),
+                                  )
+                                  : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Oppervlakte: ${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          height: 1.6,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        (belongingDamageReportProvider
+                                                    .estimatedDamage >
+                                                0)
+                                            ? 'Kosten: € ${belongingDamageReportProvider.estimatedDamage.toStringAsFixed(2)}'
+                                            : 'Kosten:',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          height: 1.6,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                )
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Area: ${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 22,
-                                        height: 1.6,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      (belongingDamageReportProvider.estimatedDamage > 0)
-                                          ? 'Cost: € ${belongingDamageReportProvider.estimatedDamage.toStringAsFixed(2)}'
-                                          : 'Cost:',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 22,
-                                        height: 1.6,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                         ),
                       ],
                     ),
                   ),
                 // ── CONDITIONAL: LIVESTOCK - AMOUNT FIELD ───────────────────
-                if (belongingDamageReportProvider.damageCategory ==
-                    'livestock')
+                if (belongingDamageReportProvider.damageCategory == 'livestock')
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Number of Animals",
+                          "Aantal dieren",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',
@@ -508,7 +513,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            hintText: 'Enter amount...',
+                            hintText: 'Voer aantal in...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
@@ -550,7 +555,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Estimated Current Damage",
+                          "Geschatte huidige schade",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',
@@ -567,11 +572,13 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             maxLines: null,
                             onChanged: (value) {
                               if (value.isEmpty) {
-                                _belongingDamageReportManager.updateCurrentDamage(0);
+                                _belongingDamageReportManager
+                                    .updateCurrentDamage(0);
                               } else {
                                 final parsed = double.tryParse(value);
                                 if (parsed != null) {
-                                  _belongingDamageReportManager.updateCurrentDamage(parsed);
+                                  _belongingDamageReportManager
+                                      .updateCurrentDamage(parsed);
                                 }
                               }
                             },
@@ -581,7 +588,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
-                              label: const Text('Amount in €'),
+                              label: const Text('Bedrag in €'),
                               prefixText: '€ ',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
@@ -623,7 +630,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Expected Loss of Income",
+                          "Verwachte inkomstenderving",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',
@@ -640,11 +647,13 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             maxLines: null,
                             onChanged: (value) {
                               if (value.isEmpty) {
-                                _belongingDamageReportManager.updateExpectedDamage(0);
+                                _belongingDamageReportManager
+                                    .updateExpectedDamage(0);
                               } else {
                                 final parsed = double.tryParse(value);
                                 if (parsed != null) {
-                                  _belongingDamageReportManager.updateExpectedDamage(parsed);
+                                  _belongingDamageReportManager
+                                      .updateExpectedDamage(parsed);
                                 }
                               }
                             },
@@ -654,7 +663,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
-                              label: const Text('Amount in €'),
+                              label: const Text('Bedrag in €'),
                               prefixText: '€ ',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),

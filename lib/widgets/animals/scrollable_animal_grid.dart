@@ -43,10 +43,13 @@ class ScrollableAnimalGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Error: $error'),
+            Text('Fout: $error'),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Opnieuw proberen'),
+              ),
             ],
           ],
         ),

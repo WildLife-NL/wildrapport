@@ -35,7 +35,8 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   List<LatLng> _gpsTrack = [];
   final List<LatLng> _recentPositions = [];
   final int _smoothingWindow = 5;
-  final double _accuracyThresholdM = 10; // only accept points with <= 10m accuracy
+  final double _accuracyThresholdM =
+      10; // only accept points with <= 10m accuracy
   final double _minPointDistanceM = 2; // ignore tiny jitter
   late LatLng _centerPoint;
   LatLng? _currentLocation;
@@ -48,11 +49,11 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   void initState() {
     super.initState();
     _mapController = fm.MapController();
-    
+
     if (widget.existingArea != null) {
       _polygonPoints = widget.existingArea!.points;
     }
-    
+
     _centerPoint = widget.initialCenter ?? const LatLng(51.7, 5.27);
     _loadCurrentLocation();
     _startLiveLocationUpdates();
@@ -146,9 +147,9 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       });
     } catch (e) {
       debugPrint('GPS recording error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('GPS error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('GPS-fout: $e')));
       setState(() {
         _isGpsRecording = false;
       });
@@ -186,7 +187,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Draw at least 3 points to create an area'),
+          content: Text('Teken minimaal 3 punten om een gebied te maken'),
           backgroundColor: Colors.red,
         ),
       );
@@ -276,7 +277,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             bottom: false,
             child: CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Select Damaged Area',
+              centerText: 'Selecteer beschadigd gebied',
               rightIcon: null,
               showUserIcon: true,
               onLeftIconPressed: () {
@@ -292,337 +293,361 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
           ),
           Expanded(
             child: Stack(
-        children: [
-          // Map
-          fm.FlutterMap(
-            mapController: _mapController,
-            options: fm.MapOptions(
-              initialCenter: _centerPoint,
-              initialZoom: 16,
-              onTap: (tapPosition, point) => _onMapTap(point),
-            ),
-            children: [
-              fm.TileLayer(
-                urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              ),
-              // Current location marker
-              if (_currentLocation != null)
-                fm.MarkerLayer(
-                  markers: [
-                    fm.Marker(
-                      point: _currentLocation!,
-                      width: 24,
-                      height: 24,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.blue,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                      ),
+              children: [
+                // Map
+                fm.FlutterMap(
+                  mapController: _mapController,
+                  options: fm.MapOptions(
+                    initialCenter: _centerPoint,
+                    initialZoom: 16,
+                    onTap: (tapPosition, point) => _onMapTap(point),
+                  ),
+                  children: [
+                    fm.TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     ),
-                  ],
-                ),
-              // Optional accuracy circle around current location
-              if (_currentLocation != null)
-                fm.CircleLayer(
-                  circles: [
-                    fm.CircleMarker(
-                      point: _currentLocation!,
-                      color: Colors.blue.withOpacity(0.12),
-                      borderStrokeWidth: 1,
-                      useRadiusInMeter: true,
-                      radius: _accuracyThresholdM, // visualize acceptable radius
-                    ),
-                  ],
-                ),
-              // Draw polygon
-              if (_polygonPoints.isNotEmpty)
-                fm.PolygonLayer(
-                  polygons: [
-                    fm.Polygon(
-                      points: _polygonPoints,
-                      color: Colors.blue.withOpacity(0.3),
-                      borderStrokeWidth: 2,
-                      borderColor: Colors.blue,
-                    ),
-                  ],
-                ),
-              // Live GPS track visuals (polyline + small points), similar to Kaart
-              if (_isGpsRecording && _gpsTrack.isNotEmpty)
-                fm.PolylineLayer(
-                  polylines: [
-                    fm.Polyline(
-                      points: _gpsTrack,
-                      color: Colors.blue.withOpacity(0.6),
-                      strokeWidth: 2.0,
-                    ),
-                  ],
-                ),
-              if (_isGpsRecording && _gpsTrack.isNotEmpty)
-                fm.CircleLayer(
-                  circles: _gpsTrack.map((p) {
-                    return fm.CircleMarker(
-                      point: p,
-                      radius: 3,
-                      color: Colors.blue.withOpacity(0.8),
-                      borderColor: Colors.white,
-                      borderStrokeWidth: 1,
-                      useRadiusInMeter: false,
-                    );
-                  }).toList(),
-                ),
-              // Points with tap-to-select for editing
-              fm.MarkerLayer(
-                markers: _polygonPoints
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                  final idx = entry.key;
-                  final point = entry.value;
-                  final isSelected = _selectedPointIndex == idx && _editPinsMode;
-                  return fm.Marker(
-                    point: point,
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedPointIndex = idx;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Pin ${idx + 1} selected. Tap on map to move.'),
-                            duration: const Duration(seconds: 2),
+                    // Current location marker
+                    if (_currentLocation != null)
+                      fm.MarkerLayer(
+                        markers: [
+                          fm.Marker(
+                            point: _currentLocation!,
+                            width: 24,
+                            height: 24,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.orange : Colors.blue,
-                          shape: BoxShape.circle,
-                          border: Border.all(
+                        ],
+                      ),
+                    // Optional accuracy circle around current location
+                    if (_currentLocation != null)
+                      fm.CircleLayer(
+                        circles: [
+                          fm.CircleMarker(
+                            point: _currentLocation!,
+                            color: Colors.blue.withOpacity(0.12),
+                            borderStrokeWidth: 1,
+                            useRadiusInMeter: true,
+                            radius:
+                                _accuracyThresholdM, // visualize acceptable radius
+                          ),
+                        ],
+                      ),
+                    // Draw polygon
+                    if (_polygonPoints.isNotEmpty)
+                      fm.PolygonLayer(
+                        polygons: [
+                          fm.Polygon(
+                            points: _polygonPoints,
+                            color: Colors.blue.withOpacity(0.3),
+                            borderStrokeWidth: 2,
+                            borderColor: Colors.blue,
+                          ),
+                        ],
+                      ),
+                    // Live GPS track visuals (polyline + small points), similar to Kaart
+                    if (_isGpsRecording && _gpsTrack.isNotEmpty)
+                      fm.PolylineLayer(
+                        polylines: [
+                          fm.Polyline(
+                            points: _gpsTrack,
+                            color: Colors.blue.withOpacity(0.6),
+                            strokeWidth: 2.0,
+                          ),
+                        ],
+                      ),
+                    if (_isGpsRecording && _gpsTrack.isNotEmpty)
+                      fm.CircleLayer(
+                        circles:
+                            _gpsTrack.map((p) {
+                              return fm.CircleMarker(
+                                point: p,
+                                radius: 3,
+                                color: Colors.blue.withOpacity(0.8),
+                                borderColor: Colors.white,
+                                borderStrokeWidth: 1,
+                                useRadiusInMeter: false,
+                              );
+                            }).toList(),
+                      ),
+                    // Points with tap-to-select for editing
+                    fm.MarkerLayer(
+                      markers:
+                          _polygonPoints.asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final point = entry.value;
+                            final isSelected =
+                                _selectedPointIndex == idx && _editPinsMode;
+                            return fm.Marker(
+                              point: point,
+                              width: 40,
+                              height: 40,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedPointIndex = idx;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Pin ${idx + 1} geselecteerd. Tik op de kaart om te verplaatsen.',
+                                      ),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isSelected
+                                            ? Colors.orange
+                                            : Colors.blue,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${idx + 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  ],
+                ),
+
+                // Control panel at bottom
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: AppColors.darkGreen.withOpacity(0.95),
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 44),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Info text
+                        Text(
+                          _isGpsRecording
+                              ? 'GPS-opname actief... Punten: ${_polygonPoints.length}'
+                              : _isDrawing
+                              ? 'Tik op de kaart om punten toe te voegen (${_polygonPoints.length} punten)'
+                              : 'Kies een manier om het beschadigde gebied aan te geven',
+                          style: const TextStyle(
                             color: Colors.white,
-                            width: 2,
+                            fontSize: 14,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        child: Center(
-                          child: Text(
-                            '${idx + 1}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                        const SizedBox(height: 12),
+
+                        // Area info if polygon exists
+                        if (_polygonPoints.length >= 3) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Oppervlakte: ${areaFmt.format(PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters())} m²',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_unitPricePerM2 != null)
+                            _buildEstimatedCost(context),
+                          const SizedBox(height: 12),
+                        ],
+
+                        // Action buttons
+                        Row(
+                          children: [
+                            // Manual drawing button
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: _startDrawing,
+                                icon: Icon(
+                                  _isDrawing
+                                      ? Icons.check
+                                      : Icons.edit_location,
+                                ),
+                                label: Text(
+                                  _isDrawing ? 'Tekenen' : 'Gebied tekenen',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      _isDrawing
+                                          ? AppColors.lightGreen
+                                          : AppColors.lightMintGreen,
+                                  foregroundColor:
+                                      _isDrawing
+                                          ? AppColors.offWhite
+                                          : AppColors.black,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // GPS recording button
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: _startGpsRecording,
+                                icon: Icon(
+                                  _isGpsRecording
+                                      ? Icons.stop_circle
+                                      : Icons.my_location,
+                                ),
+                                label: Text(
+                                  _isGpsRecording ? 'Stop GPS' : 'GPS opnemen',
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      _isGpsRecording
+                                          ? Colors.red
+                                          : AppColors.lightMintGreen,
+                                  foregroundColor:
+                                      _isGpsRecording
+                                          ? AppColors.offWhite
+                                          : AppColors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Secondary action buttons
+                        Row(
+                          children: [
+                            // Edit pins toggle
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _editPinsMode = !_editPinsMode;
+                                    if (!_editPinsMode)
+                                      _selectedPointIndex = null;
+                                  });
+                                },
+                                icon: Icon(
+                                  _editPinsMode ? Icons.edit_off : Icons.edit,
+                                ),
+                                label: Text(
+                                  _editPinsMode
+                                      ? 'Bewerken stoppen'
+                                      : 'Bewerken',
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Undo button
+                            if (_polygonPoints.isNotEmpty)
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: _undoLastPoint,
+                                  icon: const Icon(Icons.undo),
+                                  label: const Text('Ongedaan maken'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    side: const BorderSide(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            if (_polygonPoints.isNotEmpty)
+                              const SizedBox(width: 8),
+
+                            // Clear button
+                            if (_polygonPoints.isNotEmpty)
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: _clearArea,
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('Wissen'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.red,
+                                    side: const BorderSide(color: Colors.red),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Unit price button (placed under Undo/Clear)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _promptUnitPrice,
+                            icon: const Icon(Icons.euro),
+                            label: Text(
+                              _unitPricePerM2 == null
+                                  ? 'Prijs instellen (€/m²)'
+                                  : 'Prijs: €${_formatPrice(_unitPricePerM2!)}/m²',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.lightMintGreen,
+                              foregroundColor: AppColors.black,
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
+                        const SizedBox(height: 12),
 
-          // Control panel at bottom
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: AppColors.darkGreen.withOpacity(0.95),
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 44),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Info text
-                  Text(
-                    _isGpsRecording
-                        ? 'GPS recording active... Points: ${_polygonPoints.length}'
-                        : _isDrawing
-                            ? 'Tap on the map to add points (${_polygonPoints.length} points)'
-                            : 'Choose a way to mark the damaged area',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Area info if polygon exists
-                  if (_polygonPoints.length >= 3) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'Area: ${areaFmt.format(PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters())} m²',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_unitPricePerM2 != null) _buildEstimatedCost(context),
-                    const SizedBox(height: 12),
-                  ],
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      // Manual drawing button
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _startDrawing,
-                          icon: Icon(
-                            _isDrawing ? Icons.check : Icons.edit_location,
-                          ),
-                          label: Text(
-                            _isDrawing ? 'Drawing' : 'Draw Area',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isDrawing
-                                ? AppColors.lightGreen
-                                : AppColors.lightMintGreen,
-                            foregroundColor: _isDrawing
-                                ? AppColors.offWhite
-                                : AppColors.black,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // GPS recording button
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _startGpsRecording,
-                          icon: Icon(
-                            _isGpsRecording
-                                ? Icons.stop_circle
-                                : Icons.my_location,
-                          ),
-                          label: Text(
-                            _isGpsRecording
-                                ? 'Stop GPS'
-                                : 'GPS Record',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isGpsRecording
-                                ? Colors.red
-                                : AppColors.lightMintGreen,
-                            foregroundColor: _isGpsRecording
-                                ? AppColors.offWhite
-                                : AppColors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Secondary action buttons
-                  Row(
-                    children: [
-                      // Edit pins toggle
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _editPinsMode = !_editPinsMode;
-                              if (!_editPinsMode) _selectedPointIndex = null;
-                            });
-                          },
-                          icon: Icon(_editPinsMode ? Icons.edit_off : Icons.edit),
-                          label: Text(_editPinsMode ? 'Stop Edit' : 'Edit'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Undo button
-                      if (_polygonPoints.isNotEmpty)
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: _undoLastPoint,
-                            icon: const Icon(Icons.undo),
-                            label: const Text('Undo'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(color: Colors.white),
+                        // Confirm button
+                        if (_polygonPoints.length >= 3)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _completeArea,
+                              icon: const Icon(Icons.check_circle),
+                              label: const Text('Gebied bevestigen'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      if (_polygonPoints.isNotEmpty) const SizedBox(width: 8),
-
-                      // Clear button
-                      if (_polygonPoints.isNotEmpty)
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: _clearArea,
-                            icon: const Icon(Icons.delete_outline),
-                            label: const Text('Clear'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Unit price button (placed under Undo/Clear)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _promptUnitPrice,
-                      icon: const Icon(Icons.euro),
-                      label: Text(
-                        _unitPricePerM2 == null
-                            ? 'Set price (€/m²)'
-                            : 'Price: €${_formatPrice(_unitPricePerM2!)}/m²',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.lightMintGreen,
-                        foregroundColor: AppColors.black,
-                      ),
+                        // Extra spacing to make the bottom container feel larger
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Confirm button
-                  if (_polygonPoints.length >= 3)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _completeArea,
-                        icon: const Icon(Icons.check_circle),
-                        label: const Text('Confirm Area'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  // Extra spacing to make the bottom container feel larger
-                  const SizedBox(height: 12),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
           ),
         ],
       ),
@@ -630,9 +655,10 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   }
 
   Widget _buildEstimatedCost(BuildContext context) {
-    final areaM2 = (_polygonPoints.length >= 3)
-        ? PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters()
-        : 0.0;
+    final areaM2 =
+        (_polygonPoints.length >= 3)
+            ? PolygonArea(points: _polygonPoints).calculateAreaInSquareMeters()
+            : 0.0;
     final price = _unitPricePerM2 ?? 0.0;
     final total = areaM2 * price;
 
@@ -652,7 +678,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            'Estimated Cost',
+            'Geschatte kosten',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           Text(
@@ -670,34 +696,37 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   Future<void> _promptUnitPrice() async {
     final controller = TextEditingController(
       // Show existing value without forced trailing zeros, using comma decimal
-      text: _unitPricePerM2 != null
-          ? _unitPricePerM2!.toString().replaceAll('.', ',')
-          : '',
+      text:
+          _unitPricePerM2 != null
+              ? _unitPricePerM2!.toString().replaceAll('.', ',')
+              : '',
     );
     final result = await showDialog<double?>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('Price per m²'),
+          title: const Text('Prijs per m²'),
           content: TextField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
               prefixText: '€ ',
-              hintText: 'e.g. 2,50',
+              hintText: 'bijv. 2,50',
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, null),
-              child: const Text('Cancel'),
+              child: const Text('Annuleren'),
             ),
             TextButton(
               onPressed: () {
-                final parsed = double.tryParse(controller.text.replaceAll(',', '.'));
+                final parsed = double.tryParse(
+                  controller.text.replaceAll(',', '.'),
+                );
                 Navigator.pop(ctx, parsed);
               },
-              child: const Text('Save'),
+              child: const Text('Opslaan'),
             ),
           ],
         );
@@ -736,7 +765,10 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     // Add thousands separators for integer part
     final parts = s.split(',');
     final intPart = parts[0].replaceAll('.', '');
-    final formattedInt = NumberFormat('#,##0', 'nl_NL').format(int.parse(intPart));
+    final formattedInt = NumberFormat(
+      '#,##0',
+      'nl_NL',
+    ).format(int.parse(intPart));
     return parts.length == 2 && parts[1].isNotEmpty
         ? '$formattedInt,${parts[1]}'
         : formattedInt;

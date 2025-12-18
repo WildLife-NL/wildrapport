@@ -68,7 +68,7 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
               children: [
                 CustomAppBar(
                   leftIcon: null,
-                  centerText: "Selecteer dier Conditie",
+                  centerText: "Selecteer de conditie van het dier",
                   rightIcon: Icons.menu,
                   onLeftIconPressed: () {
                     // Handle back navigation
@@ -86,7 +86,7 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
                   ],
                   onStatusSelected:
                       (status) => _handleStatusSelection(context, status),
-                  title: 'Selecteer dier Conditie',
+                  title: 'Selecteer de conditie van het dier',
                 ),
               ],
             ),

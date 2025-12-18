@@ -1063,7 +1063,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                             });
                                           });
                                         },
-                                        child: const Text('Reset All'),
+                                        child: const Text('Alles resetten'),
                                       ),
                                     ),
                                   ],
