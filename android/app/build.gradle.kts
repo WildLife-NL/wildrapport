@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -36,10 +39,10 @@ android {
     // Configure signing for proper in-place updates (same appId + same key)
     // Will use release keystore if key.properties exists, else fall back to debug signing.
     val keystorePropertiesFile = rootProject.file("key.properties")
-    val keystoreProperties = java.util.Properties()
+    val keystoreProperties = Properties()
     val hasReleaseKeystore = keystorePropertiesFile.exists()
     if (hasReleaseKeystore) {
-        keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+        keystoreProperties.load(keystorePropertiesFile.inputStream())
     }
 
     signingConfigs {
