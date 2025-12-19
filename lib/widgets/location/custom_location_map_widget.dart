@@ -58,6 +58,10 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
     debugPrint(
       '[CustomLocationMapScreen] Map controller initialized: ${_mapProvider.isInitialized}',
     );
+    if (!_mapProvider.isInitialized) {
+      // Ensure a map controller exists to avoid blank map on first open
+      _mapProvider.initialize();
+    }
   }
 
   void _quickLocationCheck() async {
@@ -310,32 +314,6 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
               latitude: _markedLocation?.latitude ?? _currentPosition?.latitude,
               longitude:
                   _markedLocation?.longitude ?? _currentPosition?.longitude,
-            ),
-          ),
-          Positioned(
-            right: 16,
-            top: 16,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  heroTag: 'satellite_toggle',
-                  mini: true,
-                  backgroundColor: Colors.white,
-                  onPressed: _toggleMapView,
-                  child: Icon(
-                    _isSatelliteView ? Icons.map : Icons.satellite,
-                    color: AppColors.darkGreen,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: 'center_location',
-                  mini: true,
-                  backgroundColor: Colors.white,
-                  onPressed: _centerOnCurrentLocation,
-                  child: Icon(Icons.my_location, color: AppColors.darkGreen),
-                ),
-              ],
             ),
           ),
         ],

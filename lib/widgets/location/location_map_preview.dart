@@ -90,63 +90,7 @@ class LocationMapPreview extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              top: responsive.spacing(8),
-              right: responsive.spacing(8),
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(responsive.sp(2)),
-                elevation: 4,
-                child: InkWell(
-                  onTap: () {
-                    debugPrint('[LocationMapPreview] Expand button tapped!');
-
-                    // Check if we're in the possession flow
-                    final isFromPossession =
-                        ModalRoute.of(context)?.settings.name ==
-                            'PossesionLocationScreen' ||
-                        context
-                                .findAncestorWidgetOfExactType<
-                                  BelongingLocationScreen
-                                >() !=
-                            null;
-
-                    debugPrint(
-                      '[LocationMapPreview] isFromPossession: $isFromPossession',
-                    );
-
-                    // Navigate to full interactive map
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        settings: RouteSettings(
-                          name:
-                              isFromPossession
-                                  ? 'PossesionCustomMap'
-                                  : 'CustomMap',
-                        ),
-                        builder:
-                            (_) => MapScreen(
-                              title: 'Selecteer locatie',
-                              mapWidget: CustomLocationMapScreen(
-                                isFromPossession: isFromPossession,
-                              ),
-                            ),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(responsive.sp(2)),
-                  child: Padding(
-                    padding: EdgeInsets.all(responsive.spacing(4)),
-                    child: Icon(
-                      Icons.fullscreen,
-                      color: Colors.grey[700],
-                      size: responsive.sp(4),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Fullscreen expand icon removed; selection now triggered via 'Selecteer' button in parent UI
           ],
         );
       },

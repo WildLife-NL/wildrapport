@@ -12,6 +12,9 @@ import 'package:wildrapport/providers/map_provider.dart';
 // Removed dropdown-based navigation; map navigation handled within preview widget
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
+import 'package:wildrapport/screens/location/map_screen.dart';
+import 'package:wildrapport/widgets/location/custom_location_map_widget.dart';
+import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:async';
@@ -26,6 +29,7 @@ class LocationScreenUIWidget extends StatefulWidget {
 class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   late final LocationServiceInterface _locationService;
   late final MapProvider _mapProvider;
+  bool _useCurrentChecked = false;
 
   @override
   void initState() {
@@ -129,6 +133,21 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     debugPrint('Location icon tapped in LocationScreenUIWidget');
   }
 
+  void _applyCurrentAsSelected() {
+    final mp = context.read<MapProvider>();
+    final pos = mp.currentPosition;
+    if (pos == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Huidige locatie nog niet beschikbaar')),
+      );
+      return;
+    }
+    mp.setSelectedLocation(pos, mp.currentAddress);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Huidige locatie geselecteerd')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -163,6 +182,60 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => setState(() => _useCurrentChecked = !_useCurrentChecked),
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: _useCurrentChecked,
+                              onChanged: (v) => setState(() => _useCurrentChecked = v ?? false),
+                            ),
+                            const Text('Huidige locatie'),
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (_useCurrentChecked) {
+                            _applyCurrentAsSelected();
+                          } else {
+                            final isFromPossession =
+                                ModalRoute.of(context)?.settings.name ==
+                                    'PossesionLocationScreen' ||
+                                context
+                                        .findAncestorWidgetOfExactType<
+                                          BelongingLocationScreen
+                                        >() !=
+                                    null;
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                settings: RouteSettings(
+                                  name:
+                                      isFromPossession
+                                          ? 'PossesionCustomMap'
+                                          : 'CustomMap',
+                                ),
+                                builder:
+                                    (_) => MapScreen(
+                                      title: 'Selecteer locatie',
+                                      mapWidget: CustomLocationMapScreen(
+                                        isFromPossession: isFromPossession,
+                                      ),
+                                    ),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('Selecteer'),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -170,7 +243,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                'Selecteer locatie om een pin op de kaart te plaatsen',
+                'Bevestig uw huidige locatie of kies Selecteer voor de kaart',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[600],

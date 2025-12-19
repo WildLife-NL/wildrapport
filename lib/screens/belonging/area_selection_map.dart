@@ -306,6 +306,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                     fm.TileLayer(
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.wildrapport.app',
                     ),
                     // Current location marker
                     if (_currentLocation != null)
