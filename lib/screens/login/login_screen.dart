@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
@@ -18,8 +17,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with PermissionChecker<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   late final LoginInterface _loginManager;
   bool showVerification = false;
@@ -31,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
     _loginManager = context.read<LoginInterface>();
-    initiatePermissionCheck();
   }
 
   @override

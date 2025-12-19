@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/managers/permission/permission_checker.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
@@ -18,15 +17,13 @@ class OverzichtScreen extends StatefulWidget {
   State<OverzichtScreen> createState() => _OverzichtScreenState();
 }
 
-class _OverzichtScreenState extends State<OverzichtScreen>
-    with PermissionChecker<OverzichtScreen> {
+class _OverzichtScreenState extends State<OverzichtScreen> {
   String userName = "Joe Doe";
   String reportButtonLabel = 'Rapporteren';
 
   @override
   void initState() {
     super.initState();
-    initiatePermissionCheck();
     _loadUserName();
     _loadReportButtonLabel();
   }
