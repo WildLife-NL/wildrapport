@@ -428,11 +428,10 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                               ),
                             ),
                           ),
-                        const SizedBox(height: 20),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppColors.darkGreen,
                             borderRadius: BorderRadius.circular(8),
@@ -443,8 +442,8 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                     "Hier kiest u hoe u gewasschade aangeeft: loop de schade af of plaats pinnen op de kaart. Na het invullen van een waarde per eenheid berekent de kaart ook de kosten van uw schade.",
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 18,
-                                      height: 1.8,
+                                      fontSize: 14,
+                                      height: 1.6,
                                     ),
                                   )
                                   : Column(
@@ -455,9 +454,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                         'Oppervlakte: ${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 22,
-                                          height: 1.6,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -469,9 +468,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                             : 'Kosten:',
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 22,
-                                          height: 1.6,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ],
@@ -545,9 +544,9 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                   ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 6),
                 // Scope of Damage field removed
-                const SizedBox(height: 20),
+                const SizedBox(height: 6),
                 if (belongingDamageReportProvider.damageCategory == 'livestock')
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -697,8 +696,71 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       ],
                     ),
                   ),
+                const SizedBox(height: 8),
+                // Comment field
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Opmerking",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Roboto',
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _descriptionController,
+                        minLines: 3,
+                        maxLines: null,
+                        onChanged: (value) {
+                          // Keep both provider and manager in sync
+                          final provider = Provider.of<BelongingDamageReportProvider>(
+                            context,
+                            listen: false,
+                          );
+                          provider.setDescription(value);
+                          _belongingDamageReportManager.updateDescription(value);
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: 'Typ hier...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            borderSide: const BorderSide(
+                              color: AppColors.darkGreen,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: AppColors.brown,
+                          fontFamily: 'Roboto',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 30),
-                // Remarks input removed
               ],
             ),
           ],
