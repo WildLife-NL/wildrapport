@@ -28,6 +28,8 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
   List<AnimalModel> _animals = [];
   bool _isLoading = true;
   String? _pendingSnackBarMessage;
+  List<String> _categories = const [];
+  String _selectedCategory = 'Alle';
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
     _animalManager.updateSearchTerm('');
     _animalManager.addListener(_handleStateChange);
     _loadAnimals();
+    _loadCategories();
   }
 
   @override
@@ -65,7 +68,9 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
     });
 
     try {
-      final animals = await _animalManager.getAnimals();
+      final animals = await _animalManager.getAnimalsByBackendCategory(
+        category: _selectedCategory == 'Alle' ? null : _selectedCategory,
+      );
       setState(() {
         _animals = animals;
         _isLoading = false;
@@ -75,6 +80,18 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final cats = await _animalManager.getBackendCategories();
+      if (!mounted) return;
+      setState(() {
+        _categories = ['Alle', ...cats];
+      });
+    } catch (e) {
+      // Keep empty list on failure
     }
   }
 
@@ -118,40 +135,111 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 20.0,
-                vertical: 24.0,
+                vertical: 12.0,
               ),
-              child: Column(
+              child: Row(
                 children: [
-                  // Search box
+                  // Category filter dropdown (compact) to match AnimalsScreen
                   Container(
-                    height: 56,
+                    height: 44,
+                    constraints: const BoxConstraints(
+                      minWidth: 140,
+                      maxWidth: 220,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.lightMintGreen,
-                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: AppColors.darkGreen,
                         width: 1.5,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.search, color: AppColors.darkGreen),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            style: const TextStyle(fontSize: 16),
-                            decoration: InputDecoration(
-                              hintText: 'zoeken',
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 14,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isDense: true,
+                        iconSize: 18,
+                        value: _selectedCategory,
+                        items: _categories
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Tooltip(
+                                  message: c,
+                                  waitDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                  child: Text(
+                                    c,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
                               ),
-                              suffixIcon:
-                                  (_searchController.text.isNotEmpty)
-                                      ? IconButton(
+                            )
+                            .toList(),
+                        selectedItemBuilder: (ctx) => _categories
+                            .map(
+                              (c) => Align(
+                                alignment: Alignment.centerLeft,
+                                child: Tooltip(
+                                  message: c,
+                                  waitDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                  child: Text(
+                                    c,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) async {
+                          if (val == null) return;
+                          setState(() => _selectedCategory = val);
+                          await _loadAnimals();
+                        },
+                        isExpanded: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Search box (compact) to match AnimalsScreen
+                  Expanded(
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.lightMintGreen,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.darkGreen,
+                          width: 1.5,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: AppColors.darkGreen),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              style: const TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Zoeken',
+                                border: InputBorder.none,
+                                isCollapsed: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                                suffixIcon: (_searchController.text.isNotEmpty)
+                                    ? IconButton(
                                         icon: const Icon(
                                           Icons.clear,
                                           color: AppColors.darkGreen,
@@ -162,15 +250,16 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
                                           setState(() {});
                                         },
                                       )
-                                      : null,
+                                    : null,
+                              ),
+                              onChanged: (val) {
+                                _animalManager.updateSearchTerm(val);
+                                setState(() {});
+                              },
                             ),
-                            onChanged: (val) {
-                              _animalManager.updateSearchTerm(val);
-                              setState(() {});
-                            },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -87,7 +87,7 @@ class _RapporterenState extends State<Rapporteren> {
     } else if (typeName == 'schademelding' ||
         typeName.contains('crop damage')) {
       selectedReportType = ReportType.gewasschade;
-      nextScreen = BelongingAnimalScreen(appBarTitle: 'Kies Dier');
+      nextScreen = BelongingAnimalScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     } else if (typeName == 'dieraanrijding' ||
         typeName.contains('animal collision')) {

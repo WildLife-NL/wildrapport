@@ -284,7 +284,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                               controller: _searchController,
                               style: const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
-                                hintText: 'zoeken',
+                                hintText: 'Zoeken',
                                 border: InputBorder.none,
                                 isCollapsed: true,
                                 contentPadding: const EdgeInsets.symmetric(

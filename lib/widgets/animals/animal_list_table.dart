@@ -631,7 +631,7 @@ class AnimalListTableState extends State<AnimalListTable> {
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    label: Text('typ hier...'),
+                    label: Text('Typ hier...'),
                   ),
                   style: const TextStyle(fontSize: 16, height: 1.5),
                 ),

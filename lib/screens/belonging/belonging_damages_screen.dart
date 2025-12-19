@@ -189,7 +189,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
       final navigationManager = context.read<NavigationStateInterface>();
       provider.clearStateOfValues();
       provider.resetErrors();
-      navigationManager.pushReplacementBack(context, const BelongingAnimalScreen(appBarTitle: 'Kies Dier'));
+      navigationManager.pushReplacementBack(context, const BelongingAnimalScreen(appBarTitle: 'Selecteer Dier'));
     }
   }
 
