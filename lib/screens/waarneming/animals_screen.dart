@@ -140,8 +140,12 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     debugPrint('[AnimalsScreen] Back button pressed');
     // Reset search before navigating back
     _animalManager.updateSearchTerm('');
-    // Use Navigator.pop to go back to the existing Rapporteren screen
-    Navigator.pop(context);
+    // Prefer popping; if stack was cleared, reset to home to avoid a blank screen
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    } else {
+      _navigationManager.resetToHome(context);
+    }
   }
 
   Future<void> _loadCategories() async {

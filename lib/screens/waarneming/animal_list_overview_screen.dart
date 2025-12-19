@@ -37,7 +37,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
                 _animalListTableKey.currentState?.clearRemarksOnly();
                 final navigationManager =
                     context.read<NavigationStateInterface>();
-                navigationManager.pushAndRemoveUntil(
+                // Go back to counting without wiping the stack
+                navigationManager.pushReplacementBack(
                   context,
                   const AnimalCountingScreen(),
                 );
@@ -94,7 +95,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
         onBackPressed: () {
           final navigationManager = context.read<NavigationStateInterface>();
           _animalListTableKey.currentState?.clearRemarksOnly();
-          navigationManager.pushAndRemoveUntil(
+          // Go back to counting without removing prior routes
+          navigationManager.pushReplacementBack(
             context,
             const AnimalCountingScreen(),
           );
