@@ -17,6 +17,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'Loading...';
+  Profile? _profile;
+  bool _loadingProfile = true;
 
   @override
   void initState() {
@@ -29,6 +31,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _userName = prefs.getString('userName') ?? 'User';
     });
+    try {
+      final profileApi = context.read<ProfileApiInterface>();
+      final profile = await profileApi.fetchMyProfile();
+      if (!mounted) return;
+      setState(() {
+        _profile = profile;
+        _userName = profile.userName;
+        _loadingProfile = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingProfile = false;
+      });
+    }
   }
 
   @override
@@ -104,7 +121,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
 
-              SizedBox(height: responsive.spacing(48)),
+              SizedBox(height: responsive.spacing(24)),
+
+              // Profile info section with inline update action
+              _buildProfileInfoSection(context),
+
+              SizedBox(height: responsive.spacing(32)),
 
               // Location Tracking label
               Center(
@@ -215,192 +237,290 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              SizedBox(height: responsive.spacing(62)),
+              SizedBox(height: responsive.spacing(24)),
 
-              // Buttons list
+              // Scrollable content (without destructive/secondary actions)
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Delete account - outlined
-                      _outlinedButton(
-                        context,
-                        'Account verwijderen',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (ctx) => AlertDialog(
-                                  title: Text(
-                                    'Account verwijderen?',
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(18),
-                                    ),
-                                  ),
-                                  content: Text(
-                                    'Dit zal uw account en alle bijbehorende gegevens permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt.',
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(14),
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(ctx).pop(),
-                                      child: Text(
-                                        'Annuleren',
-                                        style: TextStyle(
-                                          fontSize: responsive.fontSize(14),
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        Navigator.of(ctx).pop();
-                                        
-                                        // Show loading indicator
-                                        if (!mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Account wordt verwijderd...'),
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
+                  child: const SizedBox.shrink(),
+                ),
+              ),
 
-                                        try {
-                                          final profileApi = context.read<ProfileApiInterface>();
-                                          final appStateProvider = context.read<AppStateProvider>();
-                                          
-                                          // Call the API to delete the profile
-                                          await profileApi.deleteMyProfile();
-                                          
-                                          // If successful, clean up and redirect
-                                          await appStateProvider.deleteProfile();
-                                        } catch (e) {
-                                          if (!mounted) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text('Fout bij verwijderen: $e'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      child: Text(
-                                        'Verwijderen',
-                                        style: TextStyle(
-                                          fontSize: responsive.fontSize(14),
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          );
-                        },
+              // Less prominent actions at the bottom
+              Padding(
+                padding: EdgeInsets.only(
+                  left: responsive.wp(4),
+                  right: responsive.wp(4),
+                  bottom: responsive.hp(2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextButton(
+                      onPressed: () => _confirmLogout(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.offWhite,
+                        padding: EdgeInsets.symmetric(
+                          vertical: responsive.hp(1.25),
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-
-                      SizedBox(height: responsive.spacing(12)),
-
-                      // Log out - filled white
-                      _filledButton(
-                        context,
-                        'Afmelden',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (ctx) => AlertDialog(
-                                  title: Text(
-                                    'Afmelden?',
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(18),
-                                    ),
-                                  ),
-                                  content: Text(
-                                    'Wilt u uitloggen?',
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(14),
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(ctx).pop(),
-                                      child: Text(
-                                        'Annuleren',
-                                        style: TextStyle(
-                                          fontSize: responsive.fontSize(14),
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        Navigator.of(ctx).pop();
-                                        final appStateProvider =
-                                            context.read<AppStateProvider>();
-                                        await appStateProvider.logout();
-                                      },
-                                      child: Text(
-                                        'Afmelden',
-                                        style: TextStyle(
-                                          fontSize: responsive.fontSize(14),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          );
-                        },
+                      child: const Text('Afmelden'),
+                    ),
+                    TextButton(
+                      onPressed: () => _confirmDelete(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.redAccent,
+                        padding: EdgeInsets.symmetric(
+                          vertical: responsive.hp(1.0),
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: responsive.fontSize(13),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-
-                      SizedBox(height: responsive.spacing(12)),
-
-                      // Update Info
-                      _filledButton(
-                        context,
-                        'Gegevens bijwerken',
-                        onPressed: () async {
-                          try {
-                            final profileApi = context.read<ProfileApiInterface>();
-                            final currentProfile = await profileApi.fetchMyProfile();
-                            
-                            if (!mounted) return;
-                            final updatedProfile = await Navigator.of(context).push<Profile>(
-                              MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(
-                                  initialProfile: currentProfile,
-                                ),
-                              ),
-                            );
-
-                            if (updatedProfile != null && mounted) {
-                              setState(() {
-                                _userName = updatedProfile.userName;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Profiel bijgewerkt'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Fout bij laden profiel: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+                      child: const Text('Account verwijderen'),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileInfoSection(BuildContext context) {
+    final responsive = context.responsive;
+    return Container(
+      padding: EdgeInsets.all(responsive.sp(2.5)),
+      decoration: BoxDecoration(
+        color: AppColors.lightMintGreen.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(responsive.sp(3)),
+        border: Border.all(color: AppColors.offWhite.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Profielgegevens',
+                  style: TextStyle(
+                    color: AppColors.offWhite,
+                    fontSize: responsive.fontSize(16),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => _handleEditProfile(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.lightMintGreen,
+                  textStyle: TextStyle(fontSize: responsive.fontSize(14)),
+                ),
+                child: const Text('Bijwerken'),
+              )
+            ],
+          ),
+          SizedBox(height: responsive.spacing(12)),
+          if (_loadingProfile)
+            const Center(child: CircularProgressIndicator())
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _infoRow(
+                  context,
+                  label: 'Naam',
+                  value: _profile?.userName ?? _userName,
+                ),
+                _infoRow(
+                  context,
+                  label: 'E‑mail',
+                  value: _profile?.email,
+                ),
+                if ((_profile?.postcode ?? '').isNotEmpty)
+                  _infoRow(
+                    context,
+                    label: 'Postcode',
+                    value: _profile!.postcode,
+                  ),
+                if ((_profile?.gender ?? '').isNotEmpty)
+                  _infoRow(
+                    context,
+                    label: 'Geslacht',
+                    value: _profile!.gender,
+                  ),
+                if ((_profile?.dateOfBirth ?? '').isNotEmpty)
+                  _infoRow(
+                    context,
+                    label: 'Geboortedatum',
+                    value: _profile!.dateOfBirth,
+                  ),
+                if ((_profile?.description ?? '').isNotEmpty)
+                  _infoRow(
+                    context,
+                    label: 'Beschrijving',
+                    value: _profile!.description,
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(BuildContext context, {required String label, String? value}) {
+    final responsive = context.responsive;
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(bottom: responsive.hp(0.8)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: responsive.wp(30),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: AppColors.offWhite.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w500,
+                fontSize: responsive.fontSize(14),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: AppColors.offWhite,
+                fontSize: responsive.fontSize(14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleEditProfile(BuildContext context) async {
+    try {
+      final profileApi = context.read<ProfileApiInterface>();
+      final currentProfile = await profileApi.fetchMyProfile();
+      if (!mounted) return;
+      final updatedProfile = await Navigator.of(context).push<Profile>(
+        MaterialPageRoute(
+          builder: (context) => EditProfileScreen(
+            initialProfile: currentProfile,
+          ),
+        ),
+      );
+      if (updatedProfile != null && mounted) {
+        setState(() {
+          _profile = updatedProfile;
+          _userName = updatedProfile.userName;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profiel bijgewerkt'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Fout bij laden profiel: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _confirmLogout(BuildContext context) {
+    final responsive = context.responsive;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          'Afmelden?',
+          style: TextStyle(fontSize: responsive.fontSize(18)),
+        ),
+        content: Text(
+          'Wilt u uitloggen?',
+          style: TextStyle(fontSize: responsive.fontSize(14)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Annuleren', style: TextStyle(fontSize: responsive.fontSize(14))),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              final appStateProvider = context.read<AppStateProvider>();
+              await appStateProvider.logout();
+            },
+            child: Text('Afmelden', style: TextStyle(fontSize: responsive.fontSize(14))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context) {
+    final responsive = context.responsive;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          'Account verwijderen?',
+          style: TextStyle(fontSize: responsive.fontSize(18)),
+        ),
+        content: Text(
+          'Dit zal uw account en alle bijbehorende gegevens permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt.',
+          style: TextStyle(fontSize: responsive.fontSize(14)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Annuleren', style: TextStyle(fontSize: responsive.fontSize(14))),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Account wordt verwijderd...'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              try {
+                final profileApi = context.read<ProfileApiInterface>();
+                final appStateProvider = context.read<AppStateProvider>();
+                await profileApi.deleteMyProfile();
+                await appStateProvider.deleteProfile();
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Fout bij verwijderen: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: Text('Verwijderen', style: TextStyle(fontSize: responsive.fontSize(14), color: Colors.red)),
+          ),
+        ],
       ),
     );
   }
