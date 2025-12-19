@@ -32,15 +32,20 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
 
-    // If there are animals in the list, set _hasAddedItems to true
-    if (currentSighting?.animalSelected != null &&
+    // Consider entries already added to the sighting OR counts on the currently selected animal
+    final hasFinalizedAnimals =
+        (currentSighting?.animals?.isNotEmpty ?? false);
+
+    final hasCountsOnSelected = currentSighting?.animalSelected != null &&
         currentSighting!.animalSelected!.genderViewCounts.any(
           (gvc) =>
               gvc.viewCount.pasGeborenAmount > 0 ||
               gvc.viewCount.onvolwassenAmount > 0 ||
               gvc.viewCount.volwassenAmount > 0 ||
               gvc.viewCount.unknownAmount > 0,
-        )) {
+        );
+
+    if (hasFinalizedAnimals || hasCountsOnSelected) {
       setState(() {
         _hasAddedItems = true;
       });
@@ -103,8 +108,9 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
             AnimalListOverviewScreen(),
           );
         },
+        // Allow going back to species selection at all times
         showNextButton: _hasAddedItems,
-        showBackButton: _hasAddedItems,
+        showBackButton: true,
       ),
     );
   }
