@@ -1195,6 +1195,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   _iconStyleForTimestamp(
                                                     pin.seenAt,
                                                   );
+                                              final Color animalColor = Colors.grey;
                                               final mapRotation =
                                                   map
                                                       .mapController
@@ -1254,8 +1255,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                             .size *
                                                                         0.9,
                                                                     color:
-                                                                        style
-                                                                            .color,
+                                                                        animalColor,
                                                                   );
                                                                 },
                                                               ),
@@ -1264,7 +1264,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                           : Icon(
                                                             Icons.pets,
                                                             size: style.size,
-                                                            color: style.color,
+                                                            color: animalColor,
                                                           ),
                                                 ),
                                               );
@@ -1346,6 +1346,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                           _iconStyleForTimestamp(
                                                             pin.seenAt,
                                                           );
+                                                      final Color animalColor = Colors.grey;
                                                       return _getAnimalIconPath(
                                                                 pin.speciesName,
                                                               ) !=
@@ -1356,7 +1357,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             child: ColorFiltered(
                                                               colorFilter:
                                                                   ColorFilter.mode(
-                                                                    style.color,
+                                                                    animalColor,
                                                                     BlendMode
                                                                         .srcIn,
                                                                   ),
@@ -1383,8 +1384,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                             .size *
                                                                         0.9,
                                                                     color:
-                                                                        style
-                                                                            .color,
+                                                                        animalColor,
                                                                   );
                                                                 },
                                                               ),
@@ -1393,7 +1393,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                           : Icon(
                                                             Icons.pets,
                                                             size: style.size,
-                                                            color: style.color,
+                                                            color: animalColor,
                                                           );
                                                     },
                                                   ),
@@ -1467,7 +1467,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                     child: Icon(
                                                       Icons.sensors,
                                                       size: style.size,
-                                                      color: style.color,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ),
@@ -1552,7 +1552,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   child: Icon(
                                                     Icons.sensors,
                                                     size: style.size,
-                                                    color: style.color,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
                                               ),
@@ -1692,6 +1692,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             _iconStyleForTimestamp(
                                                               itx.moment,
                                                             );
+                                                        final Color interactionColor = Colors.black;
                                                         return _getAnimalIconPath(
                                                                   itx.speciesName,
                                                                 ) !=
@@ -1703,8 +1704,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               child: ColorFiltered(
                                                                 colorFilter:
                                                                     ColorFilter.mode(
-                                                                      style
-                                                                          .color,
+                                                                      interactionColor,
                                                                       BlendMode
                                                                           .srcIn,
                                                                     ),
@@ -1734,8 +1734,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                               .size *
                                                                           0.9,
                                                                       color:
-                                                                          style
-                                                                              .color,
+                                                                          interactionColor,
                                                                     );
                                                                   },
                                                                 ),
@@ -1745,7 +1744,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               Icons.place,
                                                               size: style.size,
                                                               color:
-                                                                  style.color,
+                                                                  interactionColor,
                                                             );
                                                       },
                                                     ),
@@ -1765,117 +1764,78 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   ),
                                 )
                                 : fm.MarkerLayer(
-                                  markers:
-                                      map.interactions
-                                          .where(
-                                            (itx) => _within31Days(itx.moment),
-                                          )
-                                          .where(
-                                            (itx) => _shouldShowPin(
-                                              itx.moment,
-                                              _showInteractions,
-                                              _showInteractionsNew,
-                                              _showInteractionsMedium,
-                                              _showInteractionsOld,
-                                            ),
-                                          )
-                                          .map((itx) {
-                                            final mapRotation =
-                                                map
-                                                    .mapController
-                                                    .camera
-                                                    .rotation;
-                                            return fm.Marker(
-                                              point: LatLng(itx.lat, itx.lon),
-                                              width: 44,
-                                              height: 44,
-                                              rotate: false,
-                                              child: Transform.rotate(
-                                                angle:
-                                                    -mapRotation *
-                                                    math.pi /
-                                                    180,
-                                                child: GestureDetector(
-                                                  behavior:
-                                                      HitTestBehavior.opaque,
-                                                  onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (
-                                                            _,
-                                                          ) => AnimalDetailDialog(
-                                                            animal:
-                                                                itx.toAnimalPin(),
-                                                            animalIconPath:
-                                                                _getAnimalIconPath(
-                                                                  itx.speciesName,
-                                                                ),
-                                                          ),
-                                                    );
-                                                  },
-                                                  child: Builder(
-                                                    builder: (ctx) {
-                                                      final style =
-                                                          _iconStyleForTimestamp(
-                                                            itx.moment,
-                                                          );
-                                                      return _getAnimalIconPath(
-                                                                itx.speciesName,
-                                                              ) !=
-                                                              null
-                                                          ? SizedBox(
-                                                            width: style.size,
-                                                            height: style.size,
-                                                            child: ColorFiltered(
-                                                              colorFilter:
-                                                                  ColorFilter.mode(
-                                                                    style.color,
-                                                                    BlendMode
-                                                                        .srcIn,
-                                                                  ),
-                                                              child: Image.asset(
-                                                                _getAnimalIconPath(
-                                                                  itx.speciesName,
-                                                                )!,
-                                                                width:
-                                                                    style.size,
-                                                                height:
-                                                                    style.size,
-                                                                fit:
-                                                                    BoxFit
-                                                                        .contain,
-                                                                errorBuilder: (
-                                                                  context,
-                                                                  error,
-                                                                  stackTrace,
-                                                                ) {
-                                                                  return Icon(
-                                                                    Icons.place,
-                                                                    size:
-                                                                        style
-                                                                            .size *
-                                                                        0.9,
-                                                                    color:
-                                                                        style
-                                                                            .color,
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          )
-                                                          : Icon(
-                                                            Icons.place,
-                                                            size: style.size,
-                                                            color: style.color,
-                                                          );
-                                                    },
+                                  markers: map.interactions
+                                      .where((itx) => _within31Days(itx.moment))
+                                      .where(
+                                        (itx) => _shouldShowPin(
+                                          itx.moment,
+                                          _showInteractions,
+                                          _showInteractionsNew,
+                                          _showInteractionsMedium,
+                                          _showInteractionsOld,
+                                        ),
+                                      )
+                                      .map((itx) {
+                                        final mapRotation =
+                                            map.mapController.camera.rotation;
+                                        return fm.Marker(
+                                          point: LatLng(itx.lat, itx.lon),
+                                          width: 44,
+                                          height: 44,
+                                          rotate: false,
+                                          child: Transform.rotate(
+                                            angle: -mapRotation * math.pi / 180,
+                                            child: GestureDetector(
+                                              behavior: HitTestBehavior.opaque,
+                                              onTap: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (_) => AnimalDetailDialog(
+                                                    animal: itx.toAnimalPin(),
+                                                    animalIconPath:
+                                                        _getAnimalIconPath(itx.speciesName),
                                                   ),
-                                                ),
+                                                );
+                                              },
+                                              child: Builder(
+                                                builder: (ctx) {
+                                                  final style =
+                                                      _iconStyleForTimestamp(itx.moment);
+                                                  final Color interactionColor = Colors.black;
+                                                  return _getAnimalIconPath(itx.speciesName) != null
+                                                      ? SizedBox(
+                                                          width: style.size,
+                                                          height: style.size,
+                                                          child: ColorFiltered(
+                                                            colorFilter: ColorFilter.mode(
+                                                              interactionColor,
+                                                              BlendMode.srcIn,
+                                                            ),
+                                                            child: Image.asset(
+                                                              _getAnimalIconPath(itx.speciesName)!,
+                                                              width: style.size,
+                                                              height: style.size,
+                                                              fit: BoxFit.contain,
+                                                              errorBuilder:
+                                                                  (context, error, stackTrace) => Icon(
+                                                                    Icons.place,
+                                                                    size: style.size * 0.9,
+                                                                    color: interactionColor,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : Icon(
+                                                          Icons.place,
+                                                          size: style.size,
+                                                          color: interactionColor,
+                                                        );
+                                                },
                                               ),
-                                            );
-                                          })
-                                          .toList(),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
                                 ),
                           ],
                         ),

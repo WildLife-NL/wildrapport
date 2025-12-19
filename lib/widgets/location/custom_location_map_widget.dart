@@ -182,21 +182,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
     Navigator.pop(context);
   }
 
-  void _toggleMapView() {
-    setState(() {
-      _isSatelliteView = !_isSatelliteView;
-    });
-  }
-
-  void _centerOnCurrentLocation() {
-    if (_currentPosition != null) {
-      final center = LatLng(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
-      );
-      _mapProvider.mapController.move(center, 15);
-    }
-  }
+  // Satellite toggle and center controls removed from UI; helpers not needed
 
   String? _getLocationCity(String address) {
     final parts = address.split(',');

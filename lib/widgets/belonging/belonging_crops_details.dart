@@ -487,7 +487,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Aantal dieren",
+                          "Aantal",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',

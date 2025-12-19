@@ -3,9 +3,6 @@ import 'package:flutter_map/flutter_map.dart' as flutter_map;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-import 'package:wildrapport/screens/location/map_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
-import 'package:wildrapport/widgets/location/custom_location_map_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
