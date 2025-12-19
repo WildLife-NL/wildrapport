@@ -34,6 +34,8 @@ class QuestionnaireManager implements QuestionnaireInterface {
         amountOfQuestions: questionnaire.questions!.length,
         questionnaireName: questionnaire.name,
         questionnaireDescription: questionnaire.interactionType.description,
+        interactionID: interactionID,
+        questionnaire: questionnaire,
       ),
     );
 
