@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
@@ -17,6 +18,45 @@ class TermsScreen extends StatefulWidget {
 class _TermsScreenState extends State<TermsScreen> {
   bool _checked = false;
   bool _submitting = false;
+  bool _loadingProfile = true;
+
+  final TextEditingController _displayNameController = TextEditingController();
+  Profile? _currentProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialProfile();
+  }
+
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadInitialProfile() async {
+    try {
+      final profileApi = context.read<ProfileApiInterface>();
+      final profile = await profileApi.fetchMyProfile();
+      if (!mounted) return;
+      _currentProfile = profile;
+
+      // Prefer existing display name, otherwise derive from email prefix
+      final email = profile.email;
+      final derived = (email.contains('@'))
+          ? email.split('@').first
+          : email;
+      final initialName = (profile.userName.isNotEmpty)
+          ? profile.userName
+          : derived;
+      _displayNameController.text = initialName;
+    } catch (_) {
+      // Fallback: leave empty; user must fill manually
+    } finally {
+      if (mounted) setState(() => _loadingProfile = false);
+    }
+  }
 
   Future<void> _onAcceptPressed() async {
     if (_submitting) return;
@@ -25,11 +65,31 @@ class _TermsScreenState extends State<TermsScreen> {
     try {
       final profileApi = context.read<ProfileApiInterface>();
 
-      // 1) Persist acceptance on the server
-      await profileApi.updateReportAppTerms(true);
+      final newName = _displayNameController.text.trim();
+      if (newName.isEmpty) {
+        throw Exception('Voer alstublieft een geldige gebruikersnaam in.');
+      }
 
-      // 2) (Optional) Pull fresh profile to update local cache
-      // If your API already caches in updateReportAppTerms, you can skip this.
+      // Build updated profile payload, preserving existing fields when available
+      final base = _currentProfile;
+      final updated = Profile(
+        userID: base?.userID ?? '',
+        email: base?.email ?? '',
+        gender: base?.gender,
+        userName: newName,
+        postcode: base?.postcode,
+        reportAppTerms: true,
+        recreationAppTerms: base?.recreationAppTerms,
+        dateOfBirth: base?.dateOfBirth,
+        description: base?.description,
+        location: base?.location,
+        locationTimestamp: base?.locationTimestamp,
+      );
+
+      // 1) Persist display name + acceptance on the server
+      await profileApi.updateMyProfile(updated);
+
+      // 2) Refresh local cache (defensive; updateMyProfile also caches)
       await profileApi.setProfileDataInDeviceStorage();
 
       if (!mounted) return;
@@ -68,6 +128,42 @@ class _TermsScreenState extends State<TermsScreen> {
           padding: EdgeInsets.all(responsive.spacing(16)),
           child: Column(
             children: [
+              // Display name input
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Gebruikersnaam',
+                  style: TextStyle(
+                    fontSize: responsive.fontSize(14),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(height: responsive.spacing(6)),
+              TextField(
+                controller: _displayNameController,
+                enabled: !_submitting && !_loadingProfile,
+                decoration: InputDecoration(
+                  hintText: 'Voer uw weergavenaam in',
+                  filled: true,
+                  fillColor: AppColors.lightMintGreen100,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.brown),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.darkGreen),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: responsive.spacing(10),
+                    horizontal: responsive.spacing(12),
+                  ),
+                ),
+                style: TextStyle(fontSize: responsive.fontSize(14)),
+              ),
+              SizedBox(height: responsive.spacing(12)),
               Expanded(
                 child: SingleChildScrollView(
                   child: Text(
@@ -119,7 +215,7 @@ class _TermsScreenState extends State<TermsScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                   onPressed:
-                      (_checked && !_submitting) ? _onAcceptPressed : null,
+                      (_checked && !_submitting && !_loadingProfile) ? _onAcceptPressed : null,
                   showShadow: false,
                 ),
               ),
