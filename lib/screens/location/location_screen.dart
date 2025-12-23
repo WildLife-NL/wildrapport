@@ -24,6 +24,7 @@ import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
+import 'package:wildrapport/utils/toast_notification_handler.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -39,15 +40,9 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void _handlePendingActions() {
     if (_pendingSnackBarMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_pendingSnackBarMessage!),
-          backgroundColor:
-              _pendingSnackBarMessage!.contains('fout')
-                  ? Colors.red
-                  : Colors.orange,
-          behavior: SnackBarBehavior.fixed,
-        ),
+      ToastNotificationHandler.sendToastNotification(
+        context,
+        _pendingSnackBarMessage!,
       );
     }
     if (_pendingNavigationScreen != null) {
