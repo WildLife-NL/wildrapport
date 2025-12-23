@@ -13,11 +13,14 @@ import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/config/app_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
@@ -242,6 +245,83 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     }
     _mp.stopTracking();
     super.dispose();
+  }
+
+  bool get _devDebugToolsEnabled => dotenv.env['DEV_DEBUG_TOOLS'] == 'true' || dotenv.env['DEV_DEBUG_TOOLS'] == '1';
+
+  void _injectMockPins() {
+    final map = context.read<MapProvider>();
+    // Determine a reasonable center (map center if ready, else Den Bosch)
+    final center = map.isInitialized
+        ? map.mapController.camera.center
+        : LatLng(
+            LocationMapManager.denBoschCenter.latitude,
+            LocationMapManager.denBoschCenter.longitude,
+          );
+
+    final now = DateTime.now().toUtc();
+    final species = [
+      'Vos',
+      'Wolf',
+      'Das',
+      'Ree',
+      'Wild zwijn',
+      'Damhert',
+      'Egel',
+      'Eekhoorn',
+    ];
+
+    // Spread points in a small grid around the center
+    final dx = [0.0000, 0.0012, -0.0012, 0.0018, -0.0018, 0.0009, -0.0009, 0.0015];
+    final dy = [0.0000, 0.0010, -0.0010, -0.0016, 0.0016, -0.0008, 0.0008, 0.0013];
+
+    final animals = <AnimalPin>[];
+    for (int i = 0; i < species.length; i++) {
+      final ts = i < 3
+          ? now.subtract(Duration(minutes: (i + 1) * 10)) // new (< 24h)
+          : (i < 6
+              ? now.subtract(Duration(hours: (i - 2) * 6)) // within 24h–1w
+              : now.subtract(Duration(days: 8 + i))); // > 1 week
+
+      animals.add(
+        AnimalPin(
+          id: 'mock-${i + 1}',
+          lat: center.latitude + (dy[i % dy.length]),
+          lon: center.longitude + (dx[i % dx.length]),
+          seenAt: ts,
+          speciesName: species[i],
+        ),
+      );
+    }
+
+    map.setMockVicinity(animals: animals);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Mock dieren geplaatst rond de kaart'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      setState(() {});
+    }
+  }
+
+  void _emitDevTrackingNotice() {
+    final map = context.read<MapProvider>();
+    map.emitMockTrackingNotice('Dier in de buurt (testmelding)', severity: 2);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Testmelding verstuurd (overlay + notificatie)'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+    }
   }
 
   void _queueFetch() {
@@ -1966,6 +2046,40 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             onPressed: () => _showFilterDialog(context),
                           ),
                         ),
+
+                        // ── DEV: Mock pins button (env DEV_DEBUG_TOOLS) ────────────────────────────
+                        if (_devDebugToolsEnabled)
+                          Positioned(
+                            left: 192,
+                            bottom: 56,
+                            child: FloatingActionButton(
+                              heroTag: 'dev_mock_btn',
+                              mini: true,
+                              backgroundColor: Colors.black87,
+                              child: const Icon(
+                                Icons.bug_report,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Plaats testdieren op de kaart',
+                              onPressed: _injectMockPins,
+                            ),
+                          ),
+                        if (_devDebugToolsEnabled)
+                          Positioned(
+                            left: 252,
+                            bottom: 56,
+                            child: FloatingActionButton(
+                              heroTag: 'dev_notice_btn',
+                              mini: true,
+                              backgroundColor: Colors.deepPurple,
+                              child: const Icon(
+                                Icons.notifications_active,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Stuur testmelding',
+                              onPressed: _emitDevTrackingNotice,
+                            ),
+                          ),
                       ],
                     ),
                   ),

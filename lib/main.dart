@@ -63,6 +63,7 @@ import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
 
 import 'package:wildrapport/utils/token_validator.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,6 +82,9 @@ void main() async {
   await appStateProvider.loadLocationTrackingPreference();
 
   await dotenv.load(fileName: ".env");
+
+  // Initialize local notifications
+  await NotificationService.instance.init();
 
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
   final appConfig = AppConfig(apiClient);

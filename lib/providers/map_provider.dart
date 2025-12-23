@@ -13,6 +13,7 @@ import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 
 class MapProvider extends ChangeNotifier {
@@ -78,6 +79,12 @@ class MapProvider extends ChangeNotifier {
           debugPrint(
             '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
           );
+          // Also show an OS-level notification on supported platforms
+          final title =
+              notice.severity == 1
+                  ? 'Waarschuwing'
+                  : (notice.severity == 2 ? 'Melding' : 'Informatie');
+          NotificationService.instance.show(title: title, body: notice.text);
           notifyListeners(); // if any UI wants to react to changes
           debugPrint(
             '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -119,6 +126,12 @@ class MapProvider extends ChangeNotifier {
         debugPrint(
           '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
         );
+        // Also show an OS-level notification on supported platforms
+        final title =
+            notice.severity == 1
+                ? 'Waarschuwing'
+                : (notice.severity == 2 ? 'Melding' : 'Informatie');
+        NotificationService.instance.show(title: title, body: notice.text);
         notifyListeners(); // if any UI wants to react to changes
         debugPrint(
           '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -134,6 +147,15 @@ class MapProvider extends ChangeNotifier {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
       return null;
     }
+  }
+
+  /// DEV/TEST: Emit a mock tracking notice to trigger overlays and OS notifications
+  void emitMockTrackingNotice(String text, {int? severity}) {
+    _lastTrackingNotice = TrackingNotice(text, severity: severity);
+    final title =
+        severity == 1 ? 'Waarschuwing' : (severity == 2 ? 'Melding' : 'Informatie');
+    NotificationService.instance.show(title: title, body: text);
+    notifyListeners();
   }
 
   // ===== R7: Animals & Detections =====
@@ -165,6 +187,9 @@ class MapProvider extends ChangeNotifier {
   final List<InteractionQueryResult> _interactions = [];
   bool _interactionsLoading = false;
   String? _interactionsError;
+  Set<String> _prevInteractionIds = {};
+  Set<String> _prevAnimalIds = {};
+  Set<String> _prevDetectionIds = {};
 
   List<InteractionQueryResult> get interactions =>
       List.unmodifiable(_interactions);
@@ -336,6 +361,96 @@ class MapProvider extends ChangeNotifier {
       );
 
       notifyListeners();
+
+      // Notify on newly seen animals to surface phone notifications
+      try {
+        final currentAnimalIds = _animalPins.map((a) => a.id).toSet();
+        final newAnimalIds = currentAnimalIds.difference(_prevAnimalIds);
+        if (newAnimalIds.isNotEmpty) {
+          final count = newAnimalIds.length;
+          final sample = _animalPins.firstWhere(
+            (a) => newAnimalIds.contains(a.id),
+            orElse: () => _animalPins.isNotEmpty
+                ? _animalPins.first
+                : AnimalPin(
+                    id: 'sample',
+                    lat: 0,
+                    lon: 0,
+                    seenAt: DateTime.now().toUtc(),
+                  ),
+          );
+          final species = sample.speciesName ?? 'Dier';
+          final title = count == 1
+              ? 'Nieuw dier in de buurt'
+              : '$count nieuwe dieren in de buurt';
+          final body = count == 1 ? species : 'Bijv. $species en meer';
+          NotificationService.instance.show(title: title, body: body);
+        }
+        _prevAnimalIds = currentAnimalIds;
+      } catch (e) {
+        debugPrint('[MapProvider] Animal notification skipped: $e');
+      }
+
+      // Notify on newly seen detections to surface phone notifications
+      try {
+        final currentDetIds = _detectionPins.map((d) => d.id).toSet();
+        final newDetIds = currentDetIds.difference(_prevDetectionIds);
+        if (newDetIds.isNotEmpty) {
+          final count = newDetIds.length;
+          final sample = _detectionPins.firstWhere(
+            (d) => newDetIds.contains(d.id),
+            orElse: () => _detectionPins.isNotEmpty
+                ? _detectionPins.first
+                : DetectionPin(
+                    id: 'sample',
+                    lat: 0,
+                    lon: 0,
+                    detectedAt: DateTime.now().toUtc(),
+                  ),
+          );
+          final label = sample.label ?? sample.deviceType ?? 'Detectie';
+          final title = count == 1
+              ? 'Nieuwe detectie in de buurt'
+              : '$count nieuwe detecties in de buurt';
+          final body = count == 1 ? label : 'Bijv. $label en meer';
+          NotificationService.instance.show(title: title, body: body);
+        }
+        _prevDetectionIds = currentDetIds;
+      } catch (e) {
+        debugPrint('[MapProvider] Detection notification skipped: $e');
+      }
+
+      // Notify on newly seen interactions to surface phone notifications
+      try {
+        final currentIds = _interactions.map((i) => i.id).toSet();
+        final newIds = currentIds.difference(_prevInteractionIds);
+        if (newIds.isNotEmpty) {
+          final count = newIds.length;
+          // Build a concise message
+          final sample = _interactions.firstWhere(
+            (i) => newIds.contains(i.id),
+            orElse: () => _interactions.isNotEmpty
+                ? _interactions.first
+                : InteractionQueryResult(
+                    id: 'sample',
+                    lat: 0,
+                    lon: 0,
+                    moment: DateTime.now().toUtc(),
+                  ),
+          );
+          final species = sample.speciesName ?? 'Dier';
+          final title = count == 1
+              ? 'Nieuwe interactie in de buurt'
+              : '$count nieuwe interacties in de buurt';
+          final body = count == 1
+              ? 'Interactie gezien: $species'
+              : 'Bijv. $species en meer';
+          NotificationService.instance.show(title: title, body: body);
+        }
+        _prevInteractionIds = currentIds;
+      } catch (e) {
+        debugPrint('[MapProvider] Interaction notification skipped: $e');
+      }
     } catch (e) {
       debugPrint('[MapProvider] ❌ Vicinity load failed: $e');
       _animalPinsError = e.toString();
@@ -346,6 +461,33 @@ class MapProvider extends ChangeNotifier {
       _interactionsLoading = false;
       notifyListeners();
     }
+  }
+
+  /// DEV/TEST: Replace current pins with provided mock data and refresh UI
+  /// Intended only for development to quickly visualize markers on the map
+  void setMockVicinity({
+    List<AnimalPin> animals = const [],
+    List<DetectionPin> detections = const [],
+    List<InteractionQueryResult> interactions = const [],
+  }) {
+    _animalPins
+      ..clear()
+      ..addAll(animals);
+    _detectionPins
+      ..clear()
+      ..addAll(detections);
+    _interactions
+      ..clear()
+      ..addAll(interactions);
+
+    _animalPinsError = null;
+    _detectionPinsError = null;
+    _interactionsError = null;
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
+
+    notifyListeners();
   }
 
   /// Sends one tracking ping using the freshest position we have.
