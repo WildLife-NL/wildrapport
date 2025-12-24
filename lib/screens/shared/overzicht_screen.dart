@@ -9,6 +9,7 @@ import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
+import 'package:wildrapport/screens/zone/zone_management_screen.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
@@ -131,6 +132,20 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                     .pushReplacementForward(
                                       context,
                                       const KaartOverviewScreen(),
+                                    );
+                              },
+                            ),
+                            (
+                              text: 'Zone',
+                              icon: Icons.gps_fixed,
+                              imagePath: null,
+                              key: Key('zone_button'),
+                              onPressed: () {
+                                context
+                                    .read<NavigationStateInterface>()
+                                    .pushReplacementForward(
+                                      context,
+                                      const ZoneManagementScreen(),
                                     );
                               },
                             ),
