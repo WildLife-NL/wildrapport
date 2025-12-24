@@ -58,6 +58,10 @@ import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/zone_api_interface.dart';
 import 'package:wildrapport/data_managers/zone_api.dart';
 import 'package:wildrapport/providers/zone_provider.dart';
+import 'package:wildrapport/interfaces/data_apis/alarms_api_interface.dart';
+import 'package:wildrapport/data_managers/alarms_api.dart';
+import 'package:wildrapport/providers/alarms_provider.dart';
+import 'package:wildrapport/screens/alarms/alarms_screen.dart';
 
 import 'package:wildrapport/data_managers/interaction_types_api.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
@@ -101,6 +105,7 @@ void main() async {
   final belongingApi = BelongingApi(apiClient);
   final vicinityApi = VicinityApi(apiClient);
   final zoneApi = ZoneApi(apiClient);
+  final alarmsApi = AlarmsApi(apiClient);
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -109,6 +114,7 @@ void main() async {
   final mapProvider = MapProvider();
   final responseProvider = ResponseProvider();
   final zoneProvider = ZoneProvider(zoneApi: zoneApi, speciesApi: speciesApi);
+  final alarmsProvider = AlarmsProvider(alarmsApi);
 
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
@@ -164,6 +170,7 @@ void main() async {
         ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         ChangeNotifierProvider<ZoneProvider>.value(value: zoneProvider),
+        ChangeNotifierProvider<AlarmsProvider>.value(value: alarmsProvider),
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
         ),
@@ -175,6 +182,7 @@ void main() async {
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<ZoneApiInterface>.value(value: zoneApi),
+        Provider<AlarmsApiInterface>.value(value: alarmsApi),
         Provider<InteractionInterface>.value(value: interactionManager),
         Provider<InteractionTypesManager>.value(value: interactionTypesManager),
         Provider<LoginInterface>.value(value: loginManager),
