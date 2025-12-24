@@ -21,6 +21,7 @@ import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wildrapport/utils/notification_service.dart';
+import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
@@ -1216,6 +1217,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             },
           ),
           actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+              child: const LocationSharingBadge(badgeSize: 28),
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 12.0, top: 6.0),
               child: IconButton(

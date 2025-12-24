@@ -7,6 +7,7 @@ import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
+import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -234,6 +235,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+
+              SizedBox(height: responsive.spacing(16)),
+
+              // Location sharing status indicator
+              Center(
+                child: LocationSharingIndicator(
+                  showLabel: true,
+                  iconSize: 18,
                 ),
               ),
 
