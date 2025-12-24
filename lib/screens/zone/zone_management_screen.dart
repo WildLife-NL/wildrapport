@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/zone_provider.dart';
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 
 class ZoneManagementScreen extends StatefulWidget {
   const ZoneManagementScreen({super.key});
@@ -26,7 +28,36 @@ class _ZoneManagementScreenState extends State<ZoneManagementScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ZoneProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Zone Management')),
+      appBar: AppBar(
+        title: const Text('Zonebeheer'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context
+                .read<NavigationStateInterface>()
+                .pushReplacementBack(context, const OverzichtScreen());
+          },
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: (provider.createdZone != null &&
+              provider.selectedSpeciesIds.isNotEmpty)
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.check),
+              label: const Text('Geselecteerde soorten toewijzen'),
+              onPressed: provider.isSubmitting
+                  ? null
+                  : () async {
+                      await provider.assignSelectedSpecies();
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Soorten toegewezen aan zone.'),
+                        ),
+                      );
+                    },
+            )
+          : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -37,34 +68,34 @@ class _ZoneManagementScreenState extends State<ZoneManagementScreen> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Name'),
+                    decoration: const InputDecoration(labelText: 'Naam'),
                     initialValue: provider.name,
                     onChanged: provider.setName,
                     validator: (v) => (v == null || v.trim().length < 2)
-                        ? 'Min 2 characters'
+                        ? 'Minimaal 2 tekens'
                         : null,
                   ),
                   TextFormField(
                     decoration:
-                        const InputDecoration(labelText: 'Description'),
+                        const InputDecoration(labelText: 'Beschrijving'),
                     initialValue: provider.description,
                     onChanged: provider.setDescription,
                     validator: (v) => (v == null || v.trim().length < 5)
-                        ? 'Min 5 characters'
+                        ? 'Minimaal 5 tekens'
                         : null,
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Latitude'),
+                    decoration: const InputDecoration(labelText: 'Breedtegraad'),
                     keyboardType: TextInputType.number,
                     onChanged: (v) => provider.setLatitude(double.tryParse(v) ?? 0),
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Longitude'),
+                    decoration: const InputDecoration(labelText: 'Lengtegraad'),
                     keyboardType: TextInputType.number,
                     onChanged: (v) => provider.setLongitude(double.tryParse(v) ?? 0),
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Radius (m)'),
+                    decoration: const InputDecoration(labelText: 'Straal (m)'),
                     keyboardType: TextInputType.number,
                     onChanged: (v) => provider.setRadius(double.tryParse(v) ?? 1),
                   ),
@@ -79,7 +110,7 @@ class _ZoneManagementScreenState extends State<ZoneManagementScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Zone created: ${provider.createdZone?.id ?? 'unknown'}',
+                                    'Zone aangemaakt: ${provider.createdZone?.id ?? 'onbekend'}',
                                   ),
                                 ),
                               );
@@ -87,16 +118,16 @@ class _ZoneManagementScreenState extends State<ZoneManagementScreen> {
                           },
                     child: provider.isSubmitting
                         ? const CircularProgressIndicator()
-                        : const Text('Create Zone'),
+                        : const Text('Zone aanmaken'),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             if (provider.createdZone != null) ...[
-              Text('Zone ID: ${provider.createdZone!.id}'),
+              Text('Zone-ID: ${provider.createdZone!.id}'),
               const SizedBox(height: 8),
-              const Text('Select species to assign:'),
+              const Text('Selecteer soorten om toe te wijzen:'),
               const SizedBox(height: 8),
               ListView.builder(
                 shrinkWrap: true,
@@ -113,22 +144,32 @@ class _ZoneManagementScreenState extends State<ZoneManagementScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: provider.isSubmitting
-                    ? null
-                    : () async {
-                        await provider.assignSelectedSpecies();
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Species assigned to zone.'),
-                          ),
-                        );
-                      },
-                child: provider.isSubmitting
-                    ? const CircularProgressIndicator()
-                    : const Text('Assign Selected Species'),
+              const SizedBox(height: 92),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              const Text('Toegekende soorten:'),
+              const SizedBox(height: 8),
+              Builder(
+                builder: (context) {
+                  final assigned = provider.createdZone!.species;
+                  if (assigned.isEmpty) {
+                    return const Text('Geen soorten toegekend');
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: assigned.length,
+                    itemBuilder: (context, index) {
+                      final a = assigned[index];
+                      return ListTile(
+                        leading: const Icon(Icons.pets),
+                        title: Text(a.commonName ?? 'Onbekende soort'),
+                        subtitle: Text(a.category ?? ''),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ],
