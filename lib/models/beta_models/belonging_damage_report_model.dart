@@ -67,8 +67,8 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   @override
   Map<String, dynamic> toJson() {
     // Basic validation
-    if (systemLocation == null) {
-      throw StateError('System location is required for damage report');
+    if (systemLocation == null && userSelectedLocation == null) {
+      throw StateError('At least one location (system or user-selected) is required for damage report');
     }
     if (userSelectedLocation == null) {
       throw StateError('User-selected location is required for damage report');

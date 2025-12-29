@@ -53,29 +53,49 @@ class NotificationService {
   Future<void> show({
     required String title,
     required String body,
+    Importance importance = Importance.defaultImportance,
+    Priority priority = Priority.defaultPriority,
   }) async {
     if (!_initialized) await init();
 
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'default_channel',
       'General',
       channelDescription: 'General notifications',
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
+      importance: importance,
+      priority: priority,
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
 
-    const NotificationDetails details = NotificationDetails(
+    final NotificationDetails details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
 
     await _plugin.show(
-      0,
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       details,
+    );
+  }
+
+  /// Show a notification from a conveyance object
+  Future<void> showConveyanceNotification({
+    required String messageText,
+    String? animalName,
+  }) async {
+    String title = 'Nieuwe melding';
+    if (animalName != null && animalName.isNotEmpty) {
+      title = 'Melding: $animalName';
+    }
+
+    await show(
+      title: title,
+      body: messageText,
+      importance: Importance.high,
+      priority: Priority.high,
     );
   }
 }

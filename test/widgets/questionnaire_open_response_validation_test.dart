@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-/// Tests for the validation logic of QuestionnaireOpenResponse.
-/// These tests focus on the validation method behavior without widget rendering.
+
 void main() {
   group('Numeric Range Detection', () {
     test('should detect [1-5] as numeric range', () {

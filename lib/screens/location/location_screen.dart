@@ -342,23 +342,53 @@ Future<InteractionResponse?> submitReport(
 
 AccidentReport _buildAccidentReportFromSighting(dynamic sighting) {
   // Extract locations
-  final LocationModel systemLocation = sighting.locations!.firstWhere(
-    (loc) => loc.source == LocationSource.system,
-    orElse: () => throw StateError('System location is required'),
-  );
-  final LocationModel manualLocation = sighting.locations!.firstWhere(
-    (loc) => loc.source == LocationSource.manual,
-    orElse: () => systemLocation, // fall back to system if manual not set
-  );
+  // Prefer system location if available, fall back to manual if GPS wasn't acquired
+  
+  LocationModel? systemLocation;
+  LocationModel? manualLocation;
+  
+  // Find system location
+  try {
+    systemLocation = sighting.locations!.firstWhere(
+      (loc) => loc.source == LocationSource.system,
+    );
+  } catch (e) {
+    // System location not found, will try manual
+    systemLocation = null;
+  }
+  
+  // Find manual location
+  try {
+    manualLocation = sighting.locations!.firstWhere(
+      (loc) => loc.source == LocationSource.manual,
+    );
+  } catch (e) {
+    // Manual location not found, will try system
+    manualLocation = null;
+  }
+  
+  // Use system if available, otherwise use manual
+  final LocationModel? finalSystemLocationNullable = systemLocation ?? manualLocation;
+  if (finalSystemLocationNullable == null) {
+    throw StateError('At least one location (system or manual) is required');
+  }
+  final LocationModel finalSystemLocation = finalSystemLocationNullable;
+  
+  if (systemLocation == null && manualLocation != null) {
+    debugPrint('⚠️ System location not available for accident report, using manual location as fallback');
+  }
+  
+  // For manual, prefer actual manual selection, but fallback to system if not available
+  final LocationModel finalManualLocation = manualLocation ?? finalSystemLocation;
 
   // Convert locations to ReportLocation format
   final systemReportLocation = ReportLocation(
-    latitude: systemLocation.latitude,
-    longtitude: systemLocation.longitude,
+    latitude: finalSystemLocation.latitude,
+    longtitude: finalSystemLocation.longitude,
   );
   final manualReportLocation = ReportLocation(
-    latitude: manualLocation.latitude,
-    longtitude: manualLocation.longitude,
+    latitude: finalManualLocation.latitude,
+    longtitude: finalManualLocation.longitude,
   );
 
   // Transform animals to SightedAnimal format (same logic as SightingApiTransformer)

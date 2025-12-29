@@ -112,10 +112,11 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     debugPrint('[AnimalsScreen] Disposing screen');
     _scrollController.dispose();
     _animationController.dispose();
+    _searchController.dispose();
+    // Remove listener BEFORE clearing search term to prevent setState on disposed widget
+    _animalManager.removeListener(_handleStateChange);
     // Clear any lingering search term so future visits show all animals
     _animalManager.updateSearchTerm('');
-    _searchController.dispose();
-    _animalManager.removeListener(_handleStateChange);
     super.dispose();
   }
 

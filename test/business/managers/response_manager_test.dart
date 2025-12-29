@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 import 'package:wildrapport/managers/api_managers/response_manager.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
@@ -155,7 +156,7 @@ void main() {
       // Setup the mock API to return success
       when(
         mockResponseApi.addReponse(any, any, any, any),
-      ).thenAnswer((_) async => true);
+      ).thenAnswer((_) async => ResponseSubmissionResult(success: true));
 
       // Store the response directly in the format expected by submitResponses
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -204,7 +205,7 @@ void main() {
       // Setup the mock API to return failure
       when(
         mockResponseApi.addReponse(any, any, any, any),
-      ).thenAnswer((_) async => false);
+      ).thenAnswer((_) async => ResponseSubmissionResult(success: false));
 
       // Store the response directly in the format expected by submitResponses
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -275,7 +276,7 @@ void main() {
       );
       
       when(mockResponseApi.addReponse(any, any, any, any))
-          .thenAnswer((_) async => true);
+          .thenAnswer((_) async => ResponseSubmissionResult(success: true));
       
       // Act
       responseManager.init();
@@ -309,7 +310,10 @@ void main() {
         'question123',
       );
 
-      // Set connection to offline
+      // Set connection to offline - mock connectivity to return none
+      when(
+        mockConnectivity.checkConnectivity(),
+      ).thenAnswer((_) async => [ConnectivityResult.none]);
       MockConnectionChecker.mockHasConnection = false;
 
       // Act
@@ -389,7 +393,7 @@ void main() {
         // Setup the mock API to return success
         when(
           mockResponseApi.addReponse(any, any, any, any),
-        ).thenAnswer((_) async => true);
+        ).thenAnswer((_) async => ResponseSubmissionResult(success: true));
 
         // Store the responses directly
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -451,7 +455,7 @@ void main() {
       // Setup the mock API to return success instead of throwing
       when(
         mockResponseApi.addReponse(any, any, any, any),
-      ).thenAnswer((_) async => true);
+      ).thenAnswer((_) async => ResponseSubmissionResult(success: true));
 
       // Store the response directly
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -498,7 +502,7 @@ void main() {
       // Setup the mock API to return success
       when(
         mockResponseApi.addReponse(any, any, any, any),
-      ).thenAnswer((_) async => true);
+      ).thenAnswer((_) async => ResponseSubmissionResult(success: true));
 
       // Store the response directly
       SharedPreferences prefs = await SharedPreferences.getInstance();

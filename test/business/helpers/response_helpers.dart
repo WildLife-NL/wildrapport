@@ -65,11 +65,15 @@ class ResponseHelpers {
   static void setupSuccessfulResponseSubmission(
     MockResponseApiInterface mockApi,
   ) {
-    when(mockApi.addReponse(any, any, any, any)).thenAnswer((_) async => true);
+    when(mockApi.addReponse(any, any, any, any)).thenAnswer(
+      (_) async => ResponseSubmissionResult(success: true),
+    );
   }
 
   static void setupFailedResponseSubmission(MockResponseApiInterface mockApi) {
-    when(mockApi.addReponse(any, any, any, any)).thenAnswer((_) async => false);
+    when(mockApi.addReponse(any, any, any, any)).thenAnswer(
+      (_) async => ResponseSubmissionResult(success: false),
+    );
   }
 
   static void setupOfflineConnectivity(MockConnectivity mockConnectivity) {

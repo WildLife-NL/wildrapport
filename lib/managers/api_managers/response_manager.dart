@@ -6,8 +6,10 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wildrapport/interfaces/reporting/response_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
+import 'package:wildrapport/models/api_models/my_response.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 
 class ResponseManager implements ResponseInterface {
   ResponseApiInterface responseAPI;
@@ -340,14 +342,14 @@ class ResponseManager implements ResponseInterface {
               "$yellowLog [ResponseManager]: Submitting response $totalResponses - Question: ${r.questionID}",
             );
 
-            bool success = await responseAPI.addReponse(
+            final result = await responseAPI.addReponse(
               r.interactionID,
               r.questionID,
               r.answerID,
               r.text,
             );
 
-            if (!success) {
+            if (!result.success) {
               failedResponses.add(responseObj);
               debugPrint(
                 "$redLog [ResponseManager]: Response $totalResponses FAILED",
@@ -357,6 +359,26 @@ class ResponseManager implements ResponseInterface {
               debugPrint(
                 "$greenLog [ResponseManager]: Response $totalResponses SUCCESS",
               );
+              
+              // Check for conveyance and trigger notification
+              if (result.conveyance != null) {
+                final messageText = result.conveyance!.messageText;
+                if (messageText != null && messageText.isNotEmpty) {
+                  debugPrint(
+                    "$yellowLog [ResponseManager]: 🔔 Triggering notification for conveyance: $messageText",
+                  );
+                  try {
+                    await NotificationService.instance.showConveyanceNotification(
+                      messageText: messageText,
+                      animalName: result.conveyance!.animalName,
+                    );
+                  } catch (e) {
+                    debugPrint(
+                      "$redLog [ResponseManager]: Failed to show notification: $e",
+                    );
+                  }
+                }
+              }
             }
           }
 
