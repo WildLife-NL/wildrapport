@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-
 void main() {
   group('Numeric Range Detection', () {
     test('should detect [1-5] as numeric range', () {
