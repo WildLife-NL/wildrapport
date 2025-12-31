@@ -156,9 +156,9 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       return null;
     }
 
-    // Allow empty text - validation only applies when user has entered something
-    if (text.isEmpty) {
-      return null;
+    // When a format is specified, require non-empty input
+    if (text.trim().isEmpty) {
+      return 'Vul een antwoord in';
     }
 
     // Skip validation for numeric ranges (handled by slider)

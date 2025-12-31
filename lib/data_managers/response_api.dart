@@ -23,21 +23,21 @@ class ResponseApi implements ResponseApiInterface {
     String? text,
   ) async {
     // Log the payload being sent
+    final trimmedText = text?.trim();
     final payload = {
       "answerID": answerID,
       "interactionID": interactionID,
       "questionID": questionID,
-      "text": text,
+      // Avoid sending empty strings; backend regexes often reject them
+      "text": (trimmedText == null || trimmedText.isEmpty) ? null : trimmedText,
     };
-
     debugPrint("$yellowLog========================================");
     debugPrint("$yellowLog [ResponseApi]: SENDING RESPONSE TO BACKEND");
     debugPrint("$yellowLog [ResponseApi]: Endpoint: POST /response/");
     debugPrint("$yellowLog [ResponseApi]: InteractionID: $interactionID");
     debugPrint("$yellowLog [ResponseApi]: QuestionID: $questionID");
     debugPrint("$yellowLog [ResponseApi]: AnswerID: $answerID");
-    debugPrint("$yellowLog [ResponseApi]: Text: $text");
-    debugPrint("$yellowLog [ResponseApi]: Full Payload: $payload");
+    debugPrint("$yellowLog [ResponseApi]: Text: ${payload["text"]}");
     debugPrint("$yellowLog========================================");
 
     http.Response response = await client.post(

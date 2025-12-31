@@ -206,18 +206,8 @@ class MapProvider extends ChangeNotifier {
       debugPrint('[MapProvider] Map controller already initialized, skipping');
       return;
     }
-    try {
-      _isLoading = true;
-      notifyListeners();
-      _mapController = MapController();
-      await Future.delayed(const Duration(milliseconds: 100));
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      throw Exception('Failed to initialize map controller: $e');
-    }
+    _mapController = MapController();
+    notifyListeners();
   }
 
   void setMapController(MapController controller) {

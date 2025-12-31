@@ -46,6 +46,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   fm.MapOptions? _mapOptions;
   final _location = LocationMapManager();
 
+  bool _mapReady = false;
+  LatLng? _pendingCenter;
+  double? _pendingZoom;
+
   // cache things we must clean up
   late MapProvider _mp; // <— cached provider
   StreamSubscription<Position>? _posSub;
@@ -93,6 +97,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     super.didChangeDependencies();
     _mp = context.read<MapProvider>();
 
+    // Guard: ensure the map controller exists as early as possible to avoid a blank first render
+    if (!_mp.isInitialized) {
+      _mp.initialize();
+    }
+
     // Only initialize once
     if (_mapOptions == null) {
       _mapOptions = fm.MapOptions(
@@ -105,6 +114,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         initialZoom: _initialZoom,
         onMapReady: () {
           debugPrint('[Map] ready');
+          _mapReady = true;
+          _applyPendingCamera();
           _updateScaleBar();
         },
         interactionOptions: const fm.InteractionOptions(
@@ -438,6 +449,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final app = context.read<AppStateProvider>();
     final mgr = _location; // LocationMapManager
 
+    // Ensure map controller exists before first render to avoid blank map on first open
+    await map.initialize();
+
     // 1) Get a position (cache → GPS)
     Position? pos = app.isLocationCacheValid ? app.cachedPosition : null;
     pos ??= await mgr.determinePosition();
@@ -469,6 +483,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // 3) Apply immediately to provider (don't wait for address)
     await map.resetToCurrentLocation(pos, 'Locatie gevonden');
 
+    // Record desired camera so we can apply after map is ready
+    _pendingCenter = LatLng(pos.latitude, pos.longitude);
+    _pendingZoom = _initialZoom;
+    _applyPendingCamera();
+
     // 4) Send one tracking ping (R2) on first load - only if tracking is enabled
     final appStateProvider = context.read<AppStateProvider>();
     if (appStateProvider.isLocationTrackingEnabled) {
@@ -493,16 +512,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // 5) Move camera & load data after first frame so the map is mounted
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        if (map.isInitialized) {
-          map.mapController.move(
-            LatLng(pos!.latitude, pos.longitude),
-            _initialZoom,
-          );
-        } else {
-          debugPrint(
-            '[Bootstrap] Map controller not initialized yet, skipping move',
-          );
-        }
+        _pendingCenter = LatLng(pos!.latitude, pos.longitude);
+        _pendingZoom = _initialZoom;
+        _applyPendingCamera();
 
         debugPrint('[Bootstrap] Loading data from vicinity endpoint');
         try {
@@ -867,6 +879,33 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         _scaleBarWidth = chosenWidth.clamp(40, 200);
         _scaleBarLabel = label;
       });
+    }
+  }
+
+  void _applyPendingCamera() {
+    if (!_mapReady || _pendingCenter == null || _pendingZoom == null) return;
+    try {
+      _mp.mapController.move(_pendingCenter!, _pendingZoom!);
+      _nudgeMapToTriggerTiles();
+    } catch (e) {
+      debugPrint('[Map] Failed to apply pending camera: $e');
+    }
+  }
+
+  // Some devices delay tile requests until the first manual interaction; tiny nudge forces tiles to start loading immediately
+  void _nudgeMapToTriggerTiles() {
+    if (!_mp.isInitialized) return;
+    final cam = _mp.mapController.camera;
+    final LatLng c = cam.center;
+    const double delta = 0.000001; // ~0.1 m, invisible but triggers refresh
+    try {
+      _mp.mapController.move(
+        LatLng(c.latitude + delta, c.longitude + delta),
+        cam.zoom,
+      );
+      _mp.mapController.move(c, cam.zoom);
+    } catch (e) {
+      debugPrint('[Map] Nudge failed: $e');
     }
   }
 
@@ -1254,6 +1293,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             fm.TileLayer(
                               urlTemplate: LocationMapManager.standardTileUrl,
                               userAgentPackageName: 'com.wildrapport.app',
+                              // Fetch fewer offscreen tiles to speed up first paint
+                              keepBuffer: 1,
                             ),
 
                             // ── ANIMALS ───────────────────────────────────────────────────────────────
