@@ -19,10 +19,16 @@ class BelongingApi implements BelongingApiInterface {
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      final json = jsonDecode(response.body) as List;
-      return json.map((e) => Belonging.fromJson(e)).toList();
+      try {
+        final json = jsonDecode(response.body) as List;
+        return json.map((e) => Belonging.fromJson(e)).toList();
+      } catch (e) {
+        debugPrint("Failed to parse belongings response: $e");
+        return [];
+      }
     } else {
-      debugPrint("Failed to get belongings!");
+      debugPrint("Failed to get belongings! Status: ${response.statusCode}");
+      debugPrint("Response: ${response.body}");
       return [];
     }
   }

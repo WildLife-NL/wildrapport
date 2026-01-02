@@ -5,6 +5,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
+import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 
@@ -215,7 +216,10 @@ class _HistoryCard extends StatelessWidget {
                 Icon(Icons.location_on, color: Colors.grey.shade600, size: 18),
                 const SizedBox(width: 6),
                 Text(
-                  'Lat: ${interaction.place.latitude.toStringAsFixed(5)}, Lon: ${interaction.place.longitude.toStringAsFixed(5)}',
+                  formatFriendlyLocation(
+                    interaction.place.latitude,
+                    interaction.place.longitude,
+                  ),
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],
@@ -315,7 +319,10 @@ class _DetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${interaction.place.latitude.toStringAsFixed(5)}, ${interaction.place.longitude.toStringAsFixed(5)}',
+                  formatFriendlyLocation(
+                    interaction.place.latitude,
+                    interaction.place.longitude,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),

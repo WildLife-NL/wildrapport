@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
+import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:intl/intl.dart';
@@ -381,8 +382,10 @@ class _InteractionCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      'Lat: ${interaction.place.latitude.toStringAsFixed(5)}, '
-                      'Lon: ${interaction.place.longitude.toStringAsFixed(5)}',
+                      formatFriendlyLocation(
+                        interaction.place.latitude,
+                        interaction.place.longitude,
+                      ),
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

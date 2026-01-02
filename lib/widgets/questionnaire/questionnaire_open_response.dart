@@ -151,6 +151,18 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
   String? _validateText(String text) {
     final format = widget.question.openResponseFormat;
 
+    // Skip validation for numeric ranges (handled by slider)
+    // Sliders can return single digits like "1", "2", etc.
+    if (_isNumericRange) {
+      return null;
+    }
+
+    // Backend validation: minimum 2 characters required for text fields
+    // (but only after checking if it's a numeric range)
+    if (text.trim().length == 1) {
+      return 'Antwoord moet minimaal 2 karakters bevatten';
+    }
+
     // If no format specified, accept any input (including empty)
     if (format == null || format.isEmpty) {
       return null;
@@ -159,11 +171,6 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
     // When a format is specified, require non-empty input
     if (text.trim().isEmpty) {
       return 'Vul een antwoord in';
-    }
-
-    // Skip validation for numeric ranges (handled by slider)
-    if (_isNumericRange) {
-      return null;
     }
 
     // Validate against the regex pattern

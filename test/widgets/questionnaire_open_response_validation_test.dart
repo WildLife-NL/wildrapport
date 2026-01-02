@@ -226,6 +226,17 @@ Map<String, int>? _extractRange(String pattern) {
 }
 
 String? _validateText(String text, String? regex) {
+  // Skip validation for numeric range patterns (first!)
+  // Sliders can return single digits like "1", "2", etc.
+  if (_isNumericRange(regex)) {
+    return null;
+  }
+
+  // Backend validation: minimum 2 characters required for text fields
+  if (text.trim().length == 1) {
+    return 'Antwoord moet minimaal 2 karakters bevatten';
+  }
+
   // Allow empty text (optional field)
   if (text.trim().isEmpty) {
     return null;
@@ -233,11 +244,6 @@ String? _validateText(String text, String? regex) {
 
   // No regex means no validation
   if (regex == null || regex.isEmpty) {
-    return null;
-  }
-
-  // Skip validation for numeric range patterns
-  if (_isNumericRange(regex)) {
     return null;
   }
 

@@ -38,6 +38,7 @@ class ResponseApi implements ResponseApiInterface {
     debugPrint("$yellowLog [ResponseApi]: QuestionID: $questionID");
     debugPrint("$yellowLog [ResponseApi]: AnswerID: $answerID");
     debugPrint("$yellowLog [ResponseApi]: Text: ${payload["text"]}");
+    debugPrint("$yellowLog [ResponseApi]: Text length: ${payload["text"]?.toString().length ?? 0}");
     debugPrint("$yellowLog========================================");
 
     http.Response response = await client.post(

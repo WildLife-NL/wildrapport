@@ -3,6 +3,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:wildrapport/utils/location_label.dart';
 
 class InteractionDetailScreen extends StatelessWidget {
   final MyInteraction interaction;
@@ -121,13 +122,17 @@ class InteractionDetailScreen extends StatelessWidget {
                       children: [
                         _buildInfoRow(
                           'Interactie locatie',
-                          'Lat: ${interaction.location.latitude.toStringAsFixed(6)}, '
-                              'Lon: ${interaction.location.longitude.toStringAsFixed(6)}',
+                          formatFriendlyLocation(
+                            interaction.location.latitude,
+                            interaction.location.longitude,
+                          ),
                         ),
                         _buildInfoRow(
                           'Plaats',
-                          'Lat: ${interaction.place.latitude.toStringAsFixed(6)}, '
-                              'Lon: ${interaction.place.longitude.toStringAsFixed(6)}',
+                          formatFriendlyLocation(
+                            interaction.place.latitude,
+                            interaction.place.longitude,
+                          ),
                         ),
                       ],
                     ),
