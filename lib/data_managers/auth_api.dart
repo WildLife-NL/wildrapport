@@ -55,7 +55,27 @@ class AuthApi implements AuthApiInterface {
     if (response.statusCode == HttpStatus.ok) {
       debugPrint("Code Succesfully Verified!");
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      // Persist bearer token
       await prefs.setString('bearer_token', json!["token"]);
+
+      // Persist scopes if provided by backend
+      try {
+        final scopesRaw = json["scopes"];
+        if (scopesRaw is List) {
+          final scopes = scopesRaw
+              .whereType<String>()
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty)
+              .toList(growable: false);
+          await prefs.setStringList('scopes', scopes);
+          debugPrint("Stored scopes in shared preferences: $scopes");
+        } else {
+          // Clear any stale scopes if the backend didn't return them
+          await prefs.remove('scopes');
+        }
+      } catch (e) {
+        debugPrint("Failed to parse/store scopes: $e");
+      }
       debugPrint("Code stored in shared prefrences");
       debugPrint(json.toString());
       User user = User.fromJson(json);

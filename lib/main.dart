@@ -64,6 +64,8 @@ import 'package:wildrapport/data_managers/conveyance_api.dart';
 
 import 'package:wildrapport/utils/token_validator.dart';
 import 'package:wildrapport/utils/notification_service.dart';
+import 'package:wildrapport/utils/role_validator.dart';
+import 'package:wildrapport/screens/login/access_denied_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -145,9 +147,11 @@ void main() async {
 
   prefs.setStringList('interaction_cache', []);
 
-  final bool hasValidToken = await TokenValidator.hasValidToken();
-  final Widget initialScreen =
-      hasValidToken ? const OverzichtScreen() : const LoginScreen();
+    final bool hasValidToken = await TokenValidator.hasValidToken();
+    final bool hasAccess = await RoleValidator.hasAccess();
+    final Widget initialScreen = hasValidToken
+      ? (hasAccess ? const OverzichtScreen() : const AccessDeniedScreen())
+      : const LoginScreen();
 
   runApp(
     MultiProvider(
