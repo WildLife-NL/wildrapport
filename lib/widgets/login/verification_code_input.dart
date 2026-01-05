@@ -15,6 +15,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/utils/role_validator.dart';
+import 'package:wildrapport/screens/login/access_denied_screen.dart';
 
 class VerificationCodeInput extends StatefulWidget {
   final VoidCallback onBack;
@@ -63,6 +65,16 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
       final profile = await profileApi.fetchMyProfile(); // also caches
       if (!mounted) return;
 
+      // Check role-based access before proceeding
+      final hasAccess = await RoleValidator.hasAccess();
+      if (!hasAccess) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
+          (_) => false,
+        );
+        return;
+      }
+
       if (profile.reportAppTerms == true) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const OverzichtScreen()),
@@ -77,10 +89,19 @@ class _VerificationCodeInputState extends State<VerificationCodeInput>
     } catch (e) {
       // If anything goes wrong, keep the OLD behavior: go to Overzicht
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const OverzichtScreen()),
-        (_) => false,
-      );
+      // Even on fallback, enforce role-based access if scopes are present
+      final hasAccess = await RoleValidator.hasAccess();
+      if (hasAccess) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+          (_) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
+          (_) => false,
+        );
+      }
     }
   }
 
