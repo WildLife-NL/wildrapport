@@ -959,7 +959,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          'Filter Map Icons',
+                                          'Kaarticonen filteren',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             color: Colors.white,
@@ -1017,7 +1017,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   ),
                                 ),
                                 _buildFilterCheckbox(
-                                  'New (< 24 hours)',
+                                  'Nieuw (< 24 uur)',
                                   _showAnimalsNew,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1027,7 +1027,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.fiber_new,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
+                                  'Recent (24u - 1 week)',
                                   _showAnimalsMedium,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1037,7 +1037,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.access_time,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Old (> 1 week)',
+                                  'Oud (> 1 week)',
                                   _showAnimalsOld,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1072,7 +1072,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   ),
                                 ),
                                 _buildFilterCheckbox(
-                                  'New (< 24 hours)',
+                                  'Nieuw (< 24 uur)',
                                   _showDetectionsNew,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1082,7 +1082,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.fiber_new,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
+                                  'Recent (24u - 1 week)',
                                   _showDetectionsMedium,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1092,7 +1092,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.access_time,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Old (> 1 week)',
+                                  'Oud (> 1 week)',
                                   _showDetectionsOld,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1127,7 +1127,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   ),
                                 ),
                                 _buildFilterCheckbox(
-                                  'New (< 24 hours)',
+                                  'Nieuw (< 24 uur)',
                                   _showInteractionsNew,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1137,7 +1137,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.fiber_new,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Recent (24h - 1 week)',
+                                  'Recent (24u - 1 week)',
                                   _showInteractionsMedium,
                                   (v) => setDialogState(
                                     () => setState(
@@ -1147,7 +1147,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   Icons.access_time,
                                 ),
                                 _buildFilterCheckbox(
-                                  'Old (> 1 week)',
+                                  'Oud (> 1 week)',
                                   _showInteractionsOld,
                                   (v) => setDialogState(
                                     () => setState(
@@ -2025,7 +2025,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               Icons.explore,
                               color: Colors.black,
                             ),
-                            tooltip: 'Reset map rotation',
+                            tooltip: 'Kaartrotatie resetten',
                             onPressed: () {
                               // Reset map rotation to north (0 degrees)
                               map.mapController.rotate(0);
@@ -2055,9 +2055,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                       ),
                                     )
                                     : Icon(
-                                      _showTrackingHistory
-                                          ? Icons.timeline
-                                          : Icons.history,
+                                      Icons.timeline,
                                       color: Colors.white,
                                     ),
                             onPressed:
@@ -2131,7 +2129,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                   ),
                 ),
         floatingActionButton: FloatingActionButton(
-          tooltip: 'Center on me',
+          tooltip: 'Centreer op mijn locatie',
           backgroundColor: AppColors.darkGreen,
           child: const Icon(Icons.my_location, color: Colors.white),
           onPressed: () async {

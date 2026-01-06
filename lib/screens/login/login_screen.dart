@@ -123,24 +123,25 @@ class _LoginScreenState extends State<LoginScreen> {
               clipBehavior: Clip.none,
               children: [
                 Center(
-                  child: Column(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/LogoWildlifeNL.png',
+                        'assets/app_logo.png',
+                        // Scales sensibly across breakpoints
                         width: ru.breakpointValue<double>(
-                          small: ru.wp(60),
-                          medium: ru.wp(40),
-                          large: ru.wp(35),
-                          extraLarge: ru.wp(30),
+                          small: ru.wp(14),
+                          medium: ru.wp(12),
+                          large: ru.wp(10),
+                          extraLarge: ru.wp(9),
                         ),
                         fit: BoxFit.contain,
                       ),
-                      SizedBox(height: ru.spacing(12)),
+                      SizedBox(width: ru.spacing(8)),
                       Text(
                         'Wild Rapport',
-                        style:
-                            AppTextTheme.textTheme.titleLarge?.copyWith(
+                        style: AppTextTheme.textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: ru.adaptiveFont(

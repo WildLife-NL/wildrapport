@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/api_models/detection_pin.dart';
 import '../../constants/app_colors.dart';
+import 'package:wildrapport/utils/translation_utils.dart';
 
 class DetectionDetailDialog extends StatelessWidget {
   final DetectionPin detection;
@@ -53,7 +54,7 @@ class DetectionDetailDialog extends StatelessWidget {
                           if (detection.label != null) ...[
                             const SizedBox(height: 4),
                             Text(
-                              detection.label!,
+                              Translator.toDutch(detection.label!),
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
@@ -74,7 +75,7 @@ class DetectionDetailDialog extends StatelessWidget {
                     Icons.devices,
                     'Apparaat Type',
                     Text(
-                      detection.deviceType!,
+                      Translator.toDutch(detection.deviceType!),
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.darkGreen,

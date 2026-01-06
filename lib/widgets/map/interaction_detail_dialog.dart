@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:intl/intl.dart';
+import 'package:wildrapport/utils/translation_utils.dart';
 
 /// A detailed dialog for displaying interaction information from the map.
 /// Displays rich information about animal sightings, detections, or interactions.
@@ -49,7 +50,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         ),
                         if (interaction.typeName != null)
                           Text(
-                            interaction.typeName!,
+                            Translator.toDutch(interaction.typeName!),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -152,7 +153,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         icon: Icons.description,
                         title: 'Beschrijving',
                         content: Text(
-                          interaction.description!,
+                          Translator.toDutch(interaction.description!),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black87,
@@ -418,9 +419,12 @@ class InteractionDetailDialog extends StatelessWidget {
       case 'female':
       case 'vrouwelijk':
         return 'Vrouwelijk';
+      case 'unknown':
+      case 'onbekend':
+        return 'Onbekend';
       case 'other':
       case 'anders':
-        return 'Onbekend geslacht';
+        return 'Overig';
       default:
         return null;
     }
@@ -433,10 +437,14 @@ class InteractionDetailDialog extends StatelessWidget {
       case 'pasgeboren':
         return 'Pas geboren';
       case 'juvenile':
+      case 'adolescent':
       case 'young':
       case 'jong':
       case 'onvolwassen':
         return 'Jong';
+      case 'unknown':
+      case 'onbekend':
+        return 'Onbekend';
       case 'adult':
       case 'volwassen':
         return 'Volwassen';
@@ -456,6 +464,9 @@ class InteractionDetailDialog extends StatelessWidget {
       case 'injured':
       case 'gewond':
         return 'Gewond';
+      case 'unknown':
+      case 'onbekend':
+        return 'Onbekend';
       default:
         return null;
     }
