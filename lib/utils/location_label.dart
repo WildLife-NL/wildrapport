@@ -1,111 +1,75 @@
+import 'dart:math';
 import 'package:latlong2/latlong.dart';
 
-class ProvincePolygon {
+class City {
   final String name;
-  final List<LatLng> vertices;
-  const ProvincePolygon(this.name, this.vertices);
+  final double lat;
+  final double lon;
+  const City(this.name, this.lat, this.lon);
 }
 
-// Simplified province rectangles (approximate) to give a friendly label.
-const List<ProvincePolygon> _provinces = [
-  ProvincePolygon('Drenthe', [
-    LatLng(53.2, 6.1),
-    LatLng(53.2, 7.1),
-    LatLng(52.6, 7.1),
-    LatLng(52.6, 6.1),
-  ]),
-  ProvincePolygon('Flevoland', [
-    LatLng(52.8, 5.2),
-    LatLng(52.8, 5.9),
-    LatLng(52.2, 5.9),
-    LatLng(52.2, 5.2),
-  ]),
-  ProvincePolygon('Friesland', [
-    LatLng(53.6, 5.2),
-    LatLng(53.6, 6.4),
-    LatLng(52.8, 6.4),
-    LatLng(52.8, 5.2),
-  ]),
-  ProvincePolygon('Gelderland', [
-    LatLng(52.3, 5.3),
-    LatLng(52.3, 6.5),
-    LatLng(51.7, 6.5),
-    LatLng(51.7, 5.3),
-  ]),
-  ProvincePolygon('Groningen', [
-    LatLng(53.6, 6.5),
-    LatLng(53.6, 7.2),
-    LatLng(53.1, 7.2),
-    LatLng(53.1, 6.5),
-  ]),
-  ProvincePolygon('Limburg', [
-    LatLng(51.4, 5.6),
-    LatLng(51.4, 6.2),
-    LatLng(50.7, 6.2),
-    LatLng(50.7, 5.6),
-  ]),
-  ProvincePolygon('Noord-Brabant', [
-    LatLng(51.8, 4.2),
-    LatLng(51.8, 6.0),
-    LatLng(51.3, 6.0),
-    LatLng(51.3, 4.2),
-  ]),
-  ProvincePolygon('Noord-Holland', [
-    LatLng(53.2, 4.5),
-    LatLng(53.2, 5.5),
-    LatLng(52.2, 5.5),
-    LatLng(52.2, 4.5),
-  ]),
-  ProvincePolygon('Overijssel', [
-    LatLng(53.1, 5.8),
-    LatLng(53.1, 7.1),
-    LatLng(52.2, 7.1),
-    LatLng(52.2, 5.8),
-  ]),
-  ProvincePolygon('Utrecht', [
-    LatLng(52.3, 4.9),
-    LatLng(52.3, 5.7),
-    LatLng(52.0, 5.7),
-    LatLng(52.0, 4.9),
-  ]),
-  ProvincePolygon('Zeeland', [
-    LatLng(51.7, 3.4),
-    LatLng(51.7, 4.3),
-    LatLng(51.3, 4.3),
-    LatLng(51.3, 3.4),
-  ]),
-  ProvincePolygon('Zuid-Holland', [
-    LatLng(52.3, 3.9),
-    LatLng(52.3, 5.0),
-    LatLng(51.8, 5.0),
-    LatLng(51.8, 3.9),
-  ]),
+// Major Dutch cities with approximate coordinates
+const List<City> _cities = [
+  City('Amsterdam', 52.3676, 4.9041),
+  City('Rotterdam', 51.9225, 4.4792),
+  City('Den Haag', 52.0705, 4.2993),
+  City('Utrecht', 52.0907, 5.1214),
+  City('Eindhoven', 51.4416, 5.4697),
+  City('Groningen', 53.2194, 6.5665),
+  City('Zwolle', 52.5092, 6.0921),
+  City('Maastricht', 50.8513, 5.6869),
+  City('Haarlem', 52.3894, 4.6369),
+  City('Arnhem', 51.9851, 5.8987),
+  City('Almere', 52.3667, 5.2333),
+  City('Enschede', 52.2215, 6.8936),
+  City('Apeldoorn', 52.2100, 5.9700),
+  City('Nijmegen', 51.8452, 5.8520),
+  City('Tilburg', 51.5603, 5.0878),
+  City('Breda', 51.5897, 4.7789),
+  City('s-Hertogenbosch', 51.6927, 5.3012),
+  City('Dordrecht', 51.8133, 4.6697),
+  City('Leiden', 52.1601, 4.4852),
+  City('Leeuwarden', 53.2012, 5.7878),
+  City('Almelo', 52.3567, 6.6656),
+  City('Delft', 52.0116, 4.3571),
+  City('Gouda', 51.9719, 4.7119),
+  City('Alkmaar', 52.6328, 4.7353),
+  City('Middelburg', 51.4987, 3.6142),
+  City('Deventer', 52.2565, 6.1617),
+  City('Kampen', 52.5599, 5.8883),
+  City('Winterswijk', 52.1039, 6.7656),
+  City('Venlo', 51.3639, 6.1689),
+  City('Roermond', 51.1924, 5.9881),
 ];
 
-bool _pointInPolygon(LatLng point, List<LatLng> poly) {
-  bool inside = false;
-  for (int i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    final xi = poly[i].latitude, yi = poly[i].longitude;
-    final xj = poly[j].latitude, yj = poly[j].longitude;
-    final intersect = ((yi > point.longitude) != (yj > point.longitude)) &&
-        (point.latitude < (xj - xi) * (point.longitude - yi) / (yj - yi) + xi);
-    if (intersect) inside = !inside;
-  }
-  return inside;
+double _distance(double lat1, double lon1, double lat2, double lon2) {
+  const p = 0.017453292519943295;
+  final a = 0.5 -
+      cos((lat2 - lat1) * p) / 2 +
+      cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
+  return 12742 * asin(sqrt(a));
 }
 
-String _findProvince(double lat, double lon) {
-  final point = LatLng(lat, lon);
-  for (final province in _provinces) {
-    if (_pointInPolygon(point, province.vertices)) {
-      return province.name;
+String _findNearestCity(double lat, double lon) {
+  if (_cities.isEmpty) return '';
+  
+  City nearest = _cities[0];
+  double minDist = _distance(lat, lon, nearest.lat, nearest.lon);
+  
+  for (final city in _cities) {
+    final dist = _distance(lat, lon, city.lat, city.lon);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = city;
     }
   }
-  return '';
+  
+  // Only return city if within ~15 km
+  return minDist < 15 ? nearest.name : '';
 }
 
 String formatFriendlyLocation(double lat, double lon) {
-  final area = _findProvince(lat, lon);
+  final city = _findNearestCity(lat, lon);
   final coords = '${lat.toStringAsFixed(3)}/${lon.toStringAsFixed(3)}';
-  return area.isNotEmpty ? '$area $coords' : coords;
+  return city.isNotEmpty ? '$city $coords' : coords;
 }
