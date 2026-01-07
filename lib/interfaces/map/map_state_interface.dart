@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:wildrapport/config/mock_location.dart';
 
 abstract class MapStateInterface {
   static const double minLat = 51.2;
@@ -8,7 +9,10 @@ abstract class MapStateInterface {
   static const double minLng = 4.9;
   static const double maxLng = 5.9;
 
-  static const LatLng denBoschCenter = LatLng(51.6988, 5.3041);
+  static const LatLng denBoschCenter = LatLng(
+    MockLocationConfig.kMockLat,
+    MockLocationConfig.kMockLon,
+  );
   static const String standardTileUrl =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String satelliteTileUrl =

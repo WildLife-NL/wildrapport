@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/config/mock_location.dart';
 
 class FreshPositionResult {
   final Position? provisional; // last known (may be null)
@@ -15,6 +16,22 @@ class LocationHelpers {
     Duration freshTimeout = const Duration(seconds: 7),
     double goodEnoughAccuracyMeters = 5, // tighten if you want
   }) async {
+    // Short-circuit with mocked position when enabled
+    if (MockLocationConfig.kForceMockLocation) {
+      final mock = Position(
+        latitude: MockLocationConfig.kMockLat,
+        longitude: MockLocationConfig.kMockLon,
+        timestamp: DateTime.now(),
+        accuracy: 3.0,
+        altitude: 0.0,
+        heading: 0.0,
+        speed: 0.0,
+        speedAccuracy: 0.0,
+        altitudeAccuracy: 0.0,
+        headingAccuracy: 0.0,
+      );
+      return FreshPositionResult(provisional: mock, fresh: mock);
+    }
     // 1) Permissions + service
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {

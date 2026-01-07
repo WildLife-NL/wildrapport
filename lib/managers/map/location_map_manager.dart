@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
+import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/interfaces/map/map_service_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 
@@ -18,7 +19,11 @@ class LocationMapManager
   static const double minLng = 3.35; // Western Netherlands border
   static const double maxLng = 7.25;
 
-  static const LatLng denBoschCenter = LatLng(51.6988, 5.3041);
+  // Default center used across maps when no position is available
+  static const LatLng denBoschCenter = LatLng(
+    MockLocationConfig.kMockLat,
+    MockLocationConfig.kMockLon,
+  );
   static const String standardTileUrl =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String satelliteTileUrl =
@@ -80,6 +85,22 @@ class LocationMapManager
   @override
   Future<Position?> determinePosition() async {
     try {
+      // Mocked location: return immediately if enabled
+      if (MockLocationConfig.kForceMockLocation) {
+        return Position(
+          latitude: MockLocationConfig.kMockLat,
+          longitude: MockLocationConfig.kMockLon,
+          timestamp: DateTime.now(),
+          accuracy: 5.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0,
+          altitudeAccuracy: 0.0,
+          headingAccuracy: 0.0,
+        );
+      }
+
       if (!await Geolocator.isLocationServiceEnabled()) {
         debugPrint('Location services are disabled');
         return null;

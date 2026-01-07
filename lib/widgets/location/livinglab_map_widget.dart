@@ -113,7 +113,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       return;
     }
 
-    final lastPosition = await Geolocator.getLastKnownPosition();
+    // Use service to resolve position (supports mocking)
+    final lastPosition = await _locationService.determinePosition();
     if (!mounted) return;
 
     if (lastPosition != null) {
@@ -198,12 +199,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
-        ),
-      );
+      final position = await _locationService.determinePosition();
 
       if (!mounted) return;
 
@@ -216,11 +212,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   Future<void> _getReducedAccuracyLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.reduced,
-        ),
-      );
+      final position = await _locationService.determinePosition();
 
       if (!mounted) return;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/interfaces/location/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
@@ -65,14 +66,27 @@ class LocationScreenManager implements LocationScreenInterface {
               }
             : null;
       } else {
-        currentPosition = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 5),
-          ),
-        ).catchError((error) {
-          throw error;
-        });
+        currentPosition = MockLocationConfig.kForceMockLocation
+            ? Position(
+                latitude: MockLocationConfig.kMockLat,
+                longitude: MockLocationConfig.kMockLon,
+                timestamp: DateTime.now(),
+                accuracy: 5.0,
+                altitude: 0.0,
+                heading: 0.0,
+                speed: 0.0,
+                speedAccuracy: 0.0,
+                altitudeAccuracy: 0.0,
+                headingAccuracy: 0.0,
+              )
+            : await Geolocator.getCurrentPosition(
+                locationSettings: const LocationSettings(
+                  accuracy: LocationAccuracy.high,
+                  timeLimit: Duration(seconds: 5),
+                ),
+              ).catchError((error) {
+                throw error;
+              });
 
         final address = await locationService.getAddressFromPosition(
           currentPosition,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
@@ -113,12 +114,28 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     });
 
     try {
-      final positionStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 1, // Update roughly every 1 meter
-        ),
-      );
+      final positionStream = MockLocationConfig.kForceMockLocation
+          ? Stream<Position>.periodic(
+              const Duration(seconds: 2),
+              (_) => Position(
+                latitude: MockLocationConfig.kMockLat,
+                longitude: MockLocationConfig.kMockLon,
+                timestamp: DateTime.now(),
+                accuracy: 3.0,
+                altitude: 0.0,
+                heading: 0.0,
+                speed: 0.0,
+                speedAccuracy: 0.0,
+                altitudeAccuracy: 0.0,
+                headingAccuracy: 0.0,
+              ),
+            )
+          : Geolocator.getPositionStream(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+                distanceFilter: 1, // Update roughly every 1 meter
+              ),
+            );
 
       positionStream.listen((Position position) {
         if (!_isGpsRecording) return;
@@ -196,22 +213,41 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
 
   Future<void> _loadCurrentLocation() async {
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = MockLocationConfig.kForceMockLocation
+          ? true
+          : await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return;
       }
-      var permission = await Geolocator.checkPermission();
+        var permission = MockLocationConfig.kForceMockLocation
+          ? LocationPermission.always
+          : await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = MockLocationConfig.kForceMockLocation
+          ? LocationPermission.always
+          : await Geolocator.requestPermission();
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         return;
       }
 
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
+      final pos = MockLocationConfig.kForceMockLocation
+          ? Position(
+              latitude: MockLocationConfig.kMockLat,
+              longitude: MockLocationConfig.kMockLon,
+              timestamp: DateTime.now(),
+              accuracy: 3.0,
+              altitude: 0.0,
+              heading: 0.0,
+              speed: 0.0,
+              speedAccuracy: 0.0,
+              altitudeAccuracy: 0.0,
+              headingAccuracy: 0.0,
+            )
+          : await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.best,
+            );
       final here = LatLng(pos.latitude, pos.longitude);
       if (!mounted) return;
       setState(() {
@@ -231,12 +267,18 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
 
   Future<void> _startLiveLocationUpdates() async {
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = MockLocationConfig.kForceMockLocation
+          ? true
+          : await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) return;
 
-      var permission = await Geolocator.checkPermission();
+        var permission = MockLocationConfig.kForceMockLocation
+          ? LocationPermission.always
+          : await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = MockLocationConfig.kForceMockLocation
+          ? LocationPermission.always
+          : await Geolocator.requestPermission();
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
@@ -244,12 +286,28 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
       }
 
       _liveLocationSub?.cancel();
-      final stream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 1,
-        ),
-      );
+      final stream = MockLocationConfig.kForceMockLocation
+          ? Stream<Position>.periodic(
+              const Duration(seconds: 2),
+              (_) => Position(
+                latitude: MockLocationConfig.kMockLat,
+                longitude: MockLocationConfig.kMockLon,
+                timestamp: DateTime.now(),
+                accuracy: 3.0,
+                altitude: 0.0,
+                heading: 0.0,
+                speed: 0.0,
+                speedAccuracy: 0.0,
+                altitudeAccuracy: 0.0,
+                headingAccuracy: 0.0,
+              ),
+            )
+          : Geolocator.getPositionStream(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+                distanceFilter: 1,
+              ),
+            );
       _liveLocationSub = stream.listen((pos) {
         // Ignore low-accuracy points (> threshold)
         if (pos.accuracy > _accuracyThresholdM) {
