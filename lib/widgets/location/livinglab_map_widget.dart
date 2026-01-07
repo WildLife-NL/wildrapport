@@ -202,8 +202,11 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       final position = await _locationService.determinePosition();
 
       if (!mounted) return;
-
-      await _handleUserLocation(position, animate: false);
+      if (position != null) {
+        await _handleUserLocation(position, animate: false);
+      } else {
+        await _getReducedAccuracyLocation();
+      }
     } catch (e) {
       debugPrint('Error getting location: $e');
       await _getReducedAccuracyLocation();
@@ -215,8 +218,17 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       final position = await _locationService.determinePosition();
 
       if (!mounted) return;
-
-      await _handleUserLocation(position, animate: false);
+      if (position != null) {
+        await _handleUserLocation(position, animate: false);
+      } else {
+        debugPrint('Reduced accuracy location unavailable');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _currentAddress = 'Locatie niet beschikbaar';
+          });
+        }
+      }
     } catch (e) {
       debugPrint('Error getting reduced accuracy location: $e');
       if (mounted) {
