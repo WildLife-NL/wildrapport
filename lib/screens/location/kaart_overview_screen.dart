@@ -20,7 +20,6 @@ import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
 import 'dart:async';
 import 'dart:convert';
