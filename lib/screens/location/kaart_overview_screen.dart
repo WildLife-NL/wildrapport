@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/widgets/overlay/encounter_message_overlay.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
@@ -202,36 +201,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _lastNoticeKey = key;
 
       debugPrint('[Kaart] Scheduling popup dialog to show');
-
-      // Schedule the dialog to show after the current frame completes
-      // This ensures we're not modifying the widget tree during a build
-      Future.microtask(() {
-        if (!mounted) return;
-
-        // Use a post-frame callback as an extra safety layer
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-
-          try {
-            debugPrint('[Kaart] 🎉 Showing message-style popup: "${n.text}"');
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder:
-                  (_) => EncounterMessageOverlay(
-                    message: n.text,
-                    title:
-                        n.severity == 1
-                            ? 'Waarschuwing'
-                            : (n.severity == 2 ? 'Melding' : 'Informatie'),
-                    severity: n.severity,
-                  ),
-            );
-          } catch (e) {
-            debugPrint('[Kaart] ❌ Failed to show tracking notice: $e');
-          }
-        });
-      });
+      // Do not show in-map popup dialogs; phone notifications are handled
+      // via NotificationService in MapProvider. This listener now only logs.
+      debugPrint('[Kaart] ℹ️ Map popup suppressed (phone notification only)');
     };
 
     if (!_listenerAttached) {
