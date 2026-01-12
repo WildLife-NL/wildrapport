@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
@@ -16,6 +17,7 @@ void main() {
   late MockAnimalSightingReportingInterface mockAnimalSightingManager;
   late AppStateProvider mockAppStateProvider;
   late MockMapProvider mockMapProvider;
+  late MockInteractionTypesManager mockInteractionTypesManager;
 
   setUpAll(() async {
     // Setup environment for all tests
@@ -29,6 +31,8 @@ void main() {
         RapporterenHelpers.getMockAnimalSightingManager();
     mockAppStateProvider = AppStateProvider();
     mockMapProvider = RapporterenHelpers.getMockMapProvider();
+    mockInteractionTypesManager = 
+        RapporterenHelpers.getMockInteractionTypesManager();
 
     // Setup successful navigation by default
     RapporterenHelpers.setupSuccessfulNavigation(mockNavigationManager);
@@ -45,6 +49,9 @@ void main() {
           value: mockAppStateProvider,
         ),
         ChangeNotifierProvider<MapProvider>.value(value: mockMapProvider),
+        Provider<InteractionTypesManager>.value(
+          value: mockInteractionTypesManager,
+        ),
       ],
       child: MaterialApp(
         home: Scaffold(

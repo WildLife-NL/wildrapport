@@ -66,7 +66,7 @@ void main() {
       expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
     });
 
-    testWidgets('should update count when counter buttons are pressed', (
+    testWidgets('should update count when the wheel is scrolled', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
@@ -80,12 +80,12 @@ void main() {
       await tester.tap(find.text('Volwassen'));
       await tester.pumpAndSettle();
 
-      // Find and tap the increment button using the "+" text
-      await tester.tap(find.text('+'));
+      // Scroll the number wheel down by one item (1 -> 2)
+      await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -40));
       await tester.pumpAndSettle();
 
-      // Instead of verifying a method call, just check that the test completes without errors
-      expect(true, isTrue); // This will always pass if we get to this point
+      // Verify that the new value appears in the wheel
+      expect(find.text('2'), findsWidgets);
     });
 
     testWidgets('should show error overlay when an error occurs', (

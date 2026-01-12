@@ -25,9 +25,6 @@ class BelongingDamageApiTransformer {
       throw StateError('At least one location (system or user-selected) is required for damage report');
     }
     
-    // Use whichever location is available (prefer system, but accept user-selected if GPS wasn't acquired)
-    final locationToUse = report.systemLocation ?? report.userSelectedLocation;
-    
     if (report.userSelectedLocation == null) {
       throw StateError('User-selected location is required for damage report');
     }

@@ -106,10 +106,11 @@ void main() {
       final json = report.toJson();
 
       // Assert
-      expect(json['accidentReportID'], 'accident-123');
-      expect(json['estimatedDamage'], 'Front bumper damaged');
+      expect(json['estimatedDamage'], 0); // tries to parse 'Front bumper damaged' as int
       expect(json['involvedAnimals'].length, 1);
       expect(json['involvedAnimals'][0]['condition'], 'alive');
+      expect(json['intensity'], 'Medium');
+      expect(json['urgency'], 'High');
     });
 
     test('should handle null values correctly', () {

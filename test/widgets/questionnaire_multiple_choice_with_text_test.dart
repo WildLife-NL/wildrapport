@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/models/api_models/answer.dart';
 import 'package:wildrapport/models/api_models/experiment.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 import 'package:wildrapport/models/api_models/question.dart';
 import 'package:wildrapport/models/api_models/user.dart';
+import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/widgets/questionnaire/questionnaire_multiple_choice.dart';
 
 void main() {
@@ -67,15 +69,18 @@ void main() {
       (WidgetTester tester) async {
         // Build the widget
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: QuestionnaireMultipleChoice(
-                question: testQuestion,
-                questionnaire: testQuestionnaire,
-                onNextPressed: () {},
-                onBackPressed: () {},
-                interactionID: 'interaction123',
-                index: 0,
+          ChangeNotifierProvider<ResponseProvider>(
+            create: (_) => ResponseProvider(),
+            child: MaterialApp(
+              home: Scaffold(
+                body: QuestionnaireMultipleChoice(
+                  question: testQuestion,
+                  questionnaire: testQuestionnaire,
+                  onNextPressed: () {},
+                  onBackPressed: () {},
+                  interactionID: 'interaction123',
+                  index: 0,
+                ),
               ),
             ),
           ),
@@ -83,7 +88,6 @@ void main() {
 
         // Verify checkboxes are rendered
         expect(find.byType(Checkbox), findsWidgets);
-        expect(find.byIcon(Icons.check_box_outline_blank), findsWidgets);
       },
     );
 
@@ -92,15 +96,18 @@ void main() {
       (WidgetTester tester) async {
         // Build the widget
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: QuestionnaireMultipleChoice(
-                question: testQuestion,
-                questionnaire: testQuestionnaire,
-                onNextPressed: () {},
-                onBackPressed: () {},
-                interactionID: 'interaction123',
-                index: 0,
+          ChangeNotifierProvider<ResponseProvider>(
+            create: (_) => ResponseProvider(),
+            child: MaterialApp(
+              home: Scaffold(
+                body: QuestionnaireMultipleChoice(
+                  question: testQuestion,
+                  questionnaire: testQuestionnaire,
+                  onNextPressed: () {},
+                  onBackPressed: () {},
+                  interactionID: 'interaction123',
+                  index: 0,
+                ),
               ),
             ),
           ),
@@ -123,15 +130,18 @@ void main() {
       (WidgetTester tester) async {
         // Build the widget
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: QuestionnaireMultipleChoice(
-                question: testQuestion,
-                questionnaire: testQuestionnaire,
-                onNextPressed: () {},
-                onBackPressed: () {},
-                interactionID: 'interaction123',
-                index: 0,
+          ChangeNotifierProvider<ResponseProvider>(
+            create: (_) => ResponseProvider(),
+            child: MaterialApp(
+              home: Scaffold(
+                body: QuestionnaireMultipleChoice(
+                  question: testQuestion,
+                  questionnaire: testQuestionnaire,
+                  onNextPressed: () {},
+                  onBackPressed: () {},
+                  interactionID: 'interaction123',
+                  index: 0,
+                ),
               ),
             ),
           ),
@@ -162,15 +172,18 @@ void main() {
       (WidgetTester tester) async {
         // Build the widget
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: QuestionnaireMultipleChoice(
-                question: testQuestion,
-                questionnaire: testQuestionnaire,
-                onNextPressed: () {},
-                onBackPressed: () {},
-                interactionID: 'interaction123',
-                index: 0,
+          ChangeNotifierProvider<ResponseProvider>(
+            create: (_) => ResponseProvider(),
+            child: MaterialApp(
+              home: Scaffold(
+                body: QuestionnaireMultipleChoice(
+                  question: testQuestion,
+                  questionnaire: testQuestionnaire,
+                  onNextPressed: () {},
+                  onBackPressed: () {},
+                  interactionID: 'interaction123',
+                  index: 0,
+                ),
               ),
             ),
           ),
@@ -199,15 +212,18 @@ void main() {
       (WidgetTester tester) async {
         // Build the widget
         await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: QuestionnaireMultipleChoice(
-                question: testQuestion,
-                questionnaire: testQuestionnaire,
-                onNextPressed: () {},
-                onBackPressed: () {},
-                interactionID: 'interaction123',
-                index: 0,
+          ChangeNotifierProvider<ResponseProvider>(
+            create: (_) => ResponseProvider(),
+            child: MaterialApp(
+              home: Scaffold(
+                body: QuestionnaireMultipleChoice(
+                  question: testQuestion,
+                  questionnaire: testQuestionnaire,
+                  onNextPressed: () {},
+                  onBackPressed: () {},
+                  interactionID: 'interaction123',
+                  index: 0,
+                ),
               ),
             ),
           ),

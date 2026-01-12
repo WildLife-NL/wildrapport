@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
+import 'package:wildrapport/models/api_models/interaction_type.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import '../mock_generator.mocks.dart';
+
+class MockInteractionTypesManager extends Mock
+  implements InteractionTypesManager {}
 
 class RapporterenHelpers {
   static Future<void> setupEnvironment() async {
@@ -31,6 +36,39 @@ class RapporterenHelpers {
     when(mockMapProvider.initialize()).thenAnswer((_) => Future.value());
 
     return mockMapProvider;
+  }
+
+  static MockInteractionTypesManager getMockInteractionTypesManager() {
+    final mockInteractionTypesManager = MockInteractionTypesManager();
+    
+    // Provide mock interaction types
+    final mockTypes = [
+      InteractionType(
+        id: 1,
+        name: 'Waarneming',
+        description: 'Animal sighting',
+      ),
+      InteractionType(
+        id: 2,
+        name: 'Gewasschade',
+        description: 'Crop damage',
+      ),
+      InteractionType(
+        id: 3,
+        name: 'Diergezondheid',
+        description: 'Animal health',
+      ),
+      InteractionType(
+        id: 4,
+        name: 'Verkeersongeval',
+        description: 'Traffic accident',
+      ),
+    ];
+    
+    when(mockInteractionTypesManager.ensureFetched())
+      .thenAnswer((_) => Future.value(mockTypes));
+    
+    return mockInteractionTypesManager;
   }
 
   static void setupSuccessfulNavigation(

@@ -12,7 +12,7 @@ class AnimalManager
         AnimalSelectionInterface,
         AnimalManagerInterface {
   final _listeners = <Function()>[];
-  String _selectedFilter = FilterType.alphabetical.displayText;
+  String _selectedFilter = 'Filteren';
   final SpeciesApiInterface _speciesApi;
   final FilterInterface _filterManager;
   List<AnimalModel>? _cachedAnimals;
@@ -40,6 +40,14 @@ class AnimalManager
             ),
           )
           .toList();
+
+      // Add 'Onbekend' animal at the end
+      _cachedAnimals!.add(AnimalModel(
+        animalId: 'unknown',
+        animalImagePath: null,
+        animalName: 'Onbekend',
+        genderViewCounts: [],
+      ));
 
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {

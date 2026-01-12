@@ -157,9 +157,21 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
       return null;
     }
 
-    // Backend validation: minimum 2 characters required for text fields
-    // (but only after checking if it's a numeric range)
-    if (text.trim().length == 1) {
+    // Allow empty text (optional field)
+    if (text.trim().isEmpty && (format == null || format.isEmpty)) {
+      return null;
+    }
+
+    // For pure numeric patterns, allow single digit
+    if (format != null && 
+        format.contains(r'\d') && 
+        !format.contains('[a-z') && 
+        !format.contains('[A-Z') &&
+        !format.contains('@')) {
+      // Pure numeric pattern - allow single digit without length check
+      // Skip the 2-character minimum for numeric input
+    } else if (text.trim().length == 1) {
+      // Backend validation: minimum 2 characters required for text fields
       return 'Antwoord moet minimaal 2 karakters bevatten';
     }
 
