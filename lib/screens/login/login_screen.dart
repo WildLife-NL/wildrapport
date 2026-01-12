@@ -123,46 +123,52 @@ class _LoginScreenState extends State<LoginScreen> {
               clipBehavior: Clip.none,
               children: [
                 Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/app_logo.png',
-                        // Scales sensibly across breakpoints
-                        width: ru.breakpointValue<double>(
-                          small: ru.wp(14),
-                          medium: ru.wp(12),
-                          large: ru.wp(10),
-                          extraLarge: ru.wp(9),
-                        ),
-                        fit: BoxFit.contain,
-                      ),
-                      SizedBox(width: ru.spacing(8)),
-                      Text(
-                        'Wild Rapport',
-                        style: AppTextTheme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: ru.adaptiveFont(
-                                small: 22,
-                                medium: 24,
-                                large: 26,
-                                extraLarge: 28,
-                              ),
-                            ) ??
-                            TextStyle(
-                              color: Colors.white,
-                              fontSize: ru.adaptiveFont(
-                                small: 22,
-                                medium: 24,
-                                large: 26,
-                                extraLarge: 28,
-                              ),
-                              fontWeight: FontWeight.w700,
+                  child: SingleChildScrollView(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Image.asset(
+                            'assets/app_logo.png',
+                            // Scales sensibly across breakpoints
+                            width: ru.breakpointValue<double>(
+                              small: ru.wp(14),
+                              medium: ru.wp(12),
+                              large: ru.wp(10),
+                              extraLarge: ru.wp(9),
                             ),
-                      ),
-                    ],
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        SizedBox(width: ru.spacing(8)),
+                        Flexible(
+                          child: Text(
+                            'Wild Rapport',
+                            style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: ru.adaptiveFont(
+                                    small: 22,
+                                    medium: 24,
+                                    large: 26,
+                                    extraLarge: 28,
+                                  ),
+                                ) ??
+                                TextStyle(
+                                  color: Colors.white,
+                                  fontSize: ru.adaptiveFont(
+                                    small: 22,
+                                    medium: 24,
+                                    large: 26,
+                                    extraLarge: 28,
+                                  ),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(

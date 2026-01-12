@@ -159,7 +159,21 @@ class ResponseManager implements ResponseInterface {
           debugPrint(
             "$yellowLog [ResponseManager]: Found existing questionnaire entry, adding ${responseObjects.length} response(s)",
           );
-          entry[questionaireID]!.addAll(responseObjects);
+          // Remove any previous responses for this question to avoid duplicate submissions
+          entry[questionaireID]!.removeWhere((r) => r.questionID == questionID);
+
+          // Deduplicate by answerID to prevent repeated posts
+          final existingAnswerIds = entry[questionaireID]!
+              .map((r) => r.response.answerID)
+              .whereType<String>()
+              .toSet();
+
+          for (final respObj in responseObjects) {
+            final answerId = respObj.response.answerID;
+            if (answerId == null || existingAnswerIds.add(answerId)) {
+              entry[questionaireID]!.add(respObj);
+            }
+          }
           found = true;
           break;
         }

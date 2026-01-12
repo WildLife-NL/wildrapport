@@ -16,7 +16,9 @@ void main() {
     await dotenv.load(fileName: '.env');
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    await prefs.setString('bearer_token', dotenv.get('testAuthToken'));
+    // Use testAuthToken from .env or provide a default for testing
+    final token = dotenv.get('testAuthToken', fallback: 'test-token');
+    await prefs.setString('bearer_token', token);
     await prefs.setStringList('interaction_cache', []);
 
     final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));

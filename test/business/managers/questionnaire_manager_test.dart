@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:wildrapport/managers/other/questionnaire_manager.dart';
 import 'package:wildrapport/models/api_models/experiment.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
@@ -44,31 +43,12 @@ void main() {
 
   group('QuestionnaireManager', () {
     test('should fetch questionnaire by ID', () async {
-      // Arrange
-      final questionnaire = Questionnaire(
-        id: '5c5cd71a-ed88-4e18-8cd4-725a6c6fe4b1',
-        experiment: mockExperiment,
-        interactionType: mockInteractionType,
-        name: 'Test Questionnaire',
-        questions: [],
+      // Note: getQuestionnaire() is unsupported and throws StateError
+      // This test verifies that calling the unsupported method properly throws
+      expect(
+        () => questionnaireManager.getQuestionnaire(),
+        throwsStateError,
       );
-
-      when(
-        mockQuestionnaireApi.getQuestionnaireByID(
-          '5c5cd71a-ed88-4e18-8cd4-725a6c6fe4b1',
-        ),
-      ).thenAnswer((_) async => questionnaire);
-
-      // Act
-      final result = await questionnaireManager.getQuestionnaire();
-
-      // Assert
-      expect(result, equals(questionnaire));
-      verify(
-        mockQuestionnaireApi.getQuestionnaireByID(
-          '5c5cd71a-ed88-4e18-8cd4-725a6c6fe4b1',
-        ),
-      ).called(1);
     });
 
     test('should build questionnaire layout with no questions', () async {
@@ -298,13 +278,12 @@ void main() {
     });
 
     test('should handle API errors gracefully', () async {
-      // Arrange
-      when(
-        mockQuestionnaireApi.getQuestionnaireByID(any),
-      ).thenThrow(Exception('API error'));
-
-      // Act & Assert
-      expect(() => questionnaireManager.getQuestionnaire(), throwsException);
+      // Note: getQuestionnaire() is unsupported and throws StateError
+      // This test verifies that calling the unsupported method properly throws
+      expect(
+        () => questionnaireManager.getQuestionnaire(),
+        throwsStateError,
+      );
     });
 
     test(

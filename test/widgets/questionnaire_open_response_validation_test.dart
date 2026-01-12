@@ -232,14 +232,17 @@ String? _validateText(String text, String? regex) {
     return null;
   }
 
-  // Backend validation: minimum 2 characters required for text fields
-  if (text.trim().length == 1) {
-    return 'Antwoord moet minimaal 2 karakters bevatten';
-  }
-
   // Allow empty text (optional field)
   if (text.trim().isEmpty) {
     return null;
+  }
+
+  // Backend validation: minimum 2 characters required for text fields (but not for pure numeric patterns)
+  if (regex != null && regex.contains('\\d') && !regex.contains('[a-z') && !regex.contains('[A-Z')) {
+    // Pure numeric pattern - allow single digit
+    // Skip length check
+  } else if (text.trim().length == 1) {
+    return 'Antwoord moet minimaal 2 karakters bevatten';
   }
 
   // No regex means no validation

@@ -3,8 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
+import 'test_asset_utils.dart';
 
 void main() {
+  setUpAll(registerTestAssets);
+
   final List<AnimalModel> testAnimals = [
     AnimalModel(
       animalId: '1',
@@ -69,7 +72,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Error: $errorMessage'), findsOneWidget);
+      expect(find.text('Fout: $errorMessage'), findsOneWidget);
     });
 
     testWidgets(
