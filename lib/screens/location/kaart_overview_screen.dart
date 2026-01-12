@@ -26,6 +26,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
+import 'package:wildrapport/config/mock_location.dart';
 
 class _IconStyle {
   final Color color;
@@ -348,9 +349,26 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       distanceFilter: 5,
     );
 
-    _posSub = Geolocator.getPositionStream(locationSettings: settings).listen((
-      pos,
-    ) async {
+    // Use mocked stream when mock is enabled; otherwise subscribe to real stream
+    final Stream<Position> stream = MockLocationConfig.kForceMockLocation
+        ? Stream<Position>.periodic(
+            const Duration(seconds: 5),
+            (_) => Position(
+              latitude: MockLocationConfig.kMockLat,
+              longitude: MockLocationConfig.kMockLon,
+              timestamp: DateTime.now(),
+              accuracy: 5.0,
+              altitude: 0.0,
+              heading: 0.0,
+              speed: 0.0,
+              speedAccuracy: 0.0,
+              altitudeAccuracy: 0.0,
+              headingAccuracy: 0.0,
+            ),
+          )
+        : Geolocator.getPositionStream(locationSettings: settings);
+
+    _posSub = stream.listen((pos) async {
       if (!mounted) return;
 
       // accuracy can be null on some platforms
@@ -470,8 +488,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         heading: 0,
         speed: 0,
         speedAccuracy: 0,
-        altitudeAccuracy: 0,
-        headingAccuracy: 0,
+        altitudeAccuracy: 0.0,
+        headingAccuracy: 0.0,
       );
       debugPrint(
         '[Loc] using fallback center: '
@@ -2155,7 +2173,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
             // pick a quick target
             Position? target = mp.currentPosition ?? mp.selectedPosition;
-            target ??= await Geolocator.getLastKnownPosition();
+            if (target == null) {
+              target = MockLocationConfig.kForceMockLocation
+                  ? Position(
+                      latitude: MockLocationConfig.kMockLat,
+                      longitude: MockLocationConfig.kMockLon,
+                      timestamp: DateTime.now(),
+                      accuracy: 5.0,
+                      altitude: 0.0,
+                      heading: 0.0,
+                      speed: 0.0,
+                      speedAccuracy: 0.0,
+                      altitudeAccuracy: 0.0,
+                      headingAccuracy: 0.0,
+                    )
+                  : await Geolocator.getLastKnownPosition();
+            }
 
             if (target != null) {
               mp.mapController.move(
@@ -2179,9 +2212,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             Future(() async {
               Position? fresh;
               try {
-                fresh = await Geolocator.getCurrentPosition(
-                  desiredAccuracy: LocationAccuracy.high,
-                ).timeout(const Duration(seconds: 2));
+                fresh = MockLocationConfig.kForceMockLocation
+                    ? Position(
+                        latitude: MockLocationConfig.kMockLat,
+                        longitude: MockLocationConfig.kMockLon,
+                        timestamp: DateTime.now(),
+                        accuracy: 5.0,
+                        altitude: 0.0,
+                        heading: 0.0,
+                        speed: 0.0,
+                        speedAccuracy: 0.0,
+                        altitudeAccuracy: 0.0,
+                        headingAccuracy: 0.0,
+                      )
+                    : await Geolocator.getCurrentPosition(
+                        desiredAccuracy: LocationAccuracy.high,
+                      ).timeout(const Duration(seconds: 2));
               } catch (_) {}
 
               fresh ??= target;

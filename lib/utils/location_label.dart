@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:latlong2/latlong.dart';
+import 'package:wildrapport/managers/map/living_lab_manager.dart';
 
 class City {
   final String name;
@@ -68,7 +70,16 @@ String _findNearestCity(double lat, double lon) {
 }
 
 String formatFriendlyLocation(double lat, double lon) {
-  final city = _findNearestCity(lat, lon);
   final coords = '${lat.toStringAsFixed(3)}/${lon.toStringAsFixed(3)}';
+
+  // Try to use Living Lab name if within any polygon
+  final manager = LivingLabManager();
+  final lab = manager.getLivingLabByLocation(LatLng(lat, lon));
+  if (lab != null) {
+    return '${lab.name} $coords';
+  }
+
+  // Fallback: nearest city within ~15km
+  final city = _findNearestCity(lat, lon);
   return city.isNotEmpty ? '$city $coords' : coords;
 }

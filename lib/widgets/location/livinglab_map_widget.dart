@@ -113,7 +113,8 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
       return;
     }
 
-    final lastPosition = await Geolocator.getLastKnownPosition();
+    // Use service to resolve position (supports mocking)
+    final lastPosition = await _locationService.determinePosition();
     if (!mounted) return;
 
     if (lastPosition != null) {
@@ -198,16 +199,14 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
-        ),
-      );
+      final position = await _locationService.determinePosition();
 
       if (!mounted) return;
-
-      await _handleUserLocation(position, animate: false);
+      if (position != null) {
+        await _handleUserLocation(position, animate: false);
+      } else {
+        await _getReducedAccuracyLocation();
+      }
     } catch (e) {
       debugPrint('Error getting location: $e');
       await _getReducedAccuracyLocation();
@@ -216,15 +215,20 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
   Future<void> _getReducedAccuracyLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.reduced,
-        ),
-      );
+      final position = await _locationService.determinePosition();
 
       if (!mounted) return;
-
-      await _handleUserLocation(position, animate: false);
+      if (position != null) {
+        await _handleUserLocation(position, animate: false);
+      } else {
+        debugPrint('Reduced accuracy location unavailable');
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _currentAddress = 'Locatie niet beschikbaar';
+          });
+        }
+      }
     } catch (e) {
       debugPrint('Error getting reduced accuracy location: $e');
       if (mounted) {

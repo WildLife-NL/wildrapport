@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
+import 'package:wildrapport/config/mock_location.dart';
 
 class AppStateProvider with ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -143,14 +144,28 @@ class AppStateProvider with ChangeNotifier {
 
   Future<void> updateLocationCache() async {
     try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
-        ),
-      );
-
+      // Use mocked coordinates when enabled, else get a real fix
       final locationService = LocationMapManager();
+      final position = MockLocationConfig.kForceMockLocation
+          ? Position(
+              latitude: MockLocationConfig.kMockLat,
+              longitude: MockLocationConfig.kMockLon,
+              timestamp: DateTime.now(),
+              accuracy: 5.0,
+              altitude: 0.0,
+              heading: 0.0,
+              speed: 0.0,
+              speedAccuracy: 0.0,
+              altitudeAccuracy: 0.0,
+              headingAccuracy: 0.0,
+            )
+          : await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high,
+                timeLimit: Duration(seconds: 5),
+              ),
+            );
+
       final address = await locationService.getAddressFromPosition(position);
 
       _cachedPosition = position;

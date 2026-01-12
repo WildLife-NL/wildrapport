@@ -15,6 +15,8 @@ import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
+import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/config/mock_location.dart';
 
 class MapProvider extends ChangeNotifier {
   TrackingApiInterface? _trackingApi;
@@ -484,14 +486,32 @@ class MapProvider extends ChangeNotifier {
   /// Falls back to getting a new fix if needed.
   Future<void> _sendTrackingNow() async {
     try {
-      final pos =
-          currentPosition ??
-          await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.medium,
-              timeLimit: Duration(seconds: 7),
-            ),
-          );
+      // Prefer currentPosition; otherwise use mocked coordinates or get a new fix
+      Position pos;
+      if (currentPosition != null) {
+        pos = currentPosition!;
+      } else if (MockLocationConfig.kForceMockLocation) {
+        pos = Position(
+          latitude: MockLocationConfig.kMockLat,
+          longitude: MockLocationConfig.kMockLon,
+          timestamp: DateTime.now(),
+          accuracy: 5.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0,
+          altitudeAccuracy: 0.0,
+          headingAccuracy: 0.0,
+        );
+      } else {
+        pos = (await LocationMapManager().determinePosition()) ??
+            await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.medium,
+                timeLimit: Duration(seconds: 7),
+              ),
+            );
+      }
       await sendTrackingPingFromPosition(pos);
     } catch (e) {
       debugPrint('[MapProvider] tracking ping skipped: $e');
