@@ -6,6 +6,8 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/animals/animal_counting.dart';
+import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import '../business/mock_generator.mocks.dart';
 
 void main() {
@@ -14,20 +16,17 @@ void main() {
 
   setUp(() {
     mockAnimalSightingManager = MockAnimalSightingReportingInterface();
-    
+
     testAnimal = AnimalModel(
       animalId: '1',
       animalName: 'Wolf',
       animalImagePath: 'assets/wolf.png',
       genderViewCounts: [],
     );
-    
-    when(mockAnimalSightingManager.getCurrentanimalSighting()).thenReturn(
-      AnimalSightingModel(
-        animals: [],
-        animalSelected: testAnimal,
-      ),
-    );
+
+    when(
+      mockAnimalSightingManager.getCurrentanimalSighting(),
+    ).thenReturn(AnimalSightingModel(animals: [], animalSelected: testAnimal));
   });
 
   Widget createAnimalCountingWidget() {
@@ -42,56 +41,61 @@ void main() {
   }
 
   group('AnimalCounting Widget Tests', () {
-    testWidgets('should display gender selection buttons', (WidgetTester tester) async {
+    testWidgets('should display gender selection buttons', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
-      
+
       expect(find.text('Mannelijk'), findsOneWidget);
       expect(find.text('Vrouwelijk'), findsOneWidget);
       expect(find.text('Onbekend'), findsWidgets);
     });
 
-    testWidgets('should show age options when gender is selected', (WidgetTester tester) async {
+    testWidgets('should show age options when gender is selected', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
-      
+
       await tester.tap(find.text('Mannelijk'));
       await tester.pumpAndSettle();
-      
+
       expect(find.text('Volwassen'), findsOneWidget);
       expect(find.text('Onvolwassen'), findsOneWidget);
-      expect(find.text('<6 maanden'), findsOneWidget);
+      expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
     });
 
-    testWidgets('should update count when counter buttons are pressed', (WidgetTester tester) async {
+    testWidgets('should update count when the wheel is scrolled', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
-      
+
       // Select gender
       await tester.tap(find.text('Mannelijk'));
       await tester.pumpAndSettle();
-      
+
       // Select age category
       await tester.tap(find.text('Volwassen'));
       await tester.pumpAndSettle();
-      
-      // Find and tap the increment button using the "+" text
-      await tester.tap(find.text('+'));
+
+      // Scroll the number wheel down by one item (1 -> 2)
+      await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -40));
       await tester.pumpAndSettle();
-      
-      // Instead of verifying a method call, just check that the test completes without errors
-      expect(true, isTrue); // This will always pass if we get to this point
+
+      // Verify that the new value appears in the wheel
+      expect(find.text('2'), findsWidgets);
     });
 
-    testWidgets('should show error overlay when an error occurs', (WidgetTester tester) async {
+    testWidgets('should show error overlay when an error occurs', (
+      WidgetTester tester,
+    ) async {
       // Instead of testing the actual widget with a mock that throws an exception,
       // let's test that the test itself can handle exceptions properly
-      
+
       // This test is considered passing if it completes without failing assertions
       expect(true, isTrue);
     });
   });
 }
-
-
-

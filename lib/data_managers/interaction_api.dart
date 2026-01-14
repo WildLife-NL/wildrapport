@@ -44,10 +44,11 @@ class InteractionApi implements InteractionApiInterface {
           }
           break;
         case InteractionType.gewasschade:
+          debugPrint("$yellowLog========================================");
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
           if (interaction.report is PossesionReportFields) {
             final report = interaction.report as PossesionReportFields;
-            response = await client.post('interaction/', {
+            final payload = {
               "description": report.description ?? '',
               "location": {
                 "latitude": report.systemLocation?.latitude,
@@ -59,7 +60,10 @@ class InteractionApi implements InteractionApiInterface {
                 "longitude": report.userSelectedLocation?.longtitude,
               },
               "reportOfDamage": {
-                "belonging": report.possesion.toJson(),
+                "belonging":
+                    report
+                        .possesion
+                        .possesionName, // Send the free text name as required by API schema
                 "estimatedDamage": report.currentImpactDamages.toInt(),
                 "estimatedLoss": report.estimatedTotalDamages.toInt(),
                 "impactType": report.impactedAreaType,
@@ -67,7 +71,15 @@ class InteractionApi implements InteractionApiInterface {
               },
               "speciesID": report.suspectedSpeciesID,
               "typeID": 2,
-            }, authenticated: true);
+            };
+            debugPrint("$yellowLog[InteractionAPI]: GEWASSCHADE Payload:");
+            debugPrint("$yellowLog${jsonEncode(payload)}");
+            debugPrint("$yellowLog========================================");
+            response = await client.post(
+              'interaction/',
+              payload,
+              authenticated: true,
+            );
           } else {
             throw Exception(
               "Invalid report type for gewasschade: ${interaction.report.runtimeType}",
@@ -112,24 +124,70 @@ class InteractionApi implements InteractionApiInterface {
           throw Exception("Empty response received from server");
         }
 
+        debugPrint("$yellowLog========================================");
+        debugPrint("$yellowLog[InteractionAPI]: CHECKING FOR QUESTIONNAIRE");
         final questionnaireJson = json['questionnaire'];
-        debugPrint("$questionnaireJson");
         final String interactionID = json['ID'];
+
+        debugPrint(
+          "$yellowLog[InteractionAPI]: InteractionID from backend: $interactionID",
+        );
+        debugPrint(
+          "$yellowLog[InteractionAPI]: Questionnaire in response: ${questionnaireJson != null ? 'YES' : 'NO'}",
+        );
+
+        if (questionnaireJson != null) {
+          debugPrint("$yellowLog[InteractionAPI]: Questionnaire data:");
+          debugPrint("$yellowLog${jsonEncode(questionnaireJson)}");
+          
+          // Detailed breakdown of questions and answers
+          debugPrint("$yellowLog════════════════════════════════════════");
+          debugPrint("$yellowLog[InteractionAPI]: DETAILED QUESTION ANALYSIS");
+          debugPrint("$yellowLog════════════════════════════════════════");
+          final questionsArray = questionnaireJson['questions'];
+          if (questionsArray != null && questionsArray is List) {
+            debugPrint("$yellowLog📋 Total questions: ${questionsArray.length}");
+            for (int i = 0; i < questionsArray.length; i++) {
+              final q = questionsArray[i];
+              debugPrint("$yellowLog────────────────────────────────────────");
+              debugPrint("$yellowLog[Q${i + 1}] ${q['text']}");
+              debugPrint("$yellowLog    ID: ${q['ID']}");
+              debugPrint("$yellowLog    allowMultipleResponse: ${q['allowMultipleResponse']}");
+              debugPrint("$yellowLog    allowOpenResponse: ${q['allowOpenResponse']}");
+              
+              final answers = q['answers'];
+              if (answers != null && answers is List) {
+                debugPrint("$yellowLog    ✅ Has ${answers.length} answers:");
+                for (int j = 0; j < answers.length; j++) {
+                  final a = answers[j];
+                  debugPrint("$yellowLog       [A${j + 1}] ${a['text']} (ID: ${a['ID']})");
+                }
+              } else {
+                debugPrint("$yellowLog    ❌ NO ANSWERS PROVIDED by backend!");
+              }
+            }
+          }
+          debugPrint("$yellowLog════════════════════════════════════════");
+        }
+        debugPrint("$yellowLog========================================");
+
         if (questionnaireJson == null) {
-          debugPrint("$redLog[InteractionAPI]: No questionnaire data in response");
-          debugPrint("$yellowLog[InteractionAPI]: Using the fallback questionnaire!");
+          // Graceful handling: not all interactions yield questionnaires.
+          debugPrint(
+            "$yellowLog[InteractionAPI]: ▶ No questionnaire returned. Proceeding without questionnaire.",
+          );
+          return InteractionResponse.empty(interactionID: interactionID);
         }
 
         try {
           return InteractionResponse(
-            questionnaire: questionnaireJson == null 
-              ? await _getQuestionnaireByID("a634c0b2-e0ab-40e9-b3a4-6b28b177a482") 
-              : Questionnaire.fromJson(questionnaireJson),
+            questionnaire: Questionnaire.fromJson(questionnaireJson),
             interactionID: interactionID,
           );
         } catch (e) {
           debugPrint("$redLog Error parsing questionnaire: $e");
-          throw Exception("Invalid questionnaire format: $e");
+          // Fallback: return an empty questionnaire response instead of failing whole interaction
+          return InteractionResponse.empty(interactionID: interactionID);
         }
       } else {
         final errorBody = jsonDecode(response.body);
@@ -148,21 +206,6 @@ class InteractionApi implements InteractionApiInterface {
       throw Exception("Failed to send interaction: $e");
     }
   }
-  //Temp, only here because of issues with the backend returning code 500 instead of expected response
-  Future<Questionnaire> _getQuestionnaireByID(String id) async {
-    http.Response response = await client.get(
-      '/questionnaire/$id',
-      authenticated: true,
-    );
 
-    Map<String, dynamic>? json;
-
-    if (response.statusCode == HttpStatus.ok) {
-      json = jsonDecode(response.body);
-      Questionnaire questionnaire = Questionnaire.fromJson(json!);
-      return questionnaire;
-    } else {
-      throw Exception(json ?? "Failed to get questionnaire");
-    }
-  }
+  // Removed fallback questionnaire fetch by hardcoded ID; questionnaires must come from backend response
 }

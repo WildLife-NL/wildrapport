@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -33,15 +32,20 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         context.read<AnimalSightingReportingInterface>();
     final currentSighting = animalSightingManager.getCurrentanimalSighting();
 
-    // If there are animals in the list, set _hasAddedItems to true
-    if (currentSighting?.animalSelected != null &&
+    // Consider entries already added to the sighting OR counts on the currently selected animal
+    final hasFinalizedAnimals =
+        (currentSighting?.animals?.isNotEmpty ?? false);
+
+    final hasCountsOnSelected = currentSighting?.animalSelected != null &&
         currentSighting!.animalSelected!.genderViewCounts.any(
           (gvc) =>
               gvc.viewCount.pasGeborenAmount > 0 ||
               gvc.viewCount.onvolwassenAmount > 0 ||
               gvc.viewCount.volwassenAmount > 0 ||
               gvc.viewCount.unknownAmount > 0,
-        )) {
+        );
+
+    if (hasFinalizedAnimals || hasCountsOnSelected) {
       setState(() {
         _hasAddedItems = true;
       });
@@ -49,59 +53,12 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
   }
 
   void _handleBackNavigation(BuildContext context) {
-    if (_hasAddedItems) {
-      // Show confirmation dialog if items have been added
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Waarschuwing'),
-              content: const Text(
-                'Teruggaan zal de toegevoegde dieren verwijderen. Weet je zeker dat je terug wilt gaan?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog
-                  },
-                  child: const Text('Annuleren'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog
-
-                    // Reset the animal counting data
-                    final animalSightingManager =
-                        context.read<AnimalSightingReportingInterface>();
-
-                    // Create a new animal sighting with empty animals list
-                    animalSightingManager.createanimalSighting();
-
-                    // Clear any saved state for this screen
-                    final appStateProvider = context.read<AppStateProvider>();
-                    appStateProvider.clearScreenState('AnimalCountingScreen');
-
-                    // Navigate back to the animal screen by popping until we reach it
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => const AnimalsScreen(
-                              appBarTitle: 'Selecteer Dier',
-                            ),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                  child: const Text('Ja, ga terug'),
-                ),
-              ],
-            ),
-      );
-    } else {
-      // If no items added, just go back without confirmation
-      Navigator.pop(context);
-    }
+    // Go back to animals screen, keeping all added animals
+    final navigationManager = context.read<NavigationStateInterface>();
+    navigationManager.pushReplacementBack(
+      context,
+      const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+    );
   }
 
   @override
@@ -112,12 +69,21 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Telling toevoegen',
-              rightIcon: Icons.menu,
+              // Show the profile/user icon on the right (like other screens)
+              rightIcon: null,
+              showUserIcon: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
-              onRightIconPressed: () {},
+              // Match the other screens: black icons/text and slightly larger font/icon scales
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.15,
+              iconScale: 1.15,
+              userIconScale: 1.15,
             ),
+            // Add extra spacing between the app bar and the category selectors
+            const SizedBox(height: 34),
             Expanded(
               child: Center(
                 child: AnimalCounting(
@@ -138,10 +104,13 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
           final navigationManager = context.read<NavigationStateInterface>();
           navigationManager.pushReplacementForward(
             context,
+            // Ensure remarks start empty when entering overview
             AnimalListOverviewScreen(),
           );
         },
+        // Allow going back to species selection at all times
         showNextButton: _hasAddedItems,
+        showBackButton: true,
       ),
     );
   }

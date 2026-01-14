@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/data_managers/belonging_api.dart';
@@ -9,6 +10,9 @@ import 'package:wildrapport/data_managers/interaction_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
+import 'package:wildrapport/data_managers/vicinity_api.dart';
+import 'package:wildrapport/data_managers/tracking_api.dart';
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
@@ -26,6 +30,7 @@ import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart';
 import 'package:wildrapport/interfaces/reporting/response_interface.dart';
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_sighting_reporting_manager.dart';
 import 'package:wildrapport/managers/api_managers/interaction_manager.dart';
@@ -49,24 +54,39 @@ import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 
-Future<Widget> getHomepageBasedOnLoginStatus() async {
-  String? token = await _getToken();
-  if (token != null) {
-    return const OverzichtScreen();
-  } else {
-    return const LoginScreen();
-  }
-}
+import 'package:wildrapport/data_managers/interaction_types_api.dart';
+import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
+
+import 'package:wildrapport/providers/conveyance_provider.dart';
+import 'package:wildrapport/data_managers/conveyance_api.dart';
+
+import 'package:wildrapport/utils/token_validator.dart';
+import 'package:wildrapport/utils/notification_service.dart';
+import 'package:wildrapport/utils/role_validator.dart';
+import 'package:wildrapport/screens/login/access_denied_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Lock orientation to portrait mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   final appStateProvider = AppStateProvider();
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager();
 
+  // Load location tracking preference
+  await appStateProvider.loadLocationTrackingPreference();
+
   await dotenv.load(fileName: ".env");
+
+  // Initialize local notifications
+  await NotificationService.instance.init();
 
   final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
   final appConfig = AppConfig(apiClient);
@@ -78,6 +98,7 @@ void main() async {
   final questionnaireAPI = QuestionaireApi(apiClient);
   final responseAPI = ResponseApi(apiClient);
   final belongingApi = BelongingApi(apiClient);
+  final vicinityApi = VicinityApi(apiClient);
 
   final loginManager = LoginManager(authApi, profileApi);
   final filterManager = FilterManager();
@@ -85,6 +106,20 @@ void main() async {
   final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
   final responseProvider = ResponseProvider();
+
+  final conveyanceApi = ConveyanceApi(apiClient);
+  final conveyanceProvider = ConveyanceProvider(conveyanceApi);
+
+  mapProvider.setVicinityApi(vicinityApi);
+
+  // Interaction types: fetch/display names for UI
+  final interactionTypesApi = InteractionTypesApi(apiClient);
+  final interactionTypesManager = InteractionTypesManager(interactionTypesApi);
+
+  final trackingApi = TrackingApi(apiClient);
+  final trackingCacheManager = TrackingCacheManager(trackingApi: trackingApi);
+  trackingCacheManager.init();
+  mapProvider.setTrackingCacheManager(trackingCacheManager);
 
   final interactionManager = InteractionManager(interactionAPI: interactionApi);
   interactionManager.init();
@@ -110,11 +145,13 @@ void main() async {
 
   final locationScreenManager = LocationScreenManager();
 
-  final String? token = prefs.getString('bearer_token');
   prefs.setStringList('interaction_cache', []);
 
-  final Widget initialScreen =
-      token != null ? const OverzichtScreen() : const LoginScreen();
+    final bool hasValidToken = await TokenValidator.hasValidToken();
+    final bool hasAccess = await RoleValidator.hasAccess();
+    final Widget initialScreen = hasValidToken
+      ? (hasAccess ? const OverzichtScreen() : const AccessDeniedScreen())
+      : const LoginScreen();
 
   runApp(
     MultiProvider(
@@ -125,13 +162,18 @@ void main() async {
         ),
         ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
+        ChangeNotifierProvider<ConveyanceProvider>.value(
+          value: conveyanceProvider,
+        ),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<AuthApiInterface>.value(value: authApi),
+        Provider<ProfileApiInterface>.value(value: profileApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
+        Provider<InteractionTypesManager>.value(value: interactionTypesManager),
         Provider<LoginInterface>.value(value: loginManager),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),
@@ -139,6 +181,7 @@ void main() async {
         Provider<OverzichtInterface>.value(value: OverzichtManager()),
         Provider<BelongingDamageReportInterface>.value(value: belongingManager),
         Provider<ResponseInterface>.value(value: responseManager),
+        Provider<ResponseApiInterface>.value(value: responseAPI),
         Provider<DropdownInterface>.value(
           value: DropdownManager(filterManager),
         ),
@@ -152,34 +195,24 @@ void main() async {
         ),
         Provider<LocationScreenInterface>(create: (_) => locationScreenManager),
         Provider<PermissionInterface>(create: (_) => permissionManager),
-        ChangeNotifierProvider(create: (_) => MapProvider()),
       ],
-      child: MyApp(
-        initialScreen: initialScreen,
-      ),
+      child: MyApp(initialScreen: initialScreen),
     ),
   );
 }
 
 class UserService {}
 
-Future<String?> _getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('bearer_token');
-}
-
 class MyApp extends StatelessWidget {
   final Widget initialScreen;
 
-  const MyApp({
-    super.key,
-    required this.initialScreen,
-  });
+  const MyApp({super.key, required this.initialScreen});
 
   @override
   Widget build(BuildContext context) {
     return _MediaQueryWrapper(
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'Wild Rapport',
         theme: ThemeData(
@@ -189,13 +222,13 @@ class MyApp extends StatelessWidget {
             surface: AppColors.lightMintGreen,
           ),
           textTheme: AppTextTheme.textTheme,
-          fontFamily: 'Arimo',
+          fontFamily: 'Roboto',
           snackBarTheme: const SnackBarThemeData(
             backgroundColor: AppColors.brown300,
             behavior: SnackBarBehavior.floating,
             contentTextStyle: TextStyle(
               color: Colors.black,
-              fontFamily: 'Arimo',
+              fontFamily: 'Roboto',
             ),
           ),
         ),
@@ -209,22 +242,7 @@ class MyApp extends StatelessWidget {
             child: child!,
           );
         },
-        home: FutureBuilder<Widget>(
-          future: getHomepageBasedOnLoginStatus(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            } else if (snapshot.hasError) {
-              return const Scaffold(
-                body: Center(child: Text('Something went wrong')),
-              );
-            } else {
-              return snapshot.data!;
-            }
-          },
-        ),
+        home: initialScreen,
       ),
     );
   }

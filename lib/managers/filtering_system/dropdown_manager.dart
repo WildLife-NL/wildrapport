@@ -102,9 +102,9 @@ class DropdownManager implements DropdownInterface {
                       style: const TextStyle(color: Colors.white),
                       cursorColor: Colors.white,
                       decoration: const InputDecoration(
-                        hintText: 'Zoek een dier...',
+                        label: Text('Zoek een dier...'),
                         border: InputBorder.none,
-                        hintStyle: TextStyle(color: Colors.white70),
+                        labelStyle: TextStyle(color: Colors.white70),
                         contentPadding: EdgeInsets.symmetric(horizontal: 16),
                       ),
                       onChanged: (value) {
@@ -211,23 +211,49 @@ class DropdownManager implements DropdownInterface {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        BrownButton(
-          model: BrownButtonModel(
-            text:
-                selectedValue == LocationType.current.displayText
-                    ? LocationType.current.displayText
-                    : selectedValue,
-            leftIconPath: _getLocationIcon(selectedValue),
-            rightIconPath:
-                isExpanded
-                    ? 'circle_icon:keyboard_arrow_up'
-                    : 'circle_icon:keyboard_arrow_down',
-            leftIconSize: 38.0,
-            rightIconSize: 38.0,
-            leftIconPadding: 5,
-            backgroundColor: AppColors.brown,
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: AppColors.darkGreen, width: 1.5),
           ),
-          onPressed: () => onExpandChanged(!isExpanded),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => onExpandChanged(!isExpanded),
+              borderRadius: BorderRadius.circular(25),
+              hoverColor: AppColors.darkGreen.withOpacity(0.15),
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        selectedValue == LocationType.current.displayText
+                            ? LocationType.current.displayText
+                            : selectedValue,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontFamily: 'Roboto',
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: AppColors.darkGreen,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
         if (isExpanded) ...[
           const SizedBox(height: 8),
@@ -235,26 +261,15 @@ class DropdownManager implements DropdownInterface {
             selectedValue: selectedValue,
             onOptionSelected: onOptionSelected,
             onExpandChanged: onExpandChanged,
-            backgroundColor: AppColors.brown,
+            backgroundColor: Colors.white,
           ),
         ],
       ],
     );
   }
 
-  /// Determines the appropriate icon to display for the selected location
-  /// Returns the icon path based on the location type
-  String _getLocationIcon(String selectedValue) {
-    return LocationType.values
-        .firstWhere(
-          (type) => type.displayText == selectedValue,
-          orElse: () => LocationType.current,
-        )
-        .iconPath;
-  }
-
   /// Creates a list of location option widgets excluding the currently selected location
-  /// Each option displays the location type with its icon
+  /// Each option displays the location type
   List<Widget> _buildLocationOptions({
     required String selectedValue,
     required Function(String) onOptionSelected,
@@ -266,18 +281,37 @@ class DropdownManager implements DropdownInterface {
         .map((type) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: BrownButton(
-              model: BrownButtonModel(
-                text: type.displayText,
-                leftIconPath: type.iconPath,
-                leftIconSize: 38.0,
-                leftIconPadding: 5,
-                backgroundColor: backgroundColor,
+            child: Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: AppColors.darkGreen, width: 1.5),
               ),
-              onPressed: () {
-                onOptionSelected(type.displayText);
-                onExpandChanged(false);
-              },
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    onOptionSelected(type.displayText);
+                    onExpandChanged(false);
+                  },
+                  borderRadius: BorderRadius.circular(25),
+                  hoverColor: AppColors.darkGreen.withOpacity(0.15),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      type.displayText,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           );
         })

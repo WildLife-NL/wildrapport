@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
-class QuestionnaireWhiteButton extends StatelessWidget {
+class QuestionnaireWhiteButton extends StatefulWidget {
   final String text;
   final double? height;
   final double? width;
@@ -18,53 +19,58 @@ class QuestionnaireWhiteButton extends StatelessWidget {
   });
 
   @override
+  State<QuestionnaireWhiteButton> createState() =>
+      _QuestionnaireWhiteButtonState();
+}
+
+class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  void _onEnter(PointerEvent _) {
+    setState(() => _isHovered = true);
+  }
+
+  void _onExit(PointerEvent _) {
+    setState(() => _isHovered = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        color: AppColors.offWhite,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    final responsive = context.responsive;
+    final bool isActive = _isPressed || _isHovered;
+
+    return MouseRegion(
+      onEnter: _onEnter,
+      onExit: _onExit,
+      child: GestureDetector(
+        onTap: widget.onPressed,
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          height: widget.height,
+          width: widget.width,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.darkGreen : Colors.white,
+            borderRadius: BorderRadius.circular(responsive.sp(2.5)),
+            border: Border.all(
+              color: AppColors.darkGreen,
+              width: responsive.sp(0.2),
+            ),
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(25),
-          onTap: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                // Expanded widget with centered text
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      text,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.brown,
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                // Right widget (icon) with some spacing
-                if (rightWidget != null) 
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: rightWidget!,
-                  ),
-              ],
+          child: Center(
+            child: Text(
+              widget.text,
+              style: TextStyle(
+                fontSize: responsive.fontSize(16),
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.bold,
+                color: isActive ? Colors.white : Colors.black,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
@@ -72,5 +78,3 @@ class QuestionnaireWhiteButton extends StatelessWidget {
     );
   }
 }
-
-

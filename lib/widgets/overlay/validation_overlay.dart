@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/app_text_theme.dart';
+import 'package:wildrapport/utils/responsive_utils.dart';
 
 class ValidationOverlay extends StatelessWidget {
   final List<String> messages;
@@ -9,6 +9,7 @@ class ValidationOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
@@ -18,86 +19,59 @@ class ValidationOverlay extends StatelessWidget {
             onTap:
                 () {}, // Prevents taps on the container from closing the overlay
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              constraints: const BoxConstraints(maxWidth: 500),
+              margin: EdgeInsets.symmetric(horizontal: responsive.wp(5)),
+              constraints: BoxConstraints(maxWidth: responsive.wp(80)),
               decoration: BoxDecoration(
                 color: AppColors.offWhite,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    spreadRadius: 0,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(responsive.sp(3.1)),
+                border: Border.all(
+                  color: Colors.red,
+                  width: responsive.sp(0.25),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 12),
+                    padding: EdgeInsets.only(top: responsive.hp(1.5)),
                     child: IconButton(
-                      icon: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black,
-                              Colors.black.withValues(alpha: 0.8),
-                            ],
-                          ).createShader(bounds);
-                        },
-                        child: Icon(
-                          Icons.warning_amber_rounded,
-                          size: 32,
-                          color: Colors.black,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
+                      icon: Icon(
+                        Icons.warning_amber_rounded,
+                        size: responsive.sp(6),
+                        color: Colors.red,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
-                      iconSize: 50,
+                      iconSize: responsive.sp(6),
                     ),
                   ),
                   Flexible(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                      padding: EdgeInsets.fromLTRB(
+                        responsive.wp(5),
+                        responsive.hp(1),
+                        responsive.wp(5),
+                        responsive.hp(2.5),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Let op',
-                            style: AppTextTheme.textTheme.titleLarge?.copyWith(
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
                               fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
+                              fontSize: responsive.fontSize(18),
+                              color: Colors.black,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: responsive.spacing(12)),
                           Text(
                             messages.join('\n'),
-                            style: AppTextTheme.textTheme.bodyMedium?.copyWith(
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                ),
-                              ],
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: responsive.fontSize(16),
+                              color: Colors.black,
                             ),
                             textAlign: TextAlign.center,
                           ),

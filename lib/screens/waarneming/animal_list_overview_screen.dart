@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
+import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_list_table.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 
 class AnimalListOverviewScreen extends StatelessWidget {
   AnimalListOverviewScreen({super.key});
@@ -26,41 +28,59 @@ class AnimalListOverviewScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Waarneming',
-              rightIcon: Icons.menu,
+              rightIcon: null,
+              showUserIcon: true,
               onLeftIconPressed: () {
+                // Clear only remarks field when leaving overview
+                _animalListTableKey.currentState?.clearRemarksOnly();
                 final navigationManager =
                     context.read<NavigationStateInterface>();
-                navigationManager.pushAndRemoveUntil(
+                // Go back to counting without wiping the stack
+                navigationManager.pushReplacementBack(
                   context,
                   const AnimalCountingScreen(),
                 );
               },
-              onRightIconPressed: () {
-                debugPrint('[AnimalListOverviewScreen] Menu button pressed');
-              },
+              // Match the other screens: black icons/text and slightly larger font/icon scales
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.15,
+              iconScale: 1.15,
+              userIconScale: 1.15,
             ),
+            const SizedBox(height: 34),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    Text(
-                      'Het overzicht',
-                      style: TextStyle(
-                        color: AppColors.brown,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Het overzicht',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Roboto',
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            _animalListTableKey.currentState?.toggleEditMode();
+                          },
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     Expanded(child: AnimalListTable(key: _animalListTableKey)),
@@ -74,7 +94,9 @@ class AnimalListOverviewScreen extends StatelessWidget {
       bottomNavigationBar: CustomBottomAppBar(
         onBackPressed: () {
           final navigationManager = context.read<NavigationStateInterface>();
-          navigationManager.pushAndRemoveUntil(
+          _animalListTableKey.currentState?.clearRemarksOnly();
+          // Go back to counting without removing prior routes
+          navigationManager.pushReplacementBack(
             context,
             const AnimalCountingScreen(),
           );
@@ -87,6 +109,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
           final navigationManager = context.read<NavigationStateInterface>();
           final animalSightingManager =
               context.read<AnimalSightingReportingInterface>();
+          final appStateProvider = context.read<AppStateProvider>();
 
           // Get the description from AnimalListTable
           final description =
@@ -107,14 +130,31 @@ class AnimalListOverviewScreen extends StatelessWidget {
           );
 
           if (context.mounted) {
-            navigationManager.pushReplacementForward(
-              context,
-              const LocationScreen(),
+            // Check if this is a collision report (verkeersongeval)
+            final isCollision =
+                appStateProvider.currentReportType ==
+                ReportType.verkeersongeval;
+            debugPrint(
+              '[AnimalListOverviewScreen] Report type: ${appStateProvider.currentReportType}, isCollision: $isCollision',
             );
+
+            if (isCollision) {
+              // Navigate to collision details screen for traffic accidents
+              navigationManager.pushReplacementForward(
+                context,
+                const CollisionDetailsScreen(),
+              );
+            } else {
+              // Navigate directly to location screen for regular sightings
+              navigationManager.pushReplacementForward(
+                context,
+                const LocationScreen(),
+              );
+            }
           }
         },
-        showBackButton: true,
         showNextButton: true,
+        showBackButton: true,
       ),
     );
   }

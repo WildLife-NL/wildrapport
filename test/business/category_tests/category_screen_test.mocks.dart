@@ -432,6 +432,15 @@ class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
   );
 
   @override
+  _i17.Future<void> logout() =>
+      (super.noSuchMethod(
+            Invocation.method(#logout, []),
+            returnValue: _i17.Future<void>.value(),
+            returnValueForMissingStub: _i17.Future<void>.value(),
+          )
+          as _i17.Future<void>);
+
+  @override
   void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,

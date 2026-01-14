@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
@@ -19,8 +18,9 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     headers = await _buildHeaders(headers, authenticated);
-    debugPrint("GET: $baseUrl/$url");
-    return await http.get(Uri.parse('$baseUrl/$url'), headers: headers);
+    final uri = _buildUri(url);
+    // debugPrint("GET: $uri");
+    return await http.get(uri, headers: headers);
   }
 
   Future<http.Response> post(
@@ -30,9 +30,10 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     headers = await _buildHeaders(headers, authenticated);
-    debugPrint("POST: $baseUrl/$url");
+    final uri = _buildUri(url);
+    // debugPrint("POST: $uri");
     http.Response response = await http.post(
-      Uri.parse('$baseUrl/$url'),
+      uri,
       body: jsonEncode(body),
       headers: headers,
     );
@@ -47,12 +48,9 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     headers = await _buildHeaders(headers, authenticated);
-
-    return await http.put(
-      Uri.parse('$baseUrl/$url'),
-      body: jsonEncode(body),
-      headers: headers,
-    );
+    final uri = _buildUri(url);
+    // debugPrint("PUT: $uri");
+    return await http.put(uri, body: jsonEncode(body), headers: headers);
   }
 
   Future<http.Response> delete(
@@ -61,8 +59,22 @@ class ApiClient {
     bool authenticated = true,
   }) async {
     headers = await _buildHeaders(headers, authenticated);
+    final uri = _buildUri(url);
+    // debugPrint("DELETE: $uri");
+    return await http.delete(uri, headers: headers);
+  }
 
-    return await http.delete(Uri.parse('$baseUrl/$url'), headers: headers);
+  /// Send a PATCH request with a JSON body.
+  Future<http.Response> patch(
+    String url,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+  }) async {
+    headers = await _buildHeaders(headers, authenticated);
+    final uri = _buildUri(url);
+    // debugPrint("PATCH: $uri");
+    return await http.patch(uri, body: jsonEncode(body), headers: headers);
   }
 
   Future<Map<String, String>> _buildHeaders(
@@ -82,5 +94,17 @@ class ApiClient {
       defaultHeaders.addAll(headers);
     }
     return defaultHeaders;
+  }
+
+  /// Build a canonical URI by resolving [url] against the configured baseUrl.
+  Uri _buildUri(String url) {
+    // Use Uri.resolve to avoid double-slash problems and ensure canonical paths.
+    try {
+      final base = Uri.parse(baseUrl);
+      return base.resolve(url);
+    } catch (e) {
+      // Fallback: construct via simple concatenation
+      return Uri.parse('$baseUrl/$url');
+    }
   }
 }

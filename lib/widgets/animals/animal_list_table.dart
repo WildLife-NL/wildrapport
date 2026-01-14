@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
@@ -7,9 +8,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
-import 'package:wildrapport/models/factories/button_model_factory.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
 
 class AnimalListTable extends StatefulWidget {
   const AnimalListTable({super.key});
@@ -28,6 +27,83 @@ class AnimalListTableState extends State<AnimalListTable> {
   String getDescription() {
     return _opmerkingController.text;
   }
+
+  void clearTextFields() {
+    _opmerkingController.clear();
+    for (var controller in _controllers.values) {
+      controller.clear();
+    }
+  }
+
+  /// Completely reset all table data: description, temporary counts,
+  /// underlying animal view counts in the active sighting.
+  void clearAllData() {
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    final currentSighting = animalSightingManager.getCurrentanimalSighting();
+
+    // Reset description in manager and controller
+    _opmerkingController.clear();
+    animalSightingManager.updateDescription('');
+
+    // Clear temp counts and controllers
+    _tempCounts.clear();
+    for (var controller in _controllers.values) {
+      controller.clear();
+    }
+
+    // Reset all animal view counts to zero
+    if (currentSighting?.animals != null) {
+      for (var animal in currentSighting!.animals!) {
+        final zeroViewCount = ViewCountModel(
+          pasGeborenAmount: 0,
+          onvolwassenAmount: 0,
+          volwassenAmount: 0,
+          unknownAmount: 0,
+        );
+        final updatedAnimal = AnimalModel(
+          animalId: animal.animalId,
+          animalImagePath: animal.animalImagePath,
+          animalName: animal.animalName,
+          genderViewCounts: [
+            AnimalGenderViewCount(
+              gender: animal.gender ?? AnimalGender.onbekend,
+              viewCount: zeroViewCount,
+            ),
+          ],
+          condition: animal.condition,
+        );
+        animalSightingManager.updateAnimal(updatedAnimal);
+      }
+    }
+
+    setState(() {});
+  }
+
+  /// Clear only the remarks (Opmerkingen) field and manager description, keep counts intact.
+  void clearRemarksOnly() {
+    final animalSightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    _opmerkingController.clear();
+    animalSightingManager.updateDescription('');
+    setState(() {});
+  }
+
+  // Formatter to cap numeric input at a maximum value.
+  // Prevents entering numbers greater than [max] directly.
+  // If user pastes a larger number it is truncated to max.
+  static TextInputFormatter maxValueFormatter(int max) =>
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        if (newValue.text.isEmpty) return newValue;
+        final value = int.tryParse(newValue.text) ?? 0;
+        if (value > max) {
+          return TextEditingValue(
+            text: max.toString(),
+            selection: TextSelection.collapsed(offset: max.toString().length),
+          );
+        }
+        return newValue;
+      });
 
   @override
   void initState() {
@@ -71,8 +147,8 @@ class AnimalListTableState extends State<AnimalListTable> {
     }
   }
 
-  void _toggleEditMode() {
-    debugPrint('_toggleEditMode: changing from $_isEditing to ${!_isEditing}');
+  void toggleEditMode() {
+    debugPrint('toggleEditMode: changing from $_isEditing to ${!_isEditing}');
 
     if (_isEditing) {
       // If we're currently in edit mode and toggling out, save the changes
@@ -171,58 +247,12 @@ class AnimalListTableState extends State<AnimalListTable> {
   // Helper method to store temporary count
 
   List<AnimalGender> _getUsedGenders(BuildContext context) {
-    final animalSightingManager =
-        context.read<AnimalSightingReportingInterface>();
-    final currentSighting = animalSightingManager.getCurrentanimalSighting();
-
-    if (currentSighting?.animals == null || currentSighting!.animals!.isEmpty) {
-      return [];
-    }
-
-    // Get the first animal since all animals should have the same gender counts
-    final animal = currentSighting.animals![0];
-
-    // Extract all genders from genderViewCounts
-    return animal.genderViewCounts.map((gvc) => gvc.gender).toList();
-  }
-
-  String _getGenderIconPath(AnimalGender gender) {
-    switch (gender) {
-      case AnimalGender.mannelijk:
-        return 'assets/icons/gender/male_gender.png';
-      case AnimalGender.vrouwelijk:
-        return 'assets/icons/gender/female_gender.png';
-      case AnimalGender.onbekend:
-        return 'assets/icons/gender/unknown_gender.png';
-    }
-  }
-
-  double _getIconSize(int rowIndex) {
-    switch (rowIndex) {
-      case 1: // Kalf (equivalent to pasGeboren)
-        return 28.0; // Reduced from 38.0
-      case 2: // Jong (equivalent to onvolwassen)
-        return 32.0; // Reduced from 44.0
-      case 3: // Volwassen
-        return 36.0; // Reduced from 50.0
-      case 4: // Onbekend
-        return 40.0; // Reduced from 56.0
-      default:
-        return 28.0;
-    }
-  }
-
-  Color _getIconColor(int index) {
-    switch (index) {
-      case 1: // Pas geboren
-        return AppColors.brown;
-      case 2: // Onvolwassen
-        return const Color(0xFF549537);
-      case 3: // Volwassen
-        return Colors.orange;
-      default:
-        return AppColors.brown;
-    }
+    // Always return all three genders in the correct order: female, male, unknown
+    return [
+      AnimalGender.vrouwelijk,
+      AnimalGender.mannelijk,
+      AnimalGender.onbekend,
+    ];
   }
 
   int _getCountForAgeAndGender(
@@ -239,40 +269,41 @@ class AnimalListTableState extends State<AnimalListTable> {
       return 0;
     }
 
-    // Get the first animal since all animals in the list should have the same counts
-    final animal = currentSighting.animals![0];
+    // Sum up counts from ALL animals in the list (not just the first one)
+    int totalCount = 0;
 
-    // Find the gender view count for the specified gender
-    final genderViewCount = animal.genderViewCounts.firstWhere(
-      (gvc) => gvc.gender == gender,
-      orElse:
-          () => AnimalGenderViewCount(
-            gender: gender,
-            viewCount: ViewCountModel(),
-          ),
-    );
+    for (final animal in currentSighting.animals!) {
+      // Find the gender view count for the specified gender
+      final genderViewCount = animal.genderViewCounts.firstWhere(
+        (gvc) => gvc.gender == gender,
+        orElse:
+            () => AnimalGenderViewCount(
+              gender: gender,
+              viewCount: ViewCountModel(),
+            ),
+      );
 
-    // Return the count for the specified age
-    int count = 0;
-    switch (age) {
-      case AnimalAge.pasGeboren:
-        count = genderViewCount.viewCount.pasGeborenAmount;
-        break;
-      case AnimalAge.onvolwassen:
-        count = genderViewCount.viewCount.onvolwassenAmount;
-        break;
-      case AnimalAge.volwassen:
-        count = genderViewCount.viewCount.volwassenAmount;
-        break;
-      case AnimalAge.onbekend:
-        count = genderViewCount.viewCount.unknownAmount;
-        break;
+      // Add the count for the specified age
+      switch (age) {
+        case AnimalAge.pasGeboren:
+          totalCount += genderViewCount.viewCount.pasGeborenAmount;
+          break;
+        case AnimalAge.onvolwassen:
+          totalCount += genderViewCount.viewCount.onvolwassenAmount;
+          break;
+        case AnimalAge.volwassen:
+          totalCount += genderViewCount.viewCount.volwassenAmount;
+          break;
+        case AnimalAge.onbekend:
+          totalCount += genderViewCount.viewCount.unknownAmount;
+          break;
+      }
     }
 
     debugPrint(
-      '_getCountForAgeAndGender: ${animal.animalName}, Age: ${age.name}, Gender: ${gender.name}, Count: $count',
+      '_getCountForAgeAndGender: Total count for Age: ${age.name}, Gender: ${gender.name} = $totalCount (from ${currentSighting.animals!.length} animals)',
     );
-    return count;
+    return totalCount;
   }
 
   // Get or create controller for a specific cell
@@ -321,45 +352,40 @@ class AnimalListTableState extends State<AnimalListTable> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: _buildEditButton(),
-                    ),
                     Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 8.0,
                         vertical: 16.0,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.offWhite,
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.black, width: 1),
                       ),
-                      child: Table(
-                        border: TableBorder.all(
-                          color: AppColors.brown.withValues(alpha: 0.2),
-                          width: 1,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        columnWidths: {
-                          0: const FlexColumnWidth(2.0),
-                          for (var i = 0; i < usedGenders.length; i++)
-                            i + 1: const FlexColumnWidth(0.8),
-                        },
-                        children: [
-                          _buildHeaderRow(usedGenders),
-                          ...List.generate(
-                            4,
-                            (index) =>
-                                _buildDataRow(index + 1, usedGenders, context),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Table(
+                          border: TableBorder.all(
+                            color: Colors.black,
+                            width: 1,
                           ),
-                        ],
+                          columnWidths: {
+                            0: const FlexColumnWidth(2.0),
+                            for (var i = 0; i < usedGenders.length; i++)
+                              i + 1: const FlexColumnWidth(1.0),
+                          },
+                          children: [
+                            _buildHeaderRow(usedGenders),
+                            ...List.generate(
+                              4,
+                              (index) => _buildDataRow(
+                                index + 1,
+                                usedGenders,
+                                context,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -376,24 +402,23 @@ class AnimalListTableState extends State<AnimalListTable> {
 
   TableRow _buildHeaderRow(List<AnimalGender> usedGenders) {
     return TableRow(
-      decoration: BoxDecoration(
-        color: AppColors.brown.withValues(alpha: 0.1),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-      ),
       children: [
-        const TableCell(
+        TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
-          child: SizedBox(
+          child: Container(
             height: 50.0,
-            child: Padding(
+            // Removed per-cell border to prevent double thick lines (TableBorder already draws grid)
+            decoration: const BoxDecoration(color: Colors.white),
+            child: const Padding(
               padding: EdgeInsets.all(5.0),
               child: Center(
                 child: Text(
-                  'Leeftijdscategorie',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'Leeftijd',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Roboto',
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
@@ -405,14 +430,29 @@ class AnimalListTableState extends State<AnimalListTable> {
   }
 
   Widget _buildHeaderCell(AnimalGender gender) {
+    String icon;
+    switch (gender) {
+      case AnimalGender.vrouwelijk:
+        icon = '♀';
+        break;
+      case AnimalGender.mannelijk:
+        icon = '♂';
+        break;
+      case AnimalGender.onbekend:
+        icon = '?';
+        break;
+    }
+
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
-      child: SizedBox(
+      child: Container(
         height: 50.0,
+        // Removed per-cell border to avoid doubled lines
+        decoration: const BoxDecoration(color: Colors.white),
         child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Image.asset(_getGenderIconPath(gender), height: 32),
+          child: Text(
+            icon,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -424,54 +464,47 @@ class AnimalListTableState extends State<AnimalListTable> {
     List<AnimalGender> usedGenders,
     BuildContext context,
   ) {
-    String firstColumnText;
     AnimalAge age;
+    String ageLabel;
 
     switch (index) {
       case 1:
-        firstColumnText = 'Pas geboren';
         age = AnimalAge.pasGeboren;
+        ageLabel = 'Pas geboren';
         break;
       case 2:
-        firstColumnText = 'Onvolwassen';
         age = AnimalAge.onvolwassen;
+        ageLabel = 'Jong';
         break;
       case 3:
-        firstColumnText = 'Volwassen';
         age = AnimalAge.volwassen;
+        ageLabel = 'Volwassen';
         break;
       case 4:
-        firstColumnText = 'Onbekend';
         age = AnimalAge.onbekend;
+        ageLabel = 'Onbekend';
         break;
       default:
-        firstColumnText = '';
         age = AnimalAge.onbekend;
+        ageLabel = 'Onbekend';
     }
 
     return TableRow(
       children: [
         TableCell(
           verticalAlignment: TableCellVerticalAlignment.middle,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                if (index != 0)
-                  age == AnimalAge.onbekend
-                      ? Image.asset(
-                        'assets/icons/gender/unknown_gender.png',
-                        height: _getIconSize(index),
-                        width: _getIconSize(index),
-                      )
-                      : Icon(
-                        Icons.pets,
-                        size: _getIconSize(index),
-                        color: _getIconColor(index),
-                      ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(firstColumnText)),
-              ],
+          child: Container(
+            // Removed per-cell border (grid handled by TableBorder)
+            decoration: const BoxDecoration(color: Colors.white),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                ageLabel,
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
@@ -492,8 +525,10 @@ class AnimalListTableState extends State<AnimalListTable> {
 
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
-      child: SizedBox(
+      child: Container(
         height: 50.0,
+        // Removed per-cell border (TableBorder provides lines)
+        decoration: const BoxDecoration(color: Colors.white),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -501,15 +536,24 @@ class AnimalListTableState extends State<AnimalListTable> {
                 _isEditing
                     ? TextFormField(
                       controller: _getController(age, gender),
+                      minLines: 1,
+                      maxLines: null,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                        AnimalListTableState.maxValueFormatter(100),
+                      ],
                       decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 4,
                           vertical: 8,
                         ),
-                        border: UnderlineInputBorder(),
+                        border: InputBorder.none,
+                        label: Text('type..'),
+                        labelStyle: TextStyle(color: Colors.grey),
                       ),
                       onTap: () {
                         // Clear the text when tapped
@@ -524,31 +568,26 @@ class AnimalListTableState extends State<AnimalListTable> {
                       },
                       onChanged: (value) {
                         if (!mounted) return;
-                        final count = int.tryParse(value) ?? 0;
+                        var count = int.tryParse(value) ?? 0;
+                        if (count > 100) {
+                          count = 100;
+                          final controller = _getController(age, gender);
+                          controller.text = '100';
+                          controller.selection = TextSelection.fromPosition(
+                            TextPosition(offset: controller.text.length),
+                          );
+                        }
                         final key = '${age.name}_${gender.name}';
                         _tempCounts[key] = count;
                         debugPrint('Updated temp count: $key = $count');
                       },
                     )
                     : Text(
-                      count.toString(),
+                      count == 0 ? '' : count.toString(),
                       style: const TextStyle(fontSize: 16),
                     ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEditButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: BrownButton(
-        model: ButtonModelFactory.createStandardButton(
-          text: _isEditing ? 'Opslaan' : 'Bewerken',
-          leftIconPath: _isEditing ? 'circle_icon:done' : 'circle_icon:edit',
-        ),
-        onPressed: _toggleEditMode,
       ),
     );
   }
@@ -562,22 +601,18 @@ class AnimalListTableState extends State<AnimalListTable> {
           Text(
             'Opmerkingen',
             style: TextStyle(
-              color: AppColors.brown,
+              color: Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
+              fontFamily: 'Roboto',
             ),
           ),
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            height: 150,
+            // Removed fixed height so the field can expand as user types.
+            // Constrain only the minimum height to keep initial single-line appearance.
+            constraints: const BoxConstraints(minHeight: 52),
             decoration: BoxDecoration(
               color: AppColors.offWhite,
               borderRadius: BorderRadius.circular(25),
@@ -585,13 +620,6 @@ class AnimalListTableState extends State<AnimalListTable> {
                 color: AppColors.brown.withValues(alpha: 0.3),
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25),
@@ -599,10 +627,11 @@ class AnimalListTableState extends State<AnimalListTable> {
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _opmerkingController,
+                  minLines: 1,
                   maxLines: null,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'typ hier...',
+                    label: Text('Typ hier...'),
                   ),
                   style: const TextStyle(fontSize: 16, height: 1.5),
                 ),

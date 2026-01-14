@@ -3,6 +3,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
 import 'package:wildrapport/models/ui_models/date_time_model.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
@@ -12,9 +13,11 @@ import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 
-class AnimalSightingReportingManager implements AnimalSightingReportingInterface {
+class AnimalSightingReportingManager
+    implements AnimalSightingReportingInterface {
   final List<VoidCallback> _listeners = [];
   AnimalSightingModel? _currentanimalSighting;
+  final List<ObservedAnimalEntry> _observedAnimals = [];
 
   // Core update method
   AnimalSightingModel _updateSighting({
@@ -86,7 +89,6 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
     }
   }
 
-  // Interface implementations
   @override
   AnimalSightingModel createanimalSighting() {
     _currentanimalSighting = AnimalSightingModel(
@@ -98,6 +100,10 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
       dateTime: null,
       images: null,
     );
+
+    // NEW: reset the counted animal batches when starting a new sighting
+    _observedAnimals.clear();
+
     _notifyListeners();
     return _currentanimalSighting!;
   }
@@ -392,5 +398,60 @@ class AnimalSightingReportingManager implements AnimalSightingReportingInterface
         );
         return AnimalCategory.andere;
     }
+  }
+
+  @override
+  void addObservedAnimal(ObservedAnimalEntry entry) {
+    _observedAnimals.add(entry);
+    _notifyListeners(); // trigger rebuilds for listeners (tables etc.)
+  }
+
+  @override
+  List<ObservedAnimalEntry> getObservedAnimals() {
+    return List.unmodifiable(_observedAnimals);
+  }
+
+  @override
+  void syncObservedAnimalsToSighting() {
+    // We need a sighting to sync into
+    if (_currentanimalSighting == null) return;
+
+    // We also need to know which species was selected
+    final baseAnimal = _currentanimalSighting!.animalSelected;
+    if (baseAnimal == null) return;
+
+    // Build a legacy-style `animals` list that SightingApiTransformer understands
+    final List<AnimalModel> converted = [];
+
+    for (final entry in _observedAnimals) {
+      // Create a ViewCountModel where only the matching age bucket is filled
+      final vc = ViewCountModel(
+        pasGeborenAmount: entry.age == AnimalAge.pasGeboren ? entry.count : 0,
+        onvolwassenAmount: entry.age == AnimalAge.onvolwassen ? entry.count : 0,
+        volwassenAmount: entry.age == AnimalAge.volwassen ? entry.count : 0,
+        unknownAmount: entry.age == AnimalAge.onbekend ? entry.count : 0,
+      );
+
+      // Attach gender + the age bucket counts
+      final gvc = AnimalGenderViewCount(gender: entry.gender, viewCount: vc);
+
+      // Build one AnimalModel for this batch
+      final batchModel = AnimalModel(
+        animalId: baseAnimal.animalId,
+        animalImagePath: baseAnimal.animalImagePath,
+        animalName: baseAnimal.animalName,
+        condition: entry.condition,
+        genderViewCounts: [gvc],
+      );
+
+      converted.add(batchModel);
+    }
+
+    // Write that into the active sighting
+    _currentanimalSighting = _currentanimalSighting!.copyWith(
+      animals: converted,
+    );
+
+    _notifyListeners();
   }
 }

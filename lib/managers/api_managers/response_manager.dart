@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 
 class ResponseManager implements ResponseInterface {
   ResponseApiInterface responseAPI;
@@ -24,7 +25,7 @@ class ResponseManager implements ResponseInterface {
   final yellowLog = '\x1B[93m';
 
   ResponseManager({
-    required this.responseAPI, 
+    required this.responseAPI,
     required this.responseProvider,
     Connectivity? connectivity,
   }) : _connectivity = connectivity ?? Connectivity();
@@ -93,8 +94,17 @@ class ResponseManager implements ResponseInterface {
     String questionID,
   ) async {
     try {
+      debugPrint("$yellowLog [ResponseManager]: === Storing Response ===");
+      debugPrint(
+        "$yellowLog [ResponseManager]: Questionnaire: $questionaireID",
+      );
+      debugPrint("$yellowLog [ResponseManager]: Question: $questionID");
+      debugPrint(
+        "$yellowLog [ResponseManager]: Answer ID: ${response.answerID}",
+      );
+      debugPrint("$yellowLog [ResponseManager]: Text: ${response.text}");
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      debugPrint("$yellowLog [ResponseManager]: Getting already stored responses!");
 
       List<ResponsesListObject>? storedResponsesList =
           await _getAlreadyStoredresponseListObjects();
@@ -112,30 +122,32 @@ class ResponseManager implements ResponseInterface {
       List<ResponseObject> responseObjects = [];
 
       // Check for multiple answerIDs (e.g., comma-separated)
-      if (response.answerID != null){
-        if (response.answerID!.contains(',')) {
-          List<String> answerIDs = response.answerID!.split(',');
-          for (String id in answerIDs) {
-            responseObjects.add(
-              ResponseObject(
-                questionID: questionID,
-                response: Response(
-                  interactionID: response.interactionID,
-                  questionID: response.questionID,
-                  answerID: id.trim(),
-                  text: response.text,
-                ),
+      if (response.answerID != null && response.answerID!.contains(',')) {
+        // Multiple answers - split by comma
+        List<String> answerIDs = response.answerID!.split(',');
+        debugPrint(
+          "$yellowLog [ResponseManager]: Splitting multiple answers: ${answerIDs.length} answers",
+        );
+        for (String id in answerIDs) {
+          responseObjects.add(
+            ResponseObject(
+              questionID: questionID,
+              response: Response(
+                interactionID: response.interactionID,
+                questionID: response.questionID,
+                answerID: id.trim(),
+                text: response.text,
               ),
-            );
-          }
+            ),
+          );
         }
       } else {
-        // Only one answerID
+        // Single answer or open-ended text response
+        debugPrint(
+          "$yellowLog [ResponseManager]: Storing single response - Question: $questionID, Answer: ${response.answerID}, Text: ${response.text}",
+        );
         responseObjects.add(
-          ResponseObject(
-            questionID: questionID,
-            response: response,
-          ),
+          ResponseObject(questionID: questionID, response: response),
         );
       }
 
@@ -144,21 +156,45 @@ class ResponseManager implements ResponseInterface {
       // Try to find existing entry
       for (var entry in responsesListObject.responses) {
         if (entry.containsKey(questionaireID)) {
-          entry[questionaireID]!.addAll(responseObjects);
+          debugPrint(
+            "$yellowLog [ResponseManager]: Found existing questionnaire entry, adding ${responseObjects.length} response(s)",
+          );
+          // Remove any previous responses for this question to avoid duplicate submissions
+          entry[questionaireID]!.removeWhere((r) => r.questionID == questionID);
+
+          // Deduplicate by answerID to prevent repeated posts
+          final existingAnswerIds = entry[questionaireID]!
+              .map((r) => r.response.answerID)
+              .whereType<String>()
+              .toSet();
+
+          for (final respObj in responseObjects) {
+            final answerId = respObj.response.answerID;
+            if (answerId == null || existingAnswerIds.add(answerId)) {
+              entry[questionaireID]!.add(respObj);
+            }
+          }
           found = true;
           break;
         }
       }
 
       if (!found) {
-        responsesListObject.responses.add({
-          questionaireID: responseObjects,
-        });
+        debugPrint(
+          "$yellowLog [ResponseManager]: Creating new questionnaire entry with ${responseObjects.length} response(s)",
+        );
+        responsesListObject.responses.add({questionaireID: responseObjects});
       }
 
       List<String> jsonStringList =
           responses.map((obj) => jsonEncode(obj.toJson())).toList();
       await prefs.setStringList('responses', jsonStringList);
+
+      debugPrint("$greenLog [ResponseManager]: Response stored successfully!");
+      debugPrint(
+        "$yellowLog [ResponseManager]: Total responses in storage: ${responsesListObject.responses.length} questionnaire(s)",
+      );
+
       responseProvider.clearResponse();
     } catch (e, stackTrace) {
       debugPrint(e.toString());
@@ -269,24 +305,36 @@ class ResponseManager implements ResponseInterface {
 
   @override
   Future<void> submitResponses() async {
+    debugPrint(
+      "$yellowLog [ResponseManager]: === Starting submitResponses ===",
+    );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<ResponsesListObject>? storedResponsesList =
         await _getAlreadyStoredresponseListObjects();
 
     if (storedResponsesList == null || storedResponsesList.isEmpty) {
-      debugPrint("No stored responses to submit.");
+      debugPrint("$redLog [ResponseManager]: No stored responses to submit.");
       return;
     }
 
     List<ResponsesListObject> responsesList = storedResponsesList;
+    debugPrint(
+      "$yellowLog [ResponseManager]: Found ${responsesList.length} response list objects",
+    );
 
     final results = await _connectivity.checkConnectivity();
     debugPrint(results.toString());
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
 
     if (hasConnection) {
+      int totalResponses = 0;
+      int successfulResponses = 0;
+
       for (int i = 0; i < responsesList.length; i++) {
         ResponsesListObject listObject = responsesList[i];
+        debugPrint(
+          "$yellowLog [ResponseManager]: Processing list object $i with ${listObject.responses.length} questionnaires",
+        );
 
         // For each questionnaire entry
         for (int j = 0; j < listObject.responses.length; j++) {
@@ -294,38 +342,88 @@ class ResponseManager implements ResponseInterface {
           String questionaireID = entry.keys.first;
           List<ResponseObject> responseObjects = entry[questionaireID]!;
 
+          debugPrint(
+            "$yellowLog [ResponseManager]: Questionnaire $questionaireID has ${responseObjects.length} responses to submit",
+          );
+
           List<ResponseObject> failedResponses = [];
 
           for (var responseObj in responseObjects) {
+            totalResponses++;
             Response r = responseObj.response;
-            bool success = await responseAPI.addReponse(
+            debugPrint(
+              "$yellowLog [ResponseManager]: Submitting response $totalResponses - Question: ${r.questionID}",
+            );
+
+            final result = await responseAPI.addReponse(
               r.interactionID,
               r.questionID,
               r.answerID,
               r.text,
             );
 
-            if (!success) {
+            if (!result.success) {
               failedResponses.add(responseObj);
+              debugPrint(
+                "$redLog [ResponseManager]: Response $totalResponses FAILED",
+              );
+            } else {
+              successfulResponses++;
+              debugPrint(
+                "$greenLog [ResponseManager]: Response $totalResponses SUCCESS",
+              );
+              
+              // Check for conveyance and trigger notification
+              if (result.conveyance != null) {
+                final messageText = result.conveyance!.messageText;
+                if (messageText != null && messageText.isNotEmpty) {
+                  debugPrint(
+                    "$yellowLog [ResponseManager]: 🔔 Triggering notification for conveyance: $messageText",
+                  );
+                  try {
+                    await NotificationService.instance.showConveyanceNotification(
+                      messageText: messageText,
+                      animalName: result.conveyance!.animalName,
+                    );
+                  } catch (e) {
+                    debugPrint(
+                      "$redLog [ResponseManager]: Failed to show notification: $e",
+                    );
+                  }
+                }
+              }
             }
           }
 
           // Update the entry with only failed responses if there were any
           if (failedResponses.isNotEmpty) {
             listObject.responses[j][questionaireID] = failedResponses;
+            debugPrint(
+              "$yellowLog [ResponseManager]: ${failedResponses.length} responses failed, keeping in storage",
+            );
           } else {
             // Remove successfully submitted questionnaire entry
             listObject.responses[j].remove(questionaireID);
+            debugPrint(
+              "$greenLog [ResponseManager]: All responses for questionnaire $questionaireID submitted successfully",
+            );
           }
         }
       }
+
+      debugPrint("$yellowLog [ResponseManager]: === Submit Summary ===");
+      debugPrint(
+        "$yellowLog [ResponseManager]: Total: $totalResponses, Successful: $successfulResponses, Failed: ${totalResponses - successfulResponses}",
+      );
 
       // Remove empty entries and persist updated list
       responsesList.removeWhere((object) => object.responses.isEmpty);
 
       if (responsesList.isEmpty) {
         await prefs.remove('responses');
-        debugPrint("All stored responses submitted and cleared.");
+        debugPrint(
+          "$greenLog [ResponseManager]: All stored responses submitted and cleared.",
+        );
       } else {
         List<String> updatedJson =
             responsesList.map((obj) => jsonEncode(obj.toJson())).toList();

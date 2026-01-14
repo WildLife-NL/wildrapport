@@ -1,32 +1,49 @@
+import 'package:flutter/material.dart';
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
+import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 
 class BelongingDamageReport implements Reportable, PossesionReportFields {
   final String? possesionDamageReportID;
+
   @override
-  final Possesion possesion;
+  final Possesion possesion; // what got damaged (crop etc.)
+
   @override
-  final String impactedAreaType;
+  final String impactedAreaType; // e.g. "square-meters" or "units"
+
   @override
-  final double impactedArea;
+  final double impactedArea; // numeric value (already in correct unit)
+
   @override
-  final double currentImpactDamages;
+  final double currentImpactDamages; // estimatedDamage €
+
   @override
-  final double estimatedTotalDamages;
+  final double estimatedTotalDamages; // estimatedLoss €
+
   @override
   final String? description;
+
   @override
-  final String? suspectedSpeciesID;
+  final String? suspectedSpeciesID; // speciesID that caused damage
+
   @override
-  final ReportLocation? userSelectedLocation;
+  final ReportLocation? userSelectedLocation; // "place" in payload
+
   @override
-  final ReportLocation? systemLocation;
+  final ReportLocation? systemLocation; // "location" in payload
+
   @override
   final DateTime? userSelectedDateTime;
+
   @override
   final DateTime systemDateTime;
+
+  // New fields for map-based area reporting
+  final PolygonArea? polygonArea; // Polygon drawn on map
+  final String? damageCategory; // 'livestock' or 'crops'
 
   BelongingDamageReport({
     this.possesionDamageReportID,
@@ -41,27 +58,68 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     this.systemLocation,
     this.userSelectedDateTime,
     required this.systemDateTime,
+    this.polygonArea,
+    this.damageCategory,
   });
-  @override
-  Map<String, dynamic> toJson() => {
-    "possesionDamageReportID": possesionDamageReportID,
-    "belonging": {
-      "ID": possesion.possesionID,
-      "name": possesion.possesionName,
-      "category": possesion.category,
-    },
-    "impactType": impactedAreaType,
-    "impactValue": impactedArea,
-    "estimatedDamage": currentImpactDamages,
-    "estimatedLoss": estimatedTotalDamages,
-    "description": description,
-    "suspectedAnimalID": suspectedSpeciesID,
-    "userSelectedLocation": userSelectedLocation?.toJson(),
-    "systemLocation": systemLocation?.toJson(),
-    "userSelectedDateTime": userSelectedDateTime?.toIso8601String(),
-    "systemDateTime": systemDateTime.toIso8601String(),
-  };
 
+  // ⬇⬇⬇ THIS IS THE IMPORTANT PART ⬇⬇⬇
+  // We now return EXACTLY what /interaction expects for a damage report (typeID: 2)
+  @override
+  Map<String, dynamic> toJson() {
+    // Basic validation
+    if (systemLocation == null && userSelectedLocation == null) {
+      throw StateError('At least one location (system or user-selected) is required for damage report');
+    }
+    if (userSelectedLocation == null) {
+      throw StateError('User-selected location is required for damage report');
+    }
+    if (impactedAreaType.isEmpty) {
+      throw StateError('impactType is required');
+    }
+    if (impactedArea <= 0) {
+      throw StateError('impactValue must be > 0');
+    }
+
+    // ✅ Use possesionName (free text) as per API schema
+    final String? belongingName = possesion.possesionName;
+    debugPrint("🔍 toJson: possesionName = '$belongingName'");
+
+    if (belongingName == null || belongingName.trim().isEmpty) {
+      debugPrint("❌ toJson: belonging name is null or empty!");
+      throw StateError(
+        'belonging name is required - got: ${belongingName ?? "null"}',
+      );
+    }
+
+    return {
+      "description": description ?? "",
+      "location": {
+        "latitude": systemLocation!.latitude,
+        "longitude": systemLocation!.longtitude,
+      },
+      // API uses UTC ISO8601 with Z suffix
+      "moment": systemDateTime.toUtc().toIso8601String(),
+      "place": {
+        "latitude": userSelectedLocation!.latitude,
+        "longitude": userSelectedLocation!.longtitude,
+      },
+      "reportOfDamage": {
+        // ✅ Send the free text name as per API schema
+        "belonging": belongingName.trim(),
+
+        // ✅ ints (int64)
+        "estimatedDamage": currentImpactDamages.round(),
+        "estimatedLoss": estimatedTotalDamages.round(),
+        "impactType": impactedAreaType, // "square-meters" | "units"
+        "impactValue": impactedArea.round(),
+      },
+      "speciesID": suspectedSpeciesID,
+      "typeID": 2, // 2 = gewasschade
+    };
+  }
+
+  // You can keep fromJson if you still need to deserialize local/offline copies.
+  // This is for app-side storage, NOT the /interaction response.
   factory BelongingDamageReport.fromJson(Map<String, dynamic> json) =>
       BelongingDamageReport(
         possesionDamageReportID: json["possesionDamageReportID"],
@@ -85,6 +143,10 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
                 ? DateTime.parse(json["userSelectedDateTime"])
                 : null,
         systemDateTime: DateTime.parse(json["systemDateTime"]),
+        polygonArea:
+            json["polygonArea"] != null
+                ? PolygonArea.fromJson(json["polygonArea"])
+                : null,
+        damageCategory: json["damageCategory"],
       );
 }
-

@@ -14,6 +14,8 @@ import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dar
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
 import '../mock_generator.mocks.dart';
+import 'package:wildrapport/models/enums/animal_age.dart';
+import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 
 void main() {
   late MockNavigationStateInterface mockNavigationManager;
@@ -32,7 +34,9 @@ void main() {
     reset(mockAppStateProvider);
 
     // Setup test data
-    when(mockAppStateProvider.currentReportType).thenReturn(ReportType.waarneming);
+    when(
+      mockAppStateProvider.currentReportType,
+    ).thenReturn(ReportType.waarneming);
 
     // Setup animal sighting data
     final testAnimalSighting = AnimalSightingModel(
@@ -44,24 +48,33 @@ void main() {
         genderViewCounts: [],
       ),
     );
-    
-    when(mockAnimalSightingManager.getCurrentanimalSighting())
-        .thenReturn(testAnimalSighting);
-        
+
+    when(
+      mockAnimalSightingManager.getCurrentanimalSighting(),
+    ).thenReturn(testAnimalSighting);
+
     // Setup navigation
-    when(mockNavigationManager.pushForward(any, any))
-        .thenAnswer((_) => Future.value(true));
-    when(mockNavigationManager.pushReplacementForward(any, any))
-        .thenAnswer((_) => Future.value(true));
+    when(
+      mockNavigationManager.pushForward(any, any),
+    ).thenAnswer((_) => Future.value(true));
+    when(
+      mockNavigationManager.pushReplacementForward(any, any),
+    ).thenAnswer((_) => Future.value(true));
   });
 
   Widget createAnimalCountingScreen() {
     return MaterialApp(
       home: MultiProvider(
         providers: [
-          Provider<NavigationStateInterface>.value(value: mockNavigationManager),
-          Provider<AnimalSightingReportingInterface>.value(value: mockAnimalSightingManager),
-          ChangeNotifierProvider<AppStateProvider>.value(value: mockAppStateProvider),
+          Provider<NavigationStateInterface>.value(
+            value: mockNavigationManager,
+          ),
+          Provider<AnimalSightingReportingInterface>.value(
+            value: mockAnimalSightingManager,
+          ),
+          ChangeNotifierProvider<AppStateProvider>.value(
+            value: mockAppStateProvider,
+          ),
         ],
         child: const Scaffold(body: AnimalCountingScreen()),
       ),
@@ -73,7 +86,7 @@ void main() {
       // Arrange
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
-      
+
       // Act
       await tester.pumpWidget(createAnimalCountingScreen());
       await tester.pumpAndSettle();
@@ -101,7 +114,7 @@ void main() {
 
       // Assert - Check for age options
       expect(find.text('Volwassen'), findsOneWidget);
-      expect(find.text('<6 maanden'), findsOneWidget);
+      expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
       expect(find.text('Onvolwassen'), findsOneWidget);
 
       // Cleanup
@@ -126,7 +139,7 @@ void main() {
       // Arrange
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
-      
+
       // Create a GenderViewCount with a non-zero count to trigger _hasAddedItems
       final genderViewCount = AnimalGenderViewCount(
         gender: AnimalGender.mannelijk,
@@ -137,7 +150,7 @@ void main() {
           unknownAmount: 0,
         ),
       );
-      
+
       // Create an animal with the gender view count
       final animalWithCount = AnimalModel(
         animalId: '1',
@@ -145,7 +158,7 @@ void main() {
         animalImagePath: 'assets/wolf.png',
         genderViewCounts: [genderViewCount],
       );
-      
+
       // Mock that an animal has been added to the list with counts
       when(mockAnimalSightingManager.getCurrentanimalSighting()).thenReturn(
         AnimalSightingModel(
@@ -153,19 +166,19 @@ void main() {
           animalSelected: animalWithCount,
         ),
       );
-      
+
       // Act
       await tester.pumpWidget(createAnimalCountingScreen());
       await tester.pumpAndSettle();
-      
+
       // The next button should now be visible in the CustomBottomAppBar
       // Look for the "Volgende" text which is the Dutch word for "Next"
       expect(find.text('Volgende'), findsOneWidget);
-      
+
       // Tap the next button by finding the row containing "Volgende"
       await tester.tap(find.text('Volgende'));
       await tester.pumpAndSettle();
-      
+
       // Verify navigation was called
       verify(mockNavigationManager.pushReplacementForward(any, any)).called(1);
 
@@ -174,9 +187,3 @@ void main() {
     });
   });
 }
-
-
-
-
-
-
