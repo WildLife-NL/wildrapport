@@ -41,14 +41,6 @@ class AnimalManager
           )
           .toList();
 
-      // Add 'Onbekend' animal at the end
-      _cachedAnimals!.add(AnimalModel(
-        animalId: 'unknown',
-        animalImagePath: null,
-        animalName: 'Onbekend',
-        genderViewCounts: [],
-      ));
-
       return _getFilteredAnimals(_cachedAnimals!);
     } catch (e) {
       debugPrint('[AnimalManager] Error fetching animals: $e');
