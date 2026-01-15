@@ -15,7 +15,7 @@ A Flutter application for reporting and tracking wildlife sightings and interact
 
 - Flutter SDK 3.7.0 or higher
 - Dart SDK
-- Android Studio / Xcode (for mobile development)
+- Android Studio / Visual Studio Code (for mobile development)
 - A `.env` file with required API configuration
 
 ## Getting Started
@@ -86,3 +86,4 @@ flutter build ios
 ## License
 
 See the [LICENSE](LICENSE) file for details.
+
