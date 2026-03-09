@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/animals/animal_grid.dart';
 
@@ -28,7 +29,7 @@ class ScrollableAnimalGrid extends StatelessWidget {
           width: 200,
           height: 200,
           child: Lottie.asset(
-            'assets/loaders/loading_paw.json',
+            AppIconPaths.loadingPaw,
             fit: BoxFit.contain,
             repeat: true,
             animate: true,

@@ -259,28 +259,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            backgroundColor: WidgetStateProperty.resolveWith<Color?>(
                               (states) {
-                                if (states.contains(MaterialState.hovered) ||
-                                    states.contains(MaterialState.pressed)) {
+                                if (states.contains(WidgetState.hovered) ||
+                                    states.contains(WidgetState.pressed)) {
                                   return AppColors.lightGreen;
                                 }
                                 return AppColors.lightMintGreen;
                               },
                             ),
-                            foregroundColor: MaterialStateProperty.resolveWith<Color?>(
+                            foregroundColor: WidgetStateProperty.resolveWith<Color?>(
                               (states) {
-                                if (states.contains(MaterialState.hovered) ||
-                                    states.contains(MaterialState.pressed)) {
+                                if (states.contains(WidgetState.hovered) ||
+                                    states.contains(WidgetState.pressed)) {
                                   return AppColors.offWhite;
                                 }
                                 return AppColors.black;
                               },
                             ),
-                            padding: MaterialStateProperty.all(
+                            padding: WidgetStateProperty.all(
                               EdgeInsets.symmetric(vertical: responsive.hp(1.75)),
                             ),
-                            shape: MaterialStateProperty.all(
+                            shape: WidgetStateProperty.all(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(responsive.sp(3)),
                               ),

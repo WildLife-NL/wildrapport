@@ -9,6 +9,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/selection_button_group.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -129,21 +130,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   userIconScale: 1.15,
                 ),
                 SelectionButtonGroup(
-                  buttons: const [
+                  buttons: [
                     (
                       text: 'Evenhoevigen',
                       icon: null,
-                      imagePath: 'assets/icons/category/evenhoevigen.png',
+                      imagePath: iconCategoryEvenhoevigen,
                     ),
                     (
                       text: 'Knaagdieren',
                       icon: null,
-                      imagePath: 'assets/icons/category/knaagdieren.png',
+                      imagePath: iconCategoryKnaagdieren,
                     ),
                     (
                       text: 'Roofdieren',
                       icon: null,
-                      imagePath: 'assets/icons/category/roofdieren.png',
+                      imagePath: iconCategoryRoofdieren,
                     ),
                     (text: 'Andere', icon: Icons.more_horiz, imagePath: null),
                   ],

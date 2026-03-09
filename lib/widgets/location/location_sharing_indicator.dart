@@ -120,7 +120,7 @@ class LocationSharingBadge extends StatelessWidget {
           height: badgeSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.darkGreen.withOpacity(0.2),
+            color: AppColors.darkGreen.withValues(alpha:0.2),
             border: Border.all(
               color: AppColors.darkGreen,
               width: 1.5,

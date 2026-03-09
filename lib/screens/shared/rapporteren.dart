@@ -15,6 +15,7 @@ import 'package:wildrapport/widgets/questionnaire/report_button.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key});
@@ -224,23 +225,23 @@ class _RapporterenState extends State<Rapporteren> {
                                           if (typeName == 'waarneming' ||
                                               typeName.contains('sighting')) {
                                             icon =
-                                                'assets/icons/binoculars.png';
+                                                iconBinoculars;
                                           } else if (typeName ==
                                                   'schademelding' ||
                                               typeName.contains(
                                                 'crop damage',
                                               )) {
                                             icon =
-                                                'assets/icons/agriculture.png';
+                                                iconAgriculture;
                                           } else if (typeName ==
                                                   'dieraanrijding' ||
                                               typeName.contains(
                                                 'animal collision',
                                               )) {
-                                            icon = 'assets/icons/accident.png';
+                                            icon = iconAccident;
                                           } else {
                                             icon =
-                                                'assets/icons/binoculars.png'; // Default icon
+                                                iconBinoculars; // Default icon
                                           }
 
                                           return Padding(

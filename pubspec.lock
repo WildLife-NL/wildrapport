@@ -1252,6 +1252,60 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  wildlifenl_assets:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_assets_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: "07e90be20d2b1eae41b269c2de10ee58b91cad43"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.1.0"
+  wildlifenl_authenticator_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_authenticator_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: ab17adc4179d2b147aff7bc276232d21e2aedfa0
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.1.0"
+  wildlifenl_interaction_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_interaction_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: "866e2de68f1b74647bbbd29f688570a007bb0c16"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.1.0"
+  wildlifenl_login_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_login_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: "59321914b8c8671ea46784a3ab3cc408300e7769"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.1.0"
+  wildlifenl_map_logic_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_map_logic_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: "961bae41a7c0dda703292e7e441133841c2bda0f"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "1.0.0"
+  wildlifenl_map_ui_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_map_ui_components
+      ref: Wildlife-rapport-Components
+      resolved-ref: "961bae41a7c0dda703292e7e441133841c2bda0f"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "1.1.0"
   win32:
     dependency: transitive
     description:

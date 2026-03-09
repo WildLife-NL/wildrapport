@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as flutter_map;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
@@ -30,7 +32,7 @@ class LocationMapPreview extends StatelessWidget {
                 width: responsive.sp(6),
                 height: responsive.sp(6),
                 child: Lottie.asset(
-                  'assets/loaders/loading_paw.json',
+                  AppIconPaths.loadingPaw,
                   fit: BoxFit.contain,
                   repeat: true,
                   animate: true,
@@ -54,21 +56,19 @@ class LocationMapPreview extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(responsive.sp(3.75)),
                 ),
-                child: flutter_map.FlutterMap(
+                child: WildLifeNLMap(
                   mapController: mapProvider.mapController,
                   options: flutter_map.MapOptions(
                     initialCenter: point,
                     initialZoom: 15,
+                    minZoom: 4.0,
+                    maxZoom: 18.0,
                     interactionOptions: const flutter_map.InteractionOptions(
                       flags: flutter_map.InteractiveFlag.none,
                     ),
                   ),
-                  children: [
-                    flutter_map.TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.wildrapport.app',
-                    ),
+                  userAgentPackageName: 'nl.wildlife.rapport',
+                  extraLayers: [
                     flutter_map.MarkerLayer(
                       markers: [
                         flutter_map.Marker(

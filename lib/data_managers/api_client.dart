@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 class ApiClient {
   static const String _tokenKey = 'bearer_token';
 
+  /// Timeout for API requests (mobiel netwerk kan traag zijn).
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
   final String baseUrl;
 
   ApiClient(this.baseUrl);
@@ -20,7 +23,7 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     // debugPrint("GET: $uri");
-    return await http.get(uri, headers: headers);
+    return await http.get(uri, headers: headers).timeout(_requestTimeout);
   }
 
   Future<http.Response> post(
@@ -32,11 +35,9 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     // debugPrint("POST: $uri");
-    http.Response response = await http.post(
-      uri,
-      body: jsonEncode(body),
-      headers: headers,
-    );
+    http.Response response = await http
+        .post(uri, body: jsonEncode(body), headers: headers)
+        .timeout(_requestTimeout);
 
     return response;
   }
@@ -50,7 +51,9 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     // debugPrint("PUT: $uri");
-    return await http.put(uri, body: jsonEncode(body), headers: headers);
+    return await http
+        .put(uri, body: jsonEncode(body), headers: headers)
+        .timeout(_requestTimeout);
   }
 
   Future<http.Response> delete(
@@ -61,7 +64,7 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     // debugPrint("DELETE: $uri");
-    return await http.delete(uri, headers: headers);
+    return await http.delete(uri, headers: headers).timeout(_requestTimeout);
   }
 
   /// Send a PATCH request with a JSON body.
@@ -74,7 +77,9 @@ class ApiClient {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
     // debugPrint("PATCH: $uri");
-    return await http.patch(uri, body: jsonEncode(body), headers: headers);
+    return await http
+        .patch(uri, body: jsonEncode(body), headers: headers)
+        .timeout(_requestTimeout);
   }
 
   Future<Map<String, String>> _buildHeaders(

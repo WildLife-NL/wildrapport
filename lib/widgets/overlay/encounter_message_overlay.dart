@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class EncounterMessageOverlay extends StatelessWidget {
   final String message;
@@ -28,7 +29,7 @@ class EncounterMessageOverlay extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
-        color: Colors.black.withOpacity(0.28),
+        color: Colors.black.withValues(alpha:0.28),
         child: Center(
           child: GestureDetector(
             onTap: () {},
@@ -44,7 +45,7 @@ class EncounterMessageOverlay extends StatelessWidget {
                   vertical: responsive.hp(1.2),
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.lightMintGreen.withOpacity(0.95),
+                  color: AppColors.lightMintGreen.withValues(alpha:0.95),
                   borderRadius: BorderRadius.circular(responsive.sp(1.75)),
                   border: Border.all(
                     color: AppColors.darkGreen,
@@ -67,7 +68,7 @@ class EncounterMessageOverlay extends StatelessWidget {
                           responsive.sp(0.75),
                         ),
                         child: Image.asset(
-                          'assets/icons/animalmeet.png',
+                          iconAnimalmeet,
                           fit: BoxFit.cover,
                           errorBuilder:
                               (c, e, s) =>

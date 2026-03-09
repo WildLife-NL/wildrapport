@@ -11,8 +11,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 
 class AppStateProvider with ChangeNotifier {
+  AppStateProvider({WildLifeNLAuthenticator? authenticator})
+      : _authenticator = authenticator;
+
+  final WildLifeNLAuthenticator? _authenticator;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final Map<String, Map<String, dynamic>> _screenStates = {};
   final Map<String, dynamic> _activeReports = {};
@@ -224,12 +229,10 @@ class AppStateProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    // Remove persisted auth/session
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('bearer_token');
+      await _authenticator?.clearSession();
     } catch (e, st) {
-      debugPrint('[AppStateProvider] logout(): failed to clear token: $e\n$st');
+      debugPrint('[AppStateProvider] logout(): failed to clear session: $e\n$st');
     }
 
     // Reset in-memory app state
@@ -259,15 +262,12 @@ class AppStateProvider with ChangeNotifier {
     _lastLocationUpdate = null;
     notifyListeners();
 
-    // Remove persisted auth/session
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('bearer_token');
+      await _authenticator?.clearSession();
     } catch (e, st) {
-      debugPrint('[AppStateProvider] deleteProfile(): failed to clear token: $e\n$st');
+      debugPrint('[AppStateProvider] deleteProfile(): failed to clear session: $e\n$st');
     }
 
-    // Navigate to LoginScreen & clear back stack
     navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,

@@ -76,11 +76,8 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);
 
-    return WillPopScope(
-      onWillPop: () async {
-        // Prevent back button from doing anything - user is on home screen
-        return false;
-      },
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         backgroundColor: AppColors.lightMintGreen,
         body: LayoutBuilder(

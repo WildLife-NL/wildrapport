@@ -222,7 +222,7 @@ class DropdownManager implements DropdownInterface {
             child: InkWell(
               onTap: () => onExpandChanged(!isExpanded),
               borderRadius: BorderRadius.circular(25),
-              hoverColor: AppColors.darkGreen.withOpacity(0.15),
+              hoverColor: AppColors.darkGreen.withValues(alpha:0.15),
               child: Container(
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -295,7 +295,7 @@ class DropdownManager implements DropdownInterface {
                     onExpandChanged(false);
                   },
                   borderRadius: BorderRadius.circular(25),
-                  hoverColor: AppColors.darkGreen.withOpacity(0.15),
+                  hoverColor: AppColors.darkGreen.withValues(alpha:0.15),
                   child: Container(
                     height: 48,
                     padding: const EdgeInsets.symmetric(horizontal: 16),

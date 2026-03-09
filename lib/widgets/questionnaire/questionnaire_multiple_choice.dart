@@ -222,57 +222,84 @@ class _QuestionnaireMultipleChoiceState
             SizedBox(height: responsive.spacing(24)),
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    if (widget.question.answers != null)
-                      ...widget.question.answers!.map((answer) {
-                        final isSelected = widget.question.allowMultipleResponse
-                            ? selectedAnswerIDs.contains(answer.id)
-                            : selectedAnswerID == answer.id;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                child: widget.question.allowMultipleResponse
+                    ? Column(
+                        children: [
+                          if (widget.question.answers != null)
+                            ...widget.question.answers!.map((answer) {
+                              final isSelected =
+                                  selectedAnswerIDs.contains(answer.id);
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CheckboxListTile(
+                                    value: isSelected,
+                                    title: Text(
+                                      answer.text,
+                                      style: TextStyle(
+                                        fontSize: responsive.fontSize(18),
+                                        fontFamily: 'Roboto',
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    onChanged: (checked) {
+                                      setState(() {
+                                        _onSelectAnswer(
+                                          answerId: answer.id,
+                                          selected: checked ?? false,
+                                        );
+                                      });
+                                    },
+                                  ),
+                                  if (_allowFreeText && isSelected)
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: responsive.spacing(12),
+                                        vertical: responsive.spacing(4),
+                                      ),
+                                      child: TextField(
+                                        controller: _textControllers[answer.id],
+                                        decoration: const InputDecoration(
+                                          labelText: 'Toelichting',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        maxLines: null,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            }),
+                        ],
+                      )
+                    : RadioGroup<String>(
+                        groupValue: selectedAnswerID,
+                        onChanged: (String? value) {
+                          setState(() {
+                            if (value != null) {
+                              _onSelectAnswer(answerId: value, selected: true);
+                            }
+                          });
+                        },
+                        child: Column(
                           children: [
-                            widget.question.allowMultipleResponse
-                                ? CheckboxListTile(
-                                  value: isSelected,
-                                  title: Text(
-                                    answer.text,
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(18),
-                                      fontFamily: 'Roboto',
-                                      color: Colors.black,
+                            if (widget.question.answers != null)
+                              ...widget.question.answers!.map((answer) {
+                                final isSelected =
+                                    selectedAnswerID == answer.id;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RadioListTile<String>(
+                                      value: answer.id,
+                                      title: Text(
+                                        answer.text,
+                                        style: TextStyle(
+                                          fontSize: responsive.fontSize(18),
+                                          fontFamily: 'Roboto',
+                                          color: Colors.black,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  onChanged: (checked) {
-                                    setState(() {
-                                      _onSelectAnswer(
-                                        answerId: answer.id,
-                                        selected: checked ?? false,
-                                      );
-                                    });
-                                  },
-                                )
-                                : RadioListTile<String>(
-                                  title: Text(
-                                    answer.text,
-                                    style: TextStyle(
-                                      fontSize: responsive.fontSize(18),
-                                      fontFamily: 'Roboto',
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  value: answer.id,
-                                  groupValue: selectedAnswerID,
-                                  onChanged: (String? value) {
-                                    setState(() {
-                                      _onSelectAnswer(
-                                        answerId: answer.id,
-                                        selected: value == answer.id,
-                                      );
-                                    });
-                                  },
-                                ),
                             if (_allowFreeText && isSelected)
                               Padding(
                                 padding: EdgeInsets.symmetric(
@@ -288,12 +315,13 @@ class _QuestionnaireMultipleChoiceState
                                   maxLines: null,
                                 ),
                               ),
+                                  ],
+                                );
+                              }),
                           ],
-                        );
-                      }),
-                  ],
-                ),
-              ),
+                        ),
+                      ),
+                    ),
             ),
             CustomBottomAppBar(
               onNextPressed: widget.onNextPressed,

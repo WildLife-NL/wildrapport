@@ -9,6 +9,36 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wildlifenl_interaction_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_interaction_components
+  wildlifenl_authenticator_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_authenticator_components
+  wildlifenl_login_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_login_components
+  wildlifenl_map_ui_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_map_ui_components
+  wildlifenl_map_logic_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_map_logic_components
+  wildlifenl_assets:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: Wildlife-rapport-Components
+      path: wildlifenl_assets_components
   auto_size_text: ^3.0.0
   cupertino_icons: ^1.0.8
   flutter_dotenv: ^6.0.0
@@ -63,38 +93,11 @@ flutter:
 
   assets:
     - assets/app_logo.png
+    - assets/LogoWildlifeNL.png
     - assets/loaders/loading_paw.json
     - assets/gifs/login.gif
     - assets/gifs/thankyou.gif
-    - assets/icons/marked_earth.png
-    - assets/icons/report.png
-    - assets/icons/my_report.png
-    - assets/icons/rapporteren/crop_icon.png
-    - assets/icons/rapporteren/health_icon.png
-    - assets/icons/rapporteren/sighting_icon.png
-    - assets/icons/rapporteren/accident_icon.png
-    - assets/icons/accident.png
-    - assets/icons/binoculars.png
-    - assets/icons/agriculture.png
-    - assets/icons/animals/
-    - assets/animals/
-    - assets/icons/category/evenhoevigen.png
-    - assets/icons/category/knaagdieren.png
-    - assets/icons/category/roofdieren.png
-    - assets/icons/questionnaire/arrow.png
-    - assets/icons/questionnaire/arrow_forward.png
-    - assets/icons/questionnaire/save.png
-    - assets/icons/gender/female_gender.png
-    - assets/icons/gender/male_gender.png
-    - assets/icons/gender/unknown_gender.png
-    - assets/icons/possesion/impacted_area_type.png
-    - assets/icons/possesion/gewassen/apple.svg
-    - assets/icons/possesion/gewassen/corn.svg
-    - assets/icons/possesion/gewassen/grass.svg
-    - assets/icons/possesion/gewassen/radish_2.svg
-    - assets/icons/possesion/gewassen/tomato.svg
-    - assets/icons/possesion/gewassen/tulip_2.svg
-    - assets/icons/possesion/gewassen/wheat.svg
+    # Icons + dier-assets zitten in wildlifenl_assets (git)
     - assets/location/location_icon.png
     - .env
 

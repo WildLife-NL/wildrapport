@@ -9,7 +9,8 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart'
     show ErrorOverlay;
-import 'package:wildrapport/widgets/login/verification_code_input.dart';
+import 'package:wildlifenl_login_components/wildlifenl_login_components.dart'
+    show VerificationCodeInput;
 import '../mock_generator.mocks.dart';
 
 void main() {

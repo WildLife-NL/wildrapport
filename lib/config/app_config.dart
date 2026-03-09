@@ -7,7 +7,13 @@ class AppConfig {
   static AppConfig shared = AppConfig.create();
 
   factory AppConfig.create() {
-    return shared = AppConfig(ApiClient(dotenv.get('DEV_BASE_URL')));
+    final baseUrl = (dotenv.env['DEV_BASE_URL'] ?? '').trim();
+    if (baseUrl.isEmpty) {
+      throw StateError(
+        'DEV_BASE_URL ontbreekt in .env. Zorg dat dotenv.load() is aangeroepen en DEV_BASE_URL is gezet.',
+      );
+    }
+    return shared = AppConfig(ApiClient(baseUrl));
   }
   AppConfig(this.apiClient);
 }

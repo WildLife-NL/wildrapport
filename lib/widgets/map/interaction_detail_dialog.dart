@@ -80,7 +80,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.darkGreen.withOpacity(0.1),
+                            color: AppColors.darkGreen.withValues(alpha:0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Image.asset(
@@ -163,10 +163,7 @@ class InteractionDetailDialog extends StatelessWidget {
                       ),
                     ],
 
-                    // TODO: Add when API provides this data
-                    // Animal details (sex, age, count)
-                    // Reporter information
-                    // Photos if available
+                    // Add when API provides: animal details (sex, age, count), reporter info, photos
                   ],
                 ),
               ),
@@ -384,7 +381,7 @@ class InteractionDetailDialog extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkGreen.withOpacity(0.1),
+                    color: AppColors.darkGreen.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

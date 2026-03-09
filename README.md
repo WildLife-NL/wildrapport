@@ -55,6 +55,7 @@ For details on the required keys and their meaning, see `env usage.txt` in the p
   - `managers/` - Business logic managers
   - `widgets/` - Reusable UI components
   - `utils/` - Helper functions and utilities
+- **WildLifeNL Map UI Components** en **WildLifeNL Map Logic Components** – komen uit de GitHub-repo [WildLife-NL/wildlifenl-components](https://github.com/WildLife-NL/wildlifenl-components) (branch `Wildlife-rapport-Components`), subfolders `wildlifenl_map_ui_components` en `wildlifenl_map_logic_components`.
 - `test/` - Unit and widget tests
 - `integration_test/` - Integration tests
 - `assets/` - Images, icons, and other assets

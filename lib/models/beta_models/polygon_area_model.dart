@@ -1,32 +1,50 @@
+import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
+
+const Distance _distance = Distance();
 
 class PolygonArea {
   final List<LatLng> points;
-  final String areaType; // 'polygon' or 'gps_recording'
-  
+  final String areaType; // 'polygon', 'gps_recording', or 'radius'
+
   PolygonArea({
     required this.points,
     this.areaType = 'polygon',
   });
 
-  /// Calculate area in square meters using Shoelace formula
+  /// Maakt een cirkel-polygoon rond [center] met [radiusMeters] (bijv. 100, 250, 500, 1000).
+  static PolygonArea fromCircle(LatLng center, double radiusMeters) {
+    const int segments = 32;
+    const double metersPerDegreeLat = 111320.0;
+    final double metersPerDegreeLon =
+        111320.0 * math.cos(center.latitude * math.pi / 180);
+    final List<LatLng> pts = [];
+    for (int i = 0; i < segments; i++) {
+      final angle = 2 * math.pi * i / segments;
+      final dy = (radiusMeters / metersPerDegreeLat) * math.cos(angle);
+      final dx = (radiusMeters / metersPerDegreeLon) * math.sin(angle);
+      pts.add(LatLng(center.latitude + dy, center.longitude + dx));
+    }
+    return PolygonArea(points: pts, areaType: 'radius');
+  }
+
+  /// Berekent oppervlakte in m². Voor cirkels (areaType 'radius') wordt πr² gebruikt.
   double calculateAreaInSquareMeters() {
     if (points.length < 3) return 0.0;
+
+    if (areaType == 'radius') {
+      final center = getCenterPoint();
+      final radiusMeters = _distance.distance(center, points[0]);
+      return math.pi * radiusMeters * radiusMeters;
+    }
 
     double area = 0.0;
     for (int i = 0; i < points.length; i++) {
       final LatLng p1 = points[i];
       final LatLng p2 = points[(i + 1) % points.length];
-      
-      // Using simplified haversine-based calculation
-      area += (p2.longitude - p1.longitude) * 
-              (p2.latitude + p1.latitude);
+      area += (p2.longitude - p1.longitude) * (p2.latitude + p1.latitude);
     }
-    
     area = (area.abs() / 2);
-    
-    // Convert to approximate square meters at equator
-    // More precise calculation would use proper GIS library
     const double metersPerDegree = 111320.0;
     return area * metersPerDegree * metersPerDegree;
   }

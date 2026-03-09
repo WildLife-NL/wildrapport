@@ -17,8 +17,6 @@ import 'package:latlong2/latlong.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i29;
 import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i66;
-import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart'
-    as _i17;
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart'
     as _i19;
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart'
@@ -232,38 +230,6 @@ class _FakeReportable_16 extends _i1.SmartFake implements _i15.Reportable {
 class _FakeResponse_17 extends _i1.SmartFake implements _i16.Response {
   _FakeResponse_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
-}
-
-/// A class which mocks [AuthApiInterface].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAuthApiInterface extends _i1.Mock implements _i17.AuthApiInterface {
-  MockAuthApiInterface() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i18.Future<Map<String, dynamic>> authenticate(
-    String? displayNameApp,
-    String? email,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#authenticate, [displayNameApp, email]),
-            returnValue: _i18.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
-          )
-          as _i18.Future<Map<String, dynamic>>);
-
-  @override
-  _i18.Future<_i2.User> authorize(String? email, String? code) =>
-      (super.noSuchMethod(
-            Invocation.method(#authorize, [email, code]),
-            returnValue: _i18.Future<_i2.User>.value(
-              _FakeUser_0(this, Invocation.method(#authorize, [email, code])),
-            ),
-          )
-          as _i18.Future<_i2.User>);
 }
 
 /// A class which mocks [BelongingApiInterface].

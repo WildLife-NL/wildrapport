@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,8 @@ import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class _IconStyle {
   final Color color;
@@ -111,6 +114,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               LocationMapManager.denBoschCenter.longitude,
         ),
         initialZoom: _initialZoom,
+        minZoom: 4.0,
+        maxZoom: 18.0,
         onMapReady: () {
           debugPrint('[Map] ready');
           _mapReady = true;
@@ -124,8 +129,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               fm.InteractiveFlag.doubleTapZoom |
               fm.InteractiveFlag.scrollWheelZoom |
               fm.InteractiveFlag.flingAnimation |
-              fm.InteractiveFlag.pinchMove |
-              fm.InteractiveFlag.rotate, // Enable rotation
+              fm.InteractiveFlag.pinchMove,
+          // Rotatie uit: kaart blijft noord-omhoog, zoals navigatie
         ),
         onMapEvent: (evt) {
           final mp = context.read<MapProvider>();
@@ -216,12 +221,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _bootstrap();
     _startFollowingMe();
   }
 
   @override
   void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _debounce?.cancel();
     _posSub?.cancel();
     if (_listenerAttached && _mpListener != null) {
@@ -761,7 +768,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.95),
+              color: color.withValues(alpha:0.95),
               shape: BoxShape.circle,
               boxShadow: const [
                 BoxShadow(
@@ -844,23 +851,51 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         earthCircumference /
         (256 * math.pow(2, zoom));
 
-    const candidates = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+    // Schalen van 5 m t/m 500 km zodat de schaal altijd klopt (ook na 100 km uitzoomen)
+    const candidates = [
+      5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000,
+      20000, 50000, 100000, 200000, 500000,
+    ];
+
+    const minWidthPx = 50.0;
+    const maxWidthPx = 200.0;
+    const idealMin = 60.0;
+    const idealMax = 160.0;
 
     double chosenMeters = candidates.first.toDouble();
     double chosenWidth = chosenMeters / metersPerPixel;
 
+    // Eerst: voorkeur voor breedte in ideaal bereik (60–160 px)
     for (final m in candidates) {
       final widthPx = m / metersPerPixel;
-      if (widthPx >= 60 && widthPx <= 160) {
+      if (widthPx >= idealMin && widthPx <= idealMax) {
         chosenMeters = m.toDouble();
         chosenWidth = widthPx;
         break;
       }
     }
 
+    // Geen ideale match: kies grootste schaal die nog binnen maxWidthPx past (juiste label bij ver uitzoomen)
+    if (chosenMeters == 5) {
+      for (var i = candidates.length - 1; i >= 0; i--) {
+        final m = candidates[i];
+        final widthPx = m / metersPerPixel;
+        if (widthPx >= minWidthPx && widthPx <= maxWidthPx) {
+          chosenMeters = m.toDouble();
+          chosenWidth = widthPx;
+          break;
+        }
+        if (widthPx < minWidthPx) {
+          chosenMeters = m.toDouble();
+          chosenWidth = widthPx.clamp(minWidthPx, maxWidthPx);
+          break;
+        }
+      }
+    }
+
     final label =
         chosenMeters >= 1000
-            ? '${(chosenMeters / 1000).toStringAsFixed(chosenMeters % 1000 == 0 ? 0 : 1)} km'
+            ? '${(chosenMeters / 1000).toStringAsFixed(chosenMeters >= 100000 ? 0 : (chosenMeters % 1000 == 0 ? 0 : 1))} km'
             : '${chosenMeters.toInt()} m';
 
     if ((chosenWidth - _scaleBarWidth).abs() > 0.5 || _scaleBarLabel != label) {
@@ -1218,14 +1253,18 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final map = context.watch<MapProvider>();
     final pos = map.selectedPosition ?? map.currentPosition;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (Navigator.of(context).canPop()) return true;
-        context.read<NavigationStateInterface>().pushReplacementBack(
-          context,
-          const OverzichtScreen(),
-        );
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.read<NavigationStateInterface>().pushReplacementBack(
+            context,
+            const OverzichtScreen(),
+          );
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -1275,17 +1314,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                     constraints: const BoxConstraints(maxWidth: 800),
                     child: Stack(
                       children: [
-                        fm.FlutterMap(
+                        WildLifeNLMap(
                           mapController: map.mapController,
                           options: _mapOptions!,
-                          children: [
-                            fm.TileLayer(
-                              urlTemplate: LocationMapManager.standardTileUrl,
-                              userAgentPackageName: 'com.wildrapport.app',
-                              // Fetch fewer offscreen tiles to speed up first paint
-                              keepBuffer: 1,
-                            ),
-
+                          userAgentPackageName: 'nl.wildlife.rapport',
+                          tileKeepBuffer: 1,
+                          extraLayers: [
                             // ── ANIMALS ───────────────────────────────────────────────────────────────
                             _useClusters
                                 ? cl.MarkerClusterLayerWidget(
@@ -1333,7 +1367,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                       math.pi /
                                                       180,
                                                   child:
-                                                      _getAnimalIconPath(
+                                                      getAnimalIconPath(
                                                                 pin.speciesName,
                                                               ) !=
                                                               null
@@ -1348,7 +1382,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                         .srcIn,
                                                                   ),
                                                               child: Image.asset(
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 )!,
                                                                 width:
@@ -1449,7 +1483,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                           ) => AnimalDetailDialog(
                                                             animal: pin,
                                                             animalIconPath:
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 ),
                                                           ),
@@ -1462,7 +1496,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             pin.seenAt,
                                                           );
                                                       final Color animalColor = Colors.grey;
-                                                      return _getAnimalIconPath(
+                                                      return getAnimalIconPath(
                                                                 pin.speciesName,
                                                               ) !=
                                                               null
@@ -1477,7 +1511,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                         .srcIn,
                                                                   ),
                                                               child: Image.asset(
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 )!,
                                                                 width:
@@ -1723,7 +1757,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               ),
                                             )
                                             .toList(),
-                                    color: Colors.blue.withOpacity(0.6),
+                                    color: Colors.blue.withValues(alpha:0.6),
                                     strokeWidth: 2.0,
                                   ),
                                 ],
@@ -1740,7 +1774,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           reading.longitude,
                                         ),
                                         radius: 4,
-                                        color: Colors.blue.withOpacity(0.8),
+                                        color: Colors.blue.withValues(alpha:0.8),
                                         borderColor: Colors.white,
                                         borderStrokeWidth: 1,
                                         useRadiusInMeter: false,
@@ -1795,7 +1829,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             ) => InteractionDetailDialog(
                                                               interaction: itx,
                                                               animalIconPath:
-                                                                  _getAnimalIconPath(
+                                                                  getAnimalIconPath(
                                                                     itx.speciesName,
                                                                   ),
                                                             ),
@@ -1808,7 +1842,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               itx.moment,
                                                             );
                                                         final Color interactionColor = Colors.black;
-                                                        return _getAnimalIconPath(
+                                                        return getAnimalIconPath(
                                                                   itx.speciesName,
                                                                 ) !=
                                                                 null
@@ -1824,7 +1858,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                           .srcIn,
                                                                     ),
                                                                 child: Image.asset(
-                                                                  _getAnimalIconPath(
+                                                                  getAnimalIconPath(
                                                                     itx.speciesName,
                                                                   )!,
                                                                   width:
@@ -1908,7 +1942,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   builder: (_) => AnimalDetailDialog(
                                                     animal: itx.toAnimalPin(),
                                                     animalIconPath:
-                                                        _getAnimalIconPath(itx.speciesName),
+                                                        getAnimalIconPath(itx.speciesName),
                                                   ),
                                                 );
                                               },
@@ -1917,7 +1951,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   final style =
                                                       _iconStyleForTimestamp(itx.moment);
                                                   final Color interactionColor = Colors.black;
-                                                  return _getAnimalIconPath(itx.speciesName) != null
+                                                  return getAnimalIconPath(itx.speciesName) != null
                                                       ? SizedBox(
                                                           width: style.size,
                                                           height: style.size,
@@ -1927,7 +1961,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               BlendMode.srcIn,
                                                             ),
                                                             child: Image.asset(
-                                                              _getAnimalIconPath(itx.speciesName)!,
+                                                              getAnimalIconPath(itx.speciesName)!,
                                                               width: style.size,
                                                               height: style.size,
                                                               fit: BoxFit.contain,
@@ -2198,7 +2232,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         headingAccuracy: 0.0,
                       )
                     : await Geolocator.getCurrentPosition(
-                        desiredAccuracy: LocationAccuracy.high,
+                        locationSettings: const LocationSettings(
+                          accuracy: LocationAccuracy.high,
+                        ),
                       ).timeout(const Duration(seconds: 2));
               } catch (_) {}
 
@@ -2232,39 +2268,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         ),
       ),
     );
-  }
-
-  /// Maps species names to their corresponding icon paths
-  String? _getAnimalIconPath(String? speciesName) {
-    if (speciesName == null) return null;
-
-    final name = speciesName.toLowerCase();
-
-    // Map species names to icon file names
-    if (name.contains('wolf')) return 'assets/icons/animals/wolf.png';
-    if (name.contains('vos') || name.contains('fox'))
-      return 'assets/icons/animals/vos.png';
-    if (name.contains('das') || name.contains('badger'))
-      return 'assets/icons/animals/das.png';
-    if (name.contains('ree') || name.contains('deer'))
-      return 'assets/icons/animals/ree.png';
-    if (name.contains('zwijn') || name.contains('boar'))
-      return 'assets/icons/animals/wild_zwijn.png';
-    if (name.contains('damhert')) return 'assets/icons/animals/damhert.png';
-    if (name.contains('egel') || name.contains('hedgehog'))
-      return 'assets/icons/animals/egel.png';
-    if (name.contains('eekhoorn') || name.contains('squirrel'))
-      return 'assets/icons/animals/eekhoorn.png';
-    if (name.contains('bever') || name.contains('beaver'))
-      return 'assets/icons/animals/beaver.png';
-    if (name.contains('boommarten') || name.contains('marten'))
-      return 'assets/icons/animals/boommarten.png';
-    if (name.contains('hooglander') || name.contains('highlander'))
-      return 'assets/icons/animals/hooglander.png';
-    if (name.contains('wisent') || name.contains('bison'))
-      return 'assets/icons/animals/winsent.png';
-
-    return null; // Return null if no matching icon is found, will show default pets icon
   }
 
   // Simple struct for icon styling based on age (top-level _IconStyle is declared above)
