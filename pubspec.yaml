@@ -1,7 +1,7 @@
 name: wildrapport
 description: "A new Flutter project."
 publish_to: 'none'
-version: 25.01.12+1
+version: 26.03.09+1
 
 environment:
   sdk: ^3.7.0
