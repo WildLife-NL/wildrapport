@@ -143,19 +143,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       if (!ok || !mounted) return;
     }
 
-    Position? pos = context.read<AppStateProvider>().cachedPosition;
-    if (context.read<AppStateProvider>().isLocationCacheValid && pos != null) {
-      if (!mounted) return;
-      final mp = context.read<MapProvider>();
-      final address = context.read<AppStateProvider>().cachedAddress ?? '';
-      mp.setSelectedLocation(pos, address);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Huidige locatie geselecteerd')),
-      );
-      return;
-    }
-
-    pos = await _locationService.determinePosition();
+    final Position? pos = await _locationService.determinePosition();
     if (!mounted) return;
     if (pos == null) {
       ScaffoldMessenger.of(context).showSnackBar(
