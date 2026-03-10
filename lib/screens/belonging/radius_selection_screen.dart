@@ -8,7 +8,6 @@ import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
-/// Kaart met schuifbalk: straal instellen (5 m – 2 km), cirkel groeit mee op de kaart.
 class RadiusSelectionScreen extends StatefulWidget {
   final void Function(PolygonArea) onAreaSelected;
 

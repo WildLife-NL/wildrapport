@@ -12,9 +12,6 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
-/// Inline kaart + schuifbalk op hetzelfde scherm. Geen pagina-wissel.
-/// Straal wordt direct doorgegeven bij schuiven; standaard 25 m.
-/// Als [isLocationTrackingEnabled] uitstaat: kaart op standaardcentrum (Nederland), geen blauwe pin.
 class RadiusMapSlider extends StatefulWidget {
   final void Function(PolygonArea?) onAreaChanged;
   final bool isLocationTrackingEnabled;
@@ -31,9 +28,7 @@ class RadiusMapSlider extends StatefulWidget {
 
 class _RadiusMapSliderState extends State<RadiusMapSlider> {
   final fm.MapController _mapController = fm.MapController();
-  /// GPS-locatie (blauwe pin). Cirkel staat altijd in het midden van de kaart; slepen verplaatst de kaart.
   LatLng? _pinLocation;
-  /// Huidig kaartmidden (cirkel staat hier). Niet van controller lezen vóór kaart klaar is (LateInitializationError).
   LatLng? _currentMapCenter;
   String? _error;
   bool _loading = true;
@@ -203,7 +198,6 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
     );
   }
 
-  /// Zorgt dat de cirkel volledig in beeld blijft (automatisch uitzoomen indien nodig).
   void _fitMapToCircle() {
     if (_currentMapCenter == null) return;
     const mPerDegLat = 111320.0;
@@ -227,7 +221,6 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
     } catch (_) {}
   }
 
-  /// Kaart (en cirkel) terug naar GPS-locatie; cirkel gaat mee.
   void _goToCurrentLocation() {
     if (_pinLocation == null) return;
     setState(() => _currentMapCenter = _pinLocation);
