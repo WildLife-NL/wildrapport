@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:flutter/services.dart';
 import 'package:wildrapport/widgets/belonging/radius_map_slider.dart';
 
 class BelongingCropsDetails extends StatefulWidget {
@@ -373,6 +374,8 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RadiusMapSlider(
+                          isLocationTrackingEnabled:
+                              context.watch<AppStateProvider>().isLocationTrackingEnabled,
                           onAreaChanged: (area) {
                             if (area != null) {
                               belongingDamageReportProvider.setPolygonArea(area);

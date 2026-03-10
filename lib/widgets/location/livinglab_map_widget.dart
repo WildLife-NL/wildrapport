@@ -329,7 +329,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                   mapController: mapProvider.mapController,
                   options: MapOptions(
                     minZoom: 4.0,
-                    maxZoom: 18.0,
+                    maxZoom: 17.0,
                     initialCenter: widget.labCenter,
                     initialZoom: 15,
                     interactionOptions: const InteractionOptions(

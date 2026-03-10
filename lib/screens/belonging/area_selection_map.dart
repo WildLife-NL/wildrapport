@@ -361,7 +361,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                     initialCenter: _centerPoint,
                     initialZoom: 16,
                     minZoom: 4.0,
-                    maxZoom: 18.0,
+                    maxZoom: 17.0,
                     onTap: (tapPosition, point) => _onMapTap(point),
                     interactionOptions: const fm.InteractionOptions(
                       flags:

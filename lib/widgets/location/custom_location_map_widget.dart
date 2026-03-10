@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
@@ -38,11 +39,27 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   bool _isLoading = true;
   bool _isSatelliteView = false;
 
+  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+
   @override
   void initState() {
     super.initState();
     debugPrint('[CustomLocationMapScreen] Initializing screen');
     _initializeServices();
+    if (!context.read<AppStateProvider>().isLocationTrackingEnabled) {
+      setState(() {
+        _currentPosition = null;
+        _currentAddress = '';
+        _isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          _mapProvider.mapController.move(_defaultCenter, 7);
+        } catch (_) {}
+      });
+      return;
+    }
     _quickLocationCheck();
   }
 
@@ -217,7 +234,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
     final center =
         _currentPosition != null
             ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-            : const LatLng(52.3874, 4.5753); // Default to Netherlands center
+            : _defaultCenter;
 
     return Scaffold(
       body: Stack(
@@ -228,7 +245,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
               initialCenter: center,
               initialZoom: 15,
               minZoom: 4.0,
-              maxZoom: 18.0,
+              maxZoom: 17.0,
               onTap: (tapPosition, point) => _handleTap(point),
               interactionOptions: const InteractionOptions(
                 flags:

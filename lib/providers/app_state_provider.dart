@@ -148,8 +148,8 @@ class AppStateProvider with ChangeNotifier {
   }
 
   Future<void> updateLocationCache() async {
+    if (!_isLocationTrackingEnabled) return;
     try {
-      // Use mocked coordinates when enabled, else get a real fix
       final locationService = LocationMapManager();
       final position = MockLocationConfig.kForceMockLocation
           ? Position(
@@ -217,6 +217,11 @@ class AppStateProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('location_tracking_enabled', enabled);
       _isLocationTrackingEnabled = enabled;
+      if (!enabled) {
+        _cachedPosition = null;
+        _cachedAddress = null;
+        _lastLocationUpdate = null;
+      }
       debugPrint(
         '[AppStateProvider] Location tracking ${enabled ? "enabled" : "disabled"}',
       );

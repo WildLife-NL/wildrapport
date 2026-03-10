@@ -27,7 +27,7 @@ class InvisibleMapPreloader extends StatelessWidget {
             ),
             initialZoom: 5,
             minZoom: 4.0,
-            maxZoom: 18.0,
+            maxZoom: 17.0,
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none,
             ),

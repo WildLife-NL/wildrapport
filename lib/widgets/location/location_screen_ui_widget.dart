@@ -17,6 +17,7 @@ import 'package:wildrapport/widgets/location/custom_location_map_widget.dart';
 import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'dart:async';
 
 class LocationScreenUIWidget extends StatefulWidget {
@@ -36,6 +37,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     super.initState();
     _locationService = LocationMapManager();
     _mapProvider = context.read<MapProvider>();
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) {
+      _mapProvider.clearUserLocationAndStopTracking();
+    }
     _initializeMap();
   }
 
@@ -53,22 +58,24 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   Future<void> _initializeMap() async {
     if (!mounted) return;
 
-    // Reset state variables
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) {
+      _mapProvider.clearUserLocationAndStopTracking();
+      _updateMapViewToDefault();
+      return;
+    }
 
-    // Handle case where location is already selected
     if (_mapProvider.selectedPosition != null) {
       _mapProvider.updatePosition(
         _mapProvider.selectedPosition!,
         _mapProvider.selectedAddress,
       );
-      // Schedule map update for next frame
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateMapView(_mapProvider.selectedPosition!);
       });
       return;
     }
 
-    final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
       final position = appState.cachedPosition!;
       final address = appState.cachedAddress ?? '';
@@ -154,6 +161,8 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     final address = await _locationService.getAddressFromPosition(pos);
     if (!mounted) return;
     context.read<MapProvider>().setSelectedLocation(pos, address);
+    await _updateMapView(pos);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Huidige locatie geselecteerd')),
     );
@@ -168,6 +177,35 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
+            if (!context.watch<AppStateProvider>().isLocationTrackingEnabled)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 22, color: Colors.orange.shade800),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Locatie delen staat uit. Zet het aan in je profiel om je huidige locatie te gebruiken, of kies een plek op de kaart.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.orange.shade900,
+                            fontFamily: 'Roboto',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -200,20 +238,47 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                       InkWell(
                         onTap: () async {
                           final newValue = !_useCurrentChecked;
-                          setState(() => _useCurrentChecked = newValue);
                           if (newValue) {
+                            final appState = context.read<AppStateProvider>();
+                            if (!appState.isLocationTrackingEnabled) {
+                              final enable =
+                                  await showLocationSharingOffDialog(context);
+                              if (!mounted) return;
+                              if (enable != true) return;
+                              await appState.setLocationTrackingEnabled(true);
+                              if (!mounted) return;
+                            }
+                            setState(() => _useCurrentChecked = true);
                             await _applyCurrentAsSelected();
+                          } else {
+                            setState(() => _useCurrentChecked = false);
                           }
                         },
                         child: Row(
                           children: [
                             Checkbox(
                               value: _useCurrentChecked,
-                              onChanged: (v) {
-                                setState(() => _useCurrentChecked = v ?? false);
-                                if (v == true) {
-                                  _applyCurrentAsSelected();
+                              onChanged: (v) async {
+                                if (v != true) {
+                                  setState(() => _useCurrentChecked = false);
+                                  return;
                                 }
+                                final appState =
+                                    context.read<AppStateProvider>();
+                                if (!appState.isLocationTrackingEnabled) {
+                                  final enable =
+                                      await showLocationSharingOffDialog(
+                                    context,
+                                  );
+                                  if (!mounted) return;
+                                  if (enable != true) return;
+                                  await appState.setLocationTrackingEnabled(
+                                    true,
+                                  );
+                                  if (!mounted) return;
+                                }
+                                setState(() => _useCurrentChecked = true);
+                                _applyCurrentAsSelected();
                               },
                             ),
                             const Text('Huidige locatie'),
@@ -224,17 +289,30 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                         onPressed: () async {
                           if (_useCurrentChecked) {
                             return;
-                          } else {
-                            final isFromPossession =
-                                ModalRoute.of(context)?.settings.name ==
-                                    'PossesionLocationScreen' ||
-                                context
-                                        .findAncestorWidgetOfExactType<
-                                          BelongingLocationScreen
-                                        >() !=
-                                    null;
+                          }
+                          final appState = context.read<AppStateProvider>();
+                          if (!appState.isLocationTrackingEnabled) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Locatie delen staat uit. Zet het aan in je profiel om je locatie te zien. Je kunt wel een plek op de kaart aanwijzen.',
+                                ),
+                                duration: Duration(seconds: 4),
+                              ),
+                            );
+                          }
+                          final isFromPossession =
+                              ModalRoute.of(context)?.settings.name ==
+                                  'PossesionLocationScreen' ||
+                              context
+                                      .findAncestorWidgetOfExactType<
+                                        BelongingLocationScreen
+                                      >() !=
+                                  null;
 
-                            Navigator.push(
+                          if (!context.mounted) return;
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                 settings: RouteSettings(
@@ -252,7 +330,6 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                                     ),
                               ),
                             );
-                          }
                         },
                         child: const Text('Selecteer'),
                       ),
@@ -285,12 +362,20 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                   const LocationMapPreview(),
                   LocationDisplay(
                     onLocationIconTap: _handleLocationIconTap,
-                    locationText: context.watch<MapProvider>().selectedAddress,
+                    locationText:
+                        context.watch<MapProvider>().selectedAddress.isNotEmpty
+                            ? context.watch<MapProvider>().selectedAddress
+                            : (context.watch<AppStateProvider>().isLocationTrackingEnabled
+                                ? ''
+                                : 'Locatie delen staat uit'),
                     isLoading:
+                        context.watch<AppStateProvider>().isLocationTrackingEnabled &&
                         context.watch<MapProvider>().selectedAddress.isEmpty,
                     position:
                         context.watch<MapProvider>().selectedPosition ??
-                        context.watch<MapProvider>().currentPosition,
+                        (context.watch<AppStateProvider>().isLocationTrackingEnabled
+                            ? context.watch<MapProvider>().currentPosition
+                            : null),
                   ),
                 ],
               ),

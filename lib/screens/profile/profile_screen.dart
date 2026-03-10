@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -199,6 +200,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await appStateProvider.setLocationTrackingEnabled(
                             false,
                           );
+                          if (context.mounted) {
+                            context.read<MapProvider>().clearUserLocationAndStopTracking();
+                          }
                         },
                         child: Container(
                           width: responsive.wp(25),

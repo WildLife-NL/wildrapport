@@ -28,6 +28,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
+import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
@@ -116,7 +117,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         ),
         initialZoom: _initialZoom,
         minZoom: 4.0,
-        maxZoom: 18.0,
+        maxZoom: 17.0,
         onMapReady: () {
           debugPrint('[Map] ready');
           _mapReady = true;
@@ -460,12 +461,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       if (hasLocationPermission) {
         await app.setLocationTrackingEnabled(true);
       }
-    } else if (!app.isLocationTrackingEnabled) {
-      await app.setLocationTrackingEnabled(true);
     }
 
     Position? pos;
-    if (hasLocationPermission) {
+    if (hasLocationPermission && app.isLocationTrackingEnabled) {
       pos = app.isLocationCacheValid ? app.cachedPosition : null;
       pos ??= await mgr.determinePosition();
     }
@@ -473,7 +472,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // Log what we got
     debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');
 
-    // 2) Fallback to NL center if missing/outside bounds
+    final bool useUserLocation = app.isLocationTrackingEnabled && pos != null;
+
     if (pos == null ||
         !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
       pos = Position(
@@ -494,15 +494,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       );
     }
 
-    // 3) Apply immediately to provider (don't wait for address)
-    await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+    if (useUserLocation) {
+      await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+    }
 
-    // Record desired camera so we can apply after map is ready
     _pendingCenter = LatLng(pos.latitude, pos.longitude);
     _pendingZoom = _initialZoom;
     _applyPendingCamera();
 
-    // 4) Send one tracking ping (R2) on first load - only if tracking is enabled
     final appStateProvider = context.read<AppStateProvider>();
     if (appStateProvider.isLocationTrackingEnabled) {
       debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
@@ -2178,16 +2177,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             final appStateProvider = context.read<AppStateProvider>();
             debugPrint('[FAB] tapped');
 
-            // Check if location tracking is enabled
             if (!appStateProvider.isLocationTrackingEnabled) {
               if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Locatie delen is uitgeschakeld'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              return;
+              final enable = await showLocationSharingOffDialog(context);
+              if (!mounted) return;
+              if (enable != true) return;
+              await appStateProvider.setLocationTrackingEnabled(true);
+              if (!mounted) return;
             }
 
             _followUser = true;

@@ -77,6 +77,7 @@ mixin PermissionChecker<T extends StatefulWidget> on State<T> {
 
   Future<void> _handlePermissionGranted() async {
     if (_appStateProvider == null) return;
+    if (!_appStateProvider!.isLocationTrackingEnabled) return;
     debugPrint('Updating location cache');
     await _appStateProvider!.updateLocationCache();
     _appStateProvider!.startLocationUpdates();

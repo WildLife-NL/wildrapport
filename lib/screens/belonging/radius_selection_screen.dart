@@ -201,7 +201,7 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
                 initialCenter: center,
                 initialZoom: 16,
                 minZoom: 4.0,
-                maxZoom: 18.0,
+                maxZoom: 17.0,
                 interactionOptions: const fm.InteractionOptions(
                   flags:
                       fm.InteractiveFlag.drag |

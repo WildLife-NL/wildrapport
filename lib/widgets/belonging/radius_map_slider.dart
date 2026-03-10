@@ -4,19 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
 /// Inline kaart + schuifbalk op hetzelfde scherm. Geen pagina-wissel.
 /// Straal wordt direct doorgegeven bij schuiven; standaard 25 m.
+/// Als [isLocationTrackingEnabled] uitstaat: kaart op standaardcentrum (Nederland), geen blauwe pin.
 class RadiusMapSlider extends StatefulWidget {
   final void Function(PolygonArea?) onAreaChanged;
+  final bool isLocationTrackingEnabled;
 
   const RadiusMapSlider({
     super.key,
     required this.onAreaChanged,
+    this.isLocationTrackingEnabled = true,
   });
 
   @override
@@ -32,6 +38,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
   String? _error;
   bool _loading = true;
 
+  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
   static const double _minRadiusM = 5;
   static const double _maxRadiusM = 500;
   double _radiusMeters = 25;
@@ -40,6 +47,15 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
   void initState() {
     super.initState();
     _loadCurrentLocation();
+  }
+
+  @override
+  void didUpdateWidget(covariant RadiusMapSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isLocationTrackingEnabled &&
+        widget.isLocationTrackingEnabled) {
+      _loadCurrentLocation();
+    }
   }
 
   @override
@@ -53,6 +69,20 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
       _error = null;
       _loading = true;
     });
+
+    if (!widget.isLocationTrackingEnabled) {
+      if (!mounted) return;
+      setState(() {
+        _pinLocation = null;
+        _currentMapCenter = _defaultCenter;
+        _loading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try { _mapController.move(_defaultCenter, 10); } catch (_) {}
+        if (mounted) _notifyArea();
+      });
+      return;
+    }
 
     try {
       if (!MockLocationConfig.kForceMockLocation) {
@@ -190,7 +220,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
         fm.CameraFit.bounds(
           bounds: bounds,
           padding: const EdgeInsets.all(32),
-          maxZoom: 18,
+          maxZoom: 17,
           minZoom: 4,
         ),
       );
@@ -220,7 +250,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading && _pinLocation == null) {
+    if (_loading && _currentMapCenter == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -257,7 +287,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
       );
     }
 
-    if (_error != null && _pinLocation == null) {
+    if (_error != null && _currentMapCenter == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -301,7 +331,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
       );
     }
 
-    final pinLocation = _pinLocation!;
+    final mapCenter = _currentMapCenter!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -315,6 +345,17 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
             fontSize: 16,
           ),
         ),
+        if (!widget.isLocationTrackingEnabled) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Locatie delen staat uit. Tik op \'Huidige locatie\' om het aan te zetten, of sleep de kaart om een gebied te kiezen.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade700,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -325,10 +366,10 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                 child: WildLifeNLMap(
                   mapController: _mapController,
                   options: fm.MapOptions(
-                    initialCenter: pinLocation,
+                    initialCenter: mapCenter,
                     initialZoom: 16,
                     minZoom: 4.0,
-                    maxZoom: 18.0,
+                    maxZoom: 17.0,
                     onMapEvent: (evt) {
                       if (evt is fm.MapEventMove || evt is fm.MapEventMoveEnd) {
                         if (mounted) {
@@ -351,24 +392,25 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                   ),
                   userAgentPackageName: 'nl.wildlife.rapport',
                   extraLayers: [
-                    fm.MarkerLayer(
-                      markers: [
-                        fm.Marker(
-                          point: pinLocation,
-                          width: 28,
-                          height: 28,
-                          child: const Icon(
-                            Icons.place,
-                            color: Colors.blue,
-                            size: 28,
+                    if (_pinLocation != null)
+                      fm.MarkerLayer(
+                        markers: [
+                          fm.Marker(
+                            point: _pinLocation!,
+                            width: 28,
+                            height: 28,
+                            child: const Icon(
+                              Icons.place,
+                              color: Colors.blue,
+                              size: 28,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     fm.CircleLayer(
                       circles: [
                         fm.CircleMarker(
-                          point: _currentMapCenter!,
+                          point: mapCenter,
                           radius: _radiusMeters,
                           useRadiusInMeter: true,
                           color: AppColors.darkGreen.withValues(alpha: 0.25),
@@ -388,7 +430,15 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                   borderRadius: BorderRadius.circular(8),
                   elevation: 2,
                   child: InkWell(
-                    onTap: _goToCurrentLocation,
+                    onTap: () async {
+                      if (_pinLocation != null) {
+                        _goToCurrentLocation();
+                        return;
+                      }
+                      final enable = await showLocationSharingOffDialog(context);
+                      if (!mounted || enable != true) return;
+                      await context.read<AppStateProvider>().setLocationTrackingEnabled(true);
+                    },
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

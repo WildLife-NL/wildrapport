@@ -15,6 +15,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/location/permission_gate.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
@@ -46,6 +47,10 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     debugPrint(
       "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
     );
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) {
+      context.read<MapProvider>().clearUserLocationAndStopTracking();
+    }
     _initializeScreen();
   }
 
@@ -79,6 +84,9 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         debugPrint(
           "$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m",
         );
+        if (!context.read<AppStateProvider>().isLocationTrackingEnabled) {
+          mapProvider.clearUserLocationAndStopTracking();
+        }
       }
     } catch (e) {
       debugPrint(

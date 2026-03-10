@@ -550,10 +550,18 @@ class MapProvider extends ChangeNotifier {
     _trackingTimer = null;
     if (_isTracking) {
       _isTracking = false;
-      // Don't call notifyListeners during dispose - it causes setState during widget tree lock
-      // notifyListeners();
     }
     debugPrint('[MapProvider] tracking STOPPED');
+  }
+
+  void clearUserLocationAndStopTracking() {
+    stopTracking();
+    currentPosition = null;
+    currentAddress = '';
+    selectedPosition = null;
+    selectedAddress = '';
+    _trackingCacheManager?.clearCache();
+    notifyListeners();
   }
 
   @override
