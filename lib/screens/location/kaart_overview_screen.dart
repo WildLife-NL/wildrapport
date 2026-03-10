@@ -27,6 +27,7 @@ import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
@@ -443,14 +444,31 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _bootstrap() async {
     final map = context.read<MapProvider>();
     final app = context.read<AppStateProvider>();
-    final mgr = _location; // LocationMapManager
+    final mgr = _location;
+    final permissionManager = context.read<PermissionInterface>();
 
-    // Ensure map controller exists before first render to avoid blank map on first open
     await map.initialize();
 
-    // 1) Get a position (cache → GPS)
-    Position? pos = app.isLocationCacheValid ? app.cachedPosition : null;
-    pos ??= await mgr.determinePosition();
+    bool hasLocationPermission =
+        await permissionManager.isPermissionGranted(PermissionType.location);
+    if (!hasLocationPermission) {
+      hasLocationPermission = await permissionManager.requestPermission(
+        context,
+        PermissionType.location,
+        showRationale: false,
+      );
+      if (hasLocationPermission) {
+        await app.setLocationTrackingEnabled(true);
+      }
+    } else if (!app.isLocationTrackingEnabled) {
+      await app.setLocationTrackingEnabled(true);
+    }
+
+    Position? pos;
+    if (hasLocationPermission) {
+      pos = app.isLocationCacheValid ? app.cachedPosition : null;
+      pos ??= await mgr.determinePosition();
+    }
 
     // Log what we got
     debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');

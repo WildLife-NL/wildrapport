@@ -9,7 +9,7 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/enums/date_time_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-// Removed dropdown-based navigation; map navigation handled within preview widget
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/widgets/location/location_display.dart';
 import 'package:wildrapport/widgets/location/location_map_preview.dart';
 import 'package:wildrapport/screens/location/map_screen.dart';
@@ -68,13 +68,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       return;
     }
 
-    // Try to use cached location first
     final appState = context.read<AppStateProvider>();
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
-      debugPrint('[LocationScreenUIWidget] Using cached location data');
       final position = appState.cachedPosition!;
       final address = appState.cachedAddress ?? '';
-
       if (_locationService.isLocationInNetherlands(
         position.latitude,
         position.longitude,
@@ -85,21 +82,21 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       }
     }
 
-    // Fall back to getting new location if cache is invalid or outside NL
-    final position = await _locationService.determinePosition();
-    if (!mounted) return;
+    _updateMapViewToDefault();
+  }
 
-    if (position != null &&
-        _locationService.isLocationInNetherlands(
-          position.latitude,
-          position.longitude,
-        )) {
-      final address = await _locationService.getAddressFromPosition(position);
+  void _updateMapViewToDefault() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-
-      _mapProvider.updatePosition(position, address);
-      _updateMapView(position);
-    }
+      while (mounted && !_mapProvider.isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+      if (!mounted) return;
+      try {
+        final center = LatLng(51.69, 5.30);
+        _mapProvider.mapController.move(center, 7);
+      } catch (_) {}
+    });
   }
 
   // Helper method to update map view
@@ -133,16 +130,42 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     debugPrint('Location icon tapped in LocationScreenUIWidget');
   }
 
-  void _applyCurrentAsSelected() {
-    final mp = context.read<MapProvider>();
-    final pos = mp.currentPosition;
-    if (pos == null) {
+  Future<void> _applyCurrentAsSelected() async {
+    final permissionManager = context.read<PermissionInterface>();
+    final granted =
+        await permissionManager.isPermissionGranted(PermissionType.location);
+    if (!granted) {
+      final ok = await permissionManager.requestPermission(
+        context,
+        PermissionType.location,
+        showRationale: true,
+      );
+      if (!ok || !mounted) return;
+    }
+
+    Position? pos = context.read<AppStateProvider>().cachedPosition;
+    if (context.read<AppStateProvider>().isLocationCacheValid && pos != null) {
+      if (!mounted) return;
+      final mp = context.read<MapProvider>();
+      final address = context.read<AppStateProvider>().cachedAddress ?? '';
+      mp.setSelectedLocation(pos, address);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Huidige locatie nog niet beschikbaar')),
+        const SnackBar(content: Text('Huidige locatie geselecteerd')),
       );
       return;
     }
-    mp.setSelectedLocation(pos, mp.currentAddress);
+
+    pos = await _locationService.determinePosition();
+    if (!mounted) return;
+    if (pos == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Huidige locatie niet beschikbaar')),
+      );
+      return;
+    }
+    final address = await _locationService.getAddressFromPosition(pos);
+    if (!mounted) return;
+    context.read<MapProvider>().setSelectedLocation(pos, address);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Huidige locatie geselecteerd')),
     );
@@ -187,21 +210,32 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                        onTap: () => setState(() => _useCurrentChecked = !_useCurrentChecked),
+                        onTap: () async {
+                          final newValue = !_useCurrentChecked;
+                          setState(() => _useCurrentChecked = newValue);
+                          if (newValue) {
+                            await _applyCurrentAsSelected();
+                          }
+                        },
                         child: Row(
                           children: [
                             Checkbox(
                               value: _useCurrentChecked,
-                              onChanged: (v) => setState(() => _useCurrentChecked = v ?? false),
+                              onChanged: (v) {
+                                setState(() => _useCurrentChecked = v ?? false);
+                                if (v == true) {
+                                  _applyCurrentAsSelected();
+                                }
+                              },
                             ),
                             const Text('Huidige locatie'),
                           ],
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_useCurrentChecked) {
-                            _applyCurrentAsSelected();
+                            return;
                           } else {
                             final isFromPossession =
                                 ModalRoute.of(context)?.settings.name ==
@@ -243,7 +277,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                'Bevestig uw huidige locatie of kies Selecteer voor de kaart',
+                'Vink Huidige locatie aan voor je GPS-positie, of kies Selecteer om een plek op de kaart te kiezen.',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[600],
