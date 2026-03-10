@@ -6,6 +6,7 @@ import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
+import 'package:wildrapport/models/enums/animal_condition.dart';
 
 class AnimalManager
     implements
@@ -38,6 +39,7 @@ class AnimalManager
               animalName: s.commonName,
               category: s.category,
               genderViewCounts: [],
+              condition: AnimalCondition.andere,
             ),
           )
           .toList();

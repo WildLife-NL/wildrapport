@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/enums/animal_gender_extensions.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
@@ -22,10 +23,10 @@ class AnimalCounting extends StatefulWidget {
 }
 
 class _AnimalCountingState extends State<AnimalCounting> {
-  String? selectedAge;
-  String? selectedGender;
-  String? lastSelectedGender; // Add this to remember the last gender
-  int currentCount = 1; // Default to 1
+  String? selectedAge = AnimalAge.onbekend.label;
+  String? selectedGender = AnimalGender.onbekend.label;
+  String? lastSelectedGender;
+  int currentCount = 1;
   bool _forceRebuild = false;
   late final FixedExtentScrollController _countController;
 
@@ -61,28 +62,10 @@ class _AnimalCountingState extends State<AnimalCounting> {
   }
 
   void _validateAndAddToList(BuildContext context) {
-    // 1. Validate input first
     List<String> errors = [];
-    bool missingAge = selectedAge == null;
-    bool missingGender = selectedGender == null;
-
-    // If both are missing, show combined message
-    if (missingAge && missingGender) {
-      errors.add('Selecteer een leeftijd en geslacht');
-    } else {
-      // Show specific messages for what's missing
-      if (missingAge) {
-        errors.add('Selecteer een leeftijd');
-      }
-      if (missingGender) {
-        errors.add('Selecteer een geslacht');
-      }
-    }
-
     if (currentCount <= 0) {
       errors.add('Voer een aantal groter dan 0 in');
     }
-
     if (errors.isNotEmpty) {
       showDialog(
         context: context,
@@ -91,7 +74,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    // 2. Get the manager + current sighting
+    // Use defaults when not selected: Onbekend for age and gender
+    final ageString = selectedAge ?? AnimalAge.onbekend.label;
+    final genderString = selectedGender ?? AnimalGender.onbekend.label;
+
+    // Get the manager + current sighting
     final mgr = context.read<AnimalSightingReportingInterface>();
     final sighting = mgr.getCurrentanimalSighting();
     final currentAnimal = sighting?.animalSelected;
@@ -101,15 +88,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    // 3. Convert UI strings -> enums
-    final AnimalAge ageEnum = _convertStringToAnimalAge(selectedAge!);
-    final AnimalGender genderEnum = _convertStringToAnimalGender(
-      selectedGender!,
-    );
-
-    // We don't let the user pick condition yet in this screen,
-    // so fallback to whatever is on the selected animal,
-    // or just "other".
+    // Convert UI strings -> enums (defaults: Onbekend)
+    final AnimalAge ageEnum = _convertStringToAnimalAge(ageString);
+    final AnimalGender genderEnum = _convertStringToAnimalGender(genderString);
     final AnimalCondition conditionEnum =
         currentAnimal.condition ?? AnimalCondition.andere;
 
@@ -128,16 +109,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
     // so later screens + API transformer can still read it
     mgr.syncObservedAnimalsToSighting();
 
-    // 7. Reset local UI so user can add another batch
+    // Reset local UI so user can add another batch (defaults: Onbekend)
     setState(() {
-      // Remember last gender if you still want that UX
       lastSelectedGender = selectedGender;
-
-      selectedAge = null;
-      selectedGender = null;
-      currentCount = 1; // Reset to default 1
-
-      // force rebuild trick stays if you still need it
+      selectedAge = AnimalAge.onbekend.label;
+      selectedGender = AnimalGender.onbekend.label;
+      currentCount = 1;
       _forceRebuild = !_forceRebuild;
     });
     // Reset the wheel position to 1 as well (index 0)
