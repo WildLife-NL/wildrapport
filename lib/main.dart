@@ -61,6 +61,7 @@ import 'package:wildrapport/data_managers/conveyance_api.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
+import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
@@ -120,6 +121,13 @@ void main() async {
 
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
+  final zoneApi = ZoneApi(
+    baseUrl: baseUrl,
+    getToken: () async {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('bearer_token');
+    },
+  );
 
   mapProvider.setVicinityApi(vicinityApi);
 
@@ -177,6 +185,7 @@ void main() async {
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
         ),
+        Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
         Provider<ProfileApiInterface>.value(value: profileApi),

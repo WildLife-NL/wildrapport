@@ -59,6 +59,11 @@ dependencies:
   collection: ^1.17.1
   package_info_plus: ^8.0.3
   flutter_local_notifications: ^17.2.1
+  wildlifenl_zone_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: main
+      path: wildlifenl_zone_components
 
 dev_dependencies:
   flutter_test:
