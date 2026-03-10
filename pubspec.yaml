@@ -64,6 +64,11 @@ dependencies:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
       ref: main
       path: wildlifenl_zone_components
+  wildlifenl_alarms_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: main
+      path: wildlifenl_alarms_components
 
 dev_dependencies:
   flutter_test:

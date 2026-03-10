@@ -1252,6 +1252,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  wildlifenl_alarms_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_alarms_components
+      ref: main
+      resolved-ref: "007c78dd537eaa1af6b96a6e20eb82c85b29c4a8"
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.0.1"
   wildlifenl_assets:
     dependency: "direct main"
     description:

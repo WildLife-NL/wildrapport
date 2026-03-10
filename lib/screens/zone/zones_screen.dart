@@ -5,6 +5,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/zone/add_zone_screen.dart';
 import 'package:wildrapport/screens/zone/add_species_to_zone_screen.dart';
+import 'package:wildrapport/screens/zone/alarms_screen.dart';
 import 'package:wildrapport/screens/zone/remove_species_from_zone_screen.dart';
 import 'package:wildrapport/screens/zone/deactivate_zone_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -47,6 +48,14 @@ class ZonesScreen extends StatelessWidget {
                       label: 'Zone toevoegen',
                       onPressed: () {
                         nav.pushReplacementForward(context, const AddZoneScreen());
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _MenuButton(
+                      icon: Icons.notifications_active,
+                      label: 'Mijn alarmen',
+                      onPressed: () {
+                        nav.pushReplacementForward(context, const AlarmsScreen());
                       },
                     ),
                     const SizedBox(height: 16),
