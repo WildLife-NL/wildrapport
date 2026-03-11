@@ -21,7 +21,7 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("GET: $uri");
+    print("GET: $uri");
     return await http.get(uri, headers: headers).timeout(_requestTimeout);
   }
 
@@ -33,9 +33,9 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("POST: $uri");
+    final cleanedBody = _removeNulls(body);
     http.Response response = await http
-        .post(uri, body: jsonEncode(body), headers: headers)
+        .post(uri, body: jsonEncode(cleanedBody), headers: headers)
         .timeout(_requestTimeout);
 
     return response;
@@ -49,9 +49,9 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("PUT: $uri");
+    final cleanedBody = _removeNulls(body);
     return await http
-        .put(uri, body: jsonEncode(body), headers: headers)
+        .put(uri, body: jsonEncode(cleanedBody), headers: headers)
         .timeout(_requestTimeout);
   }
 
@@ -62,7 +62,7 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("DELETE: $uri");
+    print("DELETE: $uri");
     return await http.delete(uri, headers: headers).timeout(_requestTimeout);
   }
 
@@ -74,9 +74,9 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("PATCH: $uri");
+    final cleanedBody = _removeNulls(body);
     return await http
-        .patch(uri, body: jsonEncode(body), headers: headers)
+        .patch(uri, body: jsonEncode(cleanedBody), headers: headers)
         .timeout(_requestTimeout);
   }
 
@@ -99,13 +99,32 @@ class ApiClient {
     return defaultHeaders;
   }
 
+  /// Recursively removes null values from maps and nested structures.
+  /// APIs often reject payloads with null (e.g. 422 Unprocessable Entity).
+  static Map<String, dynamic> _removeNulls(Map<String, dynamic> map) {
+    final result = <String, dynamic>{};
+    for (final entry in map.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+      if (value is Map<String, dynamic>) {
+        result[entry.key] = _removeNulls(value);
+      } else if (value is List) {
+        result[entry.key] = value
+            .map((e) => e is Map<String, dynamic> ? _removeNulls(e) : e)
+            .where((e) => e != null)
+            .toList();
+      } else {
+        result[entry.key] = value;
+      }
+    }
+    return result;
+  }
+
   Uri _buildUri(String url) {
-    // Use Uri.resolve to avoid double-slash problems and ensure canonical paths.
     try {
       final base = Uri.parse(baseUrl);
       return base.resolve(url);
     } catch (e) {
-      // Fallback: construct via simple concatenation
       return Uri.parse('$baseUrl/$url');
     }
   }

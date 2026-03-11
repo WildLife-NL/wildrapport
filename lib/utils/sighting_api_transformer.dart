@@ -79,6 +79,15 @@ class SightingApiTransformer {
       }
     }
 
+    // API often requires at least one involved animal; avoid empty list (422)
+    if (sightedAnimals.isEmpty) {
+      sightedAnimals.add(SightedAnimal(
+        condition: 'other',
+        lifeStage: 'unknown',
+        sex: 'unknown',
+      ));
+    }
+
     final apiPayload = {
       "description": sighting.description ?? '',
       "location": {
