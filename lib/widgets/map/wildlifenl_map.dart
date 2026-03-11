@@ -6,7 +6,6 @@ const String _openTopoMapTileUrl =
     'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
 const List<String> _openTopoMapSubdomains = ['a', 'b', 'c'];
 
-/// OpenTopoMap levert geen tiles voor zoom > 17; gebruik maxZoom 17 om 400-fouten te voorkomen.
 const double kOpenTopoMapMaxZoom = 17.0;
 
 class _DefaultMapAttribution extends StatelessWidget {
@@ -31,8 +30,6 @@ class _DefaultMapAttribution extends StatelessWidget {
   }
 }
 
-/// Kaartwidget: OpenTopoMap (of optioneel satelliet), attribution + [extraLayers].
-/// Lokale implementatie zolang wildlifenl_map_logic_components geen WildLifeNLMap exporteert.
 class WildLifeNLMap extends StatelessWidget {
   final MapController? mapController;
   final MapOptions options;

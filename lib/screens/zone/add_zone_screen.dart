@@ -7,10 +7,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
@@ -217,10 +216,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Zone is toegevoegd.')),
       );
-      context.read<NavigationStateInterface>().pushReplacementBack(
-            context,
-            const ZonesScreen(),
-          );
+      Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -244,12 +240,9 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Zone toevoegen',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                context.read<NavigationStateInterface>().pushReplacementBack(
-                      context,
-                      const ZonesScreen(),
-                    );
+                Navigator.of(context).pop();
               },
               iconColor: Colors.black,
               textColor: Colors.black,
@@ -505,7 +498,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
-                        height: 48,
+                        height: primaryButtonHeight(context),
                         child: ElevatedButton(
                           onPressed: _isSubmitting ? null : _submit,
                           style: ElevatedButton.styleFrom(

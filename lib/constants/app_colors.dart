@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// App colors – zelfde waarden als [WildLifeNLColors] in wildlifenl_map_ui_components.
-/// Static const zodat const-expressies (bijv. const TextStyle(color: AppColors.brown)) werken.
 class AppColors {
   AppColors._();
 

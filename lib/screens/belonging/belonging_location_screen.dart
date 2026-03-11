@@ -7,7 +7,7 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/utils/toast_notification_handler.dart';
@@ -267,7 +267,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         interactionID: interactionResponseModel.interactionID,
       );
     } else {
-      _pendingNavigationScreen = const OverzichtScreen();
+      _pendingNavigationScreen = const MainNavScreen();
     }
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -288,7 +288,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 leftIcon: null,
                 centerText: 'Locatie',
                 rightIcon: null,
-                showUserIcon: true,
+                showUserIcon: false,
                 iconColor: Colors.black,
                 textColor: Colors.black,
                 fontScale: 1.15,

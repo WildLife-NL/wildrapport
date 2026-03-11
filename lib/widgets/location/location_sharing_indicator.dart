@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
-/// A widget that displays a persistent visual indicator when location sharing is enabled.
-/// Shows a location icon with optional animated pulse effect.
 class LocationSharingIndicator extends StatelessWidget {
   final bool showLabel;
   final double iconSize;
@@ -48,7 +46,6 @@ class LocationSharingIndicator extends StatelessWidget {
   }
 }
 
-/// A pulsing location icon that animates when location tracking is active.
 class _PulsingLocationIcon extends StatefulWidget {
   final double iconSize;
 
@@ -98,7 +95,6 @@ class _PulsingLocationIconState extends State<_PulsingLocationIcon>
   }
 }
 
-/// A compact indicator badge suitable for display in app bars or headers.
 class LocationSharingBadge extends StatelessWidget {
   final double badgeSize;
 

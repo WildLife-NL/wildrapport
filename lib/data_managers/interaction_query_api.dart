@@ -1,9 +1,8 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_query_api_interface.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
 
-/// Gebruikt de interaction-component package voor GET interactions/query/.
 class InteractionQueryApi implements InteractionQueryApiInterface {
   InteractionQueryApi(this._api);
 

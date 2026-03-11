@@ -1,4 +1,4 @@
-import 'package:wildrapport/models/enums/animal_age.dart';
+﻿import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/enums/animal_age_extensions.dart';
@@ -18,7 +18,6 @@ class ObservedAnimalEntry {
     required this.count,
   });
 
-  /// If `count` > 1, it will duplicate this map `count` times when building the payload.
   Map<String, dynamic> toBackendMapSingle() {
     return {
       'sex': gender.apiValue, // "male" | "female" | "other"

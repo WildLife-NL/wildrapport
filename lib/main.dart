@@ -49,7 +49,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 
 import 'package:wildrapport/data_managers/interaction_types_api.dart';
@@ -74,6 +74,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Hide system navigation bar (Samsung/Android back, home, recent) app-wide
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   final authenticator = WildLifeNLAuthenticator();
   final appStateProvider = AppStateProvider(authenticator: authenticator);
@@ -169,7 +172,7 @@ void main() async {
     final bool hasValidToken = await authenticator.hasValidToken();
     final bool hasAccess = await authenticator.hasAccess();
     final Widget initialScreen = hasValidToken
-      ? (hasAccess ? const OverzichtScreen() : const AccessDeniedScreen())
+      ? (hasAccess ? const MainNavScreen() : const AccessDeniedScreen())
       : const LoginScreen();
 
   runApp(

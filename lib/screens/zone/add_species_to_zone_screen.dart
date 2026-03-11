@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/api_models/species.dart';
-import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
@@ -111,10 +110,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Dier is aan de zone toegevoegd.')),
       );
-      context.read<NavigationStateInterface>().pushReplacementBack(
-            context,
-            const ZonesScreen(),
-          );
+      Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -136,12 +132,9 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Dier toevoegen aan zone',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                context.read<NavigationStateInterface>().pushReplacementBack(
-                      context,
-                      const ZonesScreen(),
-                    );
+                Navigator.of(context).pop();
               },
               iconColor: Colors.black,
               textColor: Colors.black,
@@ -251,7 +244,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                       ),
                     const SizedBox(height: 24),
                     SizedBox(
-                      height: 48,
+                      height: primaryButtonHeight(context),
                       child: ElevatedButton(
                         onPressed: (_isSubmitting || _zones.isEmpty) ? null : _submit,
                         style: ElevatedButton.styleFrom(

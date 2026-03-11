@@ -40,7 +40,7 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
               leftIcon: null,
               centerText: 'Dieraanrijding Details',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 _damageController.clear();
                 _detailsController.clear();

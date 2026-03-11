@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
 class TermsScreen extends StatefulWidget {
@@ -96,7 +96,7 @@ class _TermsScreenState extends State<TermsScreen> {
 
       // 3) Navigate to the home screen (no local flags involved)
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
         (_) => false,
       );
     } catch (e) {

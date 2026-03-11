@@ -6,7 +6,6 @@ import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -18,7 +17,9 @@ import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class Rapporteren extends StatefulWidget {
-  const Rapporteren({super.key});
+  const Rapporteren({super.key, this.onBackPressed});
+
+  final VoidCallback? onBackPressed;
 
   @override
   State<Rapporteren> createState() => _RapporterenState();
@@ -151,11 +152,6 @@ class _RapporterenState extends State<Rapporteren> {
     }
   }
 
-  void _handleBackNavigation(BuildContext context) {
-    final navigationManager = context.read<NavigationStateInterface>();
-    navigationManager.pushAndRemoveUntil(context, const OverzichtScreen());
-  }
-
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
@@ -167,12 +163,11 @@ class _RapporterenState extends State<Rapporteren> {
           SafeArea(
             bottom: false,
             child: CustomAppBar(
-              leftIcon: Icons.arrow_back_ios_new,
+              leftIcon: null,
               centerText: 'Rapporteren',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               useFixedText: true,
-              onLeftIconPressed: () => _handleBackNavigation(context),
               onRightIconPressed: () {},
               // make title and arrow black and larger for this screen - more on smaller screens
               iconColor: Colors.black,

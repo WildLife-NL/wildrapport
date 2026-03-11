@@ -115,7 +115,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   centerText: 'animalSightingen',
                   // remove rightIcon so the user/profile icon is shown like Rapporteren
                   rightIcon: null,
-                  showUserIcon: true,
+                  showUserIcon: false,
                   onLeftIconPressed: _handleBackNavigation,
                   onRightIconPressed: () {
                     debugPrint(

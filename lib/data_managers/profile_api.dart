@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +32,6 @@ class ProfileApi implements ProfileApiInterface {
   //   }
   // }
 
-  /// (Kept) Load /profile/me and cache essentials locally.
   @override
   Future<void> setProfileDataInDeviceStorage() async {
     final http.Response response = await client.get(
@@ -51,7 +50,6 @@ class ProfileApi implements ProfileApiInterface {
     }
   }
 
-  /// CENTRALIZED local cache (only caches keys you actually use).
   Future<void> _cacheProfile(Profile profile) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userID', profile.userID);
@@ -69,7 +67,6 @@ class ProfileApi implements ProfileApiInterface {
     }
   }
 
-  /// NEW: Fetch the full profile (used to check reportAppTerms).
   @override
   Future<Profile> fetchMyProfile() async {
     final http.Response response = await client.get(

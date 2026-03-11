@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/accident_report_model.dart';
@@ -193,7 +193,6 @@ class AppStateProvider with ChangeNotifier {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
   }
 
-  /// Load location tracking preference from SharedPreferences
   Future<void> loadLocationTrackingPreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -211,7 +210,6 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
-  /// Toggle location tracking on/off
   Future<void> setLocationTrackingEnabled(bool enabled) async {
     try {
       final prefs = await SharedPreferences.getInstance();

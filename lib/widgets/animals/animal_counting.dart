@@ -9,6 +9,7 @@ import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 
@@ -202,7 +203,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 children: [
                                   _buildHeader('Leeftijd'),
                                   // Filter out null widgets and add spacing only between non-null widgets
-                                  ..._buildAgeButtonsWithSpacing(),
+                                  ..._buildAgeButtonsWithSpacing(context),
                                 ],
                               ),
                             ),
@@ -217,7 +218,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 children: [
                                   _buildHeader('Geslacht'),
                                   // Filter out null widgets and add spacing only between non-null widgets
-                                  ..._buildGenderButtonsWithSpacing(),
+                                  ..._buildGenderButtonsWithSpacing(context),
                                 ],
                               ),
                             ),
@@ -356,14 +357,20 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  Widget _buildAgeButton(String text) {
+  double _choiceButtonHeight(BuildContext context) {
+    final h = MediaQuery.sizeOf(context).height;
+    return (h * 0.078).clamp(kMinTouchTargetHeight, 68.0);
+  }
+
+  Widget _buildAgeButton(BuildContext context, String text) {
     final bool isSelected = text == selectedAge;
+    final height = _choiceButtonHeight(context);
 
     return SizedBox(
-      height: 64.5, // Same height as the button
+      height: height,
       child: WhiteBulkButton(
         text: text,
-        height: 64.5,
+        height: height,
         fontSize: 16,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.center,
@@ -382,14 +389,15 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  Widget _buildGenderButton(String text) {
+  Widget _buildGenderButton(BuildContext context, String text) {
     final bool isSelected = text == selectedGender;
+    final height = _choiceButtonHeight(context);
 
     return SizedBox(
-      height: 64.5, // Same height as the button
+      height: height,
       child: WhiteBulkButton(
         text: text,
-        height: 64.5,
+        height: height,
         fontSize: 16,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.center,
@@ -408,7 +416,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  List<Widget> _buildAgeButtonsWithSpacing() {
+  List<Widget> _buildAgeButtonsWithSpacing(BuildContext context) {
     final List<Widget> result = [];
     final ageOptions = [
       AnimalAge.pasGeboren.label,
@@ -418,34 +426,31 @@ class _AnimalCountingState extends State<AnimalCounting> {
     ];
 
     // Always show all buttons - no filtering
+    final ctx = context;
     for (int i = 0; i < ageOptions.length; i++) {
       if (i > 0) {
-        result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        result.add(const SizedBox(height: 8));
       }
-      result.add(Flexible(child: _buildAgeButton(ageOptions[i])));
+      result.add(Flexible(child: _buildAgeButton(ctx, ageOptions[i])));
     }
 
     return result;
   }
 
-  List<Widget> _buildGenderButtonsWithSpacing() {
+  List<Widget> _buildGenderButtonsWithSpacing(BuildContext context) {
     final List<Widget> result = [];
     final genderOptions = ["Mannelijk", "Vrouwelijk", "Onbekend"];
 
     // Always show all buttons - no filtering
+    final ctx = context;
     for (int i = 0; i < genderOptions.length; i++) {
       if (i > 0) {
-        result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        result.add(const SizedBox(height: 8));
       }
-      result.add(Flexible(child: _buildGenderButton(genderOptions[i])));
+      result.add(Flexible(child: _buildGenderButton(ctx, genderOptions[i])));
     }
-
-    // Add an extra SizedBox at the end for alignment with age column
-    // The age column has 4 options while gender has 3, so we need one extra space
-    result.add(const SizedBox(height: 8)); // Add spacing
-    result.add(
-      Flexible(child: SizedBox(height: 64.5)),
-    ); // Extra SizedBox for alignment
+    result.add(const SizedBox(height: 8));
+    result.add(Flexible(child: SizedBox(height: _choiceButtonHeight(ctx))));
 
     return result;
   }

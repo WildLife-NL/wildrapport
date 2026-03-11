@@ -19,7 +19,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
@@ -197,7 +197,7 @@ class _LocationScreenState extends State<LocationScreen> {
             '\x1B[33m[LocationScreen] No questionnaire returned, skipping questionnaire screen\x1B[0m',
           );
           _pendingSnackBarMessage = 'Melding succesvol verstuurd';
-          _pendingNavigationScreen = const OverzichtScreen();
+          _pendingNavigationScreen = const MainNavScreen();
           _pendingRemoveUntil = true;
         } else {
           debugPrint(
@@ -234,7 +234,7 @@ class _LocationScreenState extends State<LocationScreen> {
               leftIcon: null,
               centerText: 'Locatie',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,

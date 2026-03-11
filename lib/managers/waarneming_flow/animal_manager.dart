@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
@@ -115,7 +115,6 @@ class AnimalManager
     return animals;
   }
 
-  /// Returns unique backend categories derived from species data.
   Future<List<String>> getBackendCategories() async {
     // Prefer cached animals to avoid extra API call
     final animals = _cachedAnimals ?? await getAnimals();
@@ -129,7 +128,6 @@ class AnimalManager
     return list;
   }
 
-  /// Filter animals by a backend-provided category name. Null or empty returns all.
   Future<List<AnimalModel>> getAnimalsByBackendCategory({String? category}) async {
     final animals = await getAnimals();
     if (category == null || category.isEmpty || category == 'Alle') return animals;

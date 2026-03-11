@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
@@ -161,12 +160,9 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Dier verwijderen uit zone',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                context.read<NavigationStateInterface>().pushReplacementBack(
-                      context,
-                      const ZonesScreen(),
-                    );
+                Navigator.of(context).pop();
               },
               iconColor: Colors.black,
               textColor: Colors.black,
@@ -284,7 +280,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                       ),
                     const SizedBox(height: 24),
                     SizedBox(
-                      height: 48,
+                      height: primaryButtonHeight(context),
                       child: ElevatedButton(
                         onPressed: (_isSubmitting ||
                                 _zones.isEmpty ||

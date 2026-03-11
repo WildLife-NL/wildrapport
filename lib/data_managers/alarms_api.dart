@@ -1,7 +1,6 @@
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildlifenl_alarms_components/wildlifenl_alarms_components.dart';
 
-/// Adapter: app [ApiClient] → package [AlarmsApiClientInterface].
 class AlarmsApiClientAdapter implements AlarmsApiClientInterface {
   AlarmsApiClientAdapter(this._client);
 

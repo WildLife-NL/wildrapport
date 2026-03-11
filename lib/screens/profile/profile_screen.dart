@@ -11,7 +11,9 @@ import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.onBackPressed});
+
+  final VoidCallback? onBackPressed;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -67,29 +69,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Top bar with back button and title (moved slightly down)
               Padding(
                 padding: EdgeInsets.only(top: responsive.hp(1)),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new),
+                child: Center(
+                  child: Text(
+                    'Profiel',
+                    style: TextStyle(
                       color: AppColors.offWhite,
-                      iconSize: responsive.sp(3),
-                      onPressed: () => Navigator.of(context).pop(),
+                      fontSize: responsive.fontSize(24),
+                      fontWeight: FontWeight.w600,
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Profiel',
-                          style: TextStyle(
-                            color: AppColors.offWhite,
-                            fontSize: responsive.fontSize(24),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // keep space to the right so title is centered
-                    SizedBox(width: responsive.wp(12)),
-                  ],
+                  ),
                 ),
               ),
 

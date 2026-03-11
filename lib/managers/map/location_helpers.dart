@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/config/mock_location.dart';
 
@@ -9,8 +9,6 @@ class FreshPositionResult {
 }
 
 class LocationHelpers {
-  /// Returns: lastKnown (provisional) quickly, then tries to obtain a fresh,
-  /// high-accuracy fix within [freshTimeout].
   static Future<FreshPositionResult> getFreshPosition({
     Duration lastKnownTimeout = const Duration(milliseconds: 400),
     Duration freshTimeout = const Duration(seconds: 7),

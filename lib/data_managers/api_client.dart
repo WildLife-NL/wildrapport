@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 class ApiClient {
   static const String _tokenKey = 'bearer_token';
 
-  /// Timeout for API requests (mobiel netwerk kan traag zijn).
   static const Duration _requestTimeout = Duration(seconds: 30);
 
   final String baseUrl;
@@ -67,7 +66,6 @@ class ApiClient {
     return await http.delete(uri, headers: headers).timeout(_requestTimeout);
   }
 
-  /// Send a PATCH request with a JSON body.
   Future<http.Response> patch(
     String url,
     Map<String, dynamic> body, {
@@ -101,7 +99,6 @@ class ApiClient {
     return defaultHeaders;
   }
 
-  /// Build a canonical URI by resolving [url] against the configured baseUrl.
   Uri _buildUri(String url) {
     // Use Uri.resolve to avoid double-slash problems and ensure canonical paths.
     try {

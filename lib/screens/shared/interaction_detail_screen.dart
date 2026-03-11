@@ -26,7 +26,7 @@ class InteractionDetailScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Interactie Details',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },

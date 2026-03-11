@@ -17,7 +17,7 @@ class TopContainer extends StatefulWidget {
     required this.height,
     required this.welcomeFontSize,
     required this.usernameFontSize,
-    this.showUserIcon = true,
+    this.showUserIcon = false,
     this.onUserIconPressed,
   });
 

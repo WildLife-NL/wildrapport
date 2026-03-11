@@ -6,7 +6,7 @@ import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart';
@@ -36,7 +36,7 @@ Future<void> _routeAfterLogin(BuildContext context) async {
     }
     if (profile.reportAppTerms == true) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
         (_) => false,
       );
     } else {
@@ -50,7 +50,7 @@ Future<void> _routeAfterLogin(BuildContext context) async {
     final hasAccess = await context.read<WildLifeNLAuthenticator>().hasAccess();
     if (hasAccess) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
         (_) => false,
       );
     } else {

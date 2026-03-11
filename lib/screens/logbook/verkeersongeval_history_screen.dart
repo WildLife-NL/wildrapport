@@ -6,7 +6,6 @@ import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 
 class VerkeersongevalHistoryScreen extends StatelessWidget {
   const VerkeersongevalHistoryScreen({super.key});
@@ -30,12 +29,8 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Verkeersongeval geschiedenis',
               rightIcon: null,
-              showUserIcon: true,
-              onLeftIconPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LogbookScreen()),
-                );
-              },
+              showUserIcon: false,
+              onLeftIconPressed: () => Navigator.of(context).pop(),
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,

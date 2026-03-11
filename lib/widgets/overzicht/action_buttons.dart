@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/widgets/overzicht/simple_hover_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 
@@ -31,7 +32,7 @@ class ActionButtons extends StatelessWidget {
     this.buttonSpacing,
     this.useCircleIcons = true,
     this.iconSize = 48,
-    this.buttonHeight = 160,
+    this.buttonHeight = 56,
     this.buttonFontSize,
     this.customIconColors = const {},
     this.useCircleIconsForIndices = const {},
@@ -39,9 +40,12 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = buttonHeight >= kMinTouchTargetHeight
+        ? buttonHeight
+        : menuButtonHeight(context);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding ?? 8,
+        horizontal: horizontalPadding ?? contentHorizontalPadding(context),
         vertical: verticalPadding ?? 0,
       ),
       child: Column(
@@ -49,9 +53,11 @@ class ActionButtons extends StatelessWidget {
         children: [
           for (var button in buttons) ...[
             SizedBox(
-              height: buttonHeight,
+              height: height,
               width: double.infinity,
               child: _buildButton(
+                context: context,
+                height: height,
                 text: button.text,
                 icon: button.icon,
                 imagePath: button.imagePath,
@@ -67,6 +73,8 @@ class ActionButtons extends StatelessWidget {
   }
 
   Widget _buildButton({
+    required BuildContext context,
+    required double height,
     required String text,
     IconData? icon,
     String? imagePath,
@@ -81,11 +89,12 @@ class ActionButtons extends StatelessWidget {
       fontWeight: FontWeight.w500,
     );
 
+    final effectiveHeight = height.clamp(kMinTouchTargetHeight, 72.0);
     final button = SimpleHoverButton(
       key: key,
       text: text,
       onPressed: onPressed,
-      height: buttonHeight.clamp(40.0, 64.0),
+      height: effectiveHeight,
       textStyle: textStyle,
       backgroundColor: background,
       borderColor: border,

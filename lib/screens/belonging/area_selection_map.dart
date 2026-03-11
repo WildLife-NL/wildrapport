@@ -339,7 +339,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Selecteer beschadigd gebied',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },

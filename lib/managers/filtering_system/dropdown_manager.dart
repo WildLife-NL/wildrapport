@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
@@ -17,8 +17,6 @@ class DropdownManager implements DropdownInterface {
 
   DropdownManager(this._filterManager);
 
-  /// Builds a filter dropdown with expandable options
-  /// Shows the selected filter value or default text and handles expansion state
   Widget _buildFilterDropdown({
     required String selectedValue,
     required bool isExpanded,
@@ -59,8 +57,6 @@ class DropdownManager implements DropdownInterface {
     );
   }
 
-  /// Creates a list of filter option widgets based on available filters
-  /// Includes special handling for search filter and adds reset option when a filter is active
   List<Widget> _buildFilterOptions({
     required String selectedValue,
     required Function(String) onOptionSelected,
@@ -183,8 +179,6 @@ class DropdownManager implements DropdownInterface {
     return options;
   }
 
-  /// Determines the appropriate icon to display for the selected filter
-  /// Returns the icon path based on the filter type
   String _getSelectedFilterIcon(String selectedValue) {
     if (selectedValue == FilterType.none.displayText ||
         selectedValue == 'Filteren') {
@@ -199,8 +193,6 @@ class DropdownManager implements DropdownInterface {
     return filterType.iconPath;
   }
 
-  /// Builds a location dropdown with expandable options
-  /// Shows the selected location and handles expansion state
   Widget _buildLocationDropdown({
     required String selectedValue,
     required bool isExpanded,
@@ -268,8 +260,6 @@ class DropdownManager implements DropdownInterface {
     );
   }
 
-  /// Creates a list of location option widgets excluding the currently selected location
-  /// Each option displays the location type
   List<Widget> _buildLocationOptions({
     required String selectedValue,
     required Function(String) onOptionSelected,
@@ -318,8 +308,6 @@ class DropdownManager implements DropdownInterface {
         .toList();
   }
 
-  /// Public method that builds the appropriate dropdown based on the specified type
-  /// Delegates to the specific dropdown builder methods based on the dropdown type
   @override
   Widget buildDropdown({
     required DropdownType type,

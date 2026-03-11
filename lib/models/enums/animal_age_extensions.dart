@@ -1,7 +1,6 @@
 import 'package:wildrapport/models/enums/animal_age.dart';
 
 extension AnimalAgeExtensions on AnimalAge {
-  /// Label to show in the UI (Dutch)
   String get label {
     switch (this) {
       case AnimalAge.pasGeboren:
@@ -15,7 +14,6 @@ extension AnimalAgeExtensions on AnimalAge {
     }
   }
 
-  /// Exact string backend expects in lifeStage
   String get apiValue {
     switch (this) {
       case AnimalAge.pasGeboren:
@@ -29,7 +27,6 @@ extension AnimalAgeExtensions on AnimalAge {
     }
   }
 
-  /// If backend sends us strings, map them back to enum
   static AnimalAge fromApiString(String? raw) {
     if (raw == null) return AnimalAge.onbekend;
 

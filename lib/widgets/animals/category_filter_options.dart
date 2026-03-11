@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildlifenl_map_ui_components/wildlifenl_map_ui_components.dart';
 
-/// Categorie-filter UI – gebruikt [WildLifeNLCategoryGrid] uit wildlifenl_map_ui_components.
 class CategoryFilterOptions extends StatelessWidget {
   final List<Map<String, String>> items;
   final Function(String) onCategorySelected;

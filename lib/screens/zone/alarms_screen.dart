@@ -1,10 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/alarms_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_alarms_components/wildlifenl_alarms_components.dart';
 
@@ -70,12 +70,9 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: _showAllAlarms ? 'Alle alarmen' : "Mijn alarmen",
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                context.read<NavigationStateInterface>().pushReplacementBack(
-                      context,
-                      const ZonesScreen(),
-                    );
+                Navigator.of(context).pop();
               },
               iconColor: Colors.black,
               textColor: Colors.black,
@@ -189,9 +186,21 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
         itemCount: list.length,
         itemBuilder: (context, index) {
           final alarm = list[index];
-          return _AlarmTile(alarm: alarm);
+          return _AlarmTile(
+            alarm: alarm,
+            onTap: () => _showAlarmDetail(context, alarm),
+          );
         },
       ),
+    );
+  }
+
+  void _showAlarmDetail(BuildContext context, Alarm alarm) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _AlarmDetailSheet(alarm: alarm),
     );
   }
 }
@@ -216,6 +225,7 @@ class _SegmentChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Container(
+          constraints: const BoxConstraints(minHeight: kMinTouchTargetHeight),
           padding: const EdgeInsets.symmetric(vertical: 12),
           alignment: Alignment.center,
           child: Text(
@@ -232,33 +242,44 @@ class _SegmentChip extends StatelessWidget {
   }
 }
 
+String _defaultAlarmSummary(Alarm alarm) {
+  final zoneName = alarm.zone.name ?? 'je zone';
+  final species = alarm.animal?.species?.name;
+  if (species != null && species.isNotEmpty) {
+    return 'Er is een $species in je $zoneName.';
+  }
+  if (alarm.detection != null) return 'Er is een detectie in je $zoneName.';
+  if (alarm.interaction != null) return 'Er is een interactie in je $zoneName.';
+  return 'Er is activiteit in je $zoneName.';
+}
+
 class _AlarmTile extends StatelessWidget {
-  const _AlarmTile({required this.alarm});
+  const _AlarmTile({required this.alarm, this.onTap});
 
   final Alarm alarm;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final zoneName = alarm.zone.name ?? 'Zone';
-    final animalName = alarm.animal?.name;
     final message = alarm.firstMessageText;
+    final summary = (message != null && message.isNotEmpty)
+        ? message
+        : _defaultAlarmSummary(alarm);
     final timestamp = alarm.timestamp;
-    String subtitle = zoneName;
-    if (animalName != null && animalName.isNotEmpty) {
-      subtitle = '$zoneName · $animalName';
-    }
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Colors.white,
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: AppColors.darkGreen.withValues(alpha: 0.2),
           child: const Icon(Icons.notifications_active, color: AppColors.darkGreen),
         ),
         title: Text(
-          subtitle,
+          zoneName,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 15,
@@ -268,16 +289,15 @@ class _AlarmTile extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (message != null && message.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  message,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                summary,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
               ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
@@ -302,6 +322,268 @@ class _AlarmTile extends StatelessWidget {
       if (diff.inHours > 0) return '${diff.inHours} uur geleden';
       if (diff.inMinutes > 0) return '${diff.inMinutes} min geleden';
       return 'Zojuist';
+    } catch (_) {
+      return timestamp;
+    }
+  }
+}
+
+class _AlarmDetailSheet extends StatelessWidget {
+  const _AlarmDetailSheet({required this.alarm});
+
+  final Alarm alarm;
+
+  bool _hasConveyanceMessage(Alarm a) {
+    for (final c in a.conveyances) {
+      if ((c.message.title != null && c.message.title!.isNotEmpty) ||
+          (c.message.body != null && c.message.body!.isNotEmpty)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  String? _speciesName(Alarm a) {
+    return a.animal?.species?.name;
+  }
+
+  String _eventTypeLabel(Alarm a) {
+    final parts = <String>[];
+    if (a.detection != null) parts.add('Detectie');
+    if (a.interaction != null) parts.add('Interactie');
+    if (parts.isEmpty) return '—';
+    return parts.join(', ');
+  }
+
+  Widget _prominentMessageBlock(Alarm a) {
+    final first = a.conveyances.where((c) =>
+        (c.message.title != null && c.message.title!.isNotEmpty) ||
+        (c.message.body != null && c.message.body!.isNotEmpty)).firstOrNull;
+    if (first == null) return const SizedBox.shrink();
+    final title = first.message.title?.trim();
+    final body = first.message.body?.trim();
+    final hasTitle = title != null && title.isNotEmpty;
+    final hasBody = body != null && body.isNotEmpty;
+    if (!hasTitle && !hasBody) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.darkGreen.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.darkGreen.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasTitle)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          if (hasBody)
+            SelectableText(
+              body,
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.4,
+                color: Colors.black87,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.3,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Alarmdetails',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  children: [
+                    if (_hasConveyanceMessage(alarm)) ...[
+                      _prominentMessageBlock(alarm),
+                      const SizedBox(height: 20),
+                    ] else ...[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          _defaultAlarmSummary(alarm),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
+                    _sectionTitle('Alarm'),
+                    if (_speciesName(alarm) != null)
+                      _detailRow('Diersoort', _speciesName(alarm)!),
+                    _detailRow('Eventsoort', _eventTypeLabel(alarm)),
+                    _detailRow('Tijdstip', _formatTimestampFull(alarm.timestamp)),
+                    _detailRow('Zone', alarm.zone.name ?? '—'),
+                    if (alarm.animal?.species?.name != null &&
+                        alarm.animal!.locationTimestamp != null)
+                      _detailRow(
+                        'Locatie bijgewerkt',
+                        _formatTimestampFull(alarm.animal!.locationTimestamp!),
+                      ),
+                    if (alarm.conveyances.isNotEmpty &&
+                        !_hasConveyanceMessage(alarm)) ...[
+                      const SizedBox(height: 12),
+                      _sectionTitle('Berichten'),
+                      ...alarm.conveyances.map((c) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (c.message.title != null &&
+                                c.message.title!.isNotEmpty)
+                              _detailRow('Titel', c.message.title!),
+                            if (c.message.body != null &&
+                                c.message.body!.isNotEmpty)
+                              _detailRow('Bericht', c.message.body!),
+                            _detailRow('Tijdstip', _formatTimestampFull(c.timestamp)),
+                            if (c.user?.displayName != null &&
+                                c.user!.displayName!.isNotEmpty)
+                              _detailRow('Gebruiker', c.user!.displayName!),
+                          ],
+                        ),
+                      )),
+                    ],
+                    if (_hasConveyanceMessage(alarm)) ...[
+                      const SizedBox(height: 12),
+                      _sectionTitle('Overige berichten'),
+                      ...alarm.conveyances
+                          .where((c) =>
+                              (c.message.title != null &&
+                                  c.message.title!.isNotEmpty) ||
+                              (c.message.body != null &&
+                                  c.message.body!.isNotEmpty))
+                          .skip(1)
+                          .map((c) => Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (c.message.title != null &&
+                                        c.message.title!.isNotEmpty)
+                                      _detailRow('Titel', c.message.title!),
+                                    if (c.message.body != null &&
+                                        c.message.body!.isNotEmpty)
+                                      _detailRow('Bericht', c.message.body!),
+                                    _detailRow(
+                                        'Tijdstip', _formatTimestampFull(c.timestamp)),
+                                    if (c.user?.displayName != null &&
+                                        c.user!.displayName!.isNotEmpty)
+                                      _detailRow(
+                                          'Gebruiker', c.user!.displayName!),
+                                  ],
+                                ),
+                              )),
+                    ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: AppColors.darkGreen,
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: SelectableText(
+              value,
+              style: const TextStyle(fontSize: 13, color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTimestampFull(String timestamp) {
+    if (timestamp.isEmpty) return '—';
+    try {
+      final dt = DateTime.parse(timestamp);
+      return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     } catch (_) {
       return timestamp;
     }

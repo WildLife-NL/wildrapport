@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,8 +7,6 @@ import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/models/beta_models/tracking_reading_model.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
 
-/// Manages caching of location tracking readings when offline,
-/// and automatically retries sending them when connection is restored.
 class TrackingCacheManager {
   static const String _cacheKey = 'cached_tracking_readings';
 
@@ -26,7 +24,6 @@ class TrackingCacheManager {
   TrackingCacheManager({required this.trackingApi, Connectivity? connectivity})
     : _connectivity = connectivity ?? Connectivity();
 
-  /// Initialize connectivity monitoring
   void init() {
     if (_isInitialized) return;
 
@@ -36,14 +33,12 @@ class TrackingCacheManager {
     _isInitialized = true;
   }
 
-  /// Clean up resources
   void dispose() {
     _connectivitySubscription?.cancel();
     _connectivitySubscription = null;
     _isInitialized = false;
   }
 
-  /// Handle connectivity changes - try to send cached data when connection is restored
   void _handleConnectivityChange(List<ConnectivityResult> results) async {
     debugPrint(
       '$yellowLog[TrackingCacheManager] Connectivity changed: $results',
@@ -63,7 +58,6 @@ class TrackingCacheManager {
     }
   }
 
-  /// Schedule retry loop until success
   void _scheduleRetryUntilSuccess() {
     if (_isRetryingSend) return;
     _isRetryingSend = true;
@@ -71,7 +65,6 @@ class TrackingCacheManager {
     _retryLoop();
   }
 
-  /// Retry loop that checks connection periodically
   void _retryLoop() async {
     while (true) {
       bool hasConnection = await ConnectionChecker.hasInternetConnection();
@@ -97,7 +90,6 @@ class TrackingCacheManager {
     }
   }
 
-  /// Try to send all cached readings
   Future<void> _trySendCachedReadings() async {
     if (!await ConnectionChecker.hasInternetConnection()) {
       debugPrint(
@@ -109,7 +101,6 @@ class TrackingCacheManager {
     await sendCachedReadings();
   }
 
-  /// Cache a tracking reading to local storage
   Future<void> cacheReading(TrackingReading reading) async {
     try {
       debugPrint(
@@ -144,7 +135,6 @@ class TrackingCacheManager {
     }
   }
 
-  /// Get all cached readings
   Future<List<TrackingReading>> getCachedReadings() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -165,7 +155,6 @@ class TrackingCacheManager {
     }
   }
 
-  /// Send all cached readings to the server
   Future<void> sendCachedReadings() async {
     debugPrint(
       '$yellowLog[TrackingCacheManager] === Starting sendCachedReadings ===',
@@ -254,7 +243,6 @@ class TrackingCacheManager {
     }
   }
 
-  /// Attempt to send a tracking reading immediately, cache if it fails
   Future<TrackingNotice?> sendOrCacheReading({
     required double lat,
     required double lon,

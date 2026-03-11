@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -61,7 +61,6 @@ class MapProvider extends ChangeNotifier {
     _trackingCacheManager = manager;
   }
 
-  /// Call this to send the user's current GPS location to the backend.
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
     // Prefer using the cache manager if available
     if (_trackingCacheManager != null) {
@@ -151,7 +150,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// DEV/TEST: Emit a mock tracking notice to trigger overlays and OS notifications
   void emitMockTrackingNotice(String text, {int? severity}) {
     _lastTrackingNotice = TrackingNotice(text, severity: severity);
     final title =
@@ -308,8 +306,6 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load all pins from the vicinity endpoint (single API call)
-  /// This is more efficient than calling loadAnimalPins, loadDetectionPins, and loadInteractions separately
   Future<void> loadAllPinsFromVicinity() async {
     if (_vicinityApi == null) {
       debugPrint(
@@ -455,8 +451,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// DEV/TEST: Replace current pins with provided mock data and refresh UI
-  /// Intended only for development to quickly visualize markers on the map
   void setMockVicinity({
     List<AnimalPin> animals = const [],
     List<DetectionPin> detections = const [],
@@ -482,8 +476,6 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sends one tracking ping using the freshest position we have.
-  /// Falls back to getting a new fix if needed.
   Future<void> _sendTrackingNow() async {
     try {
       // Prefer currentPosition; otherwise use mocked coordinates or get a new fix
@@ -518,7 +510,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// Starts periodic pings. Fires one immediately, then repeats.
   void startTracking({Duration? interval}) {
     if (_trackingCacheManager == null && _trackingApi == null) {
       debugPrint(
@@ -544,7 +535,6 @@ class MapProvider extends ChangeNotifier {
     );
   }
 
-  /// Stops periodic pings.
   void stopTracking() {
     _trackingTimer?.cancel();
     _trackingTimer = null;

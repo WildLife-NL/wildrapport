@@ -1,7 +1,6 @@
 import 'package:wildrapport/models/enums/animal_gender.dart';
 
 extension AnimalGenderExtensions on AnimalGender {
-  /// UI label (Dutch)
   String get label {
     switch (this) {
       case AnimalGender.mannelijk:
@@ -13,7 +12,6 @@ extension AnimalGenderExtensions on AnimalGender {
     }
   }
 
-  /// Backend value for `sex`
   String get apiValue {
     switch (this) {
       case AnimalGender.mannelijk:

@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:latlong2/latlong.dart';
 
 const Distance _distance = Distance();
@@ -12,7 +12,6 @@ class PolygonArea {
     this.areaType = 'polygon',
   });
 
-  /// Maakt een cirkel-polygoon rond [center] met [radiusMeters] (bijv. 100, 250, 500, 1000).
   static PolygonArea fromCircle(LatLng center, double radiusMeters) {
     const int segments = 32;
     const double metersPerDegreeLat = 111320.0;
@@ -28,7 +27,6 @@ class PolygonArea {
     return PolygonArea(points: pts, areaType: 'radius');
   }
 
-  /// Berekent oppervlakte in m². Voor cirkels (areaType 'radius') wordt πr² gebruikt.
   double calculateAreaInSquareMeters() {
     if (points.length < 3) return 0.0;
 
@@ -49,12 +47,10 @@ class PolygonArea {
     return area * metersPerDegree * metersPerDegree;
   }
 
-  /// Calculate area in hectares
   double getAreaInHectares() {
     return calculateAreaInSquareMeters() / 10000;
   }
 
-  /// Get center point of polygon
   LatLng getCenterPoint() {
     if (points.isEmpty) {
       return const LatLng(0, 0);

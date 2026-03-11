@@ -176,7 +176,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
               centerText: widget.appBarTitle,
               // no right icon here so the user/profile icon is shown like Rapporteren
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
               // match Rapporteren app bar styling exactly
