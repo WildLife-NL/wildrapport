@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
@@ -23,11 +24,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'Loading...';
   Profile? _profile;
   bool _loadingProfile = true;
+  String _version = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _version = '${info.version}+${info.buildNumber}';
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -287,6 +298,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: const Text('Account verwijderen'),
                     ),
+                    if (_version.isNotEmpty) ...[
+                      SizedBox(height: responsive.hp(1)),
+                      Center(
+                        child: Text(
+                          'Versie $_version',
+                          style: TextStyle(
+                            color: AppColors.offWhite.withValues(alpha: 0.7),
+                            fontSize: responsive.fontSize(12),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
