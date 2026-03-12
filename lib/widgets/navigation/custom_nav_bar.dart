@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 
+/// Custom navigation bar with curved cutout for center floating button.
 class CustomNavBar extends StatelessWidget {
   final NavTab currentTab;
   final ValueChanged<NavTab> onTabSelected;
@@ -12,60 +12,97 @@ class CustomNavBar extends StatelessWidget {
     required this.onTabSelected,
   });
 
-  static const double _navBarHeight = 80;
-  static const double _centerButtonSize = 60;
-  static const double _centerButtonTopOffset = -20;
+  static const double _barHeight = 85.0;
+  static const double _centerButtonSize = 60.0;
+  static const double _centerButtonOffset = -20.0;
+  static const double _bumpRadius = 30.0;
+  static const double _bumpShoulder = 13.0;
+
+  static const Color _activeColor = Color(0xFF37A904);
+  static const Color _inactiveColor = Color(0xFFB0B0B0);
+  static const Color _centerButtonColor = Color(0xFF8FBC8F);
+  static const Color _navBarBackground = Colors.white;
+
+  static const double _iconSize = 24.0;
+  static const double _fontSize = 12.0;
+  static const double _indicatorHeight = 3.0;
+  static const double _indicatorWidth = 40.0;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: _navBarHeight,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          bottom: 45,
+          left: screenWidth / 2 - 35,
+          child: Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                tab: NavTab.zones,
-                icon: Icons.add_location_alt,
-                label: "Zone's",
-              ),
-              _buildNavItem(
-                tab: NavTab.rapporten,
-                icon: Icons.campaign,
-                label: 'Rapporten',
-              ),
-              const SizedBox(width: _centerButtonSize),
-              _buildNavItem(
-                tab: NavTab.logboek,
-                icon: Icons.menu_book,
-                label: 'LogBoek',
-              ),
-              _buildNavItem(
-                tab: NavTab.profile,
-                icon: Icons.person,
-                label: 'Profile',
-              ),
-            ],
+        ),
+        SizedBox(
+          height: _barHeight,
+          child: CustomPaint(
+            painter: NavBarCurvePainter(
+              backgroundColor: _navBarBackground,
+              bumpRadius: _bumpRadius,
+              bumpShoulder: _bumpShoulder,
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(
+                      tab: NavTab.zones,
+                      icon: Icons.add_location_alt,
+                      label: "Zone's",
+                    ),
+                    _buildNavItem(
+                      tab: NavTab.rapporten,
+                      icon: Icons.campaign,
+                      label: 'Rapporten',
+                    ),
+                    const SizedBox(width: 60),
+                    _buildNavItem(
+                      tab: NavTab.logboek,
+                      icon: Icons.menu_book,
+                      label: 'LogBoek',
+                    ),
+                    _buildNavItem(
+                      tab: NavTab.profile,
+                      icon: Icons.person,
+                      label: 'Profile',
+                    ),
+                  ],
+                ),
+                Positioned(
+                  top: _centerButtonOffset,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: _buildCenterButton(),
+                  ),
+                ),
+              ],
+            ),
           ),
-          Positioned(
-            top: _centerButtonTopOffset,
-            left: MediaQuery.of(context).size.width / 2 - _centerButtonSize / 2,
-            child: _buildCenterButton(),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -75,7 +112,7 @@ class CustomNavBar extends StatelessWidget {
     required String label,
   }) {
     final isSelected = currentTab == tab;
-    final color = isSelected ? AppColors.darkGreen : const Color(0xFFB0B0B0);
+    final color = isSelected ? _activeColor : _inactiveColor;
 
     return GestureDetector(
       onTap: () => onTabSelected(tab),
@@ -86,20 +123,20 @@ class CustomNavBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 3,
-              width: 40,
+              height: _indicatorHeight,
+              width: _indicatorWidth,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.darkGreen : Colors.transparent,
+                color: isSelected ? _activeColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 4),
-            Icon(icon, size: 24, color: color),
+            Icon(icon, size: _iconSize, color: color),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: _fontSize,
                 color: color,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -112,6 +149,7 @@ class CustomNavBar extends StatelessWidget {
 
   Widget _buildCenterButton() {
     final isSelected = currentTab == NavTab.kaart;
+    final color = isSelected ? _activeColor : _inactiveColor;
 
     return GestureDetector(
       onTap: () => onTabSelected(NavTab.kaart),
@@ -122,16 +160,21 @@ class CustomNavBar extends StatelessWidget {
             width: _centerButtonSize,
             height: _centerButtonSize,
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.darkGreen : const Color(0xFF8FBC8F),
+              color: isSelected ? _activeColor : _centerButtonColor,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 8,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withOpacity(0.15),
                   blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
+            alignment: Alignment.center,
             child: Icon(
               Icons.map,
               size: 28,
@@ -142,13 +185,75 @@ class CustomNavBar extends StatelessWidget {
           Text(
             'Kaart',
             style: TextStyle(
-              fontSize: 12,
-              color: isSelected ? AppColors.darkGreen : const Color(0xFFB0B0B0),
+              fontSize: _fontSize,
+              color: color,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+/// Custom painter for nav bar with curved cutout
+class NavBarCurvePainter extends CustomPainter {
+  final Color backgroundColor;
+  final double bumpRadius;
+  final double bumpShoulder;
+
+  const NavBarCurvePainter({
+    this.backgroundColor = Colors.white,
+    this.bumpRadius = 30.0,
+    this.bumpShoulder = 13.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
+
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.1)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+
+    final path = Path();
+    final double centerX = size.width / 2;
+
+    path.moveTo(0, 0);
+    path.lineTo(centerX - bumpRadius - bumpShoulder, 0);
+
+    path.cubicTo(
+      centerX - bumpRadius - 6,
+      0,
+      centerX - bumpRadius - 3,
+      -bumpRadius + 5,
+      centerX,
+      -bumpRadius,
+    );
+
+    path.cubicTo(
+      centerX + bumpRadius + 3,
+      -bumpRadius + 5,
+      centerX + bumpRadius + 6,
+      0,
+      centerX + bumpRadius + bumpShoulder,
+      0,
+    );
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, shadowPaint);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(NavBarCurvePainter oldDelegate) {
+    return oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.bumpRadius != bumpRadius ||
+        oldDelegate.bumpShoulder != bumpShoulder;
   }
 }
