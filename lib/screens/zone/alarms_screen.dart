@@ -5,6 +5,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/alarms_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
+import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_alarms_components/wildlifenl_alarms_components.dart';
 
@@ -17,6 +18,7 @@ class AlarmsScreen extends StatefulWidget {
 
 class _AlarmsScreenState extends State<AlarmsScreen> {
   List<Alarm>? _alarms;
+  Map<String, String> _speciesCommonNames = {};
   String? _error;
   bool _loading = true;
   bool _showAllAlarms = false;
@@ -37,9 +39,18 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
       final list = _showAllAlarms
           ? await api.getAllAlarms()
           : await api.getMyAlarms();
+      Map<String, String> commonNames = {};
+      try {
+        final speciesApi = context.read<SpeciesApiInterface>();
+        final speciesList = await speciesApi.getAllSpecies();
+        for (final s in speciesList) {
+          if (s.commonName.isNotEmpty) commonNames[s.id] = s.commonName;
+        }
+      } catch (_) {}
       if (mounted) {
         setState(() {
           _alarms = list;
+          _speciesCommonNames = commonNames;
           _loading = false;
         });
       }
@@ -188,6 +199,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
           final alarm = list[index];
           return _AlarmTile(
             alarm: alarm,
+            speciesCommonNames: _speciesCommonNames,
             onTap: () => _showAlarmDetail(context, alarm),
           );
         },
@@ -200,7 +212,10 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _AlarmDetailSheet(alarm: alarm),
+      builder: (context) => _AlarmDetailSheet(
+        alarm: alarm,
+        speciesCommonNames: _speciesCommonNames,
+      ),
     );
   }
 }
@@ -242,11 +257,28 @@ class _SegmentChip extends StatelessWidget {
   }
 }
 
-String _defaultAlarmSummary(Alarm alarm) {
+String? _speciesDisplayName(Alarm alarm, Map<String, String> speciesCommonNames) {
+  final species = alarm.animal?.species;
+  if (species == null) return null;
+  try {
+    final d = species as dynamic;
+    final id = d.id ?? d.ID;
+    if (id != null) {
+      final idStr = id.toString().trim();
+      final common = speciesCommonNames[idStr];
+      if (common != null && common.isNotEmpty) return common;
+    }
+  } catch (_) {}
+  final name = species.name;
+  if (name != null && name.toString().trim().isNotEmpty) return name.toString().trim();
+  return null;
+}
+
+String _defaultAlarmSummary(Alarm alarm, Map<String, String> speciesCommonNames) {
   final zoneName = alarm.zone.name ?? 'je zone';
-  final species = alarm.animal?.species?.name;
-  if (species != null && species.isNotEmpty) {
-    return 'Er is een $species in je $zoneName.';
+  final speciesName = _speciesDisplayName(alarm, speciesCommonNames);
+  if (speciesName != null) {
+    return 'Er is een $speciesName in je $zoneName.';
   }
   if (alarm.detection != null) return 'Er is een detectie in je $zoneName.';
   if (alarm.interaction != null) return 'Er is een interactie in je $zoneName.';
@@ -254,9 +286,14 @@ String _defaultAlarmSummary(Alarm alarm) {
 }
 
 class _AlarmTile extends StatelessWidget {
-  const _AlarmTile({required this.alarm, this.onTap});
+  const _AlarmTile({
+    required this.alarm,
+    required this.speciesCommonNames,
+    this.onTap,
+  });
 
   final Alarm alarm;
+  final Map<String, String> speciesCommonNames;
   final VoidCallback? onTap;
 
   @override
@@ -265,7 +302,7 @@ class _AlarmTile extends StatelessWidget {
     final message = alarm.firstMessageText;
     final summary = (message != null && message.isNotEmpty)
         ? message
-        : _defaultAlarmSummary(alarm);
+        : _defaultAlarmSummary(alarm, speciesCommonNames);
     final timestamp = alarm.timestamp;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -329,9 +366,13 @@ class _AlarmTile extends StatelessWidget {
 }
 
 class _AlarmDetailSheet extends StatelessWidget {
-  const _AlarmDetailSheet({required this.alarm});
+  const _AlarmDetailSheet({
+    required this.alarm,
+    required this.speciesCommonNames,
+  });
 
   final Alarm alarm;
+  final Map<String, String> speciesCommonNames;
 
   bool _hasConveyanceMessage(Alarm a) {
     for (final c in a.conveyances) {
@@ -344,7 +385,7 @@ class _AlarmDetailSheet extends StatelessWidget {
   }
 
   String? _speciesName(Alarm a) {
-    return a.animal?.species?.name;
+    return _speciesDisplayName(a, speciesCommonNames);
   }
 
   String _eventTypeLabel(Alarm a) {
@@ -450,7 +491,7 @@ class _AlarmDetailSheet extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Text(
-                          _defaultAlarmSummary(alarm),
+                          _defaultAlarmSummary(alarm, speciesCommonNames),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -466,7 +507,7 @@ class _AlarmDetailSheet extends StatelessWidget {
                     _detailRow('Eventsoort', _eventTypeLabel(alarm)),
                     _detailRow('Tijdstip', _formatTimestampFull(alarm.timestamp)),
                     _detailRow('Zone', alarm.zone.name ?? '—'),
-                    if (alarm.animal?.species?.name != null &&
+                    if (_speciesName(alarm) != null &&
                         alarm.animal!.locationTimestamp != null)
                       _detailRow(
                         'Locatie bijgewerkt',

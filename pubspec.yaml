@@ -1,7 +1,7 @@
 name: wildrapport
 description: "A new Flutter project."
 publish_to: 'none'
-version: 26.03.12+1
+version: 26.03.17+1
 
 environment:
   sdk: ^3.7.0
@@ -9,6 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wildlifenl_rapporten_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: main
+      path: wildlifenl_rapporten_components
   wildlifenl_interaction_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git

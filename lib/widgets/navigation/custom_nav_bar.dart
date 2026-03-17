@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 
-/// Custom navigation bar with curved cutout for center floating button.
+
 class CustomNavBar extends StatelessWidget {
   final NavTab currentTab;
   final ValueChanged<NavTab> onTabSelected;

@@ -91,6 +91,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
+              if (_version.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: responsive.hp(0.5)),
+                  child: Center(
+                    child: Text(
+                      'Versie $_version',
+                      style: TextStyle(
+                        color: AppColors.offWhite.withValues(alpha: 0.7),
+                        fontSize: responsive.fontSize(12),
+                      ),
+                    ),
+                  ),
+                ),
 
               SizedBox(height: responsive.spacing(36)),
 
@@ -298,18 +311,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: const Text('Account verwijderen'),
                     ),
-                    if (_version.isNotEmpty) ...[
-                      SizedBox(height: responsive.hp(1)),
-                      Center(
-                        child: Text(
-                          'Versie $_version',
-                          style: TextStyle(
-                            color: AppColors.offWhite.withValues(alpha: 0.7),
-                            fontSize: responsive.fontSize(12),
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

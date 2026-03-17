@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
-import 'package:wildrapport/models/beta_models/sighted_animal_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
-import 'dart:convert';
+import 'package:wildlifenl_rapporten_components/wildlifenl_rapporten_components.dart';
 
 class SightingApiTransformer {
   static Map<String, dynamic> transformForApi(AnimalSightingModel sighting) {
@@ -46,8 +47,7 @@ class SightingApiTransformer {
     );
     debugPrint('Manual Location: ${manualLocation.toJson()}');
 
-    // Transform animals to SightedAnimal format
-    final List<SightedAnimal> sightedAnimals = [];
+    final involvedAnimals = <InvolvedAnimalDto>[];
     for (final animal in sighting.animals!) {
       final condition = animal.condition?.toString().split('.').last ?? 'other';
       final mappedCondition = _mapCondition(condition);
@@ -61,13 +61,11 @@ class SightingApiTransformer {
             final age = _mapAge(ageKey);
             final lifeStage = _mapLifeStage(age);
             for (int i = 0; i < amount; i++) {
-              sightedAnimals.add(
-                SightedAnimal(
-                  condition: mappedCondition,
-                  lifeStage: lifeStage,
-                  sex: sex,
-                ),
-              );
+              involvedAnimals.add(InvolvedAnimalDto(
+                condition: mappedCondition,
+                lifeStage: lifeStage,
+                sex: sex,
+              ));
             }
           }
         }
@@ -79,34 +77,24 @@ class SightingApiTransformer {
       }
     }
 
-    // API often requires at least one involved animal; avoid empty list (422)
-    if (sightedAnimals.isEmpty) {
-      sightedAnimals.add(SightedAnimal(
-        condition: 'other',
+    if (involvedAnimals.isEmpty) {
+      involvedAnimals.add(const InvolvedAnimalDto(
+        condition: 'unknown',
         lifeStage: 'unknown',
         sex: 'unknown',
       ));
     }
 
-    final apiPayload = {
-      "description": sighting.description ?? '',
-      "location": {
-        "latitude": systemLocation.latitude,
-        "longitude": systemLocation.longitude,
-      },
-      "moment":
-          "${sighting.dateTime!.dateTime!.toIso8601String().split('.')[0]}+02:00",
-      "place": {
-        "latitude": manualLocation.latitude,
-        "longitude": manualLocation.longitude,
-      },
-      "reportOfSighting": {
-        "involvedAnimals":
-            sightedAnimals.map((animal) => animal.toJson()).toList(),
-      },
-      "speciesID": sighting.animalSelected!.animalId,
-      "typeID": 1,
-    };
+    final apiPayload = RapportenApiBodyBuilder.buildSightingBody(
+      description: sighting.description ?? '',
+      locationLatitude: systemLocation.latitude ?? 0.0,
+      locationLongitude: systemLocation.longitude ?? 0.0,
+      placeLatitude: manualLocation.latitude ?? 0.0,
+      placeLongitude: manualLocation.longitude ?? 0.0,
+      moment: sighting.dateTime!.dateTime!,
+      speciesID: sighting.animalSelected!.animalId ?? '',
+      involvedAnimals: involvedAnimals,
+    );
 
     debugPrint('=== Final API Payload ===');
     debugPrint(const JsonEncoder.withIndent('  ').convert(apiPayload));
@@ -149,8 +137,10 @@ class SightingApiTransformer {
         return 'impaired';
       case 'dood':
         return 'dead';
+      case 'onbekend':
+        return 'unknown';
       default:
-        return 'other';
+        return 'unknown';
     }
   }
 
