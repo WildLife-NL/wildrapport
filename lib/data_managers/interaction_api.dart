@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
-import 'package:wildrapport/interfaces/reporting/common_report_fields.dart';
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/accident_report_model.dart';
 import 'package:wildrapport/models/beta_models/animal_sighting_report_wrapper.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
+import 'package:wildlifenl_rapporten_components/wildlifenl_rapporten_components.dart';
 
 class InteractionApi implements InteractionApiInterface {
   final ApiClient client;
@@ -48,30 +50,26 @@ class InteractionApi implements InteractionApiInterface {
           debugPrint("$yellowLog[InteractionAPI]: Report is gewasschade");
           if (interaction.report is PossesionReportFields) {
             final report = interaction.report as PossesionReportFields;
-            final payload = {
-              "description": report.description ?? '',
-              "location": {
-                "latitude": report.systemLocation?.latitude,
-                "longitude": report.systemLocation?.longtitude,
-              },
-              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-              "place": {
-                "latitude": report.userSelectedLocation?.latitude,
-                "longitude": report.userSelectedLocation?.longtitude,
-              },
-              "reportOfDamage": {
-                "belonging":
-                    report
-                        .possesion
-                        .possesionName, // Send the free text name as required by API schema
-                "estimatedDamage": report.currentImpactDamages.toInt(),
-                "estimatedLoss": report.estimatedTotalDamages.toInt(),
-                "impactType": report.impactedAreaType,
-                "impactValue": report.impactedArea.toInt(),
-              },
-              "speciesID": report.suspectedSpeciesID,
-              "typeID": 2,
-            };
+            final locLat = report.systemLocation?.latitude ?? 0.0;
+            final locLon = report.systemLocation?.longtitude ?? 0.0;
+            final placeLat = report.userSelectedLocation?.latitude ?? 0.0;
+            final placeLon = report.userSelectedLocation?.longtitude ?? 0.0;
+            final moment = report.userSelectedDateTime ?? report.systemDateTime;
+            final speciesID = report.suspectedSpeciesID ?? '';
+            final payload = RapportenApiBodyBuilder.buildDamageBody(
+              description: report.description ?? '',
+              locationLatitude: locLat,
+              locationLongitude: locLon,
+              placeLatitude: placeLat,
+              placeLongitude: placeLon,
+              moment: moment,
+              speciesID: speciesID,
+              belonging: report.possesion.possesionName ?? '',
+              estimatedDamage: report.currentImpactDamages.toInt(),
+              estimatedLoss: report.estimatedTotalDamages.toInt(),
+              impactType: report.impactedAreaType == 'units' ? 'units' : 'square-meters',
+              impactValue: report.impactedArea.toInt(),
+            );
             debugPrint("$yellowLog[InteractionAPI]: GEWASSCHADE Payload:");
             debugPrint("$yellowLog${jsonEncode(payload)}");
             debugPrint("$yellowLog========================================");
@@ -88,23 +86,40 @@ class InteractionApi implements InteractionApiInterface {
           break;
         case InteractionType.verkeersongeval:
           debugPrint("$yellowLog[InteractionAPI]: Report is verkeersongeval");
-          if (interaction.report is CommonReportFields) {
-            final report = interaction.report as CommonReportFields;
-            response = await client.post('interaction/', {
-              "description": report.description ?? '',
-              "location": {
-                "latitude": report.systemLocation?.latitude,
-                "longitude": report.systemLocation?.longtitude,
-              },
-              "moment": report.userSelectedDateTime?.toUtc().toIso8601String(),
-              "place": {
-                "latitude": report.userSelectedLocation?.latitude,
-                "longitude": report.userSelectedLocation?.longtitude,
-              },
-              "reportOfCollision": interaction.report.toJson(),
-              "speciesID": report.suspectedSpeciesID,
-              "typeID": 3,
-            }, authenticated: true);
+          if (interaction.report is AccidentReport) {
+            final report = interaction.report as AccidentReport;
+            final involvedList = <InvolvedAnimalDto>[
+              ...(report.animals ?? []).map((a) => InvolvedAnimalDto(
+                    condition: _normalizeCondition(a.condition),
+                    lifeStage: a.lifeStage,
+                    sex: a.sex,
+                  )),
+            ];
+            if (involvedList.isEmpty) {
+              involvedList.add(const InvolvedAnimalDto(
+                condition: 'unknown',
+                lifeStage: 'unknown',
+                sex: 'unknown',
+              ));
+            }
+            final payload = RapportenApiBodyBuilder.buildCollisionBody(
+              description: report.description ?? '',
+              locationLatitude: report.systemLocation?.latitude ?? 0.0,
+              locationLongitude: report.systemLocation?.longtitude ?? 0.0,
+              placeLatitude: report.userSelectedLocation?.latitude ?? 0.0,
+              placeLongitude: report.userSelectedLocation?.longtitude ?? 0.0,
+              moment: report.userSelectedDateTime ?? report.systemDateTime,
+              speciesID: report.suspectedSpeciesID ?? '',
+              estimatedDamage: int.tryParse(report.damages) ?? 0,
+              intensity: report.intensity,
+              urgency: report.urgency,
+              involvedAnimals: involvedList,
+            );
+            response = await client.post(
+              'interaction/',
+              payload,
+              authenticated: true,
+            );
           } else {
             throw Exception(
               "Invalid report type for verkeersongeval: ${interaction.report.runtimeType}",
@@ -207,5 +222,11 @@ class InteractionApi implements InteractionApiInterface {
     }
   }
 
-  // Removed fallback questionnaire fetch by hardcoded ID; questionnaires must come from backend response
+  static String _normalizeCondition(String condition) {
+    final c = condition.toLowerCase();
+    if (c == 'healthy' || c == 'impaired' || c == 'dead' || c == 'unknown' || c == 'onbekend') {
+      return c == 'onbekend' ? 'unknown' : c;
+    }
+    return 'unknown';
+  }
 }

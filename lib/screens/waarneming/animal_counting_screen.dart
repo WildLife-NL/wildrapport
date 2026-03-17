@@ -73,7 +73,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
               centerText: 'Telling toevoegen',
               // Show the profile/user icon on the right (like other screens)
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () => _handleBackNavigation(context),
               // Match the other screens: black icons/text and slightly larger font/icon scales
               iconColor: Colors.black,

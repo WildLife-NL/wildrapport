@@ -31,7 +31,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
               leftIcon: null,
               centerText: 'Waarneming',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 // Clear only remarks field when leaving overview
                 _animalListTableKey.currentState?.clearRemarksOnly();

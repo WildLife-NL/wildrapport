@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/accident_report_model.dart';
@@ -11,8 +11,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
 import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 
 class AppStateProvider with ChangeNotifier {
+  AppStateProvider({WildLifeNLAuthenticator? authenticator})
+      : _authenticator = authenticator;
+
+  final WildLifeNLAuthenticator? _authenticator;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final Map<String, Map<String, dynamic>> _screenStates = {};
   final Map<String, dynamic> _activeReports = {};
@@ -143,8 +148,8 @@ class AppStateProvider with ChangeNotifier {
   }
 
   Future<void> updateLocationCache() async {
+    if (!_isLocationTrackingEnabled) return;
     try {
-      // Use mocked coordinates when enabled, else get a real fix
       final locationService = LocationMapManager();
       final position = MockLocationConfig.kForceMockLocation
           ? Position(
@@ -188,7 +193,6 @@ class AppStateProvider with ChangeNotifier {
     Timer.periodic(locationCacheTimeout, (_) => updateLocationCache());
   }
 
-  /// Load location tracking preference from SharedPreferences
   Future<void> loadLocationTrackingPreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -206,12 +210,16 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
-  /// Toggle location tracking on/off
   Future<void> setLocationTrackingEnabled(bool enabled) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('location_tracking_enabled', enabled);
       _isLocationTrackingEnabled = enabled;
+      if (!enabled) {
+        _cachedPosition = null;
+        _cachedAddress = null;
+        _lastLocationUpdate = null;
+      }
       debugPrint(
         '[AppStateProvider] Location tracking ${enabled ? "enabled" : "disabled"}',
       );
@@ -224,12 +232,10 @@ class AppStateProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    // Remove persisted auth/session
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('bearer_token');
+      await _authenticator?.clearSession();
     } catch (e, st) {
-      debugPrint('[AppStateProvider] logout(): failed to clear token: $e\n$st');
+      debugPrint('[AppStateProvider] logout(): failed to clear session: $e\n$st');
     }
 
     // Reset in-memory app state
@@ -259,15 +265,12 @@ class AppStateProvider with ChangeNotifier {
     _lastLocationUpdate = null;
     notifyListeners();
 
-    // Remove persisted auth/session
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('bearer_token');
+      await _authenticator?.clearSession();
     } catch (e, st) {
-      debugPrint('[AppStateProvider] deleteProfile(): failed to clear token: $e\n$st');
+      debugPrint('[AppStateProvider] deleteProfile(): failed to clear session: $e\n$st');
     }
 
-    // Navigate to LoginScreen & clear back stack
     navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
 class LoginHeader extends StatelessWidget {
@@ -31,7 +32,7 @@ class LoginHeader extends StatelessWidget {
           children: [
             Center(
               child: Image.asset(
-                'assets/LogoWildlifeNL.png',
+                AppIconPaths.logoWildlifeNL,
                 width: responsive.wp(70),
                 fit: BoxFit.contain,
               ),
@@ -40,7 +41,7 @@ class LoginHeader extends StatelessWidget {
               bottom: responsive.sp(-2),
               right: responsive.sp(-1),
               child: Image.asset(
-                'assets/gifs/login.gif',
+                AppIconPaths.gifLogin,
                 width: responsive.wp(35),
                 fit: BoxFit.contain,
               ),

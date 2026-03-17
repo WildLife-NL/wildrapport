@@ -9,6 +9,7 @@ import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
+import 'package:wildrapport/screens/zone/zones_screen.dart';
 
 class OverzichtScreen extends StatefulWidget {
   const OverzichtScreen({super.key});
@@ -76,11 +77,8 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     final double iconSize = (screenSize.width * 0.14).clamp(28.0, 56.0);
     final double buttonFontSize = (screenSize.width * 0.045).clamp(14.0, 22.0);
 
-    return WillPopScope(
-      onWillPop: () async {
-        // Prevent back button from doing anything - user is on home screen
-        return false;
-      },
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         backgroundColor: AppColors.lightMintGreen,
         body: LayoutBuilder(
@@ -166,6 +164,28 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                   navigationManager.pushReplacementForward(
                                     context,
                                     const LogbookScreen(),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Er is een fout opgetreden bij het navigeren',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            (
+                              text: "Zone's",
+                              icon: Icons.add_location_alt,
+                              imagePath: null,
+                              key: Key('zones_button'),
+                              onPressed: () {
+                                try {
+                                  navigationManager.pushReplacementForward(
+                                    context,
+                                    const ZonesScreen(),
                                   );
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(

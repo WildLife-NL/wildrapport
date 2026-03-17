@@ -8,8 +8,8 @@ import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-// Draggable plugin removed due to dependency issues; implementing tap-to-move editing instead.
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:intl/intl.dart';
 
 class AreaSelectionMap extends StatefulWidget {
@@ -246,7 +246,9 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
               headingAccuracy: 0.0,
             )
           : await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best,
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+              ),
             );
       final here = LatLng(pos.latitude, pos.longitude);
       if (!mounted) return;
@@ -337,7 +339,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Selecteer beschadigd gebied',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },
@@ -353,19 +355,25 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
             child: Stack(
               children: [
                 // Map
-                fm.FlutterMap(
+                WildLifeNLMap(
                   mapController: _mapController,
                   options: fm.MapOptions(
                     initialCenter: _centerPoint,
                     initialZoom: 16,
+                    minZoom: 4.0,
+                    maxZoom: 17.0,
                     onTap: (tapPosition, point) => _onMapTap(point),
-                  ),
-                  children: [
-                    fm.TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.wildrapport.app',
+                    interactionOptions: const fm.InteractionOptions(
+                      flags:
+                          fm.InteractiveFlag.drag |
+                          fm.InteractiveFlag.pinchZoom |
+                          fm.InteractiveFlag.doubleTapZoom |
+                          fm.InteractiveFlag.flingAnimation |
+                          fm.InteractiveFlag.pinchMove,
                     ),
+                  ),
+                  userAgentPackageName: 'nl.wildlife.rapport',
+                  extraLayers: [
                     // Current location marker
                     if (_currentLocation != null)
                       fm.MarkerLayer(
@@ -393,7 +401,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         circles: [
                           fm.CircleMarker(
                             point: _currentLocation!,
-                            color: Colors.blue.withOpacity(0.12),
+                            color: Colors.blue.withValues(alpha:0.12),
                             borderStrokeWidth: 1,
                             useRadiusInMeter: true,
                             radius:
@@ -407,7 +415,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         polygons: [
                           fm.Polygon(
                             points: _polygonPoints,
-                            color: Colors.blue.withOpacity(0.3),
+                            color: Colors.blue.withValues(alpha:0.3),
                             borderStrokeWidth: 2,
                             borderColor: Colors.blue,
                           ),
@@ -419,7 +427,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                         polylines: [
                           fm.Polyline(
                             points: _gpsTrack,
-                            color: Colors.blue.withOpacity(0.6),
+                            color: Colors.blue.withValues(alpha:0.6),
                             strokeWidth: 2.0,
                           ),
                         ],
@@ -431,7 +439,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                               return fm.CircleMarker(
                                 point: p,
                                 radius: 3,
-                                color: Colors.blue.withOpacity(0.8),
+                                color: Colors.blue.withValues(alpha:0.8),
                                 borderColor: Colors.white,
                                 borderStrokeWidth: 1,
                                 useRadiusInMeter: false,
@@ -500,7 +508,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                   left: 0,
                   right: 0,
                   child: Container(
-                    color: AppColors.darkGreen.withOpacity(0.95),
+                    color: AppColors.darkGreen.withValues(alpha:0.95),
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 44),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -528,7 +536,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha:0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -730,7 +738,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white.withValues(alpha:0.12),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

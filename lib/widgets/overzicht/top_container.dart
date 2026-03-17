@@ -17,7 +17,7 @@ class TopContainer extends StatefulWidget {
     required this.height,
     required this.welcomeFontSize,
     required this.usernameFontSize,
-    this.showUserIcon = true,
+    this.showUserIcon = false,
     this.onUserIconPressed,
   });
 
@@ -36,12 +36,12 @@ class _TopContainerState extends State<TopContainer> {
   }
 
   Future<void> _loadVersion() async {
-    if (!_isLoading) return; // Prevent multiple loads
+    if (!_isLoading) return;
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       if (mounted) {
         setState(() {
-          _version = 'v${packageInfo.version}';
+          _version = 'v${packageInfo.version}+${packageInfo.buildNumber}';
           _isLoading = false;
         });
       }
@@ -64,7 +64,7 @@ class _TopContainerState extends State<TopContainer> {
           decoration: BoxDecoration(
             color: AppColors.darkGreen,
             borderRadius:
-                BorderRadius.zero, // straight bottom edge to match mock
+                BorderRadius.zero,
           ),
           child: Center(
             child: Padding(
@@ -98,7 +98,7 @@ class _TopContainerState extends State<TopContainer> {
                       _version,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.offWhite.withOpacity(0.7),
+                        color: AppColors.offWhite.withValues(alpha:0.7),
                         fontSize: widget.welcomeFontSize * 0.7,
                         fontWeight: FontWeight.w400,
                       ),
@@ -111,7 +111,6 @@ class _TopContainerState extends State<TopContainer> {
         if (widget.showUserIcon)
           Positioned(
             right: 12,
-            // move icon a bit lower for visual alignment
             top: widget.height * 0.12,
             child: GestureDetector(
               onTap:
@@ -125,7 +124,6 @@ class _TopContainerState extends State<TopContainer> {
               child: Icon(
                 Icons.person,
                 color: AppColors.offWhite,
-                // slightly smaller than before
                 size: widget.height * 0.14,
               ),
             ),

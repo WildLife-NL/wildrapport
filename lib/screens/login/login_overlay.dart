@@ -73,7 +73,7 @@ class LoginOverlay extends StatelessWidget {
                           SizedBox(height: responsive.spacing(20)),
                           Text(
                             'Geef uw e-mailadres op en bevestig met de knop \'Aanmelden\'. '
-                            'U ontvangt een verificatiecode per e-mail welke u dan in deze app invoert. '
+                            'U ontvangt een verificatiecode per e-mail die u dan in deze app invoert. '
                             'Indien er nog geen account bestaat voor dit e-mailadres wordt deze automatisch geregistreerd. '
                             'Daarna bent u aangemeld.',
                             style: AppTextTheme.textTheme.bodyMedium?.copyWith(

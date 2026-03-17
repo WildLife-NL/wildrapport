@@ -7,7 +7,7 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/utils/toast_notification_handler.dart';
@@ -15,6 +15,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/location/permission_gate.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
@@ -46,6 +47,10 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     debugPrint(
       "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
     );
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) {
+      context.read<MapProvider>().clearUserLocationAndStopTracking();
+    }
     _initializeScreen();
   }
 
@@ -79,6 +84,9 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         debugPrint(
           "$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m",
         );
+        if (!context.read<AppStateProvider>().isLocationTrackingEnabled) {
+          mapProvider.clearUserLocationAndStopTracking();
+        }
       }
     } catch (e) {
       debugPrint(
@@ -259,7 +267,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         interactionID: interactionResponseModel.interactionID,
       );
     } else {
-      _pendingNavigationScreen = const OverzichtScreen();
+      _pendingNavigationScreen = const MainNavScreen();
     }
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -280,7 +288,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 leftIcon: null,
                 centerText: 'Locatie',
                 rightIcon: null,
-                showUserIcon: true,
+                showUserIcon: false,
                 iconColor: Colors.black,
                 textColor: Colors.black,
                 fontScale: 1.15,

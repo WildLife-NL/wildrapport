@@ -26,7 +26,7 @@ class InteractionDetailScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Interactie Details',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },
@@ -193,7 +193,7 @@ class InteractionDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class QuestionnaireCompletionScreen extends StatefulWidget {
   const QuestionnaireCompletionScreen({super.key});
@@ -60,7 +61,7 @@ class _QuestionnaireCompletionScreenState
   void _navigateToOverview() {
     context.read<NavigationStateInterface>().pushAndRemoveUntil(
       context,
-      OverzichtScreen(),
+      MainNavScreen(),
     );
   }
 
@@ -88,7 +89,7 @@ class _QuestionnaireCompletionScreenState
                 left: _xPosition.value,
                 bottom: baseBottom + _yJump.value,
                 child: Image.asset(
-                  'assets/icons/deer.png',
+                  iconDeer,
                   width: deerSize,
                   height: deerSize,
                 ),

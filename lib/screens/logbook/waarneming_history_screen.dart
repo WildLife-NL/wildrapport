@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 
 class WaarnemingHistoryScreen extends StatelessWidget {
   const WaarnemingHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final apiClient = context.read<ApiClient>();
-    final myInteractionApi = MyInteractionApi(apiClient);
+    final myInteractionApi = context.read<MyInteractionApi>();
     final interactionsFuture = myInteractionApi.getMyInteractions();
 
     return Scaffold(
@@ -28,12 +25,8 @@ class WaarnemingHistoryScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Waarneming geschiedenis',
               rightIcon: null,
-              showUserIcon: true,
-              onLeftIconPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LogbookScreen()),
-                );
-              },
+              showUserIcon: false,
+              onLeftIconPressed: () => Navigator.of(context).pop(),
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -151,7 +144,7 @@ class _HistoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

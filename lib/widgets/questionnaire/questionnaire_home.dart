@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
 
@@ -135,7 +135,7 @@ class QuestionnaireHome extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const OverzichtScreen(),
+                        builder: (context) => const MainNavScreen(),
                       ),
                     );
                   },
@@ -173,7 +173,7 @@ class QuestionnaireHome extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const OverzichtScreen(),
+                  builder: (context) => const MainNavScreen(),
                 ),
               );
             },

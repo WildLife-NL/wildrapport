@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/data_managers/belonging_api.dart';
 import 'package:wildrapport/data_managers/response_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/data_managers/auth_api.dart';
 import 'package:wildrapport/data_managers/interaction_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
@@ -15,7 +14,6 @@ import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
@@ -23,7 +21,6 @@ import 'package:wildrapport/interfaces/filters/dropdown_interface.dart';
 import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/interfaces/reporting/interaction_interface.dart';
 import 'package:wildrapport/interfaces/location/location_screen_interface.dart';
-import 'package:wildrapport/interfaces/other/login_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/other/overzicht_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
@@ -37,7 +34,6 @@ import 'package:wildrapport/managers/api_managers/interaction_manager.dart';
 import 'package:wildrapport/managers/api_managers/response_manager.dart';
 import 'package:wildrapport/managers/filtering_system/dropdown_manager.dart';
 import 'package:wildrapport/managers/map/location_screen_manager.dart';
-import 'package:wildrapport/managers/other/login_manager.dart';
 import 'package:wildrapport/managers/state_managers/navigation_state_manager.dart';
 import 'package:wildrapport/managers/other/overzicht_manager.dart';
 import 'package:wildrapport/managers/permission/permission_manager.dart';
@@ -53,7 +49,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 
 import 'package:wildrapport/data_managers/interaction_types_api.dart';
@@ -62,10 +58,13 @@ import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
 
-import 'package:wildrapport/utils/token_validator.dart';
 import 'package:wildrapport/utils/notification_service.dart';
-import 'package:wildrapport/utils/role_validator.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
+import 'package:wildrapport/data_managers/my_interaction_api.dart';
+import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
+import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
+import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
+import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,7 +75,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  final appStateProvider = AppStateProvider();
+  // Hide system navigation bar (Samsung/Android back, home, recent) app-wide
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+  final authenticator = WildLifeNLAuthenticator();
+  final appStateProvider = AppStateProvider(authenticator: authenticator);
   final prefs = await SharedPreferences.getInstance();
   final permissionManager = PermissionManager();
 
@@ -85,13 +88,19 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
+  final baseUrl = (dotenv.env['DEV_BASE_URL'] ?? '').trim();
+  if (baseUrl.isEmpty) {
+    throw Exception(
+      'DEV_BASE_URL ontbreekt in .env. Voeg toe: DEV_BASE_URL=https://jouw-api-url',
+    );
+  }
+
   // Initialize local notifications
   await NotificationService.instance.init();
 
-  final apiClient = ApiClient(dotenv.get('DEV_BASE_URL'));
+  final apiClient = ApiClient(baseUrl);
   final appConfig = AppConfig(apiClient);
 
-  final authApi = AuthApi(apiClient);
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
   final interactionApi = InteractionApi(apiClient);
@@ -100,7 +109,13 @@ void main() async {
   final belongingApi = BelongingApi(apiClient);
   final vicinityApi = VicinityApi(apiClient);
 
-  final loginManager = LoginManager(authApi, profileApi);
+  final loginApiClient = HttpLoginApiClient(
+    baseUrl: baseUrl,
+    displayNameApp: 'Wild Rapport',
+  );
+  final loginService = DefaultLoginService(loginApiClient, displayNameApp: 'Wild Rapport');
+  final interactionReadApi = HttpInteractionReadApi(baseUrl: baseUrl);
+  final myInteractionApi = MyInteractionApi(interactionReadApi);
   final filterManager = FilterManager();
   final animalManager = AnimalManager(speciesApi, filterManager);
   final belongingDamageFormProvider = BelongingDamageReportProvider();
@@ -109,6 +124,13 @@ void main() async {
 
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
+  final zoneApi = ZoneApi(
+    baseUrl: baseUrl,
+    getToken: () async {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('bearer_token');
+    },
+  );
 
   mapProvider.setVicinityApi(vicinityApi);
 
@@ -147,15 +169,16 @@ void main() async {
 
   prefs.setStringList('interaction_cache', []);
 
-    final bool hasValidToken = await TokenValidator.hasValidToken();
-    final bool hasAccess = await RoleValidator.hasAccess();
+    final bool hasValidToken = await authenticator.hasValidToken();
+    final bool hasAccess = await authenticator.hasAccess();
     final Widget initialScreen = hasValidToken
-      ? (hasAccess ? const OverzichtScreen() : const AccessDeniedScreen())
+      ? (hasAccess ? const MainNavScreen() : const AccessDeniedScreen())
       : const LoginScreen();
 
   runApp(
     MultiProvider(
       providers: [
+        Provider<WildLifeNLAuthenticator>.value(value: authenticator),
         ChangeNotifierProvider<AppStateProvider>.value(value: appStateProvider),
         ChangeNotifierProvider<BelongingDamageReportProvider>.value(
           value: belongingDamageFormProvider,
@@ -165,16 +188,18 @@ void main() async {
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
         ),
+        Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),
         Provider<ApiClient>.value(value: apiClient),
-        Provider<AuthApiInterface>.value(value: authApi),
         Provider<ProfileApiInterface>.value(value: profileApi),
         Provider<SpeciesApiInterface>.value(value: speciesApi),
         Provider<InteractionApiInterface>.value(value: interactionApi),
         Provider<BelongingApiInterface>.value(value: belongingApi),
         Provider<InteractionInterface>.value(value: interactionManager),
         Provider<InteractionTypesManager>.value(value: interactionTypesManager),
-        Provider<LoginInterface>.value(value: loginManager),
+        Provider<InteractionReadApiInterface>.value(value: interactionReadApi),
+        Provider<MyInteractionApi>.value(value: myInteractionApi),
+        Provider<LoginInterface>.value(value: loginService),
         Provider<AnimalRepositoryInterface>.value(value: animalManager),
         Provider<AnimalManagerInterface>.value(value: animalManager),
         Provider<FilterInterface>.value(value: filterManager),

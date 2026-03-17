@@ -8,24 +8,23 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
-import 'package:wildrapport/screens/profile/profile_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
 import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
-import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/config/app_config.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
-import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
+import 'package:wildrapport/utils/location_sharing_dialog.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class _IconStyle {
   final Color color;
@@ -34,7 +33,9 @@ class _IconStyle {
 }
 
 class KaartOverviewScreen extends StatefulWidget {
-  const KaartOverviewScreen({super.key});
+  const KaartOverviewScreen({super.key, this.onBackPressed});
+
+  final VoidCallback? onBackPressed;
 
   @override
   State<KaartOverviewScreen> createState() => _KaartOverviewScreenState();
@@ -111,6 +112,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               LocationMapManager.denBoschCenter.longitude,
         ),
         initialZoom: _initialZoom,
+        minZoom: 4.0,
+        maxZoom: 17.0,
         onMapReady: () {
           debugPrint('[Map] ready');
           _mapReady = true;
@@ -124,8 +127,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               fm.InteractiveFlag.doubleTapZoom |
               fm.InteractiveFlag.scrollWheelZoom |
               fm.InteractiveFlag.flingAnimation |
-              fm.InteractiveFlag.pinchMove |
-              fm.InteractiveFlag.rotate, // Enable rotation
+              fm.InteractiveFlag.pinchMove,
+          // Rotatie uit: kaart blijft noord-omhoog, zoals navigatie
         ),
         onMapEvent: (evt) {
           final mp = context.read<MapProvider>();
@@ -231,83 +234,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     super.dispose();
   }
 
-  bool get _devDebugToolsEnabled => dotenv.env['DEV_DEBUG_TOOLS'] == 'true' || dotenv.env['DEV_DEBUG_TOOLS'] == '1';
-
-  void _injectMockPins() {
-    final map = context.read<MapProvider>();
-    // Determine a reasonable center (map center if ready, else Den Bosch)
-    final center = map.isInitialized
-        ? map.mapController.camera.center
-        : LatLng(
-            LocationMapManager.denBoschCenter.latitude,
-            LocationMapManager.denBoschCenter.longitude,
-          );
-
-    final now = DateTime.now().toUtc();
-    final species = [
-      'Vos',
-      'Wolf',
-      'Das',
-      'Ree',
-      'Wild zwijn',
-      'Damhert',
-      'Egel',
-      'Eekhoorn',
-    ];
-
-    // Spread points in a small grid around the center
-    final dx = [0.0000, 0.0012, -0.0012, 0.0018, -0.0018, 0.0009, -0.0009, 0.0015];
-    final dy = [0.0000, 0.0010, -0.0010, -0.0016, 0.0016, -0.0008, 0.0008, 0.0013];
-
-    final animals = <AnimalPin>[];
-    for (int i = 0; i < species.length; i++) {
-      final ts = i < 3
-          ? now.subtract(Duration(minutes: (i + 1) * 10)) // new (< 24h)
-          : (i < 6
-              ? now.subtract(Duration(hours: (i - 2) * 6)) // within 24h–1w
-              : now.subtract(Duration(days: 8 + i))); // > 1 week
-
-      animals.add(
-        AnimalPin(
-          id: 'mock-${i + 1}',
-          lat: center.latitude + (dy[i % dy.length]),
-          lon: center.longitude + (dx[i % dx.length]),
-          seenAt: ts,
-          speciesName: species[i],
-        ),
-      );
-    }
-
-    map.setMockVicinity(animals: animals);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text('Mock dieren geplaatst rond de kaart'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      setState(() {});
-    }
-  }
-
-  void _emitDevTrackingNotice() {
-    final map = context.read<MapProvider>();
-    map.emitMockTrackingNotice('Dier in de buurt (testmelding)', severity: 2);
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text('Testmelding verstuurd (overlay + notificatie)'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-    }
-  }
-
   void _queueFetch() {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: _debounceMs), () {
@@ -321,24 +247,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       distanceFilter: 5,
     );
 
-    // Use mocked stream when mock is enabled; otherwise subscribe to real stream
-    final Stream<Position> stream = MockLocationConfig.kForceMockLocation
-        ? Stream<Position>.periodic(
-            const Duration(seconds: 5),
-            (_) => Position(
-              latitude: MockLocationConfig.kMockLat,
-              longitude: MockLocationConfig.kMockLon,
-              timestamp: DateTime.now(),
-              accuracy: 5.0,
-              altitude: 0.0,
-              heading: 0.0,
-              speed: 0.0,
-              speedAccuracy: 0.0,
-              altitudeAccuracy: 0.0,
-              headingAccuracy: 0.0,
-            ),
-          )
-        : Geolocator.getPositionStream(locationSettings: settings);
+    final Stream<Position> stream =
+        Geolocator.getPositionStream(locationSettings: settings);
 
     _posSub = stream.listen((pos) async {
       if (!mounted) return;
@@ -436,19 +346,36 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _bootstrap() async {
     final map = context.read<MapProvider>();
     final app = context.read<AppStateProvider>();
-    final mgr = _location; // LocationMapManager
+    final mgr = _location;
+    final permissionManager = context.read<PermissionInterface>();
 
-    // Ensure map controller exists before first render to avoid blank map on first open
     await map.initialize();
 
-    // 1) Get a position (cache → GPS)
-    Position? pos = app.isLocationCacheValid ? app.cachedPosition : null;
-    pos ??= await mgr.determinePosition();
+    bool hasLocationPermission =
+        await permissionManager.isPermissionGranted(PermissionType.location);
+    if (!hasLocationPermission) {
+      hasLocationPermission = await permissionManager.requestPermission(
+        context,
+        PermissionType.location,
+        showRationale: false,
+      );
+      if (hasLocationPermission) {
+        await app.setLocationTrackingEnabled(true);
+      }
+    }
+    if (!mounted) return;
+
+    Position? pos;
+    if (hasLocationPermission && app.isLocationTrackingEnabled) {
+      pos = app.isLocationCacheValid ? app.cachedPosition : null;
+      pos ??= await mgr.determinePosition();
+    }
 
     // Log what we got
     debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');
 
-    // 2) Fallback to NL center if missing/outside bounds
+    final bool useUserLocation = app.isLocationTrackingEnabled && pos != null;
+
     if (pos == null ||
         !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
       pos = Position(
@@ -469,15 +396,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       );
     }
 
-    // 3) Apply immediately to provider (don't wait for address)
-    await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+    if (useUserLocation) {
+      await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+    }
 
-    // Record desired camera so we can apply after map is ready
     _pendingCenter = LatLng(pos.latitude, pos.longitude);
     _pendingZoom = _initialZoom;
     _applyPendingCamera();
 
-    // 4) Send one tracking ping (R2) on first load - only if tracking is enabled
     final appStateProvider = context.read<AppStateProvider>();
     if (appStateProvider.isLocationTrackingEnabled) {
       debugPrint('[Kaart/Bootstrap] 📡 Sending initial tracking ping');
@@ -574,7 +500,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     }
   }
 
-  /// Load tracking history from API
   Future<void> _loadTrackingHistory() async {
     if (_loadingTrackingHistory) return;
 
@@ -761,7 +686,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.95),
+              color: color.withValues(alpha:0.95),
               shape: BoxShape.circle,
               boxShadow: const [
                 BoxShadow(
@@ -802,12 +727,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  /// Returns true if timestamp is within the last 31 days
   bool _within31Days(DateTime timestamp) {
     return DateTime.now().difference(timestamp) < const Duration(days: 31);
   }
 
-  /// Check if a pin should be shown based on filter settings
   bool _shouldShowPin(
     DateTime timestamp,
     bool showType,
@@ -844,23 +767,51 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         earthCircumference /
         (256 * math.pow(2, zoom));
 
-    const candidates = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+    // Schalen van 5 m t/m 500 km zodat de schaal altijd klopt (ook na 100 km uitzoomen)
+    const candidates = [
+      5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000,
+      20000, 50000, 100000, 200000, 500000,
+    ];
+
+    const minWidthPx = 50.0;
+    const maxWidthPx = 200.0;
+    const idealMin = 60.0;
+    const idealMax = 160.0;
 
     double chosenMeters = candidates.first.toDouble();
     double chosenWidth = chosenMeters / metersPerPixel;
 
+    // Eerst: voorkeur voor breedte in ideaal bereik (60–160 px)
     for (final m in candidates) {
       final widthPx = m / metersPerPixel;
-      if (widthPx >= 60 && widthPx <= 160) {
+      if (widthPx >= idealMin && widthPx <= idealMax) {
         chosenMeters = m.toDouble();
         chosenWidth = widthPx;
         break;
       }
     }
 
+    // Geen ideale match: kies grootste schaal die nog binnen maxWidthPx past (juiste label bij ver uitzoomen)
+    if (chosenMeters == 5) {
+      for (var i = candidates.length - 1; i >= 0; i--) {
+        final m = candidates[i];
+        final widthPx = m / metersPerPixel;
+        if (widthPx >= minWidthPx && widthPx <= maxWidthPx) {
+          chosenMeters = m.toDouble();
+          chosenWidth = widthPx;
+          break;
+        }
+        if (widthPx < minWidthPx) {
+          chosenMeters = m.toDouble();
+          chosenWidth = widthPx.clamp(minWidthPx, maxWidthPx);
+          break;
+        }
+      }
+    }
+
     final label =
         chosenMeters >= 1000
-            ? '${(chosenMeters / 1000).toStringAsFixed(chosenMeters % 1000 == 0 ? 0 : 1)} km'
+            ? '${(chosenMeters / 1000).toStringAsFixed(chosenMeters >= 100000 ? 0 : (chosenMeters % 1000 == 0 ? 0 : 1))} km'
             : '${chosenMeters.toInt()} m';
 
     if ((chosenWidth - _scaleBarWidth).abs() > 0.5 || _scaleBarLabel != label) {
@@ -898,7 +849,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     }
   }
 
-  /// Show filter dialog
   void _showFilterDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1218,74 +1168,36 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final map = context.watch<MapProvider>();
     final pos = map.selectedPosition ?? map.currentPosition;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (Navigator.of(context).canPop()) return true;
-        context.read<NavigationStateInterface>().pushReplacementBack(
-          context,
-          const OverzichtScreen(),
-        );
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (widget.onBackPressed != null) {
+          widget.onBackPressed!();
+        } else if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.read<NavigationStateInterface>().pushReplacementBack(
+            context,
+            const MainNavScreen(),
+          );
+        }
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Kaart', style: TextStyle(fontFamily: 'Overpass')),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new),
-            onPressed: () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              } else {
-                context.read<NavigationStateInterface>().pushReplacementBack(
-                  context,
-                  const OverzichtScreen(),
-                );
-              }
-            },
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-              child: const LocationSharingBadge(badgeSize: 28),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0, top: 6.0),
-              child: IconButton(
-                icon: const Icon(Icons.person),
-                color: Colors.black,
-                iconSize: 32.0,
-                onPressed: () {
-                  debugPrint('[KaartOverviewScreen] profile icon pressed');
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
         body:
-            pos == null
-                ? const Center(child: CircularProgressIndicator())
-                : _mapOptions == null
+            _mapOptions == null
                 ? const Center(child: CircularProgressIndicator())
                 : Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 800),
                     child: Stack(
                       children: [
-                        fm.FlutterMap(
+                        WildLifeNLMap(
                           mapController: map.mapController,
                           options: _mapOptions!,
-                          children: [
-                            fm.TileLayer(
-                              urlTemplate: LocationMapManager.standardTileUrl,
-                              userAgentPackageName: 'com.wildrapport.app',
-                              // Fetch fewer offscreen tiles to speed up first paint
-                              keepBuffer: 1,
-                            ),
-
+                          userAgentPackageName: 'nl.wildlife.rapport',
+                          tileKeepBuffer: 1,
+                          extraLayers: [
                             // ── ANIMALS ───────────────────────────────────────────────────────────────
                             _useClusters
                                 ? cl.MarkerClusterLayerWidget(
@@ -1333,7 +1245,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                       math.pi /
                                                       180,
                                                   child:
-                                                      _getAnimalIconPath(
+                                                      getAnimalIconPath(
                                                                 pin.speciesName,
                                                               ) !=
                                                               null
@@ -1348,7 +1260,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                         .srcIn,
                                                                   ),
                                                               child: Image.asset(
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 )!,
                                                                 width:
@@ -1449,7 +1361,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                           ) => AnimalDetailDialog(
                                                             animal: pin,
                                                             animalIconPath:
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 ),
                                                           ),
@@ -1462,7 +1374,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             pin.seenAt,
                                                           );
                                                       final Color animalColor = Colors.grey;
-                                                      return _getAnimalIconPath(
+                                                      return getAnimalIconPath(
                                                                 pin.speciesName,
                                                               ) !=
                                                               null
@@ -1477,7 +1389,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                         .srcIn,
                                                                   ),
                                                               child: Image.asset(
-                                                                _getAnimalIconPath(
+                                                                getAnimalIconPath(
                                                                   pin.speciesName,
                                                                 )!,
                                                                 width:
@@ -1686,12 +1598,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   final mapRotation =
                                       map.mapController.camera.rotation;
                                   return fm.MarkerLayer(
-                                    markers: [
-                                      fm.Marker(
-                                        point: LatLng(
-                                          pos.latitude,
-                                          pos.longitude,
-                                        ),
+                                    markers: pos != null
+                                        ? [
+                                            fm.Marker(
+                                              point: LatLng(
+                                                pos.latitude,
+                                                pos.longitude,
+                                              ),
                                         width: 40,
                                         height: 40,
                                         rotate: false,
@@ -1703,7 +1616,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           ),
                                         ),
                                       ),
-                                    ],
+                                            ]
+                                        : [],
                                   );
                                 },
                               ),
@@ -1723,7 +1637,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               ),
                                             )
                                             .toList(),
-                                    color: Colors.blue.withOpacity(0.6),
+                                    color: Colors.blue.withValues(alpha:0.6),
                                     strokeWidth: 2.0,
                                   ),
                                 ],
@@ -1740,7 +1654,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           reading.longitude,
                                         ),
                                         radius: 4,
-                                        color: Colors.blue.withOpacity(0.8),
+                                        color: Colors.blue.withValues(alpha:0.8),
                                         borderColor: Colors.white,
                                         borderStrokeWidth: 1,
                                         useRadiusInMeter: false,
@@ -1795,7 +1709,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             ) => InteractionDetailDialog(
                                                               interaction: itx,
                                                               animalIconPath:
-                                                                  _getAnimalIconPath(
+                                                                  getAnimalIconPath(
                                                                     itx.speciesName,
                                                                   ),
                                                             ),
@@ -1808,7 +1722,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               itx.moment,
                                                             );
                                                         final Color interactionColor = Colors.black;
-                                                        return _getAnimalIconPath(
+                                                        return getAnimalIconPath(
                                                                   itx.speciesName,
                                                                 ) !=
                                                                 null
@@ -1824,7 +1738,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                           .srcIn,
                                                                     ),
                                                                 child: Image.asset(
-                                                                  _getAnimalIconPath(
+                                                                  getAnimalIconPath(
                                                                     itx.speciesName,
                                                                   )!,
                                                                   width:
@@ -1908,7 +1822,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   builder: (_) => AnimalDetailDialog(
                                                     animal: itx.toAnimalPin(),
                                                     animalIconPath:
-                                                        _getAnimalIconPath(itx.speciesName),
+                                                        getAnimalIconPath(itx.speciesName),
                                                   ),
                                                 );
                                               },
@@ -1917,7 +1831,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   final style =
                                                       _iconStyleForTimestamp(itx.moment);
                                                   final Color interactionColor = Colors.black;
-                                                  return _getAnimalIconPath(itx.speciesName) != null
+                                                  return getAnimalIconPath(itx.speciesName) != null
                                                       ? SizedBox(
                                                           width: style.size,
                                                           height: style.size,
@@ -1927,7 +1841,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               BlendMode.srcIn,
                                                             ),
                                                             child: Image.asset(
-                                                              _getAnimalIconPath(itx.speciesName)!,
+                                                              getAnimalIconPath(itx.speciesName)!,
                                                               width: style.size,
                                                               height: style.size,
                                                               fit: BoxFit.contain,
@@ -2002,117 +1916,72 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           ),
                         ),
 
-                        // ── ROTATE BUTTON ─────────────────────────────
+                        // ── Map buttons on one line ─────────────────────────────────────────────────
                         Positioned(
-                          bottom: 56,
                           left: 12,
-                          child: FloatingActionButton(
-                            heroTag: 'rotate_map',
-                            mini: true,
-                            backgroundColor: Colors.white,
-                            child: const Icon(
-                              Icons.explore,
-                              color: Colors.black,
-                            ),
-                            tooltip: 'Kaartrotatie resetten',
-                            onPressed: () {
-                              // Reset map rotation to north (0 degrees)
-                              map.mapController.rotate(0);
-                            },
-                          ),
-                        ),
-
-                        // ── Tracking History button ─────────────────────────────────────────────────
-                        Positioned(
-                          left: 72,
                           bottom: 56,
-                          child: FloatingActionButton(
-                            heroTag: 'tracking_history_btn',
-                            mini: true,
-                            backgroundColor:
-                                _showTrackingHistory
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FloatingActionButton(
+                                heroTag: 'rotate_map',
+                                mini: true,
+                                backgroundColor: Colors.white,
+                                child: const Icon(
+                                  Icons.explore,
+                                  color: Colors.black,
+                                ),
+                                tooltip: 'Kaartrotatie resetten',
+                                onPressed: () {
+                                  map.mapController.rotate(0);
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              FloatingActionButton(
+                                heroTag: 'tracking_history_btn',
+                                mini: true,
+                                backgroundColor: _showTrackingHistory
                                     ? Colors.blue
                                     : AppColors.darkGreen,
-                            child:
-                                _loadingTrackingHistory
+                                child: _loadingTrackingHistory
                                     ? const SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.timeline,
                                         color: Colors.white,
-                                        strokeWidth: 2,
                                       ),
-                                    )
-                                    : Icon(
-                                      Icons.timeline,
-                                      color: Colors.white,
-                                    ),
-                            onPressed:
-                                _loadingTrackingHistory
+                                onPressed: _loadingTrackingHistory
                                     ? null
                                     : () {
-                                      if (_showTrackingHistory) {
-                                        // Toggle off
-                                        setState(() {
-                                          _showTrackingHistory = false;
-                                        });
-                                      } else {
-                                        // Load and show
-                                        _loadTrackingHistory();
-                                      }
-                                    },
+                                        if (_showTrackingHistory) {
+                                          setState(() {
+                                            _showTrackingHistory = false;
+                                          });
+                                        } else {
+                                          _loadTrackingHistory();
+                                        }
+                                      },
+                              ),
+                              const SizedBox(width: 12),
+                              FloatingActionButton(
+                                heroTag: 'filter_btn',
+                                mini: true,
+                                backgroundColor: AppColors.darkGreen,
+                                child: const Icon(
+                                  Icons.filter_list,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () => _showFilterDialog(context),
+                              ),
+                            ],
                           ),
                         ),
-
-                        // ── Filter button ───────────────────────────────────────────────────────────
-                        Positioned(
-                          left: 132,
-                          bottom: 56,
-                          child: FloatingActionButton(
-                            heroTag: 'filter_btn',
-                            mini: true,
-                            backgroundColor: AppColors.darkGreen,
-                            child: const Icon(
-                              Icons.filter_list,
-                              color: Colors.white,
-                            ),
-                            onPressed: () => _showFilterDialog(context),
-                          ),
-                        ),
-
-                        // ── DEV: Mock pins button (env DEV_DEBUG_TOOLS) ────────────────────────────
-                        if (_devDebugToolsEnabled)
-                          Positioned(
-                            left: 192,
-                            bottom: 56,
-                            child: FloatingActionButton(
-                              heroTag: 'dev_mock_btn',
-                              mini: true,
-                              backgroundColor: Colors.black87,
-                              child: const Icon(
-                                Icons.bug_report,
-                                color: Colors.white,
-                              ),
-                              tooltip: 'Plaats testdieren op de kaart',
-                              onPressed: _injectMockPins,
-                            ),
-                          ),
-                        if (_devDebugToolsEnabled)
-                          Positioned(
-                            left: 252,
-                            bottom: 56,
-                            child: FloatingActionButton(
-                              heroTag: 'dev_notice_btn',
-                              mini: true,
-                              backgroundColor: Colors.deepPurple,
-                              child: const Icon(
-                                Icons.notifications_active,
-                                color: Colors.white,
-                              ),
-                              tooltip: 'Stuur testmelding',
-                              onPressed: _emitDevTrackingNotice,
-                            ),
-                          ),
                       ],
                     ),
                   ),
@@ -2126,16 +1995,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             final appStateProvider = context.read<AppStateProvider>();
             debugPrint('[FAB] tapped');
 
-            // Check if location tracking is enabled
             if (!appStateProvider.isLocationTrackingEnabled) {
               if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Locatie delen is uitgeschakeld'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              return;
+              final enable = await showLocationSharingOffDialog(context);
+              if (!mounted) return;
+              if (enable != true) return;
+              await appStateProvider.setLocationTrackingEnabled(true);
+              if (!mounted) return;
             }
 
             _followUser = true;
@@ -2143,23 +2009,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             // Preserve current zoom level
             final currentZoom = mp.mapController.camera.zoom;
 
-            // pick a quick target
             Position? target = mp.currentPosition ?? mp.selectedPosition;
             if (target == null) {
-              target = MockLocationConfig.kForceMockLocation
-                  ? Position(
-                      latitude: MockLocationConfig.kMockLat,
-                      longitude: MockLocationConfig.kMockLon,
-                      timestamp: DateTime.now(),
-                      accuracy: 5.0,
-                      altitude: 0.0,
-                      heading: 0.0,
-                      speed: 0.0,
-                      speedAccuracy: 0.0,
-                      altitudeAccuracy: 0.0,
-                      headingAccuracy: 0.0,
-                    )
-                  : await Geolocator.getLastKnownPosition();
+              target = await Geolocator.getLastKnownPosition();
             }
 
             if (target != null) {
@@ -2184,22 +2036,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             Future(() async {
               Position? fresh;
               try {
-                fresh = MockLocationConfig.kForceMockLocation
-                    ? Position(
-                        latitude: MockLocationConfig.kMockLat,
-                        longitude: MockLocationConfig.kMockLon,
-                        timestamp: DateTime.now(),
-                        accuracy: 5.0,
-                        altitude: 0.0,
-                        heading: 0.0,
-                        speed: 0.0,
-                        speedAccuracy: 0.0,
-                        altitudeAccuracy: 0.0,
-                        headingAccuracy: 0.0,
-                      )
-                    : await Geolocator.getCurrentPosition(
-                        desiredAccuracy: LocationAccuracy.high,
-                      ).timeout(const Duration(seconds: 2));
+                fresh = await Geolocator.getCurrentPosition(
+                  locationSettings: const LocationSettings(
+                    accuracy: LocationAccuracy.high,
+                  ),
+                ).timeout(const Duration(seconds: 2));
               } catch (_) {}
 
               fresh ??= target;
@@ -2232,39 +2073,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         ),
       ),
     );
-  }
-
-  /// Maps species names to their corresponding icon paths
-  String? _getAnimalIconPath(String? speciesName) {
-    if (speciesName == null) return null;
-
-    final name = speciesName.toLowerCase();
-
-    // Map species names to icon file names
-    if (name.contains('wolf')) return 'assets/icons/animals/wolf.png';
-    if (name.contains('vos') || name.contains('fox'))
-      return 'assets/icons/animals/vos.png';
-    if (name.contains('das') || name.contains('badger'))
-      return 'assets/icons/animals/das.png';
-    if (name.contains('ree') || name.contains('deer'))
-      return 'assets/icons/animals/ree.png';
-    if (name.contains('zwijn') || name.contains('boar'))
-      return 'assets/icons/animals/wild_zwijn.png';
-    if (name.contains('damhert')) return 'assets/icons/animals/damhert.png';
-    if (name.contains('egel') || name.contains('hedgehog'))
-      return 'assets/icons/animals/egel.png';
-    if (name.contains('eekhoorn') || name.contains('squirrel'))
-      return 'assets/icons/animals/eekhoorn.png';
-    if (name.contains('bever') || name.contains('beaver'))
-      return 'assets/icons/animals/beaver.png';
-    if (name.contains('boommarten') || name.contains('marten'))
-      return 'assets/icons/animals/boommarten.png';
-    if (name.contains('hooglander') || name.contains('highlander'))
-      return 'assets/icons/animals/hooglander.png';
-    if (name.contains('wisent') || name.contains('bison'))
-      return 'assets/icons/animals/winsent.png';
-
-    return null; // Return null if no matching icon is found, will show default pets icon
   }
 
   // Simple struct for icon styling based on age (top-level _IconStyle is declared above)

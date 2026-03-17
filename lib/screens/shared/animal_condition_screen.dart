@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart'; // ✅ import preloader
@@ -102,7 +102,7 @@ class _AnimalConditionScreenState extends State<AnimalConditionScreen> {
           final navigationManager = context.read<NavigationStateInterface>();
           navigationManager.pushReplacementBack(
             context,
-            const OverzichtScreen(),
+            const MainNavScreen(),
           ); // Adjust destination as needed
         },
         onNextPressed: null,

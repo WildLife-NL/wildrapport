@@ -9,7 +9,6 @@ import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/data_apis/auth_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
@@ -53,7 +52,6 @@ import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/beta_models/response_model.dart';
 
 // API interfaces Mocks
-@GenerateMocks([AuthApiInterface])
 @GenerateMocks([BelongingApiInterface])
 @GenerateMocks([InteractionApiInterface])
 @GenerateMocks([ProfileApiInterface])

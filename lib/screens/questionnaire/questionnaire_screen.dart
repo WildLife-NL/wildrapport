@@ -164,7 +164,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 leftIcon: null,
                 centerText: "Vragenlijst",
                 rightIcon: null,
-                showUserIcon: true,
+                showUserIcon: false,
                 useFixedText: true,
                 iconColor: Colors.black,
                 textColor: Colors.black,

@@ -40,16 +40,14 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
               leftIcon: null,
               centerText: 'Dieraanrijding Details',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                // Clear text controllers
                 _damageController.clear();
                 _detailsController.clear();
                 setState(() {
                   _selectedIntensity = null;
                   _selectedUrgency = null;
                 });
-                // Also clear remarks before returning to overview
                 final animalSightingManager =
                     context.read<AnimalSightingReportingInterface>();
                 animalSightingManager.updateDescription('');
@@ -60,7 +58,6 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                   AnimalListOverviewScreen(),
                 );
               },
-              // Match the other screens: black icons/text and slightly larger font/icon scales
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -89,7 +86,6 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Damage in euros input field
                             Text(
                               'Schade in euros',
                               style: TextStyle(
@@ -136,8 +132,6 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                               ),
                             ),
                             const SizedBox(height: 32),
-
-                            // Intensity of accident
                             Text(
                               'Intensiteit van ongeval',
                               style: TextStyle(
@@ -187,8 +181,6 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                               ],
                             ),
                             const SizedBox(height: 32),
-
-                            // Urgency of accident
                             Text(
                               'Urgentie van ongeval',
                               style: TextStyle(
@@ -238,8 +230,6 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                               ],
                             ),
                             const SizedBox(height: 32),
-
-                            // Accident details text input
                             Text(
                               'Ongeval details',
                               style: TextStyle(

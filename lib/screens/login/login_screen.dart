@@ -1,311 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/app_text_theme.dart';
-import 'package:wildrapport/models/factories/button_model_factory.dart';
+import 'package:wildrapport/data_managers/profile_api.dart';
+import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/brown_button.dart';
-import 'package:wildrapport/widgets/login/verification_code_input.dart';
-import 'package:wildrapport/interfaces/other/login_interface.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
+import 'package:wildrapport/screens/terms/terms_screen.dart';
+import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart';
-import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
+import 'package:lottie/lottie.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  late final LoginInterface _loginManager;
-  bool showVerification = false;
-  bool isError = false;
-  String errorMessage = '';
-  String? _pendingErrorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loginManager = context.read<LoginInterface>();
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    super.dispose();
-  }
-
-  void _handleLogin() {
-    debugPrint('Login button pressed');
-
-    final validationError = _loginManager.validateEmail(emailController.text);
-    if (validationError != null) {
-      showDialog(
-        context: context,
-        builder: (context) => ErrorOverlay(messages: [validationError]),
+Future<void> _routeAfterLogin(BuildContext context) async {
+  try {
+    ProfileApiInterface profileApi;
+    try {
+      profileApi = context.read<ProfileApiInterface>();
+    } catch (_) {
+      profileApi = ProfileApi(AppConfig.shared.apiClient);
+    }
+    await profileApi.setProfileDataInDeviceStorage();
+    if (!context.mounted) return;
+    final profile = await profileApi.fetchMyProfile();
+    if (!context.mounted) return;
+    final hasAccess = await context.read<WildLifeNLAuthenticator>().hasAccess();
+    if (!hasAccess) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
+        (_) => false,
       );
       return;
     }
-
-    setState(() {
-      isError = false;
-      errorMessage = '';
-      showVerification = true;
-      _pendingErrorMessage = null;
-    });
-
-    _loginManager
-        .sendLoginCode(emailController.text)
-        .then((response) {
-          if (!response) {
-            _pendingErrorMessage = 'Login mislukt. Probeer het later opnieuw.';
-          } else {
-            debugPrint("Verification Code Sent To Email!");
-          }
-        })
-        .catchError((e) {
-          String userFriendlyMessage =
-              'Er is een fout opgetreden. Probeer het later opnieuw.';
-          debugPrint('Login error: $e');
-
-          if (e.toString().contains('SocketException') ||
-              e.toString().contains('Connection refused') ||
-              e.toString().contains('Network is unreachable')) {
-            userFriendlyMessage =
-                'Geen internetverbinding. Controleer uw netwerk en probeer het opnieuw.';
-          } else if (e.toString().contains('timed out')) {
-            userFriendlyMessage =
-                'De server reageert niet. Probeer het later opnieuw.';
-          } else if (e.toString().contains('Unauthorized') ||
-              e.toString().contains('401')) {
-            userFriendlyMessage =
-                'Ongeldige inloggegevens. Controleer uw e-mailadres en probeer het opnieuw.';
-          }
-
-          _pendingErrorMessage = userFriendlyMessage;
-        })
-        .whenComplete(() {
-          if (_pendingErrorMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() {
-                showVerification = false;
-              });
-              showDialog(
-                context: context,
-                builder:
-                    (context) =>
-                        ErrorOverlay(messages: [_pendingErrorMessage!]),
-              );
-            });
-          }
-        });
+    if (profile.reportAppTerms == true) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
+        (_) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const TermsScreen()),
+        (_) => false,
+      );
+    }
+  } catch (e) {
+    if (!context.mounted) return;
+    final hasAccess = await context.read<WildLifeNLAuthenticator>().hasAccess();
+    if (hasAccess) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainNavScreen()),
+        (_) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
+        (_) => false,
+      );
+    }
   }
+}
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Building LoginScreen, showVerification: $showVerification');
-    return Scaffold(
-      body: ResponsiveUtils.layoutBuilder(
-        context: context,
-        builder: (ctx, constraints, ru) {
-          final isSideBySide =
-              constraints.maxWidth >= 600; // breakpoint for tablet
-          final showTwoColumn =
-              constraints.maxWidth >= 900; // wider layout adjustments
-          final branding = Container(
-            decoration: BoxDecoration(
-              color: AppColors.darkGreen,
-              borderRadius: BorderRadius.zero,
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Center(
-                  child: SingleChildScrollView(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Image.asset(
-                            'assets/app_logo.png',
-                            // Scales sensibly across breakpoints
-                            width: ru.breakpointValue<double>(
-                              small: ru.wp(14),
-                              medium: ru.wp(12),
-                              large: ru.wp(10),
-                              extraLarge: ru.wp(9),
-                            ),
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        SizedBox(width: ru.spacing(8)),
-                        Flexible(
-                          child: Text(
-                            'Wild Rapport',
-                            style: AppTextTheme.textTheme.titleLarge?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: ru.adaptiveFont(
-                                    small: 22,
-                                    medium: 24,
-                                    large: 26,
-                                    extraLarge: 28,
-                                  ),
-                                ) ??
-                                TextStyle(
-                                  color: Colors.white,
-                                  fontSize: ru.adaptiveFont(
-                                    small: 22,
-                                    medium: 24,
-                                    large: 26,
-                                    extraLarge: 28,
-                                  ),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: ru.hp(-2.5),
-                  right: ru.wp(-2.5),
-                  child: SizedBox.shrink(),
-                ),
-              ],
-            ),
-          );
-
-          final form = Padding(
-            padding: EdgeInsets.all(ru.spacing(20)),
-            child:
-                showVerification
-                    ? VerificationCodeInput(
-                      onBack: () {
-                        setState(() {
-                          showVerification = false;
-                        });
-                      },
-                      email: emailController.text,
-                    )
-                    : Transform.translate(
-                      offset: Offset(0, ru.hp(-2.5)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Voer uw e-mailadres in',
-                            textAlign: TextAlign.center,
-                            style: AppTextTheme.textTheme.titleMedium?.copyWith(
-                              fontSize: ru.adaptiveFont(
-                                small: 18,
-                                medium: 20,
-                                large: 22,
-                              ),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: ru.spacing(12)),
-                          if (isError) ...[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: ru.wp(2),
-                                bottom: ru.hp(0.6),
-                              ),
-                              child: Text(
-                                errorMessage,
-                                style: TextStyle(
-                                  color: Colors.red.shade600,
-                                  fontSize: ru.fontSize(12),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: ru.spacing(8)),
-                          ],
-                          SizedBox(height: ru.spacing(8)),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFF1F5F2),
-                              borderRadius: BorderRadius.circular(ru.sp(3.1)),
-                              border: Border.all(
-                                color: AppColors.brown,
-                                width: ru.sp(0.19),
-                              ),
-                            ),
-                            child: TextField(
-                              controller: emailController,
-                              minLines: 1,
-                              maxLines: null,
-                              decoration: InputDecoration(
-                                hintText: 'e-mailadres',
-                                hintStyle: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: ru.fontSize(14),
-                                ),
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: ru.wp(5),
-                                  vertical: ru.hp(1.9),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: ru.spacing(24)),
-                          BrownButton(
-                            model: ButtonModelFactory.createLoginButton(
-                              text: 'Aanmelden',
-                            ),
-                            onPressed: _handleLogin,
-                          ),
-                          SizedBox(height: ru.spacing(16)),
-                          Center(
-                            child: InkWell(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => const LoginOverlay(),
-                                );
-                              },
-                              child: Text(
-                                'Hoe werkt de registratie?',
-                                style: TextStyle(
-                                  color: AppColors.brown,
-                                  fontSize: ru.fontSize(14),
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColors.brown,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-          );
-
-          if (!isSideBySide) {
-            return Column(
-              children: [
-                Expanded(flex: 1, child: branding),
-                Expanded(flex: 1, child: form),
-              ],
-            );
-          }
-
-          return Row(
-            children: [
-              Expanded(flex: showTwoColumn ? 3 : 2, child: branding),
-              Expanded(flex: showTwoColumn ? 4 : 3, child: form),
-            ],
+    return WildLifeNLLoginScreen(
+      config: WildLifeNLLoginConfig(
+        logoAssetPath: AppIconPaths.appLogo,
+        appName: 'Wild Rapport',
+        theme: LoginTheme(
+          primaryColor: AppColors.darkGreen,
+          accentColor: AppColors.brown,
+          inputBackgroundColor: const Color(0xFFF1F5F2),
+        ),
+        onLoginSuccess: (ctx, _) => _routeAfterLogin(ctx),
+        registrationInfoWidget: const LoginOverlay(),
+        showErrorDialog: (ctx, messages) {
+          showDialog(
+            context: ctx,
+            builder: (ctx) => ErrorOverlay(messages: messages),
           );
         },
+        loadingWidget: Builder(
+          builder: (ctx) {
+            final size = MediaQuery.sizeOf(ctx);
+            final s = size.width * 0.25;
+            return SizedBox(
+              width: s,
+              height: s,
+              child: Lottie.asset(
+                AppIconPaths.loadingPaw,
+                fit: BoxFit.contain,
+                repeat: true,
+                animate: true,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

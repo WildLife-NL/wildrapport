@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
@@ -8,9 +9,12 @@ import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/widgets/location/location_sharing_indicator.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.onBackPressed});
+
+  final VoidCallback? onBackPressed;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -20,11 +24,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'Loading...';
   Profile? _profile;
   bool _loadingProfile = true;
+  String _version = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _version = '${info.version}+${info.buildNumber}';
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -66,31 +80,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Top bar with back button and title (moved slightly down)
               Padding(
                 padding: EdgeInsets.only(top: responsive.hp(1)),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new),
+                child: Center(
+                  child: Text(
+                    'Profiel',
+                    style: TextStyle(
                       color: AppColors.offWhite,
-                      iconSize: responsive.sp(3),
-                      onPressed: () => Navigator.of(context).pop(),
+                      fontSize: responsive.fontSize(24),
+                      fontWeight: FontWeight.w600,
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Profiel',
-                          style: TextStyle(
-                            color: AppColors.offWhite,
-                            fontSize: responsive.fontSize(24),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // keep space to the right so title is centered
-                    SizedBox(width: responsive.wp(12)),
-                  ],
+                  ),
                 ),
               ),
+              if (_version.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: responsive.hp(0.5)),
+                  child: Center(
+                    child: Text(
+                      'Versie $_version',
+                      style: TextStyle(
+                        color: AppColors.offWhite.withValues(alpha: 0.7),
+                        fontSize: responsive.fontSize(12),
+                      ),
+                    ),
+                  ),
+                ),
 
               SizedBox(height: responsive.spacing(36)),
 
@@ -199,6 +212,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await appStateProvider.setLocationTrackingEnabled(
                             false,
                           );
+                          if (context.mounted) {
+                            context.read<MapProvider>().clearUserLocationAndStopTracking();
+                          }
                         },
                         child: Container(
                           width: responsive.wp(25),

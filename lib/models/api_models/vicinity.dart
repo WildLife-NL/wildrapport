@@ -3,8 +3,6 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 
-/// Response model for the /vicinity/me endpoint
-/// Returns all animals, detections, and interactions in the user's vicinity
 class Vicinity {
   final List<AnimalPin> animals;
   final List<DetectionPin> detections;

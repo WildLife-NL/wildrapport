@@ -4,10 +4,12 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/enums/animal_gender_extensions.dart';
 import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/white_bulk_button.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 
@@ -22,10 +24,10 @@ class AnimalCounting extends StatefulWidget {
 }
 
 class _AnimalCountingState extends State<AnimalCounting> {
-  String? selectedAge;
-  String? selectedGender;
-  String? lastSelectedGender; // Add this to remember the last gender
-  int currentCount = 1; // Default to 1
+  String? selectedAge = AnimalAge.onbekend.label;
+  String? selectedGender = AnimalGender.onbekend.label;
+  String? lastSelectedGender;
+  int currentCount = 1;
   bool _forceRebuild = false;
   late final FixedExtentScrollController _countController;
 
@@ -61,28 +63,10 @@ class _AnimalCountingState extends State<AnimalCounting> {
   }
 
   void _validateAndAddToList(BuildContext context) {
-    // 1. Validate input first
     List<String> errors = [];
-    bool missingAge = selectedAge == null;
-    bool missingGender = selectedGender == null;
-
-    // If both are missing, show combined message
-    if (missingAge && missingGender) {
-      errors.add('Selecteer een leeftijd en geslacht');
-    } else {
-      // Show specific messages for what's missing
-      if (missingAge) {
-        errors.add('Selecteer een leeftijd');
-      }
-      if (missingGender) {
-        errors.add('Selecteer een geslacht');
-      }
-    }
-
     if (currentCount <= 0) {
       errors.add('Voer een aantal groter dan 0 in');
     }
-
     if (errors.isNotEmpty) {
       showDialog(
         context: context,
@@ -91,7 +75,11 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    // 2. Get the manager + current sighting
+    // Use defaults when not selected: Onbekend for age and gender
+    final ageString = selectedAge ?? AnimalAge.onbekend.label;
+    final genderString = selectedGender ?? AnimalGender.onbekend.label;
+
+    // Get the manager + current sighting
     final mgr = context.read<AnimalSightingReportingInterface>();
     final sighting = mgr.getCurrentanimalSighting();
     final currentAnimal = sighting?.animalSelected;
@@ -101,15 +89,9 @@ class _AnimalCountingState extends State<AnimalCounting> {
       return;
     }
 
-    // 3. Convert UI strings -> enums
-    final AnimalAge ageEnum = _convertStringToAnimalAge(selectedAge!);
-    final AnimalGender genderEnum = _convertStringToAnimalGender(
-      selectedGender!,
-    );
-
-    // We don't let the user pick condition yet in this screen,
-    // so fallback to whatever is on the selected animal,
-    // or just "other".
+    // Convert UI strings -> enums (defaults: Onbekend)
+    final AnimalAge ageEnum = _convertStringToAnimalAge(ageString);
+    final AnimalGender genderEnum = _convertStringToAnimalGender(genderString);
     final AnimalCondition conditionEnum =
         currentAnimal.condition ?? AnimalCondition.andere;
 
@@ -128,16 +110,12 @@ class _AnimalCountingState extends State<AnimalCounting> {
     // so later screens + API transformer can still read it
     mgr.syncObservedAnimalsToSighting();
 
-    // 7. Reset local UI so user can add another batch
+    // Reset local UI so user can add another batch (defaults: Onbekend)
     setState(() {
-      // Remember last gender if you still want that UX
       lastSelectedGender = selectedGender;
-
-      selectedAge = null;
-      selectedGender = null;
-      currentCount = 1; // Reset to default 1
-
-      // force rebuild trick stays if you still need it
+      selectedAge = AnimalAge.onbekend.label;
+      selectedGender = AnimalGender.onbekend.label;
+      currentCount = 1;
       _forceRebuild = !_forceRebuild;
     });
     // Reset the wheel position to 1 as well (index 0)
@@ -225,7 +203,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 children: [
                                   _buildHeader('Leeftijd'),
                                   // Filter out null widgets and add spacing only between non-null widgets
-                                  ..._buildAgeButtonsWithSpacing(),
+                                  ..._buildAgeButtonsWithSpacing(context),
                                 ],
                               ),
                             ),
@@ -240,7 +218,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
                                 children: [
                                   _buildHeader('Geslacht'),
                                   // Filter out null widgets and add spacing only between non-null widgets
-                                  ..._buildGenderButtonsWithSpacing(),
+                                  ..._buildGenderButtonsWithSpacing(context),
                                 ],
                               ),
                             ),
@@ -379,14 +357,20 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  Widget _buildAgeButton(String text) {
+  double _choiceButtonHeight(BuildContext context) {
+    final h = MediaQuery.sizeOf(context).height;
+    return (h * 0.078).clamp(kMinTouchTargetHeight, 68.0);
+  }
+
+  Widget _buildAgeButton(BuildContext context, String text) {
     final bool isSelected = text == selectedAge;
+    final height = _choiceButtonHeight(context);
 
     return SizedBox(
-      height: 64.5, // Same height as the button
+      height: height,
       child: WhiteBulkButton(
         text: text,
-        height: 64.5,
+        height: height,
         fontSize: 16,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.center,
@@ -405,14 +389,15 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  Widget _buildGenderButton(String text) {
+  Widget _buildGenderButton(BuildContext context, String text) {
     final bool isSelected = text == selectedGender;
+    final height = _choiceButtonHeight(context);
 
     return SizedBox(
-      height: 64.5, // Same height as the button
+      height: height,
       child: WhiteBulkButton(
         text: text,
-        height: 64.5,
+        height: height,
         fontSize: 16,
         fontWeight: FontWeight.w500,
         textAlign: TextAlign.center,
@@ -431,7 +416,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
     );
   }
 
-  List<Widget> _buildAgeButtonsWithSpacing() {
+  List<Widget> _buildAgeButtonsWithSpacing(BuildContext context) {
     final List<Widget> result = [];
     final ageOptions = [
       AnimalAge.pasGeboren.label,
@@ -441,34 +426,31 @@ class _AnimalCountingState extends State<AnimalCounting> {
     ];
 
     // Always show all buttons - no filtering
+    final ctx = context;
     for (int i = 0; i < ageOptions.length; i++) {
       if (i > 0) {
-        result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        result.add(const SizedBox(height: 8));
       }
-      result.add(Flexible(child: _buildAgeButton(ageOptions[i])));
+      result.add(Flexible(child: _buildAgeButton(ctx, ageOptions[i])));
     }
 
     return result;
   }
 
-  List<Widget> _buildGenderButtonsWithSpacing() {
+  List<Widget> _buildGenderButtonsWithSpacing(BuildContext context) {
     final List<Widget> result = [];
     final genderOptions = ["Mannelijk", "Vrouwelijk", "Onbekend"];
 
     // Always show all buttons - no filtering
+    final ctx = context;
     for (int i = 0; i < genderOptions.length; i++) {
       if (i > 0) {
-        result.add(const SizedBox(height: 8)); // Add spacing between buttons
+        result.add(const SizedBox(height: 8));
       }
-      result.add(Flexible(child: _buildGenderButton(genderOptions[i])));
+      result.add(Flexible(child: _buildGenderButton(ctx, genderOptions[i])));
     }
-
-    // Add an extra SizedBox at the end for alignment with age column
-    // The age column has 4 options while gender has 3, so we need one extra space
-    result.add(const SizedBox(height: 8)); // Add spacing
-    result.add(
-      Flexible(child: SizedBox(height: 64.5)),
-    ); // Extra SizedBox for alignment
+    result.add(const SizedBox(height: 8));
+    result.add(Flexible(child: SizedBox(height: _choiceButtonHeight(ctx))));
 
     return result;
   }

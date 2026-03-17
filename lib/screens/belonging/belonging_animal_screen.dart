@@ -119,7 +119,7 @@ class _BelongingAnimalScreenState extends State<BelongingAnimalScreen> {
               leftIcon: null,
               centerText: widget.appBarTitle,
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
                 debugPrint('[BelongingAnimalScreen] Back button pressed');
                 // Reset search before navigating back

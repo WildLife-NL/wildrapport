@@ -4,9 +4,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
 class CustomLocationMapScreen extends StatefulWidget {
   final bool isFromPossession;
@@ -26,11 +28,6 @@ class CustomLocationMapScreen extends StatefulWidget {
 }
 
 class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
-  static const String _standardTileUrl =
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String _satelliteTileUrl =
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-
   late final LocationMapManager _locationService;
   late final LocationMapManager _mapService;
   late final MapProvider _mapProvider;
@@ -42,11 +39,27 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   bool _isLoading = true;
   bool _isSatelliteView = false;
 
+  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+
   @override
   void initState() {
     super.initState();
     debugPrint('[CustomLocationMapScreen] Initializing screen');
     _initializeServices();
+    if (!context.read<AppStateProvider>().isLocationTrackingEnabled) {
+      setState(() {
+        _currentPosition = null;
+        _currentAddress = '';
+        _isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          _mapProvider.mapController.move(_defaultCenter, 7);
+        } catch (_) {}
+      });
+      return;
+    }
     _quickLocationCheck();
   }
 
@@ -221,26 +234,31 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
     final center =
         _currentPosition != null
             ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-            : const LatLng(52.3874, 4.5753); // Default to Netherlands center
+            : _defaultCenter;
 
     return Scaffold(
       body: Stack(
         children: [
-          FlutterMap(
+          WildLifeNLMap(
             mapController: _mapProvider.mapController,
             options: MapOptions(
               initialCenter: center,
               initialZoom: 15,
-              minZoom: 3,
-              maxZoom: 18,
+              minZoom: 4.0,
+              maxZoom: 17.0,
               onTap: (tapPosition, point) => _handleTap(point),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                    _isSatelliteView ? _satelliteTileUrl : _standardTileUrl,
-                userAgentPackageName: 'com.wildrapport.app',
+              interactionOptions: const InteractionOptions(
+                flags:
+                    InteractiveFlag.drag |
+                    InteractiveFlag.pinchZoom |
+                    InteractiveFlag.doubleTapZoom |
+                    InteractiveFlag.flingAnimation |
+                    InteractiveFlag.pinchMove,
               ),
+            ),
+            userAgentPackageName: 'nl.wildlife.rapport',
+            useSatelliteTiles: _isSatelliteView,
+            extraLayers: [
               if (_currentPosition != null)
                 MarkerLayer(
                   markers: [

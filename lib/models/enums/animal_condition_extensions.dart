@@ -1,7 +1,6 @@
 import 'package:wildrapport/models/enums/animal_condition.dart';
 
 extension AnimalConditionExtensions on AnimalCondition {
-  /// Label shown to the user (Dutch UI)
   String get label {
     switch (this) {
       case AnimalCondition.gezond:
@@ -17,7 +16,6 @@ extension AnimalConditionExtensions on AnimalCondition {
     }
   }
 
-  /// Exact string we send to backend as "condition"
   String get apiValue {
     switch (this) {
       case AnimalCondition.gezond:

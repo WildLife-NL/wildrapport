@@ -59,7 +59,7 @@ class PermissionManager implements PermissionInterface {
                   ),
                 ),
                 content: Text(
-                  'We hebben toegang tot je locatie nodig om nauwkeurig te kunnen rapporteren waar je dieren hebt waargenomen.',
+                  'We hebben toegang tot je locatie nodig om je positie op de kaart te tonen of om een waarneming op je huidige locatie te registreren.',
                   style: AppTextTheme.textTheme.bodyMedium?.copyWith(
                     color: Colors.black,
                   ),

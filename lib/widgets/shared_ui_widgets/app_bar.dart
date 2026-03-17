@@ -30,7 +30,7 @@ class CustomAppBar extends StatelessWidget {
     this.onLeftIconPressed,
     this.onRightIconPressed,
     this.preserveState = true,
-    this.showUserIcon = true,
+    this.showUserIcon = false,
     this.onUserIconPressed,
     this.iconColor,
     this.textColor,
