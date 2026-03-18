@@ -27,6 +27,10 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
+      - name: Create .env
+        run: |
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
+
       - name: Install dependencies
         run: flutter pub get
 
