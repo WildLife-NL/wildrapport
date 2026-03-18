@@ -34,12 +34,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadVersion() async {
-    final info = await PackageInfo.fromPlatform();
-    if (!mounted) return;
-    setState(() {
-      _version = '${info.version}+${info.buildNumber}';
-    });
+  final info = await PackageInfo.fromPlatform();
+  if (!mounted) return;
+
+  String formatDate(String build) {
+    if (build.length == 8) {
+      return '${build.substring(0, 4)}.${build.substring(4, 6)}.${build.substring(6, 8)}';
+    }
+    return build;
   }
+
+  setState(() {
+    _version = formatDate(info.buildNumber);
+  });
+}
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
