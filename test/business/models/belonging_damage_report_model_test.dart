@@ -88,11 +88,12 @@ void main() {
       // Act
       final json = report.toJson();
 
-      // Assert
-      expect(json['impactType'], 'square-meters');
-      expect(json['impactValue'], 100.0);
-      expect(json['estimatedDamage'], 500.0);
-      expect(json['estimatedLoss'], 1000.0);
+      // Assert - toJson() returns API payload with reportOfDamage nested
+      final reportOfDamage = json['reportOfDamage'] as Map<String, dynamic>;
+      expect(reportOfDamage['impactType'], 'square-meters');
+      expect(reportOfDamage['impactValue'], 100);
+      expect(reportOfDamage['estimatedDamage'], 500);
+      expect(reportOfDamage['estimatedLoss'], 1000);
       expect(json['description'], 'Test damage');
     });
 

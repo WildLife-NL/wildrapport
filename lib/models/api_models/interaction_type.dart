@@ -11,9 +11,9 @@ class InteractionType {
 
   factory InteractionType.fromJson(Map<String, dynamic> json) {
     return InteractionType(
-      id: json['ID'],
-      name: json['name'],
-      description: json['description'],
+      id: (json['ID'] ?? json['id']) is int ? (json['ID'] ?? json['id']) as int : 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
     );
   }
 

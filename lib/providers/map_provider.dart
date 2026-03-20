@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -16,7 +16,6 @@ import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
-import 'package:wildrapport/config/mock_location.dart';
 
 class MapProvider extends ChangeNotifier {
   TrackingApiInterface? _trackingApi;
@@ -32,7 +31,7 @@ class MapProvider extends ChangeNotifier {
 
   Timer? _trackingTimer;
   bool _isTracking = false;
-  Duration _trackingInterval = const Duration(minutes: 5);
+  Duration _trackingInterval = const Duration(minutes: 2);
 
   bool get isTracking => _isTracking;
   Duration get trackingInterval => _trackingInterval;
@@ -190,6 +189,7 @@ class MapProvider extends ChangeNotifier {
   Set<String> _prevInteractionIds = {};
   Set<String> _prevAnimalIds = {};
   Set<String> _prevDetectionIds = {};
+  bool _vicinityNotificationsEnabled = true;
 
   List<InteractionQueryResult> get interactions =>
       List.unmodifiable(_interactions);
@@ -199,6 +199,10 @@ class MapProvider extends ChangeNotifier {
 
   int get totalPins =>
       _animalPins.length + _detectionPins.length + _interactions.length;
+
+  void setVicinityNotificationsEnabled(bool enabled) {
+    _vicinityNotificationsEnabled = enabled;
+  }
 
   // ===== Lifecycle / base map helpers =====
   Future<void> initialize() async {
@@ -236,12 +240,8 @@ class MapProvider extends ChangeNotifier {
       selectedAddress = address;
     }
 
-    Future.microtask(() {
-      if (!_isDisposed) {
-        setLoading(false);
-        notifyListeners();
-      }
-    });
+    setLoading(false);
+    if (!_isDisposed) notifyListeners();
   }
 
   void setSelectedLocation(Position position, String address) {
@@ -354,7 +354,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentAnimalIds = _animalPins.map((a) => a.id).toSet();
         final newAnimalIds = currentAnimalIds.difference(_prevAnimalIds);
-        if (newAnimalIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newAnimalIds.isNotEmpty) {
           final count = newAnimalIds.length;
           final sample = _animalPins.firstWhere(
             (a) => newAnimalIds.contains(a.id),
@@ -383,7 +383,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentDetIds = _detectionPins.map((d) => d.id).toSet();
         final newDetIds = currentDetIds.difference(_prevDetectionIds);
-        if (newDetIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newDetIds.isNotEmpty) {
           final count = newDetIds.length;
           final sample = _detectionPins.firstWhere(
             (d) => newDetIds.contains(d.id),
@@ -412,7 +412,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentIds = _interactions.map((i) => i.id).toSet();
         final newIds = currentIds.difference(_prevInteractionIds);
-        if (newIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newIds.isNotEmpty) {
           final count = newIds.length;
           // Build a concise message
           final sample = _interactions.firstWhere(
@@ -478,23 +478,10 @@ class MapProvider extends ChangeNotifier {
 
   Future<void> _sendTrackingNow() async {
     try {
-      // Prefer currentPosition; otherwise use mocked coordinates or get a new fix
+      // Prefer currentPosition; otherwise get a fresh GPS fix
       Position pos;
       if (currentPosition != null) {
         pos = currentPosition!;
-      } else if (MockLocationConfig.kForceMockLocation) {
-        pos = Position(
-          latitude: MockLocationConfig.kMockLat,
-          longitude: MockLocationConfig.kMockLon,
-          timestamp: DateTime.now(),
-          accuracy: 5.0,
-          altitude: 0.0,
-          heading: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
-          altitudeAccuracy: 0.0,
-          headingAccuracy: 0.0,
-        );
       } else {
         pos = (await LocationMapManager().determinePosition()) ??
             await Geolocator.getCurrentPosition(

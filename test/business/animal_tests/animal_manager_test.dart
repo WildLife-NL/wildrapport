@@ -38,7 +38,8 @@ void main() {
       // Assert
       verify(mockSpeciesApi.getAllSpecies()).called(1);
       expect(animals, isNotEmpty);
-      expect(animals.last.animalName, 'Onbekend');
+      // Mock returns Wolf, Vos, Ree – last is Ree (manager no longer appends Onbekend)
+      expect(animals.last.animalName, 'Ree');
     });
 
     test('should use cached animals when available', () async {
@@ -369,28 +370,18 @@ void main() {
       expect(animals, isNotEmpty);
     });
 
-    test('should include unknown animal in results', () async {
+    test('should include all species from API in results', () async {
       // Arrange
       AnimalHelpers.setupSpeciesApiResponse(mockSpeciesApi);
 
       // Act
       final animals = await animalManager.getAnimals();
 
-      // Assert
-      final unknownAnimal = animals.firstWhere(
-        (animal) => animal.animalName == 'Onbekend',
-        orElse:
-            () => AnimalModel(
-              animalId: 'not_found',
-              animalName: 'Not Found',
-              animalImagePath: null,
-              genderViewCounts: [],
-            ),
-      );
-
-      expect(unknownAnimal.animalName, equals('Onbekend'));
-      expect(unknownAnimal.animalImagePath, isNull);
-      expect(unknownAnimal.animalId, equals('unknown'));
+      // Assert – manager returns species from API (Wolf, Vos, Ree); no longer appends Onbekend
+      expect(animals.length, 3);
+      expect(animals.any((a) => a.animalName == 'Wolf'), true);
+      expect(animals.any((a) => a.animalName == 'Vos'), true);
+      expect(animals.any((a) => a.animalName == 'Ree'), true);
     });
 
     test('should search animals using contains (partial match)', () async {

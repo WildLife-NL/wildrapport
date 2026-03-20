@@ -90,7 +90,7 @@ void main() {
       expect(find.text('Locatie Toegang'), findsOneWidget);
       expect(
         find.text(
-          'We hebben toegang tot je locatie nodig om nauwkeurig te kunnen rapporteren waar je dieren hebt waargenomen.',
+          'We hebben toegang tot je locatie nodig om je positie op de kaart te tonen of om een waarneming op je huidige locatie te registreren.',
         ),
         findsOneWidget,
       );

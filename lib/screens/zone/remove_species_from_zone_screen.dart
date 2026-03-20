@@ -66,6 +66,22 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
         setState(() {
           _zones = zones;
           _zoneIdToSpecies = zoneIdToSpecies;
+          // Keep selected values in sync with freshly loaded objects to avoid
+          // DropdownButton assertions when instances changed after reload.
+          if (_selectedZone != null) {
+            final matchedZone = zones.where((z) => z.id == _selectedZone!.id);
+            _selectedZone = matchedZone.isNotEmpty ? matchedZone.first : null;
+          }
+          if (_selectedSpecies != null) {
+            final speciesInZone = _selectedZone == null
+                ? <ZoneSpeciesItem>[]
+                : (zoneIdToSpecies[_selectedZone!.id] ?? <ZoneSpeciesItem>[]);
+            final matchedSpecies = speciesInZone
+                .where((s) => s.id == _selectedSpecies!.id)
+                .toList();
+            _selectedSpecies =
+                matchedSpecies.length == 1 ? matchedSpecies.first : null;
+          }
           _loading = false;
         });
       }
@@ -151,6 +167,18 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
 
   @override
   Widget build(BuildContext context) {
+    final safeSelectedZone = _selectedZone != null &&
+            _zones.where((z) => z.id == _selectedZone!.id).length == 1
+        ? _zones.firstWhere((z) => z.id == _selectedZone!.id)
+        : null;
+    final currentSpecies = safeSelectedZone == null
+        ? <ZoneSpeciesItem>[]
+        : (_zoneIdToSpecies[safeSelectedZone.id] ?? <ZoneSpeciesItem>[]);
+    final safeSelectedSpecies = _selectedSpecies != null &&
+            currentSpecies.where((s) => s.id == _selectedSpecies!.id).length == 1
+        ? currentSpecies.firstWhere((s) => s.id == _selectedSpecies!.id)
+        : null;
+
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       body: SafeArea(
@@ -220,7 +248,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(
-                              value: _selectedZone,
+                              value: safeSelectedZone,
                               isExpanded: true,
                               hint: const Text('Kies een zone'),
                               items: _zones.map((z) {
@@ -238,7 +266,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                           ),
                         ),
                       ),
-                    if (_selectedZone != null && _currentZoneSpecies.isNotEmpty) ...[
+                    if (safeSelectedZone != null && currentSpecies.isNotEmpty) ...[
                       const Text(
                         'Dier om te verwijderen',
                         style: TextStyle(
@@ -256,10 +284,10 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<ZoneSpeciesItem>(
-                            value: _selectedSpecies,
+                            value: safeSelectedSpecies,
                             isExpanded: true,
                             hint: const Text('Kies een dier'),
-                            items: _currentZoneSpecies.map((s) {
+                            items: currentSpecies.map((s) {
                               return DropdownMenuItem<ZoneSpeciesItem>(
                                 value: s,
                                 child: Text(s.commonName.isEmpty ? s.id : s.commonName),
@@ -270,7 +298,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                         ),
                       ),
                     ],
-                    if (_selectedZone != null && _currentZoneSpecies.isEmpty && !_loading)
+                    if (safeSelectedZone != null && currentSpecies.isEmpty && !_loading)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(

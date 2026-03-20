@@ -91,11 +91,12 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
       );
     }
 
+    final loc = systemLocation ?? userSelectedLocation!;
     return {
       "description": description ?? "",
       "location": {
-        "latitude": systemLocation!.latitude,
-        "longitude": systemLocation!.longtitude,
+        "latitude": loc.latitude,
+        "longitude": loc.longtitude,
       },
       // API uses UTC ISO8601 with Z suffix
       "moment": systemDateTime.toUtc().toIso8601String(),

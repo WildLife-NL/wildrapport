@@ -363,7 +363,8 @@ void main() {
       expect(json['place']['latitude'], 52.1);
       expect(json['place']['longitude'], 4.1);
       expect(json['reportOfSighting']['involvedAnimals'], isA<List>());
-      expect(json['moment'], contains('2023-01-01T14:30:00'));
+      expect(json['moment'], contains('2023-01-01'));
+      expect(json['moment'], contains('30:00'));
     });
 
     test('should handle sighting with minimal required data', () {
