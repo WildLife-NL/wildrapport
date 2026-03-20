@@ -8,10 +8,11 @@ class User {
   User({required this.id, required this.email, this.name, this.reportAppTerms});
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final id = json['ID'] ?? json['id'] ?? json['userID'];
     return User(
-      id: json['userID'] ?? "",
-      email: json['email'] ?? "",
-      name: json['name'] ?? "",
+      id: id?.toString() ?? '',
+      email: json['email']?.toString(),
+      name: json['name']?.toString(),
       reportAppTerms: json['reportAppTerms'] as bool?,
     );
   }

@@ -40,6 +40,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   bool _isSatelliteView = false;
 
   static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+  bool _mapReady = false;
 
   @override
   void initState() {
@@ -54,9 +55,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
       });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        try {
-          _mapProvider.mapController.move(_defaultCenter, 7);
-        } catch (_) {}
+        _moveMap(_defaultCenter, 7);
       });
       return;
     }
@@ -128,8 +127,28 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
         _currentPosition!.latitude,
         _currentPosition!.longitude,
       );
-      _mapProvider.mapController.move(center, 15);
+      _moveMap(center, 15);
     }
+  }
+
+  void _moveMap(LatLng center, double zoom) {
+    try {
+      _mapProvider.mapController.move(center, zoom);
+      if (_mapReady) _nudgeMapToTriggerTiles();
+    } catch (_) {}
+  }
+
+  void _nudgeMapToTriggerTiles() {
+    final cam = _mapProvider.mapController.camera;
+    final LatLng c = cam.center;
+    const double delta = 0.000001;
+    try {
+      _mapProvider.mapController.move(
+        LatLng(c.latitude + delta, c.longitude + delta),
+        cam.zoom,
+      );
+      _mapProvider.mapController.move(c, cam.zoom);
+    } catch (_) {}
   }
 
   void _handleTap(LatLng tappedPoint) async {
@@ -235,6 +254,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
         _currentPosition != null
             ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
             : _defaultCenter;
+    final initialZoom = _currentPosition != null ? 15.0 : 7.0;
 
     return Scaffold(
       body: Stack(
@@ -243,9 +263,13 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
             mapController: _mapProvider.mapController,
             options: MapOptions(
               initialCenter: center,
-              initialZoom: 15,
+              initialZoom: initialZoom,
               minZoom: 4.0,
               maxZoom: 17.0,
+              onMapReady: () {
+                _mapReady = true;
+                _moveMap(center, initialZoom);
+              },
               onTap: (tapPosition, point) => _handleTap(point),
               interactionOptions: const InteractionOptions(
                 flags:

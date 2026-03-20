@@ -66,7 +66,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   static const double _initialZoom =
       15.0; // Zoom level for "Center on me" button
+  static const double _netherlandsOverviewZoom = 7.0;
   bool _followUser = true;
+  bool _hasLiveLocation = false;
+  DateTime? _lastFollowMoveAt;
+  static const _followMoveThrottleMs = 600;
 
   // Filter state (default: show only last hour; enable others via filter)
   bool _showAnimals = true;
@@ -104,6 +108,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     // Only initialize once
     if (_mapOptions == null) {
+      final trackingEnabled =
+          context.read<AppStateProvider>().isLocationTrackingEnabled;
       _mapOptions = fm.MapOptions(
         initialCenter: LatLng(
           _mp.currentPosition?.latitude ??
@@ -111,12 +117,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           _mp.currentPosition?.longitude ??
               LocationMapManager.denBoschCenter.longitude,
         ),
-        initialZoom: _initialZoom,
+        initialZoom: trackingEnabled ? _initialZoom : _netherlandsOverviewZoom,
         minZoom: 4.0,
         maxZoom: 17.0,
         onMapReady: () {
           debugPrint('[Map] ready');
           _mapReady = true;
+          if (!trackingEnabled) {
+            _pendingCenter = LocationMapManager.denBoschCenter;
+            _pendingZoom = _netherlandsOverviewZoom;
+          }
           _applyPendingCamera();
           _updateScaleBar();
         },
@@ -244,7 +254,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   void _startFollowingMe() {
     const settings = LocationSettings(
       accuracy: LocationAccuracy.best,
-      distanceFilter: 5,
+      distanceFilter: 0, // Update often when walking (like Google Maps)
     );
 
     final Stream<Position> stream =
@@ -252,6 +262,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     _posSub = stream.listen((pos) async {
       if (!mounted) return;
+      final appStateProvider = context.read<AppStateProvider>();
+      if (!appStateProvider.isLocationTrackingEnabled) {
+        _hasLiveLocation = false;
+        return;
+      }
+      _hasLiveLocation = true;
 
       // accuracy can be null on some platforms
       final double acc = pos.accuracy;
@@ -268,37 +284,35 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       // use cached provider, not context.read(...)
       await _mp.updatePosition(pos, _mp.currentAddress);
 
-      // 🔔 Send tracking ping on position update - only if tracking is enabled
-      final appStateProvider = context.read<AppStateProvider>();
-      if (appStateProvider.isLocationTrackingEnabled) {
-        debugPrint('[ME/live] 📡 Sending tracking ping for position update');
-        final notice = await _mp.sendTrackingPingFromPosition(pos);
-        if (notice != null) {
-          debugPrint(
-            '[ME/live] 🔔 Received notice from tracking ping: "${notice.text}"',
-          );
-          // Notice will be displayed via the MapProvider listener and popup dialog
-        } else {
-          debugPrint('[ME/live] No notice from position update');
-        }
-      } else {
-        debugPrint(
-          '[ME/live] ⚠️ Skipping tracking ping - tracking disabled by user',
-        );
-      }
+      // Tracking pings are sent every 5 min via MapProvider timer, not on every position update
 
-      // ✅ keep center on user only when following AND tracking is enabled
+      // Keep center on user when following and tracking is enabled; throttle camera moves for smooth follow
       if (_followUser &&
           appStateProvider.isLocationTrackingEnabled &&
           _mp.isInitialized) {
-        final z = _mp.mapController.camera.zoom;
-        _mp.mapController.move(LatLng(pos.latitude, pos.longitude), z);
+        final now = DateTime.now();
+        final allowed = _lastFollowMoveAt == null ||
+            now.difference(_lastFollowMoveAt!).inMilliseconds >= _followMoveThrottleMs;
+        if (allowed) {
+          _lastFollowMoveAt = now;
+          final z = _mp.mapController.camera.zoom;
+          _mp.mapController.move(LatLng(pos.latitude, pos.longitude), z);
+        }
       }
+    }, onError: (Object e) {
+      // Location sharing can be off or permission denied; map should still render.
+      debugPrint('[ME/live] position stream error ignored: $e');
     });
   }
 
   Future<void> _fetchAllForView() async {
     final map = context.read<MapProvider>();
+    final app = context.read<AppStateProvider>();
+    map.setVicinityNotificationsEnabled(app.isLocationTrackingEnabled);
+    if (!app.isLocationTrackingEnabled) {
+      map.setMockVicinity();
+      return;
+    }
 
     debugPrint('[Map] Fetching data from vicinity endpoint');
 
@@ -346,12 +360,48 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _bootstrap() async {
     final map = context.read<MapProvider>();
     final app = context.read<AppStateProvider>();
+    map.setVicinityNotificationsEnabled(app.isLocationTrackingEnabled);
     final mgr = _location;
-    final permissionManager = context.read<PermissionInterface>();
 
     await map.initialize();
 
-    bool hasLocationPermission =
+    if (!app.isLocationTrackingEnabled) {
+      _hasLiveLocation = false;
+      map.clearUserLocationAndStopTracking();
+      map.setMockVicinity();
+      final fallback = Position(
+        latitude: LocationMapManager.denBoschCenter.latitude,
+        longitude: LocationMapManager.denBoschCenter.longitude,
+        timestamp: DateTime.now(),
+        accuracy: 100,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0,
+        altitudeAccuracy: 0.0,
+        headingAccuracy: 0.0,
+      );
+      _pendingCenter = LatLng(fallback.latitude, fallback.longitude);
+      _pendingZoom = _netherlandsOverviewZoom;
+      _applyPendingCamera();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_mp.isInitialized) return;
+        try {
+          _mp.mapController.move(
+            LocationMapManager.denBoschCenter,
+            _netherlandsOverviewZoom,
+          );
+          _nudgeMapToTriggerTiles();
+        } catch (_) {}
+      });
+      _queueFetch();
+      return;
+    }
+
+    final permissionManager = context.read<PermissionInterface>();
+
+    bool hasLocationPermission = false;
+    hasLocationPermission =
         await permissionManager.isPermissionGranted(PermissionType.location);
     if (!hasLocationPermission) {
       hasLocationPermission = await permissionManager.requestPermission(
@@ -397,11 +447,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     }
 
     if (useUserLocation) {
+      _hasLiveLocation = true;
       await map.resetToCurrentLocation(pos, 'Locatie gevonden');
     }
 
     _pendingCenter = LatLng(pos.latitude, pos.longitude);
-    _pendingZoom = _initialZoom;
+    _pendingZoom = useUserLocation ? _initialZoom : _netherlandsOverviewZoom;
     _applyPendingCamera();
 
     final appStateProvider = context.read<AppStateProvider>();
@@ -416,8 +467,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
       }
 
-      debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 10s)');
-      map.startTracking(interval: const Duration(seconds: 10));
+      debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 2 min)');
+      map.startTracking(interval: const Duration(minutes: 2));
     } else {
       debugPrint('[Kaart/Bootstrap] ⚠️ Location tracking is disabled by user');
       // Location tracking is optional, so we don't show a dialog
@@ -428,7 +479,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         _pendingCenter = LatLng(pos!.latitude, pos.longitude);
-        _pendingZoom = _initialZoom;
+        _pendingZoom = useUserLocation ? _initialZoom : _netherlandsOverviewZoom;
         _applyPendingCamera();
 
         debugPrint('[Bootstrap] Loading data from vicinity endpoint');
@@ -491,12 +542,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
 
     // 6) Reverse-geocode address (don’t block UI)
-    try {
-      final address = await mgr.getAddressFromPosition(pos);
-      if (!mounted) return;
-      map.setSelectedLocation(pos, address);
-    } catch (e) {
-      debugPrint('[Kaart] Reverse geocoding failed: $e');
+    if (useUserLocation) {
+      try {
+        final address = await mgr.getAddressFromPosition(pos);
+        if (!mounted) return;
+        map.setSelectedLocation(pos, address);
+      } catch (e) {
+        debugPrint('[Kaart] Reverse geocoding failed: $e');
+      }
     }
   }
 
@@ -1167,6 +1220,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Widget build(BuildContext context) {
     final map = context.watch<MapProvider>();
     final pos = map.selectedPosition ?? map.currentPosition;
+    final locationSharingOn =
+        context.watch<AppStateProvider>().isLocationTrackingEnabled;
 
     return PopScope(
       canPop: false,
@@ -1199,7 +1254,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           tileKeepBuffer: 1,
                           extraLayers: [
                             // ── ANIMALS ───────────────────────────────────────────────────────────────
-                            _useClusters
+                            if (locationSharingOn)
+                              _useClusters
                                 ? cl.MarkerClusterLayerWidget(
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
@@ -1432,7 +1488,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 ),
 
                             // ── DETECTIONS ────────────────────────────────────────────────────────────
-                            _useClusters
+                            if (locationSharingOn)
+                              _useClusters
                                 ? cl.MarkerClusterLayerWidget(
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
@@ -1591,8 +1648,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                             // ── CURRENT POSITION ─────────────────────────────────────────────────────
                             // Only show user location pin if tracking is enabled
                             if (context
-                                .watch<AppStateProvider>()
-                                .isLocationTrackingEnabled)
+                                    .watch<AppStateProvider>()
+                                    .isLocationTrackingEnabled &&
+                                _hasLiveLocation)
                               Builder(
                                 builder: (context) {
                                   final mapRotation =
@@ -1663,7 +1721,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               ),
 
                             // ── INTERACTIONS (keep this LAST so it receives taps first) ──────────────
-                            _useClusters
+                            if (locationSharingOn)
+                              _useClusters
                                 ? cl.MarkerClusterLayerWidget(
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
@@ -1923,20 +1982,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              FloatingActionButton(
-                                heroTag: 'rotate_map',
-                                mini: true,
-                                backgroundColor: Colors.white,
-                                child: const Icon(
-                                  Icons.explore,
-                                  color: Colors.black,
-                                ),
-                                tooltip: 'Kaartrotatie resetten',
-                                onPressed: () {
-                                  map.mapController.rotate(0);
-                                },
-                              ),
-                              const SizedBox(width: 12),
                               FloatingActionButton(
                                 heroTag: 'tracking_history_btn',
                                 mini: true,

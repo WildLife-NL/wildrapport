@@ -45,7 +45,8 @@ class NavigationStateManager implements NavigationStateInterface {
 
   @override
   void pushAndRemoveUntil(BuildContext context, Widget screen) {
-    Navigator.of(context).pushAndRemoveUntil(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => screen),
       (route) => false,
     );
@@ -54,9 +55,8 @@ class NavigationStateManager implements NavigationStateInterface {
   @override
   void pushReplacementForward(BuildContext context, Widget screen) {
     dispose();
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (context) => screen));
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.pushReplacement(MaterialPageRoute(builder: (context) => screen));
   }
 
   @override

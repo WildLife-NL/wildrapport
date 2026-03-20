@@ -32,23 +32,39 @@ class Experiment {
     DateTime? contertedEnd;
     LivingLabs? convertedLivingLabs;
 
-    if (json["end"] != null) contertedEnd = DateTime.parse(json["end"]);
-    if (json["livingLab"] != null) {
-      convertedLivingLabs = LivingLabs.fromJson(json["livingLab"]);
+    if (json["end"] != null) {
+      try {
+        contertedEnd = DateTime.parse(json["end"].toString());
+      } catch (_) {}
+    }
+    if (json["livingLab"] != null && json["livingLab"] is Map<String, dynamic>) {
+      convertedLivingLabs = LivingLabs.fromJson(json["livingLab"] as Map<String, dynamic>);
     }
 
+    DateTime startDate = DateTime.now();
+    if (json["start"] != null) {
+      try {
+        startDate = DateTime.parse(json["start"].toString());
+      } catch (_) {}
+    }
+
+    final userJson = json["user"];
+    final User user = userJson != null && userJson is Map<String, dynamic>
+        ? User.fromJson(userJson)
+        : User(id: 'N/A', email: null);
+
     return Experiment(
-      id: json["ID"],
-      description: json["description"],
+      id: (json["ID"] ?? json["id"])?.toString() ?? 'N/A',
+      description: json["description"]?.toString() ?? '',
       end: contertedEnd,
       livingLab: convertedLivingLabs,
-      messageActivity: json["messageActivity"],
-      name: json["name"],
-      numberOfMessages: json["numberOfMessages"],
-      numberOfQuestionnaires: json["numberOfQuestionnaires"],
-      questionnaireActivity: json["questionnaireActivity"],
-      start: DateTime.parse(json["start"]),
-      user: User.fromJson(json["user"]),
+      messageActivity: json["messageActivity"] as int?,
+      name: json["name"]?.toString() ?? 'N/A',
+      numberOfMessages: json["numberOfMessages"] as int?,
+      numberOfQuestionnaires: json["numberOfQuestionnaires"] as int?,
+      questionnaireActivity: json["questionnaireActivity"] as int?,
+      start: startDate,
+      user: user,
     );
   }
 

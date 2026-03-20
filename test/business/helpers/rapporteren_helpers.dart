@@ -21,10 +21,8 @@ class RapporterenHelpers {
 
   static MockAnimalSightingReportingInterface getMockAnimalSightingManager() {
     final mockAnimalSightingManager = MockAnimalSightingReportingInterface();
-    // Add default stub for createanimalSighting
-    when(
-      mockAnimalSightingManager.createanimalSighting(),
-    ).thenReturn(AnimalSightingModel());
+    when(mockAnimalSightingManager.createanimalSighting()).thenReturn(AnimalSightingModel());
+    when(mockAnimalSightingManager.getCurrentanimalSighting()).thenReturn(null);
     return mockAnimalSightingManager;
   }
 
@@ -40,34 +38,15 @@ class RapporterenHelpers {
 
   static MockInteractionTypesManager getMockInteractionTypesManager() {
     final mockInteractionTypesManager = MockInteractionTypesManager();
-    
-    // Provide mock interaction types
+
     final mockTypes = [
-      InteractionType(
-        id: 1,
-        name: 'Waarneming',
-        description: 'Animal sighting',
-      ),
-      InteractionType(
-        id: 2,
-        name: 'Gewasschade',
-        description: 'Crop damage',
-      ),
-      InteractionType(
-        id: 3,
-        name: 'Diergezondheid',
-        description: 'Animal health',
-      ),
-      InteractionType(
-        id: 4,
-        name: 'Verkeersongeval',
-        description: 'Traffic accident',
-      ),
+      InteractionType(id: 1, name: 'Waarneming', description: 'Animal sighting'),
+      InteractionType(id: 2, name: 'Gewasschade', description: 'Crop damage'),
+      InteractionType(id: 3, name: 'Diergezondheid', description: 'Animal health'),
+      InteractionType(id: 4, name: 'Verkeersongeval', description: 'Traffic accident'),
     ];
-    
-    when(mockInteractionTypesManager.ensureFetched())
-      .thenAnswer((_) => Future.value(mockTypes));
-    
+
+    when(mockInteractionTypesManager.ensureFetched()).thenAnswer((_) async => mockTypes);
     return mockInteractionTypesManager;
   }
 

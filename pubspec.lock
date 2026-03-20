@@ -703,6 +703,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  ntp_dart:
+    dependency: "direct main"
+    description:
+      name: ntp_dart
+      sha256: "80cbd10cb4d4254424e5d1104a7998fceaf580e4875ed0b26f630ceafb2c24ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   package_config:
     dependency: transitive
     description:

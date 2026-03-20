@@ -37,6 +37,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   bool _isInitialized = false;
   String? _pendingSnackBarMessage;
   Widget? _pendingNavigationScreen;
+  NavigatorState? _capturedRootNav;
 
   NavigationStateInterface get navigationManager =>
       context.read<NavigationStateInterface>();
@@ -96,18 +97,27 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   }
 
   void _handlePendingActions() {
-    if (_pendingSnackBarMessage != null) {
-      ToastNotificationHandler.sendToastNotification(
-        context,
-        _pendingSnackBarMessage!,
-      );
-    }
-    if (_pendingNavigationScreen != null) {
-      // Use pushAndRemoveUntil to clear the navigation stack before showing questionnaire or overview
-      navigationManager.pushAndRemoveUntil(context, _pendingNavigationScreen!);
-    }
-    _pendingSnackBarMessage = null;
+    final screen = _pendingNavigationScreen;
+    final navState = _capturedRootNav;
+    final message = _pendingSnackBarMessage;
     _pendingNavigationScreen = null;
+    _capturedRootNav = null;
+    _pendingSnackBarMessage = null;
+
+    if (mounted && message != null) {
+      ToastNotificationHandler.sendToastNotification(context, message);
+    }
+    if (screen == null) return;
+
+    if (navState != null) {
+      debugPrint('$greenLog[BelongingLocationScreen] Navigeer via root Navigator\x1B[0m');
+      navState.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => screen),
+        (route) => false,
+      );
+    } else if (mounted) {
+      navigationManager.pushAndRemoveUntil(context, screen);
+    }
   }
 
   Future<void> _handleNextPressed() async {
@@ -253,26 +263,39 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
       interactionResponseModel = null;
     }
 
-    _pendingSnackBarMessage =
+    final String message =
         interactionResponseModel == null
             ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel"
             : "interactie succesvol verstuurd";
 
-    // Only show questionnaire screen if there are actually questions
-    if (interactionResponseModel != null &&
-        interactionResponseModel.questionnaire.questions != null &&
-        interactionResponseModel.questionnaire.questions!.isNotEmpty) {
-      _pendingNavigationScreen = QuestionnaireScreen(
-        questionnaire: interactionResponseModel.questionnaire,
-        interactionID: interactionResponseModel.interactionID,
+    final rootNav = context.read<AppStateProvider>().navigatorKey.currentState;
+    final Widget targetScreen =
+        (interactionResponseModel != null &&
+                interactionResponseModel.questionnaire.questions != null &&
+                interactionResponseModel.questionnaire.questions!.isNotEmpty)
+            ? QuestionnaireScreen(
+                questionnaire: interactionResponseModel.questionnaire,
+                interactionID: interactionResponseModel.interactionID,
+              )
+            : const MainNavScreen();
+
+    if (rootNav != null && mounted) {
+      if (message.isNotEmpty) {
+        ToastNotificationHandler.sendToastNotification(context, message);
+      }
+      debugPrint('$greenLog[BelongingLocationScreen] Navigeer direct via root Navigator\x1B[0m');
+      rootNav.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => targetScreen),
+        (route) => false,
       );
     } else {
-      _pendingNavigationScreen = const MainNavScreen();
+      _pendingSnackBarMessage = message;
+      _pendingNavigationScreen = targetScreen;
+      _capturedRootNav = rootNav;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _handlePendingActions(),
+      );
     }
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _handlePendingActions(),
-    );
 
     mapProvider.resetState();
   }
