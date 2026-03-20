@@ -1,13 +1,12 @@
 name: wildrapport
 description: "A new Flutter project."
 publish_to: 'none'
-<<<<<<< Updated upstream
-version: 26.03.17+1
-
-=======
 version: 26.03.17+20260318
 
->>>>>>> Stashed changes
+
+version: 26.03.17+20260318
+
+
 environment:
   sdk: ^3.7.0
 
