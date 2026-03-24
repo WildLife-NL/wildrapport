@@ -41,6 +41,8 @@ class MapProvider extends ChangeNotifier {
 
   TrackingNotice? _lastTrackingNotice;
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
+  Position? _lastSentTrackingPosition;
+  static const double _minTrackingMovementMeters = 1.0;
 
   MapController get mapController {
     if (_mapController == null) {
@@ -61,6 +63,21 @@ class MapProvider extends ChangeNotifier {
   }
 
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+    if (_lastSentTrackingPosition != null) {
+      final distance = Geolocator.distanceBetween(
+        _lastSentTrackingPosition!.latitude,
+        _lastSentTrackingPosition!.longitude,
+        pos.latitude,
+        pos.longitude,
+      );
+      if (distance < _minTrackingMovementMeters) {
+        debugPrint(
+          '[MapProvider] ⏭️ Tracking ping skipped (same location, ${distance.toStringAsFixed(2)}m)',
+        );
+        return null;
+      }
+    }
+
     // Prefer using the cache manager if available
     if (_trackingCacheManager != null) {
       debugPrint(
@@ -95,6 +112,7 @@ class MapProvider extends ChangeNotifier {
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
           );
         }
+        _lastSentTrackingPosition = pos;
         return notice;
       } catch (e) {
         debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -142,6 +160,7 @@ class MapProvider extends ChangeNotifier {
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
         );
       }
+      _lastSentTrackingPosition = pos;
       return notice;
     } catch (e) {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -537,6 +556,7 @@ class MapProvider extends ChangeNotifier {
     currentAddress = '';
     selectedPosition = null;
     selectedAddress = '';
+    _lastSentTrackingPosition = null;
     _trackingCacheManager?.clearCache();
     notifyListeners();
   }
