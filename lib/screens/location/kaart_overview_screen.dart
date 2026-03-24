@@ -32,6 +32,12 @@ class _IconStyle {
   const _IconStyle(this.color, this.size);
 }
 
+class _LocalTrackingPoint {
+  final LatLng point;
+  final DateTime timestamp;
+  const _LocalTrackingPoint({required this.point, required this.timestamp});
+}
+
 class KaartOverviewScreen extends StatefulWidget {
   const KaartOverviewScreen({super.key, this.onBackPressed});
 
@@ -89,8 +95,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   // Tracking history state
   bool _showTrackingHistory = false;
   List<TrackingReadingResponse> _trackingHistory = [];
+  final List<_LocalTrackingPoint> _localTrackingHistory = [];
   bool _loadingTrackingHistory = false;
-  int _trackingHistoryMinutes = 5; // Default: show last 5 minutes
+  int _trackingHistoryMinutes = 10; // Default: show last 10 minutes
 
   // Scale bar state
   double _scaleBarWidth = 80;
@@ -281,6 +288,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         '${pos.longitude.toStringAsFixed(6)}  acc=$accStr m',
       );
 
+      final now = DateTime.now();
+      _localTrackingHistory.add(
+        _LocalTrackingPoint(
+          point: LatLng(pos.latitude, pos.longitude),
+          timestamp: now,
+        ),
+      );
+      final cutoff = now.subtract(const Duration(hours: 24));
+      _localTrackingHistory.removeWhere((p) => p.timestamp.isBefore(cutoff));
+      if (_localTrackingHistory.length > 4000) {
+        _localTrackingHistory.removeRange(0, _localTrackingHistory.length - 4000);
+      }
+
       // use cached provider, not context.read(...)
       await _mp.updatePosition(pos, _mp.currentAddress);
 
@@ -303,6 +323,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       // Location sharing can be off or permission denied; map should still render.
       debugPrint('[ME/live] position stream error ignored: $e');
     });
+  }
+
+  List<LatLng> _visibleTrackingPoints() {
+    final threshold = DateTime.now().subtract(
+      Duration(minutes: _trackingHistoryMinutes),
+    );
+    final localPoints = _localTrackingHistory
+        .where((p) => p.timestamp.isAfter(threshold))
+        .map((p) => p.point);
+    final remotePoints = _trackingHistory
+        .where((r) => r.timestamp.isAfter(threshold))
+        .map((r) => LatLng(r.latitude, r.longitude));
+    return [...localPoints, ...remotePoints];
   }
 
   Future<void> _fetchAllForView() async {
@@ -467,8 +500,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         debugPrint('[Kaart/Bootstrap] Initial ping returned no notice');
       }
 
-      debugPrint('[Kaart/Bootstrap] ⏰ Starting periodic tracking (every 2 min)');
-      map.startTracking(interval: const Duration(minutes: 2));
+      debugPrint(
+        '[Kaart/Bootstrap] ⏰ Starting periodic tracking '
+        '(every ${MapProvider.defaultTrackingInterval.inMinutes} min)',
+      );
+      map.startTracking(interval: MapProvider.defaultTrackingInterval);
     } else {
       debugPrint('[Kaart/Bootstrap] ⚠️ Location tracking is disabled by user');
       // Location tracking is optional, so we don't show a dialog
@@ -1222,6 +1258,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final pos = map.selectedPosition ?? map.currentPosition;
     final locationSharingOn =
         context.watch<AppStateProvider>().isLocationTrackingEnabled;
+    final visibleTrackingPoints = _visibleTrackingPoints();
 
     return PopScope(
       canPop: false,
@@ -1682,19 +1719,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
                             // ── TRACKING HISTORY ─────────────────────────────────────────────────────
                             if (_showTrackingHistory &&
-                                _trackingHistory.isNotEmpty)
+                                visibleTrackingPoints.isNotEmpty)
                               fm.PolylineLayer(
                                 polylines: [
                                   fm.Polyline(
-                                    points:
-                                        _trackingHistory
-                                            .map(
-                                              (r) => LatLng(
-                                                r.latitude,
-                                                r.longitude,
-                                              ),
-                                            )
-                                            .toList(),
+                                    points: visibleTrackingPoints,
                                     color: Colors.blue.withValues(alpha:0.6),
                                     strokeWidth: 2.0,
                                   ),
@@ -1702,15 +1731,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               ),
 
                             if (_showTrackingHistory &&
-                                _trackingHistory.isNotEmpty)
+                                visibleTrackingPoints.isNotEmpty)
                               fm.CircleLayer(
-                                circles:
-                                    _trackingHistory.map((reading) {
+                                circles: visibleTrackingPoints.map((point) {
                                       return fm.CircleMarker(
-                                        point: LatLng(
-                                          reading.latitude,
-                                          reading.longitude,
-                                        ),
+                                        point: point,
                                         radius: 4,
                                         color: Colors.blue.withValues(alpha:0.8),
                                         borderColor: Colors.white,

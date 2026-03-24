@@ -18,6 +18,8 @@ import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 
 class MapProvider extends ChangeNotifier {
+  static const Duration defaultTrackingInterval = Duration(minutes: 10);
+
   TrackingApiInterface? _trackingApi;
   TrackingCacheManager? _trackingCacheManager;
   // ===== Location state =====
@@ -31,7 +33,7 @@ class MapProvider extends ChangeNotifier {
 
   Timer? _trackingTimer;
   bool _isTracking = false;
-  Duration _trackingInterval = const Duration(minutes: 2);
+  Duration _trackingInterval = defaultTrackingInterval;
 
   bool get isTracking => _isTracking;
   Duration get trackingInterval => _trackingInterval;
