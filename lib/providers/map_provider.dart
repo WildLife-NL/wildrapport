@@ -16,12 +16,14 @@ import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
 
   TrackingApiInterface? _trackingApi;
   TrackingCacheManager? _trackingCacheManager;
+  AppStateProvider? _appStateProvider;
   // ===== Location state =====
   Position? selectedPosition;
   String selectedAddress = '';
@@ -64,7 +66,25 @@ class MapProvider extends ChangeNotifier {
     _trackingCacheManager = manager;
   }
 
+  void setAppStateProvider(AppStateProvider appStateProvider) {
+    _appStateProvider = appStateProvider;
+  }
+
+  bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
+
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+    final now = DateTime.now();
+    if (_isNightlyAutoDisableWindow(now)) {
+      debugPrint(
+        '[MapProvider] 🌙 Tracking blocked between 00:00-01:00; disabling location sharing',
+      );
+      stopTracking();
+      if (_appStateProvider?.isLocationTrackingEnabled ?? false) {
+        await _appStateProvider!.setLocationTrackingEnabled(false);
+      }
+      return null;
+    }
+
     if (_lastSentTrackingPosition != null) {
       final distance = Geolocator.distanceBetween(
         _lastSentTrackingPosition!.latitude,
