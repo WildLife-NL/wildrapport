@@ -11,7 +11,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/map/interaction_detail_dialog.dart';
-import 'package:wildrapport/widgets/map/animal_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
@@ -90,6 +90,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   // Scale bar state
   double _scaleBarWidth = 80;
   String _scaleBarLabel = '100 m';
+
+  // Selected animal for detail card
+  AnimalPin? _selectedAnimal;
 
   @override
   void didChangeDependencies() {
@@ -1441,19 +1444,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   behavior:
                                                       HitTestBehavior.opaque,
                                                   onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (
-                                                            _,
-                                                          ) => AnimalDetailDialog(
-                                                            animal: pin,
-                                                            animalIconPath:
-                                                                _getAnimalIconPath(
-                                                                  pin.speciesName,
-                                                                ),
-                                                          ),
-                                                    );
+                                                    setState(() {
+                                                      _selectedAnimal = pin;
+                                                    });
                                                   },
                                                   child: Builder(
                                                     builder: (ctx) {
@@ -1903,14 +1896,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                             child: GestureDetector(
                                               behavior: HitTestBehavior.opaque,
                                               onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (_) => AnimalDetailDialog(
-                                                    animal: itx.toAnimalPin(),
-                                                    animalIconPath:
-                                                        _getAnimalIconPath(itx.speciesName),
-                                                  ),
-                                                );
+                                                setState(() {
+                                                  _selectedAnimal = itx.toAnimalPin();
+                                                });
                                               },
                                               child: Builder(
                                                 builder: (ctx) {
@@ -1954,6 +1942,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 ),
                           ],
                         ),
+
 
                         // ── SCALE BAR ─────────────────────────────────────────────────────────────
                         Positioned(
@@ -2113,11 +2102,182 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               onPressed: _emitDevTrackingNotice,
                             ),
                           ),
+                        // Location button (behind card if displayed - always rendered last so card appears on top)
+                        if (_selectedAnimal == null)
+                          Positioned(
+                            bottom: 16,
+                            right: 16,
+                            child: FloatingActionButton(
+                              tooltip: 'Centreer op mijn locatie',
+                              backgroundColor: AppColors.darkGreen,
+                              child: const Icon(Icons.my_location, color: Colors.white),
+                              onPressed: () async {
+                                final mp = context.read<MapProvider>();
+                                final appStateProvider = context.read<AppStateProvider>();
+                                debugPrint('[FAB] tapped');
+
+                              // Check if location tracking is enabled
+                              if (!appStateProvider.isLocationTrackingEnabled) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Locatie delen is uitgeschakeld'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              _followUser = true;
+
+                              // Preserve current zoom level
+                              final currentZoom = mp.mapController.camera.zoom;
+
+                              // pick a quick target
+                              Position? target = mp.currentPosition ?? mp.selectedPosition;
+                              if (target == null) {
+                                target = MockLocationConfig.kForceMockLocation
+                                    ? Position(
+                                        latitude: MockLocationConfig.kMockLat,
+                                        longitude: MockLocationConfig.kMockLon,
+                                        timestamp: DateTime.now(),
+                                        accuracy: 5.0,
+                                        altitude: 0.0,
+                                        heading: 0.0,
+                                        speed: 0.0,
+                                        speedAccuracy: 0.0,
+                                        altitudeAccuracy: 0.0,
+                                        headingAccuracy: 0.0,
+                                      )
+                                    : await Geolocator.getLastKnownPosition();
+                              }
+
+                              if (target != null) {
+                                mp.mapController.move(
+                                  LatLng(target.latitude, target.longitude),
+                                  currentZoom,
+                                );
+                              } else {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Zoeken naar je locatie…'),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                              }
+
+                              // resolve fresh GPS + address in background (don't block the jump)
+                              Future(() async {
+                                Position? fresh;
+                                try {
+                                  fresh = MockLocationConfig.kForceMockLocation
+                                      ? Position(
+                                          latitude: MockLocationConfig.kMockLat,
+                                          longitude: MockLocationConfig.kMockLon,
+                                          timestamp: DateTime.now(),
+                                          accuracy: 5.0,
+                                          altitude: 0.0,
+                                          heading: 0.0,
+                                          speed: 0.0,
+                                          speedAccuracy: 0.0,
+                                          altitudeAccuracy: 0.0,
+                                          headingAccuracy: 0.0,
+                                        )
+                                      : await Geolocator.getCurrentPosition(
+                                          desiredAccuracy: LocationAccuracy.best,
+                                        );
+                                } catch (_) {
+                                  fresh = await Geolocator.getLastKnownPosition();
+                                }
+
+                                if (fresh == null) return;
+
+                                String address = mp.currentAddress;
+                                try {
+                                  final a = await _location.getAddressFromPosition(fresh);
+                                  if (a.trim().isNotEmpty) address = a;
+                                } catch (e) {
+                                  debugPrint('[FAB] Reverse geocoding failed: $e');
+                                }
+
+                                if (!mounted) return;
+
+                                await mp.resetToCurrentLocation(fresh, address);
+
+                                // Only send tracking ping if tracking is enabled
+                                if (appStateProvider.isLocationTrackingEnabled) {
+                                  await mp.sendTrackingPingFromPosition(fresh);
+                                }
+
+                                if (_followUser && appStateProvider.isLocationTrackingEnabled) {
+                                  mp.mapController.move(
+                                    LatLng(fresh.latitude, fresh.longitude),
+                                    currentZoom,
+                                  );
+                                }
+                                _queueFetch();
+                              });
+                            },
+                          ),
+                        ),
+                        // Animal Detail Card with overlay
+                        if (_selectedAnimal != null)
+                          Positioned(
+                            top: 0,
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedAnimal = null;
+                                });
+                              },
+                              child: Container(
+                                color: Colors.black.withOpacity(0.3),
+                              ),
+                            ),
+                          ),
+                        if (_selectedAnimal != null)
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                AnimalDetailCard(animal: _selectedAnimal!),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedAnimal = null;
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: _selectedAnimal == null ? FloatingActionButton(
           tooltip: 'Centreer op mijn locatie',
           backgroundColor: AppColors.darkGreen,
           child: const Icon(Icons.my_location, color: Colors.white),
@@ -2229,7 +2389,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               _queueFetch();
             });
           },
-        ),
+        ) : null,
       ),
     );
   }
