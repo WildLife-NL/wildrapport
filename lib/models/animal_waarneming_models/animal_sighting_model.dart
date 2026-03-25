@@ -11,7 +11,7 @@ class AnimalSightingModel {
   final AnimalModel? animalSelected;
   final AnimalCategory? category;
   final String? description;
-  final List<LocationModel>? locations; // Changed to List
+  final List<LocationModel>? locations; 
   final DateTimeModel? dateTime;
   final ImageListModel? images;
 
@@ -19,7 +19,7 @@ class AnimalSightingModel {
     this.animals,
     this.category,
     this.description,
-    this.locations, // Updated parameter name
+    this.locations, 
     this.dateTime,
     this.images,
     this.animalSelected,

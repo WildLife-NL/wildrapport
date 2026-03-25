@@ -35,12 +35,12 @@ dependencies:
   wildlifenl_map_ui_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
-      ref: Wildlife-rapport-Components
+      ref: main
       path: wildlifenl_map_ui_components
   wildlifenl_map_logic_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
-      ref: Wildlife-rapport-Components
+      ref: main
       path: wildlifenl_map_logic_components
   wildlifenl_assets:
     git:

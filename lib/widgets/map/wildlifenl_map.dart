@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 
-const String _openTopoMapTileUrl =
-    'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-const List<String> _openTopoMapSubdomains = ['a', 'b', 'c'];
-
 const double kOpenTopoMapMaxZoom = 17.0;
 
 class _DefaultMapAttribution extends StatelessWidget {
@@ -52,6 +48,8 @@ class WildLifeNLMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Keep a local attribution widget to prevent bottom overflow on mobile.
+    // Tile URLs still come from shared component constants.
     final overlayChildren =
         nonRotatedChildren ?? [const _DefaultMapAttribution()];
     return FlutterMap(
@@ -61,9 +59,10 @@ class WildLifeNLMap extends StatelessWidget {
         TileLayer(
           urlTemplate: useSatelliteTiles
               ? MapStateInterface.satelliteTileUrl
-              : _openTopoMapTileUrl,
-          subdomains:
-              useSatelliteTiles ? const [] : _openTopoMapSubdomains,
+              : MapStateInterface.standardTileUrl,
+          subdomains: useSatelliteTiles
+              ? const []
+              : MapStateInterface.standardTileSubdomains,
           userAgentPackageName: userAgentPackageName,
           keepBuffer: tileKeepBuffer,
         ),

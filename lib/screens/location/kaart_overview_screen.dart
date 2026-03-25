@@ -1690,8 +1690,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 _hasLiveLocation)
                               Builder(
                                 builder: (context) {
-                                  final mapRotation =
-                                      map.mapController.camera.rotation;
                                   return fm.MarkerLayer(
                                     markers: pos != null
                                         ? [
@@ -1700,17 +1698,39 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 pos.latitude,
                                                 pos.longitude,
                                               ),
-                                        width: 40,
-                                        height: 40,
-                                        rotate: false,
-                                        child: Transform.rotate(
-                                          angle: -mapRotation * math.pi / 180,
-                                          child: const Icon(
-                                            Icons.my_location,
-                                            size: 30,
-                                          ),
-                                        ),
-                                      ),
+                                              width: 28,
+                                              height: 28,
+                                              rotate: false,
+                                              child: Center(
+                                                child: Container(
+                                                  width: 22,
+                                                  height: 22,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.blue.withValues(
+                                                      alpha: 0.25,
+                                                    ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Container(
+                                                      width: 12,
+                                                      height: 12,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.blue,
+                                                        border: Border.fromBorderSide(
+                                                          BorderSide(
+                                                            color: Colors.white,
+                                                            width: 2,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                             ]
                                         : [],
                                   );
