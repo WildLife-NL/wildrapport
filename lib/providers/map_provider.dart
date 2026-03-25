@@ -47,6 +47,7 @@ class MapProvider extends ChangeNotifier {
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
   Position? _lastSentTrackingPosition;
   static const double _minTrackingMovementMeters = 1.0;
+  DateTime Function() _nowProvider = DateTime.now;
 
   MapController get mapController {
     if (_mapController == null) {
@@ -70,10 +71,15 @@ class MapProvider extends ChangeNotifier {
     _appStateProvider = appStateProvider;
   }
 
+  // Test hook for deterministic time-based behavior.
+  void setNowProvider(DateTime Function() nowProvider) {
+    _nowProvider = nowProvider;
+  }
+
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
-    final now = DateTime.now();
+    final now = _nowProvider();
     if (_isNightlyAutoDisableWindow(now)) {
       debugPrint(
         '[MapProvider] 🌙 Tracking blocked between 00:00-01:00; disabling location sharing',
