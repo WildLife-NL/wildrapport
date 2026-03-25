@@ -16,10 +16,14 @@ import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class MapProvider extends ChangeNotifier {
+  static const Duration defaultTrackingInterval = Duration(minutes: 10);
+
   TrackingApiInterface? _trackingApi;
   TrackingCacheManager? _trackingCacheManager;
+  AppStateProvider? _appStateProvider;
   // ===== Location state =====
   Position? selectedPosition;
   String selectedAddress = '';
@@ -31,7 +35,7 @@ class MapProvider extends ChangeNotifier {
 
   Timer? _trackingTimer;
   bool _isTracking = false;
-  Duration _trackingInterval = const Duration(minutes: 2);
+  Duration _trackingInterval = defaultTrackingInterval;
 
   bool get isTracking => _isTracking;
   Duration get trackingInterval => _trackingInterval;
@@ -41,6 +45,8 @@ class MapProvider extends ChangeNotifier {
 
   TrackingNotice? _lastTrackingNotice;
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
+  Position? _lastSentTrackingPosition;
+  static const double _minTrackingMovementMeters = 1.0;
 
   MapController get mapController {
     if (_mapController == null) {
@@ -60,7 +66,40 @@ class MapProvider extends ChangeNotifier {
     _trackingCacheManager = manager;
   }
 
+  void setAppStateProvider(AppStateProvider appStateProvider) {
+    _appStateProvider = appStateProvider;
+  }
+
+  bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
+
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+    final now = DateTime.now();
+    if (_isNightlyAutoDisableWindow(now)) {
+      debugPrint(
+        '[MapProvider] 🌙 Tracking blocked between 00:00-01:00; disabling location sharing',
+      );
+      stopTracking();
+      if (_appStateProvider?.isLocationTrackingEnabled ?? false) {
+        await _appStateProvider!.setLocationTrackingEnabled(false);
+      }
+      return null;
+    }
+
+    if (_lastSentTrackingPosition != null) {
+      final distance = Geolocator.distanceBetween(
+        _lastSentTrackingPosition!.latitude,
+        _lastSentTrackingPosition!.longitude,
+        pos.latitude,
+        pos.longitude,
+      );
+      if (distance < _minTrackingMovementMeters) {
+        debugPrint(
+          '[MapProvider] ⏭️ Tracking ping skipped (same location, ${distance.toStringAsFixed(2)}m)',
+        );
+        return null;
+      }
+    }
+
     // Prefer using the cache manager if available
     if (_trackingCacheManager != null) {
       debugPrint(
@@ -95,6 +134,7 @@ class MapProvider extends ChangeNotifier {
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
           );
         }
+        _lastSentTrackingPosition = pos;
         return notice;
       } catch (e) {
         debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -142,6 +182,7 @@ class MapProvider extends ChangeNotifier {
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
         );
       }
+      _lastSentTrackingPosition = pos;
       return notice;
     } catch (e) {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -537,6 +578,7 @@ class MapProvider extends ChangeNotifier {
     currentAddress = '';
     selectedPosition = null;
     selectedAddress = '';
+    _lastSentTrackingPosition = null;
     _trackingCacheManager?.clearCache();
     notifyListeners();
   }

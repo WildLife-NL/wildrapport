@@ -120,6 +120,7 @@ void main() async {
   final animalManager = AnimalManager(speciesApi, filterManager);
   final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
+  mapProvider.setAppStateProvider(appStateProvider);
   final responseProvider = ResponseProvider();
 
   final conveyanceApi = ConveyanceApi(apiClient);
