@@ -210,7 +210,7 @@ class _PossesionDamageScreenState extends State<BelongingDamagesScreen> {
               leftIcon: null,
               centerText: "Schademelding",
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,

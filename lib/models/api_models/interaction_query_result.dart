@@ -1,4 +1,4 @@
-class AnimalInfo {
+﻿class AnimalInfo {
   final String? sex;
   final String? lifeStage;
   final String? condition;
@@ -39,10 +39,6 @@ class InteractionQueryResult {
     this.involvedAnimals,
   });
 
-  /// Defensive JSON parsing:
-  /// - accepts id or ID
-  /// - accepts location/place with latitude/longitude or lat/lon
-  /// - tolerates missing/invalid moment (falls back to now)
   factory InteractionQueryResult.fromJson(Map<String, dynamic> json) {
     final rawId = (json['id'] ?? json['ID'])?.toString();
     if (rawId == null || rawId.isEmpty) {

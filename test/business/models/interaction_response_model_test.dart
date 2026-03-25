@@ -1,333 +1,57 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wildrapport/models/beta_models/response_model.dart';
+import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 
 void main() {
-  group('Response Model', () {
-    test('should have correct properties', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
+  group('InteractionResponse', () {
+    test('empty() returns response with given interactionID', () {
+      final response = InteractionResponse.empty(interactionID: 'int-abc-123');
 
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-      expect(response.text, 'Test response text');
+      expect(response.interactionID, 'int-abc-123');
+      expect(response.questionnaire, isNotNull);
+      expect(response.questionnaire.id, 'N/A');
+      expect(response.questionnaire.name, 'No questionnaire');
     });
 
-    test('should create from JSON correctly', () {
-      // Arrange
+    test('empty() has zero questions so app shows hoofdpagina', () {
+      final response = InteractionResponse.empty(interactionID: 'int-xyz');
+
+      expect(response.questionnaire.questions, isNotNull);
+      expect(response.questionnaire.questions!.length, 0);
+    });
+
+    test('empty() with empty string interactionID', () {
+      final response = InteractionResponse.empty(interactionID: '');
+
+      expect(response.interactionID, '');
+      expect(response.questionnaire.name, 'No questionnaire');
+    });
+
+    test('fromJson and toJson round-trip when questionnaire has id and interactionID', () {
       final json = {
-        'interactionID': 'interaction-123',
-        'questionID': 'question-456',
-        'answerID': 'answer-789',
-        'text': 'Test response text',
+        'interactionID': 'response-id-456',
+        'questionnaire': {
+          'ID': 'q-id',
+          'name': 'Test',
+          'experiment': {
+            'ID': 'exp-1',
+            'description': 'd',
+            'name': 'n',
+            'start': '2023-01-01T00:00:00.000',
+            'user': {'ID': 'u1', 'name': 'User'},
+          },
+          'interactionType': {'ID': 1, 'name': 'Waarneming', 'description': 'd'},
+          'questions': [],
+        },
       };
 
-      // Act
-      final response = Response.fromJson(json);
+      final response = InteractionResponse.fromJson(json);
+      expect(response.interactionID, 'response-id-456');
+      expect(response.questionnaire.id, 'q-id');
+      expect(response.questionnaire.questions, isEmpty);
 
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-      expect(response.text, 'Test response text');
-    });
-
-    test('should convert to JSON correctly', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
-
-      // Act
-      final json = response.toJson();
-
-      // Assert
-      expect(json['interactionID'], 'interaction-123');
-      expect(json['questionID'], 'question-456');
-      expect(json['answerID'], 'answer-789');
-      expect(json['text'], 'Test response text');
-    });
-
-    test('should handle null text field', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-      );
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-      expect(response.text, isNull);
-
-      // Act
-      final json = response.toJson();
-
-      // Assert
-      expect(json.containsKey('text'), isFalse);
-    });
-
-    test('should handle empty answerID', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: '',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, '');
-      expect(response.text, 'Test response text');
-
-      // Act
-      final json = response.toJson();
-
-      // Assert
-      expect(json['answerID'], '');
-    });
-
-    test('should handle multiple comma-separated answerIDs', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-1,answer-2,answer-3',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-1,answer-2,answer-3');
-
-      // Act
-      final json = response.toJson();
-
-      // Assert
-      expect(json['answerID'], 'answer-1,answer-2,answer-3');
-    });
-
-    test('should handle empty interactionID', () {
-      // Arrange
-      final response = Response(
-        interactionID: "",
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.interactionID, "");
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-    });
-
-    test('should handle empty questionID', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: '',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, '');
-      expect(response.answerID, 'answer-789');
-    });
-
-    test('should handle null answerID', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, isNull);
-    });
-
-    test('should handle JSON with missing optional fields', () {
-      // Arrange
-      final json = {
-        'interactionID': 'interaction-123',
-        'questionID': 'question-456',
-        'answerID': 'answer-789',
-      };
-
-      // Act
-      final response = Response.fromJson(json);
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-      expect(response.text, isNull);
-    });
-
-    test(
-      'should throw when creating from JSON with missing required fields',
-      () {
-        // Arrange
-        final jsonMissingInteractionID = {
-          'questionID': 'question-456',
-          'answerID': 'answer-789',
-        };
-
-        final jsonMissingQuestionID = {
-          'interactionID': 'interaction-123',
-          'answerID': 'answer-789',
-        };
-
-        // Act & Assert
-        expect(
-          () => Response.fromJson(jsonMissingInteractionID),
-          throwsA(isA<TypeError>()),
-        );
-        expect(
-          () => Response.fromJson(jsonMissingQuestionID),
-          throwsA(isA<TypeError>()),
-        );
-
-        // This one should work fine since answerID is optional
-        final jsonMissingAnswerID = {
-          'interactionID': 'interaction-123',
-          'questionID': 'question-456',
-        };
-        final response = Response.fromJson(jsonMissingAnswerID);
-        expect(response.answerID, isNull);
-      },
-    );
-
-    test('should correctly handle text property', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
-
-      // Assert
-      expect(response.text, 'Test response text');
-    });
-
-    test('should handle empty text property', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: '',
-      );
-
-      // Assert
-      expect(response.text, '');
-    });
-
-    test('should handle null text property', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-      );
-
-      // Assert
-      expect(response.text, isNull);
-    });
-
-    test('should correctly convert to JSON with all properties', () {
-      // Arrange
-      final response = Response(
-        interactionID: 'interaction-123',
-        questionID: 'question-456',
-        answerID: 'answer-789',
-        text: 'Test response text',
-      );
-
-      // Act
-      final json = response.toJson();
-
-      // Assert
-      expect(json['interactionID'], 'interaction-123');
-      expect(json['questionID'], 'question-456');
-      expect(json['answerID'], 'answer-789');
-      expect(json['text'], 'Test response text');
-    });
-
-    test(
-      'should correctly convert to JSON with optional properties omitted',
-      () {
-        // Arrange
-        final response = Response(
-          interactionID: 'interaction-123',
-          questionID: 'question-456',
-        );
-
-        // Act
-        final json = response.toJson();
-
-        // Assert
-        expect(json['interactionID'], 'interaction-123');
-        expect(json['questionID'], 'question-456');
-        expect(json['answerID'], isNull);
-        expect(json['text'], isNull);
-      },
-    );
-
-    test('should correctly create from JSON with all properties', () {
-      // Arrange
-      final json = {
-        'interactionID': 'interaction-123',
-        'questionID': 'question-456',
-        'answerID': 'answer-789',
-        'text': 'Test response text',
-      };
-
-      // Act
-      final response = Response.fromJson(json);
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, 'answer-789');
-      expect(response.text, 'Test response text');
-    });
-
-    test('should correctly create from JSON with only required properties', () {
-      // Arrange
-      final json = {
-        'interactionID': 'interaction-123',
-        'questionID': 'question-456',
-      };
-
-      // Act
-      final response = Response.fromJson(json);
-
-      // Assert
-      expect(response.interactionID, 'interaction-123');
-      expect(response.questionID, 'question-456');
-      expect(response.answerID, isNull);
-      expect(response.text, isNull);
+      final back = response.toJson();
+      expect(back['interactionID'], 'response-id-456');
+      expect(back['questionnaire'], isNotNull);
     });
   });
 }

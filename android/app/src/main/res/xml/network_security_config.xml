@@ -5,9 +5,21 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
+
+    <!-- Allow map tiles (OpenStreetMap, OpenTopoMap, ArcGIS) -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">tile.openstreetmap.org</domain>
+        <domain includeSubdomains="true">tile.opentopomap.org</domain>
         <domain includeSubdomains="true">server.arcgisonline.com</domain>
+    </domain-config>
+
+    <!-- UU test API: trust system + user CAs (user CAs help if UU uses an internal cert you install on device) -->
+    <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">test-api-wildlifenl.uu.nl</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
     </domain-config>
 </network-security-config>
+

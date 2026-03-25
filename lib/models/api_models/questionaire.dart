@@ -1,6 +1,7 @@
 import 'package:wildrapport/models/api_models/experiment.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/models/api_models/question.dart';
+import 'package:wildrapport/models/api_models/user.dart';
 
 class Questionnaire {
   String id;
@@ -19,19 +20,35 @@ class Questionnaire {
     this.questions,
   });
 
-  factory Questionnaire.fromJson(Map<String, dynamic> json) => Questionnaire(
-    id: json["ID"],
-    experiment: Experiment.fromJson(json["experiment"]),
-    identifier: json["identifier"],
-    interactionType: InteractionType.fromJson(json["interactionType"]),
-    name: json["name"],
-    questions:
-        json["questions"] != null
-            ? List<Question>.from(
-              json["questions"].map((x) => Question.fromJson(x)),
+  factory Questionnaire.fromJson(Map<String, dynamic> json) {
+    final rawId = json["ID"] ?? json["id"];
+    final rawExperiment = json["experiment"];
+    final rawInteractionType = json["interactionType"];
+    final rawName = json["name"];
+    final rawQuestions = json["questions"] ?? json["Questions"];
+    return Questionnaire(
+      id: rawId?.toString() ?? 'N/A',
+      experiment: rawExperiment != null
+          ? Experiment.fromJson(rawExperiment is Map<String, dynamic> ? rawExperiment : Map<String, dynamic>.from(rawExperiment as Map))
+          : Experiment(
+              id: 'N/A',
+              description: '',
+              name: 'N/A',
+              start: DateTime.now(),
+              user: User(id: 'N/A', email: null),
+            ),
+      identifier: json["identifier"]?.toString(),
+      interactionType: rawInteractionType != null
+          ? InteractionType.fromJson(rawInteractionType is Map<String, dynamic> ? rawInteractionType : Map<String, dynamic>.from(rawInteractionType as Map))
+          : InteractionType(id: 0, name: 'N/A', description: ''),
+      name: rawName?.toString() ?? 'Vragenlijst',
+      questions: rawQuestions != null && rawQuestions is List
+          ? List<Question>.from(
+              rawQuestions.map((x) => Question.fromJson(x is Map<String, dynamic> ? x : Map<String, dynamic>.from(x as Map))),
             )
-            : null,
-  );
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     List<dynamic>? listQuestions;

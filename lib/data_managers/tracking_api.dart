@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:ntp_dart/ntp_dart.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 
@@ -7,23 +8,36 @@ class TrackingApi implements TrackingApiInterface {
   final ApiClient client;
   TrackingApi(this.client);
 
+  Future<DateTime> _nowUtc() async {
+    try {
+      return await AccurateTime.now(isUtc: true).timeout(
+        const Duration(seconds: 3),
+        onTimeout: () => DateTime.now().toUtc(),
+      );
+    } catch (_) {
+      return DateTime.now().toUtc();
+    }
+  }
+
   @override
   Future<TrackingNotice?> addTrackingReading({
     required double lat,
     required double lon,
     required DateTime timestampUtc,
   }) async {
-    // Reduced logging - only log errors or messages
-    // debugPrint('[TrackingApi] Sending location: $lat, $lon at ${timestampUtc.toIso8601String()}');
+    var ts = timestampUtc.toUtc();
+    final nowUtc = await _nowUtc();
+    if (!ts.isBefore(nowUtc)) {
+      ts = nowUtc.subtract(const Duration(seconds: 30));
+      debugPrint(
+        '[TrackingApi] Clamped timestamp to avoid "must be before now" '
+        '(was ${timestampUtc.toUtc().toIso8601String()})',
+      );
+    }
 
-    // Build request body EXACTLY like the /tracking-reading/ docs:
-    // {
-    //   "location": { "latitude": ..., "longitude": ... },
-    //   "timestamp": "2025-10-22T12:00:00Z"
-    // }
     final body = {
       "location": {"latitude": lat, "longitude": lon},
-      "timestamp": timestampUtc.toUtc().toIso8601String(),
+      "timestamp": ts.toIso8601String(),
     };
 
     // Your ApiClient.post works like ApiClient.put in ProfileApi:

@@ -16,11 +16,14 @@ import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
-import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class MapProvider extends ChangeNotifier {
+  static const Duration defaultTrackingInterval = Duration(minutes: 10);
+
   TrackingApiInterface? _trackingApi;
   TrackingCacheManager? _trackingCacheManager;
+  AppStateProvider? _appStateProvider;
   // ===== Location state =====
   Position? selectedPosition;
   String selectedAddress = '';
@@ -32,7 +35,7 @@ class MapProvider extends ChangeNotifier {
 
   Timer? _trackingTimer;
   bool _isTracking = false;
-  Duration _trackingInterval = const Duration(minutes: 5);
+  Duration _trackingInterval = defaultTrackingInterval;
 
   bool get isTracking => _isTracking;
   Duration get trackingInterval => _trackingInterval;
@@ -42,6 +45,9 @@ class MapProvider extends ChangeNotifier {
 
   TrackingNotice? _lastTrackingNotice;
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
+  Position? _lastSentTrackingPosition;
+  static const double _minTrackingMovementMeters = 1.0;
+  DateTime Function() _nowProvider = DateTime.now;
 
   MapController get mapController {
     if (_mapController == null) {
@@ -61,8 +67,45 @@ class MapProvider extends ChangeNotifier {
     _trackingCacheManager = manager;
   }
 
-  /// Call this to send the user's current GPS location to the backend.
+  void setAppStateProvider(AppStateProvider appStateProvider) {
+    _appStateProvider = appStateProvider;
+  }
+
+  // Test hook for deterministic time-based behavior.
+  void setNowProvider(DateTime Function() nowProvider) {
+    _nowProvider = nowProvider;
+  }
+
+  bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
+
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+    final now = _nowProvider();
+    if (_isNightlyAutoDisableWindow(now)) {
+      debugPrint(
+        '[MapProvider] 🌙 Tracking blocked between 00:00-01:00; disabling location sharing',
+      );
+      stopTracking();
+      if (_appStateProvider?.isLocationTrackingEnabled ?? false) {
+        await _appStateProvider!.setLocationTrackingEnabled(false);
+      }
+      return null;
+    }
+
+    if (_lastSentTrackingPosition != null) {
+      final distance = Geolocator.distanceBetween(
+        _lastSentTrackingPosition!.latitude,
+        _lastSentTrackingPosition!.longitude,
+        pos.latitude,
+        pos.longitude,
+      );
+      if (distance < _minTrackingMovementMeters) {
+        debugPrint(
+          '[MapProvider] ⏭️ Tracking ping skipped (same location, ${distance.toStringAsFixed(2)}m)',
+        );
+        return null;
+      }
+    }
+
     // Prefer using the cache manager if available
     if (_trackingCacheManager != null) {
       debugPrint(
@@ -97,6 +140,7 @@ class MapProvider extends ChangeNotifier {
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
           );
         }
+        _lastSentTrackingPosition = pos;
         return notice;
       } catch (e) {
         debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -144,6 +188,7 @@ class MapProvider extends ChangeNotifier {
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
         );
       }
+      _lastSentTrackingPosition = pos;
       return notice;
     } catch (e) {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
@@ -151,7 +196,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// DEV/TEST: Emit a mock tracking notice to trigger overlays and OS notifications
   void emitMockTrackingNotice(String text, {int? severity}) {
     _lastTrackingNotice = TrackingNotice(text, severity: severity);
     final title =
@@ -192,6 +236,7 @@ class MapProvider extends ChangeNotifier {
   Set<String> _prevInteractionIds = {};
   Set<String> _prevAnimalIds = {};
   Set<String> _prevDetectionIds = {};
+  bool _vicinityNotificationsEnabled = true;
 
   List<InteractionQueryResult> get interactions =>
       List.unmodifiable(_interactions);
@@ -201,6 +246,10 @@ class MapProvider extends ChangeNotifier {
 
   int get totalPins =>
       _animalPins.length + _detectionPins.length + _interactions.length;
+
+  void setVicinityNotificationsEnabled(bool enabled) {
+    _vicinityNotificationsEnabled = enabled;
+  }
 
   // ===== Lifecycle / base map helpers =====
   Future<void> initialize() async {
@@ -238,12 +287,8 @@ class MapProvider extends ChangeNotifier {
       selectedAddress = address;
     }
 
-    Future.microtask(() {
-      if (!_isDisposed) {
-        setLoading(false);
-        notifyListeners();
-      }
-    });
+    setLoading(false);
+    if (!_isDisposed) notifyListeners();
   }
 
   void setSelectedLocation(Position position, String address) {
@@ -308,8 +353,6 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load all pins from the vicinity endpoint (single API call)
-  /// This is more efficient than calling loadAnimalPins, loadDetectionPins, and loadInteractions separately
   Future<void> loadAllPinsFromVicinity() async {
     if (_vicinityApi == null) {
       debugPrint(
@@ -358,7 +401,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentAnimalIds = _animalPins.map((a) => a.id).toSet();
         final newAnimalIds = currentAnimalIds.difference(_prevAnimalIds);
-        if (newAnimalIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newAnimalIds.isNotEmpty) {
           final count = newAnimalIds.length;
           final sample = _animalPins.firstWhere(
             (a) => newAnimalIds.contains(a.id),
@@ -387,7 +430,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentDetIds = _detectionPins.map((d) => d.id).toSet();
         final newDetIds = currentDetIds.difference(_prevDetectionIds);
-        if (newDetIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newDetIds.isNotEmpty) {
           final count = newDetIds.length;
           final sample = _detectionPins.firstWhere(
             (d) => newDetIds.contains(d.id),
@@ -416,7 +459,7 @@ class MapProvider extends ChangeNotifier {
       try {
         final currentIds = _interactions.map((i) => i.id).toSet();
         final newIds = currentIds.difference(_prevInteractionIds);
-        if (newIds.isNotEmpty) {
+        if (_vicinityNotificationsEnabled && newIds.isNotEmpty) {
           final count = newIds.length;
           // Build a concise message
           final sample = _interactions.firstWhere(
@@ -455,8 +498,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// DEV/TEST: Replace current pins with provided mock data and refresh UI
-  /// Intended only for development to quickly visualize markers on the map
   void setMockVicinity({
     List<AnimalPin> animals = const [],
     List<DetectionPin> detections = const [],
@@ -482,27 +523,12 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sends one tracking ping using the freshest position we have.
-  /// Falls back to getting a new fix if needed.
   Future<void> _sendTrackingNow() async {
     try {
-      // Prefer currentPosition; otherwise use mocked coordinates or get a new fix
+      // Prefer currentPosition; otherwise get a fresh GPS fix
       Position pos;
       if (currentPosition != null) {
         pos = currentPosition!;
-      } else if (MockLocationConfig.kForceMockLocation) {
-        pos = Position(
-          latitude: MockLocationConfig.kMockLat,
-          longitude: MockLocationConfig.kMockLon,
-          timestamp: DateTime.now(),
-          accuracy: 5.0,
-          altitude: 0.0,
-          heading: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
-          altitudeAccuracy: 0.0,
-          headingAccuracy: 0.0,
-        );
       } else {
         pos = (await LocationMapManager().determinePosition()) ??
             await Geolocator.getCurrentPosition(
@@ -518,7 +544,6 @@ class MapProvider extends ChangeNotifier {
     }
   }
 
-  /// Starts periodic pings. Fires one immediately, then repeats.
   void startTracking({Duration? interval}) {
     if (_trackingCacheManager == null && _trackingApi == null) {
       debugPrint(
@@ -544,16 +569,24 @@ class MapProvider extends ChangeNotifier {
     );
   }
 
-  /// Stops periodic pings.
   void stopTracking() {
     _trackingTimer?.cancel();
     _trackingTimer = null;
     if (_isTracking) {
       _isTracking = false;
-      // Don't call notifyListeners during dispose - it causes setState during widget tree lock
-      // notifyListeners();
     }
     debugPrint('[MapProvider] tracking STOPPED');
+  }
+
+  void clearUserLocationAndStopTracking() {
+    stopTracking();
+    currentPosition = null;
+    currentAddress = '';
+    selectedPosition = null;
+    selectedAddress = '';
+    _lastSentTrackingPosition = null;
+    _trackingCacheManager?.clearCache();
+    notifyListeners();
   }
 
   @override

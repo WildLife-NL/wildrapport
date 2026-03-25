@@ -12,6 +12,7 @@ import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/location_data_card.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
 class LivingLabMapScreen extends StatefulWidget {
   final String labName;
@@ -36,11 +37,6 @@ class LivingLabMapScreen extends StatefulWidget {
 }
 
 class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
-  static const String _standardTileUrl =
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  static const String _satelliteTileUrl =
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-
   // Boundary variables
   late final double minLat;
   late final double maxLat;
@@ -329,11 +325,11 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
 
             return Stack(
               children: [
-                FlutterMap(
+                WildLifeNLMap(
                   mapController: mapProvider.mapController,
                   options: MapOptions(
-                    minZoom: 14,
-                    maxZoom: 18,
+                    minZoom: 4.0,
+                    maxZoom: 17.0,
                     initialCenter: widget.labCenter,
                     initialZoom: 15,
                     interactionOptions: const InteractionOptions(
@@ -348,14 +344,9 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                       _initializeMapView();
                     },
                   ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          _isSatelliteView
-                              ? _satelliteTileUrl
-                              : _standardTileUrl,
-                      userAgentPackageName: 'com.wildrapport.app',
-                    ),
+                  userAgentPackageName: 'nl.wildlife.rapport',
+                  useSatelliteTiles: _isSatelliteView,
+                  extraLayers: [
                     PolygonLayer(
                       polygons: [
                         Polygon(

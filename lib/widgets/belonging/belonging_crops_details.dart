@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:flutter/services.dart';
-import 'package:wildrapport/screens/belonging/area_selection_map.dart';
-import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
+import 'package:wildrapport/widgets/belonging/radius_map_slider.dart';
 
 class BelongingCropsDetails extends StatefulWidget {
   const BelongingCropsDetails({super.key});
@@ -21,6 +21,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
   late final TextEditingController _currentDamageController;
   late final TextEditingController _expectedDamageController;
   late final BelongingDamageReportInterface _belongingDamageReportManager;
+  late final FocusNode _damageFieldFocusNode;
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
@@ -72,6 +73,8 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
     _currentDamageController = TextEditingController(
       text: initialCurrentDamage,
     );
+    _damageFieldFocusNode = FocusNode();
+    _damageFieldFocusNode.addListener(() => setState(() {}));
 
     final initialExpectedDamage =
         belongingDamageReportProvider.expectedDamage > 0
@@ -88,6 +91,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
     _impactValueController.dispose();
     _descriptionController.dispose();
     _currentDamageController.dispose();
+    _damageFieldFocusNode.dispose();
     _expectedDamageController.dispose();
     super.dispose();
   }
@@ -362,73 +366,23 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // ── CONDITIONAL: CROPS - MAP AREA SELECTION ──────────────────
+                // ── CONDITIONAL: CROPS - MAP + SLIDER (inline, geen pagina-wissel) ──────────────────
                 if (belongingDamageReportProvider.damageCategory == 'crops')
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Selecteer beschadigd gebied op de kaart",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Roboto',
-                            fontSize: 16,
-                          ),
+                        RadiusMapSlider(
+                          isLocationTrackingEnabled:
+                              context.watch<AppStateProvider>().isLocationTrackingEnabled,
+                          onAreaChanged: (area) {
+                            if (area != null) {
+                              belongingDamageReportProvider.setPolygonArea(area);
+                            }
+                          },
                         ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              final result = await Navigator.of(
-                                context,
-                              ).push<PolygonArea>(
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => AreaSelectionMap(
-                                        onAreaSelected: (area) {
-                                          belongingDamageReportProvider
-                                              .setPolygonArea(area);
-                                        },
-                                        existingArea:
-                                            belongingDamageReportProvider
-                                                .polygonArea,
-                                      ),
-                                ),
-                              );
-                              if (result != null) {
-                                belongingDamageReportProvider.setPolygonArea(
-                                  result,
-                                );
-                              }
-                            },
-                            icon: const Icon(Icons.map),
-                            label: const Text(
-                              'Selecteer gebied op kaart',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.darkGreen,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
-                        ),
-                        if (belongingDamageReportProvider.polygonArea == null)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Text(
-                              'Geen gebied geselecteerd',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                                fontFamily: 'Roboto',
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
@@ -439,7 +393,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           child:
                               belongingDamageReportProvider.polygonArea == null
                                   ? const Text(
-                                    "Hier kiest u hoe u gewasschade aangeeft: loop de schade af of plaats pinnen op de kaart. Na het invullen van een waarde per eenheid berekent de kaart ook de kosten van uw schade.",
+                                    "Schuif de balk om de straal in te stellen (5 m tot 500 m). Sleep de kaart om te verplaatsen; de cirkel blijft in het midden. Vul hieronder uw geschatte huidige schade in.",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
@@ -451,7 +405,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Oppervlakte: ${belongingDamageReportProvider.polygonArea!.calculateAreaInSquareMeters().toStringAsFixed(0)} m²',
+                                        'Oppervlakte: ${belongingDamageReportProvider.polygonArea!.getAreaInHectares().toStringAsFixed(2)} ha',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -459,18 +413,45 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        (belongingDamageReportProvider
-                                                    .estimatedDamage >
-                                                0)
-                                            ? 'Kosten: € ${belongingDamageReportProvider.estimatedDamage.toStringAsFixed(2)}'
-                                            : 'Kosten:',
-                                        style: const TextStyle(
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Geschatte huidige schade',
+                                        style: TextStyle(
                                           color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      TextField(
+                                        focusNode: _damageFieldFocusNode,
+                                        controller: _currentDamageController,
+                                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                        onChanged: (value) {
+                                          if (value.isEmpty) {
+                                            _belongingDamageReportManager.updateCurrentDamage(0);
+                                          } else {
+                                            final parsed = double.tryParse(value.replaceAll(',', '.'));
+                                            if (parsed != null) {
+                                              _belongingDamageReportManager.updateCurrentDamage(parsed);
+                                            }
+                                          }
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          hintText: _damageFieldFocusNode.hasFocus ? null : 'Bedrag in €',
+                                          prefixText: '€ ',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                        ),
+                                        style: const TextStyle(
                                           fontSize: 16,
-                                          height: 1.5,
-                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.brown900,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],

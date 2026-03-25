@@ -1,7 +1,6 @@
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 
 class AnimalSightingConvertor {
-  /// Converts an AnimalSightingModel to the format required by the API
   static Map<String, dynamic> toApiFormat(AnimalSightingModel report) {
     final List<Map<String, dynamic>> allInvolvedAnimals = [];
 

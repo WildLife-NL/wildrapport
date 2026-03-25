@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/constants/asset_preloader.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
@@ -70,7 +71,7 @@ class _LoadingScreenState extends State<LoadingScreen>
               width: responsive.sp(25),
               height: responsive.sp(25),
               child: Lottie.asset(
-                'assets/loaders/loading_paw.json',
+                AppIconPaths.loadingPaw,
                 fit: BoxFit.contain,
                 repeat: true,
                 animate: true,

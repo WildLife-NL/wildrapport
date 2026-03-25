@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:wildrapport/interfaces/data_apis/interaction_types_api_interface.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 
@@ -8,7 +8,6 @@ class InteractionTypesManager {
 
   InteractionTypesManager(this._api);
 
-  /// Ensure types are fetched and cached. Returns the cached list.
   Future<List<InteractionType>> ensureFetched() async {
     if (_cached != null) return _cached!;
     try {
@@ -21,7 +20,6 @@ class InteractionTypesManager {
     }
   }
 
-  /// Get the display name for a known type id. Returns null if not found.
   String? nameForTypeId(int id) {
     if (_cached == null) return null;
     for (final t in _cached!) {

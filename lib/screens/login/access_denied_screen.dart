@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/utils/role_validator.dart';
 
 class AccessDeniedScreen extends StatelessWidget {
   const AccessDeniedScreen({super.key});
@@ -46,10 +45,8 @@ class AccessDeniedScreen extends StatelessWidget {
                     foregroundColor: Colors.black,
                   ),
                   onPressed: () async {
-                    // Ensure local artifacts are cleared before logout navigation
-                    await RoleValidator.clearAccessArtifacts();
                     if (context.mounted) {
-                      context.read<AppStateProvider>().logout();
+                      await context.read<AppStateProvider>().logout();
                     }
                   },
                   label: const Text('Uitloggen en terug naar inloggen'),

@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 class ApiClient {
   static const String _tokenKey = 'bearer_token';
 
+  static const Duration _requestTimeout = Duration(seconds: 30);
+
   final String baseUrl;
 
   ApiClient(this.baseUrl);
@@ -19,8 +21,8 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("GET: $uri");
-    return await http.get(uri, headers: headers);
+    print("GET: $uri");
+    return await http.get(uri, headers: headers).timeout(_requestTimeout);
   }
 
   Future<http.Response> post(
@@ -31,12 +33,10 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("POST: $uri");
-    http.Response response = await http.post(
-      uri,
-      body: jsonEncode(body),
-      headers: headers,
-    );
+    final cleanedBody = _removeNulls(body);
+    http.Response response = await http
+        .post(uri, body: jsonEncode(cleanedBody), headers: headers)
+        .timeout(_requestTimeout);
 
     return response;
   }
@@ -49,8 +49,10 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("PUT: $uri");
-    return await http.put(uri, body: jsonEncode(body), headers: headers);
+    final cleanedBody = _removeNulls(body);
+    return await http
+        .put(uri, body: jsonEncode(cleanedBody), headers: headers)
+        .timeout(_requestTimeout);
   }
 
   Future<http.Response> delete(
@@ -60,11 +62,10 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("DELETE: $uri");
-    return await http.delete(uri, headers: headers);
+    print("DELETE: $uri");
+    return await http.delete(uri, headers: headers).timeout(_requestTimeout);
   }
 
-  /// Send a PATCH request with a JSON body.
   Future<http.Response> patch(
     String url,
     Map<String, dynamic> body, {
@@ -73,8 +74,10 @@ class ApiClient {
   }) async {
     headers = await _buildHeaders(headers, authenticated);
     final uri = _buildUri(url);
-    // debugPrint("PATCH: $uri");
-    return await http.patch(uri, body: jsonEncode(body), headers: headers);
+    final cleanedBody = _removeNulls(body);
+    return await http
+        .patch(uri, body: jsonEncode(cleanedBody), headers: headers)
+        .timeout(_requestTimeout);
   }
 
   Future<Map<String, String>> _buildHeaders(
@@ -96,14 +99,32 @@ class ApiClient {
     return defaultHeaders;
   }
 
-  /// Build a canonical URI by resolving [url] against the configured baseUrl.
+  /// Recursively removes null values from maps and nested structures.
+  /// APIs often reject payloads with null (e.g. 422 Unprocessable Entity).
+  static Map<String, dynamic> _removeNulls(Map<String, dynamic> map) {
+    final result = <String, dynamic>{};
+    for (final entry in map.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+      if (value is Map<String, dynamic>) {
+        result[entry.key] = _removeNulls(value);
+      } else if (value is List) {
+        result[entry.key] = value
+            .map((e) => e is Map<String, dynamic> ? _removeNulls(e) : e)
+            .where((e) => e != null)
+            .toList();
+      } else {
+        result[entry.key] = value;
+      }
+    }
+    return result;
+  }
+
   Uri _buildUri(String url) {
-    // Use Uri.resolve to avoid double-slash problems and ensure canonical paths.
     try {
       final base = Uri.parse(baseUrl);
       return base.resolve(url);
     } catch (e) {
-      // Fallback: construct via simple concatenation
       return Uri.parse('$baseUrl/$url');
     }
   }

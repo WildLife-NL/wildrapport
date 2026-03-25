@@ -7,7 +7,7 @@ import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_damages_screen.dart';
 import 'package:wildrapport/utils/toast_notification_handler.dart';
@@ -15,6 +15,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
 import 'package:wildrapport/widgets/location/permission_gate.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class BelongingLocationScreen extends StatefulWidget {
   const BelongingLocationScreen({super.key});
@@ -36,6 +37,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   bool _isInitialized = false;
   String? _pendingSnackBarMessage;
   Widget? _pendingNavigationScreen;
+  NavigatorState? _capturedRootNav;
 
   NavigationStateInterface get navigationManager =>
       context.read<NavigationStateInterface>();
@@ -46,6 +48,10 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
     debugPrint(
       "$yellowLog[BelongingLocationScreen] 🔄 initState called\x1B[0m",
     );
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) {
+      context.read<MapProvider>().clearUserLocationAndStopTracking();
+    }
     _initializeScreen();
   }
 
@@ -79,6 +85,9 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
         debugPrint(
           "$greenLog[BelongingLocationScreen] ✅ Screen initialized successfully\x1B[0m",
         );
+        if (!context.read<AppStateProvider>().isLocationTrackingEnabled) {
+          mapProvider.clearUserLocationAndStopTracking();
+        }
       }
     } catch (e) {
       debugPrint(
@@ -88,18 +97,27 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
   }
 
   void _handlePendingActions() {
-    if (_pendingSnackBarMessage != null) {
-      ToastNotificationHandler.sendToastNotification(
-        context,
-        _pendingSnackBarMessage!,
-      );
-    }
-    if (_pendingNavigationScreen != null) {
-      // Use pushAndRemoveUntil to clear the navigation stack before showing questionnaire or overview
-      navigationManager.pushAndRemoveUntil(context, _pendingNavigationScreen!);
-    }
-    _pendingSnackBarMessage = null;
+    final screen = _pendingNavigationScreen;
+    final navState = _capturedRootNav;
+    final message = _pendingSnackBarMessage;
     _pendingNavigationScreen = null;
+    _capturedRootNav = null;
+    _pendingSnackBarMessage = null;
+
+    if (mounted && message != null) {
+      ToastNotificationHandler.sendToastNotification(context, message);
+    }
+    if (screen == null) return;
+
+    if (navState != null) {
+      debugPrint('$greenLog[BelongingLocationScreen] Navigeer via root Navigator\x1B[0m');
+      navState.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => screen),
+        (route) => false,
+      );
+    } else if (mounted) {
+      navigationManager.pushAndRemoveUntil(context, screen);
+    }
   }
 
   Future<void> _handleNextPressed() async {
@@ -245,26 +263,39 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
       interactionResponseModel = null;
     }
 
-    _pendingSnackBarMessage =
+    final String message =
         interactionResponseModel == null
             ? "Geen toegang tot internet, interactie opgeslagen in opslag van uw toestel"
             : "interactie succesvol verstuurd";
 
-    // Only show questionnaire screen if there are actually questions
-    if (interactionResponseModel != null &&
-        interactionResponseModel.questionnaire.questions != null &&
-        interactionResponseModel.questionnaire.questions!.isNotEmpty) {
-      _pendingNavigationScreen = QuestionnaireScreen(
-        questionnaire: interactionResponseModel.questionnaire,
-        interactionID: interactionResponseModel.interactionID,
+    final rootNav = context.read<AppStateProvider>().navigatorKey.currentState;
+    final Widget targetScreen =
+        (interactionResponseModel != null &&
+                interactionResponseModel.questionnaire.questions != null &&
+                interactionResponseModel.questionnaire.questions!.isNotEmpty)
+            ? QuestionnaireScreen(
+                questionnaire: interactionResponseModel.questionnaire,
+                interactionID: interactionResponseModel.interactionID,
+              )
+            : const MainNavScreen();
+
+    if (rootNav != null && mounted) {
+      if (message.isNotEmpty) {
+        ToastNotificationHandler.sendToastNotification(context, message);
+      }
+      debugPrint('$greenLog[BelongingLocationScreen] Navigeer direct via root Navigator\x1B[0m');
+      rootNav.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => targetScreen),
+        (route) => false,
       );
     } else {
-      _pendingNavigationScreen = const OverzichtScreen();
+      _pendingSnackBarMessage = message;
+      _pendingNavigationScreen = targetScreen;
+      _capturedRootNav = rootNav;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _handlePendingActions(),
+      );
     }
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _handlePendingActions(),
-    );
 
     mapProvider.resetState();
   }
@@ -280,7 +311,7 @@ class _BelongingLocationScreenState extends State<BelongingLocationScreen> {
                 leftIcon: null,
                 centerText: 'Locatie',
                 rightIcon: null,
-                showUserIcon: true,
+                showUserIcon: false,
                 iconColor: Colors.black,
                 textColor: Colors.black,
                 fontScale: 1.15,

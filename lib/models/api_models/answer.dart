@@ -12,10 +12,10 @@ class Answer {
   });
 
   factory Answer.fromJson(Map<String, dynamic> json) => Answer(
-    id: json["ID"],
-    index: json["index"],
-    nextQuestionId: json["nextQuestionID"],
-    text: json["text"],
+    id: (json["ID"] ?? json["id"])?.toString() ?? '',
+    index: (json["index"] is int) ? json["index"] as int : 0,
+    nextQuestionId: json["nextQuestionID"] ?? json["nextQuestionId"]?.toString(),
+    text: json["text"]?.toString() ?? '',
   );
 
   Map<String, dynamic> toJson() => {

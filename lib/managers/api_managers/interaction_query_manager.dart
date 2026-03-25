@@ -1,18 +1,12 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:wildrapport/interfaces/data_apis/interaction_query_api_interface.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 
-/// Thin service that normalizes inputs (radius, time window)
-/// before delegating to the API.
 class InteractionQueryManager {
   final InteractionQueryApiInterface api;
 
   InteractionQueryManager(this.api);
 
-  /// Load interactions near a point.
-  ///
-  /// - `radiusMeters` will be clamped to [250, 20000] for sane queries.
-  /// - If `after`/`before` are null, defaults to the **last 7 days** in UTC.
   Future<List<InteractionQueryResult>> loadNearby({
     required double lat,
     required double lon,
@@ -36,14 +30,6 @@ class InteractionQueryManager {
     );
   }
 
-  /// Convenience: derive a *rough* radius (in meters) from map zoom + latitude.
-  /// Use half the screen width in pixels to estimate the visible radius.
-  ///
-  /// `zoom`   – current map zoom (e.g., 5..18)
-  /// `lat`    – map center latitude (affects meters-per-pixel)
-  /// `widthPx`– screen width in pixels (defaults to 400 if unknown)
-  ///
-  /// Returns a clamped value in [250, 20000].
   int radiusFromZoom({
     required double zoom,
     required double lat,

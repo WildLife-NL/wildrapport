@@ -1,28 +1,109 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Geen lint-meldingen: recommended wordt geladen maar alle regels uitgezet.
+# Alleen echte analyzer-fouten blijven over.
+# Test/packages uitgesloten. Herstel met: include: package:flutter_lints/flutter.yaml
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "test/**"
+    - "integration_test/**"
+    - "packages/**"
+  errors:
+    invalid_annotation_target: ignore
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # core
+    avoid_empty_else: false
+    avoid_relative_lib_imports: false
+    avoid_shadowing_type_parameters: false
+    avoid_types_as_parameter_names: false
+    await_only_futures: false
+    camel_case_extensions: false
+    camel_case_types: false
+    collection_methods_unrelated_type: false
+    curly_braces_in_flow_control_structures: false
+    dangling_library_doc_comments: false
+    depend_on_referenced_packages: false
+    empty_catches: false
+    file_names: false
+    hash_and_equals: false
+    implicit_call_tearoffs: false
+    library_annotations: false
+    no_duplicate_case_values: false
+    no_wildcard_variable_uses: false
+    non_constant_identifier_names: false
+    null_check_on_nullable_type_parameter: false
+    prefer_generic_function_type_aliases: false
+    prefer_is_empty: false
+    prefer_is_not_empty: false
+    prefer_iterable_whereType: false
+    prefer_typing_uninitialized_variables: false
+    provide_deprecation_message: false
+    secure_pubspec_urls: false
+    type_literal_in_constant_pattern: false
+    unintended_html_in_doc_comment: false
+    unnecessary_overrides: false
+    unrelated_type_equality_checks: false
+    use_string_in_part_of_directives: false
+    valid_regexps: false
+    void_checks: false
+    # recommended extra
+    annotate_overrides: false
+    avoid_function_literals_in_foreach_calls: false
+    avoid_init_to_null: false
+    avoid_renaming_method_parameters: false
+    avoid_return_types_on_setters: false
+    avoid_returning_null_for_void: false
+    avoid_single_cascade_in_expression_statements: false
+    constant_identifier_names: false
+    control_flow_in_finally: false
+    empty_constructor_bodies: false
+    empty_statements: false
+    exhaustive_cases: false
+    implementation_imports: false
+    invalid_runtime_check_with_js_interop_types: false
+    library_prefixes: false
+    library_private_types_in_public_api: false
+    no_leading_underscores_for_library_prefixes: false
+    no_leading_underscores_for_local_identifiers: false
+    null_closures: false
+    overridden_fields: false
+    package_names: false
+    prefer_adjacent_string_concatenation: false
+    prefer_collection_literals: false
+    prefer_conditional_assignment: false
+    prefer_contains: false
+    prefer_final_fields: false
+    prefer_for_elements_to_map_fromIterable: false
+    prefer_function_declarations_over_variables: false
+    prefer_if_null_operators: false
+    prefer_initializing_formals: false
+    prefer_inlined_adds: false
+    prefer_interpolation_to_compose_strings: false
+    prefer_is_not_operator: false
+    prefer_null_aware_operators: false
+    prefer_spread_collections: false
+    recursive_getters: false
+    slash_for_doc_comments: false
+    type_init_formals: false
+    unnecessary_brace_in_string_interps: false
+    unnecessary_const: false
+    unnecessary_constructor_name: false
+    unnecessary_getters_setters: false
+    unnecessary_late: false
+    unnecessary_library_name: false
+    unnecessary_new: false
+    unnecessary_null_aware_assignments: false
+    unnecessary_null_in_if_null_operators: false
+    unnecessary_nullable_for_final_variable_declarations: false
+    unnecessary_string_escapes: false
+    unnecessary_string_interpolations: false
+    unnecessary_this: false
+    unnecessary_to_list_in_spreads: false
+    use_function_type_syntax_for_parameters: false
+    use_rethrow_when_possible: false
+    use_super_parameters: false

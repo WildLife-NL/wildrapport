@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/screen_state_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 
-/// Abstract base class to manage per-screen persistent state using AppStateProvider.
 abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
     implements ScreenStateInterface {
   late AppStateProvider _provider;
@@ -26,10 +25,8 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
     super.dispose();
   }
 
-  /// Returns the default state values for this screen.
   Map<String, dynamic> getInitialState();
 
-  /// A unique identifier for the screen (used for persisting values).
   String get screenName;
 
   @override
@@ -54,15 +51,12 @@ abstract class ScreenStateManager<T extends StatefulWidget> extends State<T>
     });
   }
 
-  /// Updates a specific state key with a new value.
   @override
   void updateState(String key, dynamic value);
 
-  /// Returns the current state values for this screen.
   @override
   Map<String, dynamic> getCurrentState();
 
-  /// Calls setState safely only if the widget is still mounted.
   @override
   void safeSetState(VoidCallback fn) {
     if (mounted) {

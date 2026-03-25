@@ -1,6 +1,4 @@
-/// Simple Dutch translation utility for known UI/API phrases.
-/// Returns the original string if no mapping exists.
-class Translator {
+﻿class Translator {
   static final Map<String, String> _phraseMap = {
     // UI phrases
     'filter map icons': 'Kaarticonen filteren',
@@ -32,14 +30,12 @@ class Translator {
     'search': 'Zoeken',
   };
 
-  /// Translate a phrase to Dutch if known, otherwise return the input.
   static String toDutch(String input) {
     final normalized = input.trim().toLowerCase();
     final mapped = _phraseMap[normalized];
     return mapped ?? input;
   }
 
-  /// Translate a nullable string; returns null if input is null.
   static String? toDutchOpt(String? input) {
     if (input == null) return null;
     return toDutch(input);

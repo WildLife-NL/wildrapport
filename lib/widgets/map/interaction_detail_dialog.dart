@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/utils/translation_utils.dart';
 
-/// A detailed dialog for displaying interaction information from the map.
-/// Displays rich information about animal sightings, detections, or interactions.
 class InteractionDetailDialog extends StatelessWidget {
   final InteractionQueryResult interaction;
   final String? animalIconPath;
@@ -80,7 +78,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.darkGreen.withOpacity(0.1),
+                            color: AppColors.darkGreen.withValues(alpha:0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Image.asset(
@@ -163,10 +161,7 @@ class InteractionDetailDialog extends StatelessWidget {
                       ),
                     ],
 
-                    // TODO: Add when API provides this data
-                    // Animal details (sex, age, count)
-                    // Reporter information
-                    // Photos if available
+                    // Add when API provides: animal details (sex, age, count), reporter info, photos
                   ],
                 ),
               ),
@@ -384,7 +379,7 @@ class InteractionDetailDialog extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkGreen.withOpacity(0.1),
+                    color: AppColors.darkGreen.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

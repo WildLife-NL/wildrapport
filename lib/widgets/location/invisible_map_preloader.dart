@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
 class InvisibleMapPreloader extends StatelessWidget {
   const InvisibleMapPreloader({super.key});
@@ -17,19 +18,22 @@ class InvisibleMapPreloader extends StatelessWidget {
       child: SizedBox(
         width: 1,
         height: 1,
-        child: FlutterMap(
+        child: WildLifeNLMap(
           mapController: mapController,
           options: MapOptions(
             initialCenter: const LatLng(
               MockLocationConfig.kMockLat,
               MockLocationConfig.kMockLon,
-            ), // Center to mocked NL position
+            ),
             initialZoom: 5,
+            minZoom: 4.0,
+            maxZoom: 17.0,
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none,
             ),
           ),
-          children: const [],
+          userAgentPackageName: 'nl.wildlife.rapport',
+          extraLayers: const [],
         ),
       ),
     );

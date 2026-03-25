@@ -19,7 +19,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_list_overview_screen.dart';
 import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
@@ -36,26 +36,33 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   String? _pendingSnackBarMessage;
   Widget? _pendingNavigationScreen;
-  bool _pendingRemoveUntil = false;
 
   void _handlePendingActions() {
-    if (_pendingSnackBarMessage != null) {
-      ToastNotificationHandler.sendToastNotification(
-        context,
-        _pendingSnackBarMessage!,
-      );
-    }
-    if (_pendingNavigationScreen != null) {
-      final navManager = context.read<NavigationStateInterface>();
-      if (_pendingRemoveUntil) {
-        navManager.pushAndRemoveUntil(context, _pendingNavigationScreen!);
-      } else {
-        navManager.pushReplacementForward(context, _pendingNavigationScreen!);
-      }
-    }
-    _pendingSnackBarMessage = null;
+    final screen = _pendingNavigationScreen;
+    final message = _pendingSnackBarMessage;
     _pendingNavigationScreen = null;
-    _pendingRemoveUntil = false;
+    _pendingSnackBarMessage = null;
+
+    if (screen == null) {
+      if (mounted && message != null) {
+        ToastNotificationHandler.sendToastNotification(context, message);
+      }
+      return;
+    }
+
+    if (!mounted) return;
+
+    final rootNav = context.read<AppStateProvider>().navigatorKey.currentState ??
+        Navigator.of(context, rootNavigator: true);
+    rootNav.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => screen),
+      (route) => false,
+    );
+    debugPrint('\x1B[32m[LocationScreen] Navigeer naar scherm (vragenlijst of hoofdpagina)\x1B[0m');
+
+    if (message != null) {
+      ToastNotificationHandler.sendToastNotification(context, message);
+    }
   }
 
   Future<void> _handleNextPressed() async {
@@ -191,28 +198,50 @@ class _LocationScreenState extends State<LocationScreen> {
 
       // 8. handle backend result
       if (responseModel != null) {
-        if (responseModel.questionnaire.questions == null ||
-            responseModel.questionnaire.questions!.isEmpty) {
+        final q = responseModel.questionnaire;
+        final questionCount = q.questions?.length ?? 0;
+        debugPrint(
+          '\x1B[36m[LocationScreen] Questionnaire: id=${q.id}, name=${q.name}, questions=$questionCount\x1B[0m',
+        );
+        final rootNav = context.read<AppStateProvider>().navigatorKey.currentState;
+        final Widget targetScreen;
+        final String? toastMessage;
+        debugPrint(
+          '\x1B[35m========== WAARNEMING VERSTUURD ========== questions=$questionCount → ${questionCount > 0 ? "Vragenlijst" : "Hoofdpagina"}\x1B[0m',
+        );
+        if (questionCount == 0) {
           debugPrint(
-            '\x1B[33m[LocationScreen] No questionnaire returned, skipping questionnaire screen\x1B[0m',
+            '\x1B[33m[LocationScreen] Geen vragen → hoofdpagina\x1B[0m',
           );
-          _pendingSnackBarMessage = 'Melding succesvol verstuurd';
-          _pendingNavigationScreen = const OverzichtScreen();
-          _pendingRemoveUntil = true;
+          toastMessage = 'Melding succesvol verstuurd';
+          targetScreen = const MainNavScreen();
         } else {
           debugPrint(
-            '\x1B[34m[LocationScreen] Received valid questionnaire: ${responseModel.questionnaire.name}\x1B[0m',
+            '\x1B[34m[LocationScreen] Toon vragenlijst: ${q.name} ($questionCount vragen)\x1B[0m',
           );
-          _pendingNavigationScreen = QuestionnaireScreen(
+          toastMessage = null;
+          targetScreen = QuestionnaireScreen(
             questionnaire: responseModel.questionnaire,
             interactionID: responseModel.interactionID,
           );
-          _pendingRemoveUntil = true;
         }
 
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _handlePendingActions(),
-        );
+        if (rootNav != null) {
+          debugPrint('\x1B[32m[LocationScreen] Navigeer direct naar ${questionCount > 0 ? "vragenlijst" : "hoofdpagina"}\x1B[0m');
+          rootNav.pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => targetScreen),
+            (route) => false,
+          );
+          if (toastMessage != null && mounted) {
+            ToastNotificationHandler.sendToastNotification(context, toastMessage);
+          }
+        } else {
+          _pendingSnackBarMessage = toastMessage;
+          _pendingNavigationScreen = targetScreen;
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _handlePendingActions(),
+          );
+        }
       }
     } catch (e, stackTrace) {
       debugPrint('\x1B[31m[LocationScreen] Error: $e\x1B[0m');
@@ -234,7 +263,7 @@ class _LocationScreenState extends State<LocationScreen> {
               leftIcon: null,
               centerText: 'Locatie',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,

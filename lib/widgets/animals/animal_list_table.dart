@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -35,8 +35,6 @@ class AnimalListTableState extends State<AnimalListTable> {
     }
   }
 
-  /// Completely reset all table data: description, temporary counts,
-  /// underlying animal view counts in the active sighting.
   void clearAllData() {
     final animalSightingManager =
         context.read<AnimalSightingReportingInterface>();
@@ -80,7 +78,6 @@ class AnimalListTableState extends State<AnimalListTable> {
     setState(() {});
   }
 
-  /// Clear only the remarks (Opmerkingen) field and manager description, keep counts intact.
   void clearRemarksOnly() {
     final animalSightingManager =
         context.read<AnimalSightingReportingInterface>();

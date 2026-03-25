@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
 class LocationDisplay extends StatefulWidget {
@@ -74,7 +75,7 @@ class _LocationDisplayState extends State<LocationDisplay>
                   child: SizedBox(
                     height: responsive.sp(6),
                     child: Lottie.asset(
-                      'assets/loaders/loading_paw.json',
+                      AppIconPaths.loadingPaw,
                       fit: BoxFit.contain,
                       repeat: true,
                       animate: true,
@@ -93,7 +94,7 @@ class _LocationDisplayState extends State<LocationDisplay>
                     GestureDetector(
                       onTap: widget.onLocationIconTap,
                       child: Image.asset(
-                        'assets/location/location_icon.png',
+                        AppIconPaths.iconLocation,
                         width: responsive.sp(4),
                         height: responsive.sp(4),
                       ),

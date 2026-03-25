@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class BelongingDropdown extends StatefulWidget {
   final ValueChanged<String>? onChanged;
@@ -47,13 +48,13 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
   OverlayEntry? overlayEntry;
   final GlobalKey _buttonKey = GlobalKey();
   final List<String> gewassIconList = [
-    "assets/icons/possesion/gewassen/corn.svg",
-    "assets/icons/possesion/gewassen/radish_2.svg",
-    "assets/icons/possesion/gewassen/wheat.svg",
-    "assets/icons/possesion/gewassen/tulip_2.svg",
-    "assets/icons/possesion/gewassen/grass.svg",
-    "assets/icons/possesion/gewassen/apple.svg",
-    "assets/icons/possesion/gewassen/tomato.svg",
+    iconPossesionCorn,
+    iconPossesionRadish,
+    iconPossesionWheat,
+    iconPossesionTulip,
+    iconPossesionGrass,
+    iconPossesionApple,
+    iconPossesionTomato,
   ];
   final greenLog = '\x1B[32m';
   final redLog = '\x1B[31m';
@@ -235,7 +236,7 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha:0.3),
               ),
             ),
             // Dropdown items
