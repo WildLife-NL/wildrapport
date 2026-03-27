@@ -85,6 +85,7 @@ void main() async {
 
   // Load location tracking preference
   await appStateProvider.loadLocationTrackingPreference();
+  await appStateProvider.loadNotificationsPreference();
 
   await dotenv.load(fileName: ".env");
 

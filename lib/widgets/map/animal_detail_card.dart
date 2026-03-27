@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
-/// Displays detailed information about an animal sighting in a card format.
-/// 
-/// Shows the animal image, species name, and metadata including sighting date/time,
-/// gender, age, and observer information.
+/// Card for a map pin: species icon (wildlifenl_assets), name, datum/tijd en coördinaten.
+/// [AnimalPin] bevat geen geslacht, leeftijd of melder; die worden niet getoond.
 class AnimalDetailCard extends StatelessWidget {
   static const double _cardHeight = 200;
   static const double _imageWidth = 120;
@@ -47,7 +46,9 @@ class AnimalDetailCard extends StatelessWidget {
     final displayName = animal?.speciesName ?? 'Onbekend dier';
     final formattedDate = _formatDate(animal?.seenAt);
     final formattedTime = _formatTime(animal?.seenAt);
-    final imagePath = _getAnimalImagePath(animal?.imageUrl ?? animal?.speciesName);
+    final iconPath = animal?.speciesName != null
+        ? getAnimalIconPath(animal!.speciesName!)
+        : null;
 
     return Card(
       color: Colors.white,
@@ -57,9 +58,15 @@ class AnimalDetailCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildImageSection(imagePath),
+            _buildImageSection(iconPath),
             const SizedBox(width: _contentSpacing),
-            _buildDetailsSection(context, displayName, formattedDate, formattedTime),
+            _buildDetailsSection(
+              context,
+              displayName,
+              formattedDate,
+              formattedTime,
+              animal,
+            ),
           ],
         ),
       ),
@@ -67,43 +74,49 @@ class AnimalDetailCard extends StatelessWidget {
   }
 
   /// Builds the left section containing the animal image.
-  Widget _buildImageSection(String? imagePath) {
+  Widget _buildImageSection(String? iconPath) {
+    final radius = BorderRadius.only(
+      topLeft: Radius.circular(_imageCornerRadius),
+      bottomLeft: Radius.circular(_imageCornerRadius),
+    );
+
     return Container(
       width: _imageWidth,
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(_imageCornerRadius),
-          bottomLeft: Radius.circular(_imageCornerRadius),
-        ),
+        borderRadius: radius,
         border: Border.all(
           color: Colors.grey[400] ?? Colors.grey,
           width: 2,
         ),
       ),
-      child: imagePath != null
-          ? ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(_imageCornerRadius),
-                bottomLeft: Radius.circular(_imageCornerRadius),
-              ),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Center(
+            child: iconPath != null
+                ? Image.asset(
+                    iconPath,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    filterQuality: FilterQuality.medium,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.pets,
+                        size: 56,
+                        color: Colors.grey[500],
+                      );
+                    },
+                  )
+                : Icon(
                     Icons.pets,
-                    size: 40,
-                    color: Colors.grey[400],
-                  );
-                },
-              ),
-            )
-          : Icon(
-              Icons.pets,
-              size: 40,
-              color: Colors.grey[400],
-            ),
+                    size: 56,
+                    color: Colors.grey[500],
+                  ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -113,7 +126,12 @@ class AnimalDetailCard extends StatelessWidget {
     String displayName,
     String formattedDate,
     String formattedTime,
+    AnimalPin? pin,
   ) {
+    final locationLabel = pin != null
+        ? '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}'
+        : '—';
+
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.only(
@@ -130,22 +148,17 @@ class AnimalDetailCard extends StatelessWidget {
             const SizedBox(height: _rowSpacing),
             _buildMetadataRow(
               [
-                ('Aantal', '1'),
                 ('Datum', formattedDate),
                 ('Tijd', formattedTime),
               ],
             ),
             const SizedBox(height: _rowSpacing),
-            _buildMetadataRow(
-              [
-                ('Geslacht', 'Mannelijk'),
-                ('Leeftijd', 'Onvolwassen'),
-              ],
+            Text(
+              'Geslacht, leeftijd en melder staan niet in de kaart-data.',
+              style: _labelStyle,
             ),
             const SizedBox(height: _rowSpacing),
-            _buildInfoRow(Icons.location_on, 'Locatie onbekend'),
-            const SizedBox(height: 4),
-            _buildInfoRow(Icons.person, 'Gerapporteerd door: @milapulvirenti'),
+            _buildInfoRow(Icons.location_on, locationLabel),
           ],
         ),
       ),
@@ -197,15 +210,6 @@ class AnimalDetailCard extends StatelessWidget {
     final hour = dateTime.hour.toString().padLeft(2, '0');
     final minute = dateTime.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
-  }
-
-  /// Resolves the image path for an animal species.
-  String? _getAnimalImagePath(String? identifier) {
-    if (identifier == null) return null;
-    if (identifier.startsWith('assets/')) return identifier;
-    
-    final sanitized = identifier.toLowerCase().replaceAll(' ', '_');
-    return 'assets/animals/$sanitized.png';
   }
 
   /// Builds a detail column with title and value.

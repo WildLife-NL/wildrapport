@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/accident_report_model.dart';
@@ -30,6 +30,10 @@ class AppStateProvider with ChangeNotifier {
   // Location tracking preference
   bool _isLocationTrackingEnabled = false;
   bool get isLocationTrackingEnabled => _isLocationTrackingEnabled;
+
+  /// Push-/vicinity-meldingen (los van locatie delen).
+  bool _notificationsEnabled = true;
+  bool get notificationsEnabled => _notificationsEnabled;
 
   ReportType? get currentReportType => _currentReportType;
   Position? get cachedPosition => _cachedPosition;
@@ -227,6 +231,38 @@ class AppStateProvider with ChangeNotifier {
     } catch (e) {
       debugPrint(
         '[AppStateProvider] Failed to save location tracking preference: $e',
+      );
+    }
+  }
+
+  Future<void> loadNotificationsPreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+      debugPrint(
+        '[AppStateProvider] Loaded notifications preference: $_notificationsEnabled',
+      );
+      notifyListeners();
+    } catch (e) {
+      debugPrint(
+        '[AppStateProvider] Failed to load notifications preference: $e',
+      );
+      _notificationsEnabled = true;
+    }
+  }
+
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('notifications_enabled', enabled);
+      _notificationsEnabled = enabled;
+      debugPrint(
+        '[AppStateProvider] Notifications ${enabled ? "enabled" : "disabled"}',
+      );
+      notifyListeners();
+    } catch (e) {
+      debugPrint(
+        '[AppStateProvider] Failed to save notifications preference: $e',
       );
     }
   }

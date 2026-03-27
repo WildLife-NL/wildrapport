@@ -28,4 +28,28 @@ void main() {
       expect(provider.isLocationTrackingEnabled, isFalse);
     });
   });
+
+  group('AppStateProvider notifications preference', () {
+    test('loads saved notifications preference', () async {
+      SharedPreferences.setMockInitialValues({
+        'notifications_enabled': false,
+      });
+
+      final provider = AppStateProvider();
+      await provider.loadNotificationsPreference();
+
+      expect(provider.notificationsEnabled, isFalse);
+    });
+
+    test('setNotificationsEnabled persists and updates flag', () async {
+      SharedPreferences.setMockInitialValues({});
+      final provider = AppStateProvider();
+
+      await provider.setNotificationsEnabled(false);
+      expect(provider.notificationsEnabled, isFalse);
+
+      await provider.setNotificationsEnabled(true);
+      expect(provider.notificationsEnabled, isTrue);
+    });
+  });
 }
