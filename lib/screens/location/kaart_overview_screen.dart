@@ -22,7 +22,6 @@ import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
-import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
@@ -357,17 +356,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   Future<void> _centerOnMyLocation() async {
     final mp = context.read<MapProvider>();
-    final appStateProvider = context.read<AppStateProvider>();
     debugPrint('[Map] centreer op locatie');
-
-    if (!appStateProvider.isLocationTrackingEnabled) {
-      if (!mounted) return;
-      final enable = await showLocationSharingOffDialog(context);
-      if (!mounted) return;
-      if (enable != true) return;
-      await appStateProvider.setLocationTrackingEnabled(true);
-      if (!mounted) return;
-    }
 
     _followUser = true;
 
@@ -419,6 +408,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
       await mp.resetToCurrentLocation(fresh, address);
 
+      final appStateProvider = context.read<AppStateProvider>();
       if (appStateProvider.isLocationTrackingEnabled) {
         await mp.sendTrackingPingFromPosition(fresh);
       }
@@ -444,11 +434,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     _posSub = stream.listen((pos) async {
       if (!mounted) return;
-      final appStateProvider = context.read<AppStateProvider>();
-      if (!appStateProvider.isLocationTrackingEnabled) {
-        _hasLiveLocation = false;
-        return;
-      }
       _hasLiveLocation = true;
 
       // accuracy can be null on some platforms
@@ -483,7 +468,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
       // Keep center on user when following and tracking is enabled; throttle camera moves for smooth follow
       if (_followUser &&
-          appStateProvider.isLocationTrackingEnabled &&
           _mp.isInitialized) {
         final now = DateTime.now();
         final allowed = _lastFollowMoveAt == null ||
@@ -577,39 +561,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     await map.initialize();
 
-    if (!app.isLocationTrackingEnabled) {
-      _hasLiveLocation = false;
-      map.clearUserLocationAndStopTracking();
-      map.setMockVicinity();
-      final fallback = Position(
-        latitude: _netherlandsCenter.latitude,
-        longitude: _netherlandsCenter.longitude,
-        timestamp: DateTime.now(),
-        accuracy: 100,
-        altitude: 0,
-        heading: 0,
-        speed: 0,
-        speedAccuracy: 0,
-        altitudeAccuracy: 0.0,
-        headingAccuracy: 0.0,
-      );
-      _pendingCenter = LatLng(fallback.latitude, fallback.longitude);
-      _pendingZoom = _netherlandsOverviewZoom;
-      _applyPendingCamera();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_mp.isInitialized) return;
-        try {
-          _mp.mapController.move(
-            _netherlandsCenter,
-            _netherlandsOverviewZoom,
-          );
-          _nudgeMapToTriggerTiles();
-        } catch (_) {}
-      });
-      _queueFetch();
-      return;
-    }
-
     final permissionManager = context.read<PermissionInterface>();
 
     bool hasLocationPermission = false;
@@ -628,7 +579,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (!mounted) return;
 
     Position? pos;
-    if (hasLocationPermission && app.isLocationTrackingEnabled) {
+    if (hasLocationPermission) {
       pos = app.isLocationCacheValid ? app.cachedPosition : null;
       pos ??= await mgr.determinePosition();
     }
@@ -636,7 +587,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     // Log what we got
     debugPrint('[Loc] raw=${pos?.latitude},${pos?.longitude}');
 
-    final bool useUserLocation = app.isLocationTrackingEnabled && pos != null;
+    final bool useUserLocation = hasLocationPermission && pos != null;
 
     if (pos == null ||
         !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
@@ -661,6 +612,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (useUserLocation) {
       _hasLiveLocation = true;
       await map.resetToCurrentLocation(pos, 'Locatie gevonden');
+    } else {
+      _hasLiveLocation = false;
     }
 
     _pendingCenter = LatLng(pos.latitude, pos.longitude);
@@ -685,9 +638,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       );
       map.startTracking(interval: MapProvider.defaultTrackingInterval);
     } else {
-      debugPrint('[Kaart/Bootstrap] ⚠️ Location tracking is disabled by user');
-      // Location tracking is optional, so we don't show a dialog
-      // User can enable it later from profile settings if desired
+      debugPrint('[Kaart/Bootstrap] Location sharing disabled; local location use stays enabled');
+      map.stopTracking();
     }
 
     // 5) Move camera & load data after first frame so the map is mounted
@@ -697,7 +649,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         _pendingZoom = useUserLocation ? _initialZoom : _netherlandsOverviewZoom;
         _applyPendingCamera();
 
-        if (!useUserLocation) {
+        if (!appStateProvider.isLocationTrackingEnabled) {
           map.setMockVicinity();
           return;
         }
@@ -1736,11 +1688,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 ),
 
                             // ── CURRENT POSITION ─────────────────────────────────────────────────────
-                            // Only show user location pin if tracking is enabled
-                            if (context
-                                    .watch<AppStateProvider>()
-                                    .isLocationTrackingEnabled &&
-                                _hasLiveLocation)
+                            // Show user location pin when local location is available
+                            if (_hasLiveLocation)
                               Builder(
                                 builder: (context) {
                                   return fm.MarkerLayer(
