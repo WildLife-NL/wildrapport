@@ -73,6 +73,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   static const double _initialZoom =
       15.0; // Zoom level for "Center on me" button
   static const double _netherlandsOverviewZoom = 7.0;
+  static const LatLng _netherlandsCenter = LatLng(52.1326, 5.2913);
   bool _followUser = true;
   bool _hasLiveLocation = false;
   DateTime? _lastFollowMoveAt;
@@ -123,19 +124,29 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _mapOptions = fm.MapOptions(
         initialCenter: LatLng(
           _mp.currentPosition?.latitude ??
-              LocationMapManager.denBoschCenter.latitude,
+              _netherlandsCenter.latitude,
           _mp.currentPosition?.longitude ??
-              LocationMapManager.denBoschCenter.longitude,
+              _netherlandsCenter.longitude,
         ),
-        initialZoom: trackingEnabled ? _initialZoom : _netherlandsOverviewZoom,
+        initialZoom:
+            (trackingEnabled && _mp.currentPosition != null)
+                ? _initialZoom
+                : _netherlandsOverviewZoom,
         minZoom: 4.0,
         maxZoom: 17.0,
         onMapReady: () {
           debugPrint('[Map] ready');
           _mapReady = true;
-          if (!trackingEnabled) {
-            _pendingCenter = LocationMapManager.denBoschCenter;
-            _pendingZoom = _netherlandsOverviewZoom;
+          final app = context.read<AppStateProvider>();
+          if (_pendingCenter == null || _pendingZoom == null) {
+            final p = _mp.currentPosition ?? _mp.selectedPosition;
+            if (app.isLocationTrackingEnabled && p != null) {
+              _pendingCenter = LatLng(p.latitude, p.longitude);
+              _pendingZoom = _initialZoom;
+            } else {
+              _pendingCenter = _netherlandsCenter;
+              _pendingZoom = _netherlandsOverviewZoom;
+            }
           }
           _applyPendingCamera();
           _updateScaleBar();
@@ -571,8 +582,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       map.clearUserLocationAndStopTracking();
       map.setMockVicinity();
       final fallback = Position(
-        latitude: LocationMapManager.denBoschCenter.latitude,
-        longitude: LocationMapManager.denBoschCenter.longitude,
+        latitude: _netherlandsCenter.latitude,
+        longitude: _netherlandsCenter.longitude,
         timestamp: DateTime.now(),
         accuracy: 100,
         altitude: 0,
@@ -589,7 +600,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         if (!mounted || !_mp.isInitialized) return;
         try {
           _mp.mapController.move(
-            LocationMapManager.denBoschCenter,
+            _netherlandsCenter,
             _netherlandsOverviewZoom,
           );
           _nudgeMapToTriggerTiles();
@@ -630,8 +641,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (pos == null ||
         !mgr.isLocationInNetherlands(pos.latitude, pos.longitude)) {
       pos = Position(
-        latitude: LocationMapManager.denBoschCenter.latitude,
-        longitude: LocationMapManager.denBoschCenter.longitude,
+        latitude: _netherlandsCenter.latitude,
+        longitude: _netherlandsCenter.longitude,
         timestamp: DateTime.now(),
         accuracy: 100,
         altitude: 0,
@@ -685,6 +696,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         _pendingCenter = LatLng(pos!.latitude, pos.longitude);
         _pendingZoom = useUserLocation ? _initialZoom : _netherlandsOverviewZoom;
         _applyPendingCamera();
+
+        if (!useUserLocation) {
+          map.setMockVicinity();
+          return;
+        }
 
         debugPrint('[Bootstrap] Loading data from vicinity endpoint');
         try {
