@@ -17,7 +17,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 class SpeciesGridPickerScreen extends StatefulWidget {
   const SpeciesGridPickerScreen({
     super.key,
-    this.title = 'Kies een diersoort',
+    this.title = 'Selecteer diersoort',
   });
 
   final String title;
