@@ -78,20 +78,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   DateTime? _lastFollowMoveAt;
   static const _followMoveThrottleMs = 600;
 
-  // Filter state (default: show only last hour; enable others via filter)
-  bool _showAnimals = true;
-  bool _showDetections = true;
-  bool _showInteractions = true;
-  bool _showAnimalsNew = true; // < 24h
-  bool _showAnimalsMedium = false; // 24h - 1 week
-  bool _showAnimalsOld = false; // > 1 week
-  bool _showDetectionsNew = true;
-  bool _showDetectionsMedium = false;
-  bool _showDetectionsOld = false;
-  bool _showInteractionsNew = true;
-  bool _showInteractionsMedium = false;
-  bool _showInteractionsOld = false;
-
   // Tracking history state
   bool _showTrackingHistory = false;
   List<TrackingReadingResponse> _trackingHistory = [];
@@ -271,7 +257,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
-  /// Verticale kaartknoppen (filter → tracking → mijn locatie), zoals in het ontwerp.
+  /// Verticale kaartknoppen (tracking → mijn locatie).
   Widget _mapVerticalControlPill() {
     const bg = Color(0xFF2E2E2E);
     const dividerColor = Color(0x33FFFFFF);
@@ -292,17 +278,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: size,
-              height: size,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                tooltip: 'Filter',
-                onPressed: () => _showFilterDialog(context),
-                icon: const Icon(Icons.filter_list, color: Colors.white, size: 24),
-              ),
-            ),
-            const Divider(height: 1, thickness: 1, color: dividerColor),
             SizedBox(
               width: size,
               height: size,
@@ -956,30 +931,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     return DateTime.now().difference(timestamp) < const Duration(days: 31);
   }
 
-  bool _shouldShowPin(
-    DateTime timestamp,
-    bool showType,
-    bool showNew,
-    bool showMedium,
-    bool showOld,
-  ) {
-    if (!showType) {
-      debugPrint('[Filter] Type hidden: showType=$showType');
-      return false;
-    }
-
-    final now = DateTime.now();
-    final age = now.difference(timestamp);
-
-    if (age < const Duration(hours: 24)) {
-      return showNew;
-    } else if (age < const Duration(days: 7)) {
-      return showMedium;
-    } else {
-      return showOld;
-    }
-  }
-
   void _updateScaleBar() {
     if (!_mp.isInitialized) return;
 
@@ -1074,320 +1025,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     }
   }
 
-  void _showFilterDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder: (context, setDialogState) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 400,
-                    maxHeight: 600,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: const BoxDecoration(
-                          color: AppColors.darkGreen,
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(16),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.filter_list, color: Colors.white),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final screenWidth =
-                                      MediaQuery.of(context).size.width;
-                                  double fontSize = 20;
-                                  double iconSize = 24;
-                                  if (screenWidth < 350) {
-                                    fontSize = 16;
-                                    iconSize = 18;
-                                  } else if (screenWidth < 420) {
-                                    fontSize = 14;
-                                    iconSize = 14;
-                                  }
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Kaarticonen filteren',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: fontSize,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: iconSize,
-                                        ),
-                                        tooltip: 'Toepassen',
-                                        onPressed: () => Navigator.pop(context),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Scrollable content with Scrollbar
-                      Flexible(
-                        child: Scrollbar(
-                          thumbVisibility: true,
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Animals section
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.pets,
-                                        size: 20,
-                                        color: AppColors.darkGreen,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Dieren',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.darkGreen,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _buildFilterCheckbox(
-                                  'Nieuw (< 24 uur)',
-                                  _showAnimalsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsNew = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.fiber_new,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Recent (24u - 1 week)',
-                                  _showAnimalsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsMedium = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.access_time,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Oud (> 1 week)',
-                                  _showAnimalsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showAnimalsOld = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.history,
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                // Detections section
-                                const Padding(
-                                  padding: EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.sensors,
-                                        size: 20,
-                                        color: AppColors.darkGreen,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Detecties',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.darkGreen,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _buildFilterCheckbox(
-                                  'Nieuw (< 24 uur)',
-                                  _showDetectionsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsNew = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.fiber_new,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Recent (24u - 1 week)',
-                                  _showDetectionsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsMedium = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.access_time,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Oud (> 1 week)',
-                                  _showDetectionsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showDetectionsOld = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.history,
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                // Interactions section
-                                const Padding(
-                                  padding: EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.place,
-                                        size: 20,
-                                        color: AppColors.darkGreen,
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Interacties',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.darkGreen,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _buildFilterCheckbox(
-                                  'Nieuw (< 24 uur)',
-                                  _showInteractionsNew,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsNew = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.fiber_new,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Recent (24u - 1 week)',
-                                  _showInteractionsMedium,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsMedium = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.access_time,
-                                ),
-                                _buildFilterCheckbox(
-                                  'Oud (> 1 week)',
-                                  _showInteractionsOld,
-                                  (v) => setDialogState(
-                                    () => setState(
-                                      () => _showInteractionsOld = v ?? true,
-                                    ),
-                                  ),
-                                  Icons.history,
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                // Centered Reset button only
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          setDialogState(() {
-                                            setState(() {
-                                              _showAnimals = true;
-                                              _showDetections = true;
-                                              _showInteractions = true;
-                                              _showAnimalsNew = true;
-                                              _showAnimalsMedium = true;
-                                              _showAnimalsOld = true;
-                                              _showDetectionsNew = true;
-                                              _showDetectionsMedium = true;
-                                              _showDetectionsOld = true;
-                                              _showInteractionsNew = true;
-                                              _showInteractionsMedium = true;
-                                              _showInteractionsOld = true;
-                                            });
-                                          });
-                                        },
-                                        child: const Text('Alles resetten'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-    );
-  }
-
-  Widget _buildFilterCheckbox(
-    String label,
-    bool value,
-    Function(bool?) onChanged,
-    IconData icon,
-  ) {
-    return CheckboxListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-      title: Row(
-        children: [
-          Icon(icon, size: 18, color: AppColors.darkGreen),
-          const SizedBox(width: 8),
-          Expanded(child: Text(label)),
-        ],
-      ),
-      value: value,
-      onChanged: onChanged,
-      activeColor: AppColors.darkGreen,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final map = context.watch<MapProvider>();
@@ -1437,15 +1074,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               (pin) =>
                                                   _within31Days(pin.seenAt),
                                             )
-                                            .where(
-                                              (pin) => _shouldShowPin(
-                                                pin.seenAt,
-                                                _showAnimals,
-                                                _showAnimalsNew,
-                                                _showAnimalsMedium,
-                                                _showAnimalsOld,
-                                              ),
-                                            )
                                             .map((pin) {
                                               final mapRotation =
                                                   map
@@ -1468,7 +1096,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 ),
                                               );
                                             })
-                                            .toList()
                                             .toList(),
                                     maxClusterRadius: 60,
                                     disableClusteringAtZoom: 99,
@@ -1494,15 +1121,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                       map.animalPins
                                           .where(
                                             (pin) => _within31Days(pin.seenAt),
-                                          )
-                                          .where(
-                                            (pin) => _shouldShowPin(
-                                              pin.seenAt,
-                                              _showAnimals,
-                                              _showAnimalsNew,
-                                              _showAnimalsMedium,
-                                              _showAnimalsOld,
-                                            ),
                                           )
                                           .map((pin) {
                                             final mapRotation =
@@ -1539,15 +1157,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                             .where(
                                               (pin) =>
                                                   _within31Days(pin.detectedAt),
-                                            )
-                                            .where(
-                                              (pin) => _shouldShowPin(
-                                                pin.detectedAt,
-                                                _showDetections,
-                                                _showDetectionsNew,
-                                                _showDetectionsMedium,
-                                                _showDetectionsOld,
-                                              ),
                                             )
                                             .map((pin) {
                                               final style =
@@ -1625,15 +1234,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                           .where(
                                             (pin) =>
                                                 _within31Days(pin.detectedAt),
-                                          )
-                                          .where(
-                                            (pin) => _shouldShowPin(
-                                              pin.detectedAt,
-                                              _showDetections,
-                                              _showDetectionsNew,
-                                              _showDetectionsMedium,
-                                              _showDetectionsOld,
-                                            ),
                                           )
                                           .map((pin) {
                                             final style =
@@ -1778,15 +1378,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                               (itx) =>
                                                   _within31Days(itx.moment),
                                             )
-                                            .where(
-                                              (itx) => _shouldShowPin(
-                                                itx.moment,
-                                                _showInteractions,
-                                                _showInteractionsNew,
-                                                _showInteractionsMedium,
-                                                _showInteractionsOld,
-                                              ),
-                                            )
                                             .map((itx) {
                                               final mapRotation =
                                                   map
@@ -1892,15 +1483,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 : fm.MarkerLayer(
                                   markers: map.interactions
                                       .where((itx) => _within31Days(itx.moment))
-                                      .where(
-                                        (itx) => _shouldShowPin(
-                                          itx.moment,
-                                          _showInteractions,
-                                          _showInteractionsNew,
-                                          _showInteractionsMedium,
-                                          _showInteractionsOld,
-                                        ),
-                                      )
                                       .map((itx) {
                                         final mapRotation =
                                             map.mapController.camera.rotation;
@@ -2015,7 +1597,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                           ),
                         ),
 
-                        // ── Verticale kaartknoppen (filter / tracking / locatie) ───────────────────
+                        // ── Verticale kaartknoppen (tracking / locatie) ───────────────────
                         if (_selectedAnimal == null)
                           Positioned(
                             top: MediaQuery.paddingOf(context).top + 8,
