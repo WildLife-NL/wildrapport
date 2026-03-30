@@ -22,8 +22,8 @@ import 'dart:math' as math;
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
+import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class _IconStyle {
   final Color color;
@@ -1410,10 +1410,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               itx.moment,
                                                             );
                                                         final Color interactionColor = Colors.black;
-                                                        return getAnimalIconPath(
-                                                                  itx.speciesName,
-                                                                ) !=
-                                                                null
+                                                        final iconPath = getSpeciesIconPath(
+                                                          itx.speciesName,
+                                                        );
+                                                        return iconPath != null
                                                             ? SizedBox(
                                                               width: style.size,
                                                               height:
@@ -1426,9 +1426,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                                           .srcIn,
                                                                     ),
                                                                 child: Image.asset(
-                                                                  getAnimalIconPath(
-                                                                    itx.speciesName,
-                                                                  )!,
+                                                                  iconPath,
                                                                   width:
                                                                       style
                                                                           .size,
@@ -1505,7 +1503,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   final style =
                                                       _iconStyleForTimestamp(itx.moment);
                                                   final Color interactionColor = Colors.black;
-                                                  return getAnimalIconPath(itx.speciesName) != null
+                                                  final iconPath = getSpeciesIconPath(
+                                                    itx.speciesName,
+                                                  );
+                                                  return iconPath != null
                                                       ? SizedBox(
                                                           width: style.size,
                                                           height: style.size,
@@ -1515,7 +1516,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                               BlendMode.srcIn,
                                                             ),
                                                             child: Image.asset(
-                                                              getAnimalIconPath(itx.speciesName)!,
+                                                              iconPath,
                                                               width: style.size,
                                                               height: style.size,
                                                               fit: BoxFit.contain,
@@ -1671,7 +1672,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   }) {
     final style = _iconStyleForTimestamp(pin.seenAt);
     final iconSize = style.size.clamp(22.0, 30.0);
-    final path = getAnimalIconPath(pin.speciesName);
+    final path = getSpeciesIconPath(pin.speciesName);
 
     final Widget iconChild =
         path != null

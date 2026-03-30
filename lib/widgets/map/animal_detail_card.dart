@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
+import 'package:wildrapport/utils/species_icon_utils.dart';
 
-/// Card for a map pin: species icon (wildlifenl_assets), name, datum/tijd en coördinaten.
-/// [AnimalPin] bevat geen geslacht, leeftijd of melder; die worden niet getoond.
 class AnimalDetailCard extends StatelessWidget {
   static const double _cardHeight = 200;
   static const double _imageWidth = 120;
@@ -47,7 +45,7 @@ class AnimalDetailCard extends StatelessWidget {
     final formattedDate = _formatDate(animal?.seenAt);
     final formattedTime = _formatTime(animal?.seenAt);
     final iconPath = animal?.speciesName != null
-        ? getAnimalIconPath(animal!.speciesName!)
+        ? getSpeciesIconPath(animal!.speciesName!)
         : null;
 
     return Card(
@@ -73,7 +71,6 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  /// Builds the left section containing the animal image.
   Widget _buildImageSection(String? iconPath) {
     final radius = BorderRadius.only(
       topLeft: Radius.circular(_imageCornerRadius),
@@ -120,7 +117,6 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  /// Builds the right section containing animal details and metadata.
   Widget _buildDetailsSection(
     BuildContext context,
     String displayName,
@@ -165,7 +161,6 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  /// Builds a row of metadata columns with title-value pairs.
   Widget _buildMetadataRow(List<(String, String)> items) {
     return Row(
       children: [
@@ -179,7 +174,6 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  /// Builds an info row with an icon and text.
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
@@ -196,7 +190,6 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  /// Formats a DateTime to short date format (YY-MM-DD).
   String _formatDate(DateTime? dateTime) {
     if (dateTime == null) return '--';
     final dateStr = dateTime.toString().split(' ')[0];
@@ -204,7 +197,6 @@ class AnimalDetailCard extends StatelessWidget {
     return '${dateStr.substring(2, 4)}-${dateStr.substring(5, 7)}-${dateStr.substring(8, 10)}';
   }
 
-  /// Formats a DateTime to time format (HH:MM).
   String _formatTime(DateTime? dateTime) {
     if (dateTime == null) return '--';
     final hour = dateTime.hour.toString().padLeft(2, '0');
@@ -212,7 +204,6 @@ class AnimalDetailCard extends StatelessWidget {
     return '$hour:$minute';
   }
 
-  /// Builds a detail column with title and value.
   Widget _buildDetailColumn(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

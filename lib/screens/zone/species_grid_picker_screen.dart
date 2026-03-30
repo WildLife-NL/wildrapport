@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
@@ -8,6 +7,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/api_models/species.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
@@ -28,7 +28,7 @@ class SpeciesGridPickerScreen extends StatefulWidget {
 }
 
 AnimalModel _animalModelFromSpecies(Species s) {
-  final path = getAnimalIconPath(s.commonName);
+  final path = getSpeciesIconPath(s.commonName);
   return AnimalModel(
     animalId: s.id,
     animalImagePath: path,
