@@ -86,7 +86,7 @@ class CustomNavBar extends StatelessWidget {
                     _buildNavItem(
                       tab: NavTab.profile,
                       icon: Icons.person,
-                      label: 'Profile',
+                      label: 'Profiel',
                     ),
                   ],
                 ),

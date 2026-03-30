@@ -17,6 +17,19 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
+String _genderLabelNl(String? apiValue) {
+  switch (apiValue?.toLowerCase()) {
+    case 'male':
+      return 'man';
+    case 'female':
+      return 'vrouw';
+    case 'other':
+      return 'anders';
+    default:
+      return apiValue ?? '';
+  }
+}
+
 class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _postcodeController;
@@ -25,6 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedGender;
   bool _isLoading = false;
 
+  /// API-waarden (Engels); we tonen Nederlandse labels.
   final List<String> _genderOptions = ['female', 'male', 'other'];
 
   @override
@@ -440,7 +454,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(
-              value.toUpperCase(),
+              _genderLabelNl(value),
               style: TextStyle(
                 color: AppColors.black,
                 fontSize: responsive.fontSize(14),
