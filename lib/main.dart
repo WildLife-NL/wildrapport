@@ -61,6 +61,7 @@ import 'package:wildrapport/data_managers/conveyance_api.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
+import 'package:wildrapport/utils/access_scope_utils.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
@@ -173,8 +174,15 @@ void main() async {
 
     final bool hasValidToken = await authenticator.hasValidToken();
     final bool hasAccess = await authenticator.hasAccess();
+    bool hasScopeAccess = false;
+    if (hasValidToken && hasAccess) {
+      final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(apiClient);
+      hasScopeAccess = scopeAccess.checked ? scopeAccess.hasRequiredScope : hasAccess;
+    }
     final Widget initialScreen = hasValidToken
-      ? (hasAccess ? const MainNavScreen() : const AccessDeniedScreen())
+      ? ((hasAccess && hasScopeAccess)
+          ? const MainNavScreen()
+          : const AccessDeniedScreen())
       : const LoginScreen();
 
   runApp(
