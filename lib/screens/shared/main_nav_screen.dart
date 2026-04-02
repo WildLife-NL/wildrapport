@@ -25,6 +25,7 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
+  bool _hasUserInteracted = false;
   
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   void _onTabSelected(NavTab tab) {
+    _hasUserInteracted = true;
     setState(() => _currentTab = tab);
     if (tab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
   }
@@ -87,11 +89,14 @@ class _MainNavScreenState extends State<MainNavScreen> {
         index: _currentIndex,
         children: [
           ZonesScreen(onBackPressed: _onBackFromTab),
-          Rapporteren(onBackPressed: _onBackFromTab),
+          Rapporteren(
+            key: _currentTab == NavTab.rapporten ? null : ValueKey(_currentTab),
+            onBackPressed: _onBackFromTab,
+          ),
           KaartOverviewScreen(onBackPressed: _onBackFromTab),
           LogbookScreen(
             onBackPressed: _onBackFromTab,
-            openRecentSightings: widget.openRecentSightingsDirectly,
+            openRecentSightings: widget.openRecentSightingsDirectly && _currentTab == NavTab.logboek,
           ),
           ProfileScreen(onBackPressed: _onBackFromTab),
         ],

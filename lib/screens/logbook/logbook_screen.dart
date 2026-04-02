@@ -7,11 +7,18 @@ import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
 import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 
-class LogbookScreen extends StatelessWidget {
+class LogbookScreen extends StatefulWidget {
   const LogbookScreen({super.key, this.onBackPressed, this.openRecentSightings = false});
 
   final VoidCallback? onBackPressed;
   final bool openRecentSightings;
+
+  @override
+  State<LogbookScreen> createState() => _LogbookScreenState();
+}
+
+class _LogbookScreenState extends State<LogbookScreen> {
+  bool _hasNavigated = false;
 
   void _openAllInteractions(BuildContext context) {
     Navigator.push(
@@ -43,12 +50,15 @@ class LogbookScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // If openRecentSightings is true, navigate to RecentSightingsScreen after build
-    if (openRecentSightings) {
+    // If openRecentSightings is true and we haven't navigated yet, navigate to RecentSightingsScreen
+    if (widget.openRecentSightings && !_hasNavigated) {
+      _hasNavigated = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
-        );
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+          );
+        }
       });
     }
 
