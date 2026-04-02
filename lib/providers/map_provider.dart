@@ -47,6 +47,7 @@ class MapProvider extends ChangeNotifier {
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
   Position? _lastSentTrackingPosition;
   static const double _minTrackingMovementMeters = 1.0;
+  DateTime Function() _nowProvider = DateTime.now;
 
   MapController get mapController {
     if (_mapController == null) {
@@ -70,10 +71,15 @@ class MapProvider extends ChangeNotifier {
     _appStateProvider = appStateProvider;
   }
 
+  // Test hook for deterministic time-based behavior.
+  void setNowProvider(DateTime Function() nowProvider) {
+    _nowProvider = nowProvider;
+  }
+
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
-    final now = DateTime.now();
+    final now = _nowProvider();
     if (_isNightlyAutoDisableWindow(now)) {
       debugPrint(
         '[MapProvider] 🌙 Tracking blocked between 00:00-01:00; disabling location sharing',
@@ -227,10 +233,6 @@ class MapProvider extends ChangeNotifier {
   final List<InteractionQueryResult> _interactions = [];
   bool _interactionsLoading = false;
   String? _interactionsError;
-  Set<String> _prevInteractionIds = {};
-  Set<String> _prevAnimalIds = {};
-  Set<String> _prevDetectionIds = {};
-  bool _vicinityNotificationsEnabled = true;
 
   List<InteractionQueryResult> get interactions =>
       List.unmodifiable(_interactions);
@@ -242,7 +244,8 @@ class MapProvider extends ChangeNotifier {
       _animalPins.length + _detectionPins.length + _interactions.length;
 
   void setVicinityNotificationsEnabled(bool enabled) {
-    _vicinityNotificationsEnabled = enabled;
+    // Vicinity data is map-only context; it should never create phone notifications.
+    // Keep this method for backwards compatibility with existing UI wiring.
   }
 
   // ===== Lifecycle / base map helpers =====
@@ -390,96 +393,6 @@ class MapProvider extends ChangeNotifier {
       );
 
       notifyListeners();
-
-      // Notify on newly seen animals to surface phone notifications
-      try {
-        final currentAnimalIds = _animalPins.map((a) => a.id).toSet();
-        final newAnimalIds = currentAnimalIds.difference(_prevAnimalIds);
-        if (_vicinityNotificationsEnabled && newAnimalIds.isNotEmpty) {
-          final count = newAnimalIds.length;
-          final sample = _animalPins.firstWhere(
-            (a) => newAnimalIds.contains(a.id),
-            orElse: () => _animalPins.isNotEmpty
-                ? _animalPins.first
-                : AnimalPin(
-                    id: 'sample',
-                    lat: 0,
-                    lon: 0,
-                    seenAt: DateTime.now().toUtc(),
-                  ),
-          );
-          final species = sample.speciesName ?? 'Dier';
-          final title = count == 1
-              ? 'Nieuw dier in de buurt'
-              : '$count nieuwe dieren in de buurt';
-          final body = count == 1 ? species : 'Bijv. $species en meer';
-          NotificationService.instance.show(title: title, body: body);
-        }
-        _prevAnimalIds = currentAnimalIds;
-      } catch (e) {
-        debugPrint('[MapProvider] Animal notification skipped: $e');
-      }
-
-      // Notify on newly seen detections to surface phone notifications
-      try {
-        final currentDetIds = _detectionPins.map((d) => d.id).toSet();
-        final newDetIds = currentDetIds.difference(_prevDetectionIds);
-        if (_vicinityNotificationsEnabled && newDetIds.isNotEmpty) {
-          final count = newDetIds.length;
-          final sample = _detectionPins.firstWhere(
-            (d) => newDetIds.contains(d.id),
-            orElse: () => _detectionPins.isNotEmpty
-                ? _detectionPins.first
-                : DetectionPin(
-                    id: 'sample',
-                    lat: 0,
-                    lon: 0,
-                    detectedAt: DateTime.now().toUtc(),
-                  ),
-          );
-          final label = sample.label ?? sample.deviceType ?? 'Detectie';
-          final title = count == 1
-              ? 'Nieuwe detectie in de buurt'
-              : '$count nieuwe detecties in de buurt';
-          final body = count == 1 ? label : 'Bijv. $label en meer';
-          NotificationService.instance.show(title: title, body: body);
-        }
-        _prevDetectionIds = currentDetIds;
-      } catch (e) {
-        debugPrint('[MapProvider] Detection notification skipped: $e');
-      }
-
-      // Notify on newly seen interactions to surface phone notifications
-      try {
-        final currentIds = _interactions.map((i) => i.id).toSet();
-        final newIds = currentIds.difference(_prevInteractionIds);
-        if (_vicinityNotificationsEnabled && newIds.isNotEmpty) {
-          final count = newIds.length;
-          // Build a concise message
-          final sample = _interactions.firstWhere(
-            (i) => newIds.contains(i.id),
-            orElse: () => _interactions.isNotEmpty
-                ? _interactions.first
-                : InteractionQueryResult(
-                    id: 'sample',
-                    lat: 0,
-                    lon: 0,
-                    moment: DateTime.now().toUtc(),
-                  ),
-          );
-          final species = sample.speciesName ?? 'Dier';
-          final title = count == 1
-              ? 'Nieuwe interactie in de buurt'
-              : '$count nieuwe interacties in de buurt';
-          final body = count == 1
-              ? 'Interactie gezien: $species'
-              : 'Bijv. $species en meer';
-          NotificationService.instance.show(title: title, body: body);
-        }
-        _prevInteractionIds = currentIds;
-      } catch (e) {
-        debugPrint('[MapProvider] Interaction notification skipped: $e');
-      }
     } catch (e) {
       debugPrint('[MapProvider] ❌ Vicinity load failed: $e');
       _animalPinsError = e.toString();

@@ -55,11 +55,11 @@ class TrackingApi implements TrackingApiInterface {
       throw Exception('[TrackingApi] Failed (${res.statusCode}): ${res.body}');
     }
 
-    // Try to extract an optional message from the response
+    // Only notify when backend returns a conveyance message.
     try {
       final Map<String, dynamic> decoded = jsonDecode(res.body);
 
-      // Preferred shape: conveyance.message.text (+ optional severity)
+      // Supported shape: { conveyance: { message: { text, severity? } } }
       final conv = decoded['conveyance'];
       final msgObj = conv?['message'];
 
@@ -73,24 +73,6 @@ class TrackingApi implements TrackingApiInterface {
         debugPrint('[TrackingApi] Message received: "$msgText1"');
         return TrackingNotice(msgText1, severity: sev1);
       }
-
-      // Fallbacks: { "message": "..." } or { "message": { "text": "..." } }
-      final message = decoded['message'];
-      if (message is String && message.isNotEmpty) {
-        debugPrint('[TrackingApi] Message received: "$message"');
-        return TrackingNotice(message);
-      }
-      if (message is Map && (message['text']?.toString().isNotEmpty ?? false)) {
-        final sev2 =
-            message['severity'] is num
-                ? (message['severity'] as num).toInt()
-                : null;
-        debugPrint('[TrackingApi] Message received: "${message['text']}"');
-        return TrackingNotice(message['text'].toString(), severity: sev2);
-      }
-
-      // Only log when messages are expected but missing
-      // debugPrint('[TrackingApi] No message found in response');
     } catch (e) {
       debugPrint('[TrackingApi] Error parsing message: $e');
       // Non-JSON or unexpected shape → no notice

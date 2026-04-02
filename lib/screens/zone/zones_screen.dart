@@ -63,7 +63,7 @@ class ZonesScreen extends StatelessWidget {
                     SizedBox(height: buttonSpacing(context)),
                     _MenuButton(
                       icon: Icons.pets,
-                      label: 'Dier toevoegen aan zone',
+                      label: 'Alarm instellen voor diersoort',
                       onPressed: () {
                         nav.pushForward(context, const AddSpeciesToZoneScreen());
                       },
@@ -71,7 +71,7 @@ class ZonesScreen extends StatelessWidget {
                     SizedBox(height: buttonSpacing(context)),
                     _MenuButton(
                       icon: Icons.remove_circle_outline,
-                      label: 'Dier verwijderen uit zone',
+                      label: 'Alarm verwijderen voor diersoort',
                       onPressed: () {
                         nav.pushForward(context, const RemoveSpeciesFromZoneScreen());
                       },

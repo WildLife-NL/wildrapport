@@ -13,6 +13,7 @@ import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wildrapport/utils/access_scope_utils.dart';
 
 Future<void> _routeAfterLogin(BuildContext context) async {
   try {
@@ -27,7 +28,12 @@ Future<void> _routeAfterLogin(BuildContext context) async {
     final profile = await profileApi.fetchMyProfile();
     if (!context.mounted) return;
     final hasAccess = await context.read<WildLifeNLAuthenticator>().hasAccess();
-    if (!hasAccess) {
+    final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(
+      AppConfig.shared.apiClient,
+    );
+    final hasScopeAccess =
+        scopeAccess.checked ? scopeAccess.hasRequiredScope : hasAccess;
+    if (!hasAccess || !hasScopeAccess) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
         (_) => false,
@@ -48,7 +54,12 @@ Future<void> _routeAfterLogin(BuildContext context) async {
   } catch (e) {
     if (!context.mounted) return;
     final hasAccess = await context.read<WildLifeNLAuthenticator>().hasAccess();
-    if (hasAccess) {
+    final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(
+      AppConfig.shared.apiClient,
+    );
+    final hasScopeAccess =
+        scopeAccess.checked ? scopeAccess.hasRequiredScope : hasAccess;
+    if (hasAccess && hasScopeAccess) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainNavScreen()),
         (_) => false,

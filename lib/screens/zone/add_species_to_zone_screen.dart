@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
-import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/models/api_models/species.dart';
+import 'package:wildrapport/screens/zone/species_grid_picker_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
@@ -21,7 +21,6 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   Zone? _selectedZone;
   List<Zone> _zones = [];
   Species? _selectedSpecies;
-  List<Species> _species = [];
   bool _loading = true;
   bool _isSubmitting = false;
   String? _loadError;
@@ -29,12 +28,11 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   @override
   void initState() {
     super.initState();
-    _loadZonesAndSpecies();
+    _loadZones();
   }
 
-  Future<void> _loadZonesAndSpecies() async {
+  Future<void> _loadZones() async {
     final apiClient = context.read<ApiClient>();
-    final speciesApi = context.read<SpeciesApiInterface>();
     try {
       final zonesResponse = await apiClient.get('zones/me/', authenticated: true);
       List<Zone> zones = [];
@@ -42,11 +40,9 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
         final list = jsonDecode(zonesResponse.body) as List;
         zones = list.map((e) => Zone.fromJson(e as Map<String, dynamic>)).toList();
       }
-      final speciesList = await speciesApi.getAllSpecies();
       if (mounted) {
         setState(() {
           _zones = zones;
-          _species = speciesList;
           _loading = false;
         });
       }
@@ -209,39 +205,65 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    if (_loading)
-                      const Center(child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(color: AppColors.darkGreen),
-                      ))
-                    else if (_loadError != null)
+                    if (_loadError != null)
                       Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(_loadError!, style: TextStyle(color: Colors.red[700])),
-                      )
-                    else
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.darkGreen),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          _loadError!,
+                          style: TextStyle(color: Colors.red[700], fontSize: 13),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<Species>(
-                            value: _selectedSpecies,
-                            isExpanded: true,
-                            hint: const Text('Kies een diersoort'),
-                            items: _species.map((s) {
-                              return DropdownMenuItem<Species>(
-                                value: s,
-                                child: Text('${s.commonName} (${s.category})'),
-                              );
-                            }).toList(),
-                            onChanged: (s) => setState(() => _selectedSpecies = s),
+                      ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _loading
+                            ? null
+                            : () async {
+                                final species = await Navigator.of(context)
+                                    .push<Species>(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const SpeciesGridPickerScreen(),
+                                  ),
+                                );
+                                if (species != null && mounted) {
+                                  setState(() => _selectedSpecies = species);
+                                }
+                              },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.darkGreen),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selectedSpecies?.commonName ??
+                                      'Tik om een diersoort te kiezen',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: _selectedSpecies != null
+                                        ? Colors.black
+                                        : Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey[700],
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                    ),
                     const SizedBox(height: 24),
                     SizedBox(
                       height: primaryButtonHeight(context),
