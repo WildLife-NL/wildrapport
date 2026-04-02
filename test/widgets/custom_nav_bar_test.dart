@@ -30,7 +30,7 @@ void main() {
       expect(find.text('Rapporten'), findsOneWidget);
       expect(find.text('Kaart'), findsOneWidget);
       expect(find.text('LogBoek'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Profiel'), findsOneWidget);
     });
 
     testWidgets('calls callback when side tab tapped', (tester) async {
