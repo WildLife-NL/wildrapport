@@ -10,14 +10,27 @@ import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 
 class MainNavScreen extends StatefulWidget {
-  const MainNavScreen({super.key});
+  final NavTab? initialTab;
+  final bool openRecentSightingsDirectly;
+  
+  const MainNavScreen({
+    super.key, 
+    this.initialTab,
+    this.openRecentSightingsDirectly = false,
+  });
 
   @override
   State<MainNavScreen> createState() => _MainNavScreenState();
 }
 
 class _MainNavScreenState extends State<MainNavScreen> {
-  NavTab _currentTab = NavTab.kaart;
+  late NavTab _currentTab;
+  
+  @override
+  void initState() {
+    super.initState();
+    _currentTab = widget.initialTab ?? NavTab.kaart;
+  }
 
   int get _currentIndex => _tabToIndex(_currentTab);
 
@@ -59,8 +72,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_currentTab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
@@ -76,7 +89,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
           ZonesScreen(onBackPressed: _onBackFromTab),
           Rapporteren(onBackPressed: _onBackFromTab),
           KaartOverviewScreen(onBackPressed: _onBackFromTab),
-          LogbookScreen(onBackPressed: _onBackFromTab),
+          LogbookScreen(
+            onBackPressed: _onBackFromTab,
+            openRecentSightings: widget.openRecentSightingsDirectly,
+          ),
           ProfileScreen(onBackPressed: _onBackFromTab),
         ],
       ),

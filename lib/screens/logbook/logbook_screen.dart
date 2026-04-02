@@ -1,14 +1,17 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
 import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
+import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 
 class LogbookScreen extends StatelessWidget {
-  const LogbookScreen({super.key, this.onBackPressed});
+  const LogbookScreen({super.key, this.onBackPressed, this.openRecentSightings = false});
 
   final VoidCallback? onBackPressed;
+  final bool openRecentSightings;
 
   void _openAllInteractions(BuildContext context) {
     Navigator.push(
@@ -31,8 +34,24 @@ class LogbookScreen extends StatelessWidget {
     );
   }
 
+  void _openRecentSightings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // If openRecentSightings is true, navigate to RecentSightingsScreen after build
+    if (openRecentSightings) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+        );
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.lightMintGreen,
       body: SafeArea(
@@ -40,10 +59,15 @@ class LogbookScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: null,
+              leftIcon: Icons.arrow_back_ios,
               centerText: 'Logboek',
               rightIcon: null,
-              showUserIcon: false,
+              showUserIcon: true,
+              onLeftIconPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const OverzichtScreen()),
+                );
+              },
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -61,7 +85,11 @@ class LogbookScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        
+                        _ReportButton(
+                          label: 'Recente waarnemingen',
+                          onTap: () => _openRecentSightings(context),
+                        ),
+                        const SizedBox(height: 12),
                         _ReportButton(
                           label: 'Mijn interacties',
                           onTap: () => _openAllInteractions(context),
@@ -109,3 +137,4 @@ class _ReportButton extends StatelessWidget {
     );
   }
 }
+
