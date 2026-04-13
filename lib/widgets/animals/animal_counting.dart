@@ -2,9 +2,8 @@
 
 class AnimalCounting extends StatefulWidget {
   final VoidCallback? onAddToList;
-  final String? reportType;
 
-  const AnimalCounting({super.key, this.onAddToList, this.reportType});
+  const AnimalCounting({super.key, this.onAddToList});
 
   @override
   State<AnimalCounting> createState() => _AnimalCountingState();
@@ -26,9 +25,7 @@ class _AnimalCountingState extends State<AnimalCounting> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  widget.reportType == 'verkeersongeval'
-                      ? 'Hoeveel dieren waren erbij betrokken?'
-                      : 'Hoeveel van deze dieren heb je gezien?',
+                  'Hoeveel van deze dieren heb je gezien?',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,

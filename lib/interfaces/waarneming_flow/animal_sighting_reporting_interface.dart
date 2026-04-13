@@ -12,7 +12,7 @@ import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dar
 import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart';
 
 abstract class AnimalSightingReportingInterface {
-  AnimalSightingModel createanimalSighting({String? reportType});
+  AnimalSightingModel createanimalSighting();
 
   AnimalSightingModel updateSelectedAnimal(AnimalModel selectedAnimal);
 
@@ -27,8 +27,6 @@ abstract class AnimalSightingReportingInterface {
   AnimalCategory convertStringToCategory(String status);
 
   AnimalSightingModel? getCurrentanimalSighting();
-
-  AnimalSightingModel updateCurrentanimalSighting(AnimalSightingModel sighting);
 
   void addListener(VoidCallback listener);
 

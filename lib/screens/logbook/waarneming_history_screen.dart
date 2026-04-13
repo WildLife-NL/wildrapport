@@ -6,7 +6,7 @@ import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
+import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 
 class WaarnemingHistoryScreen extends StatelessWidget {
   const WaarnemingHistoryScreen({super.key});
@@ -29,7 +29,7 @@ class WaarnemingHistoryScreen extends StatelessWidget {
               showUserIcon: true,
               onLeftIconPressed: () {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+                  MaterialPageRoute(builder: (_) => const LogbookScreen()),
                 );
               },
               iconColor: Colors.black,

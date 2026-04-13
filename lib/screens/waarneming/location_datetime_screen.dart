@@ -153,20 +153,6 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = sightingManager.getCurrentanimalSighting();
-    
-    String appBarTitle = 'Waarneming'; // default
-    if (currentSighting?.reportType != null) {
-      if (currentSighting!.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
-    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -175,11 +161,12 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
           children: [
             // Same header as location selection
             CustomAppBar(
-              leftIcon: null,
-              centerText: appBarTitle,
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Waarneming',
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
+              onLeftIconPressed: _handleBackNavigation,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.4,
@@ -210,9 +197,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
                         const SizedBox(height: 8),
                         Center(
                           child: Text(
-                            currentSighting?.reportType == 'verkeersongeval'
-                                ? 'Waar en wanneer is het gebeurd?'
-                                : 'Waar en wanneer werd het\ndier gezien?',
+                            'Waar en wanneer werd het\ndier gezien?',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontSize: 16,

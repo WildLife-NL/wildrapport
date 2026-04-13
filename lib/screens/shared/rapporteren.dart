@@ -8,7 +8,6 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
-import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
 import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
@@ -83,23 +82,20 @@ class _RapporterenState extends State<Rapporteren> {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting(reportType: 'waarneming');
+      animalSightingManager.createanimalSighting();
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     } else if (typeName == 'schademelding' ||
         typeName.contains('crop damage')) {
       selectedReportType = ReportType.gewasschade;
-      final animalSightingManager =
-          context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting(reportType: 'gewasschade');
-      nextScreen = const SchademeldingLocationSelectionScreen();
+      nextScreen = BelongingAnimalScreen(appBarTitle: 'Selecteer Dier');
       _initializeMapInBackground();
     } else if (typeName == 'dieraanrijding' ||
         typeName.contains('animal collision')) {
       selectedReportType = ReportType.verkeersongeval;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting(reportType: 'verkeersongeval');
+      animalSightingManager.createanimalSighting();
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     } else {
@@ -110,7 +106,7 @@ class _RapporterenState extends State<Rapporteren> {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting(reportType: 'waarneming');
+      animalSightingManager.createanimalSighting();
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     }

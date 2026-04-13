@@ -119,8 +119,6 @@ flutter:
     # Icons + dier-assets zitten in wildlifenl_assets (git)
     - assets/location/location_icon.png
     - assets/animals/
-    - assets/images/gewas/
-    - assets/images/
     - assets/sighting.svg
     - assets/damage.svg
     - assets/collision.svg

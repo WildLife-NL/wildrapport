@@ -86,20 +86,6 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = sightingManager.getCurrentanimalSighting();
-    
-    String appBarTitle = 'Waarneming'; // default
-    if (currentSighting?.reportType != null) {
-      if (currentSighting!.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
-    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -108,7 +94,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
         children: [
           CustomAppBar(
             leftIcon: Icons.arrow_back_ios,
-            centerText: appBarTitle,
+            centerText: 'Waarneming',
             rightIcon: null,
             showUserIcon: false,
             useFixedText: true,
@@ -124,9 +110,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                currentSighting?.reportType == 'verkeersongeval'
-                    ? 'Geef de locatie aan waar het gebeurde:'
-                    : 'Identificeer locatie:',
+                'Identificeer locatie:',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
