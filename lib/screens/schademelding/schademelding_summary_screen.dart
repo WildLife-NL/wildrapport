@@ -532,27 +532,53 @@ class _SchademeldingSummaryScreenState
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Aanvullende informatie',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[600],
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: 120),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF0F0F0),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(Icons.note, size: 18, color: Colors.grey[700]),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Aanvullende informatie',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  '"${currentSighting?.additionalInfo ?? ''}"',
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black87,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '"${currentSighting?.additionalInfo ?? ''}"',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

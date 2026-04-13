@@ -151,7 +151,7 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
             ),
             // Main card container
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.75,
+              height: MediaQuery.of(context).size.height * 0.85,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
                 child: Card(
@@ -283,16 +283,16 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                           ),
                           const SizedBox(height: 16),
                           // Total aantal (if applicable)
-                          if (widget.sighting.animalCount != null)
+                          if (widget.sighting.animalCount != null || widget.sighting.reportType == 'waarneming')
                             Text(
-                              'Aantal: ${widget.sighting.animalCount}',
+                              'Aantal: ${widget.sighting.animalCount ?? (widget.sighting.animals?.length ?? 0)}',
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black87,
                               ),
                             ),
-                          if (widget.sighting.animalCount != null)
+                          if (widget.sighting.animalCount != null || widget.sighting.reportType == 'waarneming')
                             const SizedBox(height: 16),
                           // Location and DateTime info
                           Card(
@@ -786,27 +786,53 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Aanvullende informatie',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[600],
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: 120),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF0F0F0),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(Icons.note, size: 18, color: Colors.grey[700]),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Aanvullende informatie',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  widget.sighting.additionalInfo ?? '',
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black87,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      widget.sighting.additionalInfo ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
