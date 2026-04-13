@@ -78,7 +78,7 @@ class AppComponentStyles {
     backgroundColor: AppColors.darkCharcoal,
     fixedSize: const Size(150, 44),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
     ),
     foregroundColor: AppColors.white,
   );
@@ -93,7 +93,7 @@ class AppComponentStyles {
     backgroundColor: Colors.transparent,
     fixedSize: const Size(150, 44),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
     ),
     foregroundColor: AppColors.textPrimary,
   );

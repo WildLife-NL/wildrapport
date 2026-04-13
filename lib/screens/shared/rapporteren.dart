@@ -191,6 +191,7 @@ class _RapporterenState extends State<Rapporteren> {
                   vertical: responsive.hp(1),
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child:
@@ -216,7 +217,7 @@ class _RapporterenState extends State<Rapporteren> {
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children:

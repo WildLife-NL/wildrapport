@@ -4,11 +4,9 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
-import 'package:wildrapport/screens/waarneming/waarneming_start_screen.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
-import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;
@@ -25,11 +23,7 @@ class AnimalWaarnemingSummaryScreen extends StatefulWidget {
 
 class _AnimalWaarnemingSummaryScreenState
     extends State<AnimalWaarnemingSummaryScreen> {
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    }
-  }
+
 
   void _handleSubmit() {
     debugPrint('[AnimalWaarnemingSummaryScreen] _handleSubmit called');
@@ -82,12 +76,31 @@ class _AnimalWaarnemingSummaryScreenState
     }
   }
 
+  void _handleExit() {
+    final sightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    sightingManager.clearCurrentanimalSighting();
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const MainNavScreen(
+          initialTab: NavTab.rapporten,
+        ),
+      ),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final sightingManager =
         context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
     final selectedAnimal = sighting?.animalSelected;
+    
+    // Determine the app bar title based on report type
+    final appBarTitle = sighting?.reportType == 'verkeersongeval' 
+        ? 'Dieraanrijding' 
+        : 'Waarneming';
 
     if (selectedAnimal == null) {
       return Scaffold(
@@ -106,14 +119,15 @@ class _AnimalWaarnemingSummaryScreenState
           children: [
             // App Bar
             CustomAppBar(
-              centerText: 'Waarneming',
-              rightIcon: null,
+              centerText: appBarTitle,
+              rightIcon: Icons.exit_to_app_rounded,
+              onRightIconPressed: _handleExit,
               showUserIcon: false,
               useFixedText: true,
-              onLeftIconPressed: _handleBackNavigation,
               textColor: Colors.black,
+              iconColor: Colors.grey,
               fontScale: 1.4,
-              iconScale: 1.15,
+              iconScale: 0.85,
               userIconScale: 1.15,
             ),
             // Main card container
@@ -258,79 +272,288 @@ class _AnimalWaarnemingSummaryScreenState
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          // Divider line
-                          Container(
-                            height: 1,
-                            color: const Color(0xFF999999),
-                          ),
                           const SizedBox(height: 16),
                           // Individual animal details
-                          ..._buildAnimalDetailsList(sighting?.animals ?? []),
-                          const SizedBox(height: 16),
-                          // Divider line
-                          Container(
-                            height: 1,
-                            color: const Color(0xFF999999),
+                          Card(
+                            elevation: 0,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(
+                                color: Color(0xFFE8E8E8),
+                                width: 1,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ..._buildAnimalDetailsList(sighting?.animals ?? []),
+                                ],
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 16),
                           // Location and DateTime info
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Location
-                              Row(
+                          Card(
+                            elevation: 0,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(
+                                color: Color(0xFFE8E8E8),
+                                width: 1,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Locatie:',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
+                                  // Location
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF0F0F0),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(Icons.location_on, size: 18, color: Colors.grey[700]),
                                       ),
-                                    ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Locatie',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              _getLocationDisplay(sighting?.locations),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      _getLocationDisplay(sighting?.locations),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
+                                  const SizedBox(height: 14),
+                                  Divider(
+                                    color: Colors.grey.withValues(alpha: 0.15),
+                                    height: 1,
+                                    thickness: 1,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  // Date/Time
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF0F0F0),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(Icons.calendar_today, size: 18, color: Colors.grey[700]),
                                       ),
-                                    ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Datum & Tijd',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              _getDateTimeDisplay(sighting?.dateTime),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                              // Date/Time
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Datum & Tijd:',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      _getDateTimeDisplay(sighting?.dateTime),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                            ),
                           ),
+                          // Dieraanrijding specific details
+                          if (sighting?.reportType == 'verkeersongeval') ...[
+                            const SizedBox(height: 16),
+                            Card(
+                              elevation: 0,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: const BorderSide(
+                                  color: Color(0xFFE8E8E8),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Expected loss
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0F0F0),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(Icons.trending_down, size: 18, color: Colors.grey[700]),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Verwacht verlies',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                sighting?.expectedLoss ?? 'Onbekend',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Divider(
+                                      color: Colors.grey.withValues(alpha: 0.15),
+                                      height: 1,
+                                      thickness: 1,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    // Accident severity
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0F0F0),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(Icons.warning_amber, size: 18, color: Colors.grey[700]),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Ernst van het ongeluk',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                sighting?.accidentSeverity ?? 'Onbekend',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Divider(
+                                      color: Colors.grey.withValues(alpha: 0.15),
+                                      height: 1,
+                                      thickness: 1,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    // Animal condition
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0F0F0),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Toestand dier',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                sighting?.animalConditionDieraanrijding ?? 'Onbekend',
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -348,18 +571,7 @@ class _AnimalWaarnemingSummaryScreenState
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          // Clear the animals list so a fresh start is possible
-                          final sightingManager =
-                              context.read<AnimalSightingReportingInterface>();
-                          sightingManager.clearCurrentanimalSighting();
-                          // Navigate back to the start screen
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const WaarnemmingStartScreen(),
-                            ),
-                            (route) => false,
-                          );
+                          Navigator.of(context).pop();
                         },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -374,7 +586,7 @@ class _AnimalWaarnemingSummaryScreenState
                           backgroundColor: Colors.white,
                         ),
                         child: const Text(
-                          'Begin Opnieuw',
+                          'Vorige',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -432,6 +644,17 @@ List<Widget> _buildAnimalDetailsList(List animals) {
     }
 
     int animalIndex = 1;
+    int totalAnimals = 0;
+    
+    // First count total animals
+    for (final animal in animals) {
+      if (animal?.genderViewCounts == null || animal.genderViewCounts.isEmpty) {
+        continue;
+      }
+      totalAnimals += (animal.genderViewCounts.length as int);
+    }
+    
+    int currentAnimalCount = 0;
     
     // Loop through each animal in the list
     for (final animal in animals) {
@@ -454,36 +677,62 @@ List<Widget> _buildAnimalDetailsList(List animals) {
           age = 'Volwassen';
         }
 
-        // Add a detail row for this animal
+        // Add a detail item with icon box
         details.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Dier $animalIndex:',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    '$gender, $age',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
+                child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dier $animalIndex',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '$gender, $age',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
+        
+        currentAnimalCount++;
+        
+        // Add divider between animals (but not after the last one)
+        if (currentAnimalCount < totalAnimals) {
+          details.add(const SizedBox(height: 14));
+          details.add(
+            Divider(
+              color: Colors.grey.withValues(alpha: 0.15),
+              height: 1,
+              thickness: 1,
+            ),
+          );
+          details.add(const SizedBox(height: 14));
+        }
         
         animalIndex++;
       }
