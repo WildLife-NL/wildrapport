@@ -107,67 +107,111 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shadowColor: Colors.black26,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Center(
-                              child: CircleAvatar(
-                                radius: 36,
-                                backgroundColor: Colors.grey.shade200,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.grey.shade700,
+                      child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 16),
+                          // Profile Card
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Card(
+                              color: const Color(0xFFF5F6F4),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            Text(
-                              _userName,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(18),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade900,
+                              child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 36,
+                                        backgroundColor: Colors.grey.shade200,
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 40,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              _userName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: fs(18),
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey.shade900,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _loadingProfile ? '…' : email,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: fs(14),
+                                                color: Colors.grey.shade600,
+                                                height: 1.25,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  FilledButton(
+                                    onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.grey.shade900,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      minimumSize: const Size.fromHeight(48),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(26),
+                                        side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Profiel Bewerken',
+                                      style: TextStyle(fontSize: fs(15)),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _loadingProfile ? '…' : email,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(14),
-                                color: Colors.grey.shade600,
-                                height: 1.25,
-                              ),
-                            ),
-                            const SizedBox(height: gapMd),
-                            FilledButton(
-                              onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.darkGreen,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
-                                ),
-                              ),
-                              child: Text(
-                                'Profiel Bewerken',
-                                style: TextStyle(fontSize: fs(15)),
-                              ),
-                            ),
-                            const SizedBox(height: gapLg),
-                            Text(
+                          ),
+                        ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Text(
                               'Voorkeuren',
                               style: TextStyle(
                                 fontSize: fs(12),
@@ -175,13 +219,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Container(
+                          ),
+                          const SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Container(
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Column(
+                            child: Column(
                                 children: [
                                   SwitchListTile(
                                     contentPadding: const EdgeInsets.symmetric(
@@ -197,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     value: app.isLocationTrackingEnabled,
                                     activeThumbColor: Colors.white,
-                                    activeTrackColor: AppColors.darkGreen,
+                                    activeTrackColor: const Color(0xFF37A904),
                                     onChanged: (enabled) async {
                                       await app.setLocationTrackingEnabled(enabled);
                                       if (!context.mounted) return;
@@ -227,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     value: app.notificationsEnabled,
                                     activeThumbColor: Colors.white,
-                                    activeTrackColor: AppColors.darkGreen,
+                                    activeTrackColor: const Color(0xFF37A904),
                                     onChanged: (enabled) async {
                                       await app.setNotificationsEnabled(enabled);
                                       if (!context.mounted) return;
@@ -241,72 +288,110 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: gapSm),
-                            Text(
-                              _version.isEmpty ? '' : 'App Version: V$_version',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: fs(11),
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            FilledButton(
-                              onPressed: () => _confirmLogout(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.darkGreen,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Card(
+                              color: const Color(0xFFF5F6F4),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
                                 ),
                               ),
-                              child: Text(
-                                'Uitloggen',
-                                style: TextStyle(fontSize: fs(15)),
-                              ),
-                            ),
-                            const SizedBox(height: gapMd),
-                            Text(
-                              'Account verwijderen',
-                              style: TextStyle(
-                                fontSize: fs(16),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Je gegevens gaan permanent verloren; dit kan niet ongedaan worden.',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(12),
-                                color: Colors.grey.shade600,
-                                height: 1.25,
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            FilledButton(
-                              onPressed: () => _confirmDelete(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: _destructivePink,
-                                foregroundColor: Colors.red.shade700,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(44),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
-                                ),
-                              ),
-                              child: Text(
-                                'Account verwijderen',
-                                style: TextStyle(
-                                  fontSize: fs(14),
-                                  fontWeight: FontWeight.w600,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      _version.isEmpty ? '' : 'App Version: V$_version',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: fs(11),
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    FilledButton(
+                                      onPressed: () => _confirmLogout(context),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: Colors.grey.shade900,
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        minimumSize: const Size.fromHeight(48),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(26),
+                                          side: BorderSide(
+                                            color: Colors.grey.shade400,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Uitloggen',
+                                        style: TextStyle(fontSize: fs(15)),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Account verwijderen',
+                                  style: TextStyle(
+                                    fontSize: fs(16),
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Je gegevens gaan permanent verloren; dit kan niet ongedaan worden.',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: fs(12),
+                                    color: Colors.grey.shade600,
+                                    height: 1.25,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                FilledButton(
+                                  onPressed: () => _confirmDelete(context),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(136, 255, 230, 232),
+                                    foregroundColor: const Color.fromARGB(255, 209, 118, 118),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    minimumSize: const Size.fromHeight(44),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(26),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Account verwijderen',
+                                    style: TextStyle(
+                                      fontSize: fs(14),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                           ],
                         ),
                       ),
