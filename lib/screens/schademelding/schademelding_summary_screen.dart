@@ -65,22 +65,12 @@ class _SchademeldingSummaryScreenState
   }
 
   void _onEditPressed() {
-    final sightingManager = context.read<AnimalSightingReportingInterface>();
-
-    debugPrint('[SchademeldingSummary] Begin again - navigating to rapporten tab');
-
-    // Clear current sighting
-    sightingManager.clearCurrentanimalSighting();
+    debugPrint('[SchademeldingSummary] Navigate to previous page');
     
-    // Navigate to rapporten tab
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => const MainNavScreen(
-          initialTab: NavTab.rapporten,
-        ),
-      ),
-      (route) => false,
-    );
+    // Navigate back to previous page
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
   }
 
   void _handleExit() {
@@ -98,6 +88,7 @@ class _SchademeldingSummaryScreenState
 
   String _getCropImagePath(String cropType) {
     switch (cropType.toLowerCase()) {
+      // Gewas types
       case 'maïs':
       case 'mais':
         return 'assets/images/gewas/mais.jpg';
@@ -111,6 +102,23 @@ class _SchademeldingSummaryScreenState
         return 'assets/images/gewas/grasland.jpg';
       case 'tuin':
         return 'assets/images/gewas/tuin.jpg';
+      // Vee types
+      case 'rund':
+        return 'assets/images/vee/rund.png';
+      case 'schaap':
+        return 'assets/images/vee/schaap.png';
+      case 'geit':
+        return 'assets/images/vee/geit.png';
+      case 'paard':
+        return 'assets/images/vee/paard.png';
+      case 'pluimvee':
+        return 'assets/images/vee/pluimvee.png';
+      case 'vark':
+        return 'assets/images/vee/vark.png';
+      case 'ree':
+        return 'assets/images/vee/ree.png';
+      case 'ander':
+        return 'assets/images/vee/rund.png'; // Default to rund for "ander"
       default:
         return 'assets/images/gewas/mais.jpg';
     }
@@ -128,13 +136,12 @@ class _SchademeldingSummaryScreenState
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Schademelding',
               rightIcon: Icons.exit_to_app_rounded,
               onRightIconPressed: _handleExit,
               showUserIcon: false,
               useFixedText: true,
-              onLeftIconPressed: _handleBackNavigation,
               iconColor: Colors.grey,
               textColor: Colors.black,
               fontScale: 1.4,
@@ -511,7 +518,7 @@ class _SchademeldingSummaryScreenState
                           backgroundColor: Colors.white,
                         ),
                         child: const Text(
-                          'Begin Opnieuw',
+                          'Vorige',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

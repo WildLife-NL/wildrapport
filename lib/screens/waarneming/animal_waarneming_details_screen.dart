@@ -9,7 +9,6 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
-import 'package:wildrapport/screens/dieraanrijding/dieraanrijding_details_screen.dart';
 import 'package:wildrapport/constants/design_system.dart';
 
 class AnimalWaarnemingDetailsScreen extends StatefulWidget {
@@ -124,29 +123,13 @@ class _AnimalWaarnemingDetailsScreenState
         ),
       );
     } else {
-      // Last animal - check if dieraanrijding to go to dieraanrijding details
-      final sightingManager =
-          context.read<AnimalSightingReportingInterface>();
-      final sighting = sightingManager.getCurrentanimalSighting();
-      
-      if (sighting?.reportType == 'verkeersongeval') {
-        // Go to dieraanrijding details screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
-          ),
-        );
-      } else {
-        // Go to summary screen for outros report types
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
-          ),
-        );
-      }
+      // Last animal - Go to summary screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
+        ),
+      );
     }
   }
 
@@ -172,12 +155,10 @@ class _AnimalWaarnemingDetailsScreenState
     }
 
     String appBarTitle = 'Waarneming'; // default
-    if (sighting?.reportType != null) {
-      if (sighting!.reportType == 'gewasschade') {
+    if (sighting != null && sighting.reportType != null) {
+      if (sighting.reportType == 'gewasschade') {
         appBarTitle = 'Schademelding';
-      } else if (sighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (sighting!.reportType == 'waarneming') {
+      } else if (sighting.reportType == 'waarneming') {
         appBarTitle = 'Waarneming';
       }
     }

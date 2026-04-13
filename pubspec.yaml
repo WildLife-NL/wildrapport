@@ -124,6 +124,7 @@ flutter:
     - assets/sighting.svg
     - assets/damage.svg
     - assets/collision.svg
+    - assets/images/vee/
     - .env
 
   fonts:

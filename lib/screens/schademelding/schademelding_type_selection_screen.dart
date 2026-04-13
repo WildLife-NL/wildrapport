@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_gewas_types_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_vee_types_screen.dart';
 
 class SchademeldingTypeSelectionScreen extends StatefulWidget {
   final String appBarTitle;
@@ -147,8 +148,15 @@ class _SchademeldingTypeSelectionScreenState
               builder: (context) => const SchademeldingGewasTypesScreen(),
             ),
           );
+        } else if (title == 'Vee') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SchademeldingVeeTypesScreen(),
+            ),
+          );
         }
-        // TODO: Navigate to next screen with selected category
+        // TODO: Navigate to next screen for Eigendom
       },
       child: Card(
         elevation: isSelected ? 4 : 0,
