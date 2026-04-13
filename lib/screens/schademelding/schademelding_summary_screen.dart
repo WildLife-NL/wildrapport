@@ -375,6 +375,40 @@ class _SchademeldingSummaryScreenState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Date and Time
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Datum & Tijd:',
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      currentSighting?.dateTime?.dateTime != null
+                                          ? '${currentSighting!.dateTime!.dateTime!.toLocal().year}-${currentSighting!.dateTime!.dateTime!.toLocal().month.toString().padLeft(2, '0')}-${currentSighting!.dateTime!.dateTime!.toLocal().day.toString().padLeft(2, '0')} ${currentSighting!.dateTime!.dateTime!.toLocal().hour.toString().padLeft(2, '0')}:${currentSighting!.dateTime!.dateTime!.toLocal().minute.toString().padLeft(2, '0')}'
+                                          : 'Onbekend',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  child: Divider(
+                                    color: Colors.grey.withValues(alpha: 0.2),
+                                    height: 1,
+                                  ),
+                                ),
                                 // Geschat verlies
                                 Row(
                                   children: [
