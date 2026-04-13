@@ -5,28 +5,34 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
-import 'package:wildrapport/managers/map/location_map_manager.dart';
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/models/beta_models/location_model.dart';
+import 'package:wildrapport/models/enums/location_source.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_type_selection_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
-class LocationDateTimeScreen extends StatefulWidget {
+class SchademeldingLocationDateTimeScreen extends StatefulWidget {
   final LatLng selectedLocation;
 
-  const LocationDateTimeScreen({super.key, required this.selectedLocation});
+  const SchademeldingLocationDateTimeScreen({super.key, required this.selectedLocation});
 
   @override
-  State<LocationDateTimeScreen> createState() => _LocationDateTimeScreenState();
+  State<SchademeldingLocationDateTimeScreen> createState() => _SchademeldingLocationDateTimeScreenState();
 }
 
-class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
+class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocationDateTimeScreen> {
   late fm.MapController _mapController;
   late DateTime _selectedDateTime;
+  late AnimalSightingReportingInterface _sightingManager;
 
   @override
   void initState() {
     super.initState();
     _mapController = fm.MapController();
-    _selectedDateTime = DateTime.now();
+    _sightingManager = context.read<AnimalSightingReportingInterface>();
+    
+    // Load any previously saved datetime, or use current time
+    final currentSighting = _sightingManager.getCurrentanimalSighting();
+    _selectedDateTime = currentSighting?.dateTime?.dateTime ?? DateTime.now();
   }
 
   void _handleBackNavigation() {
@@ -77,6 +83,8 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
           _selectedDateTime.minute,
         );
       });
+      // Save to provider immediately
+      _sightingManager.updateDateTime(_selectedDateTime);
     }
   }
 
@@ -118,23 +126,35 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
           picked.minute,
         );
       });
+      // Save to provider immediately
+      _sightingManager.updateDateTime(_selectedDateTime);
     }
   }
 
   void _onNextPressed() {
     final navigationManager = context.read<NavigationStateInterface>();
-    final sightingManager = context.read<AnimalSightingReportingInterface>();
 
-    // Save selected date/time into app state
-    sightingManager.updateDateTime(_selectedDateTime);
+    // Save location and date/time into app state
+    _sightingManager.updateDateTime(_selectedDateTime);
+    
+    // Create a LocationModel from the selected location
+    final locationModel = LocationModel(
+      latitude: widget.selectedLocation.latitude,
+      longitude: widget.selectedLocation.longitude,
+      cityName: null,
+      streetName: null,
+      houseNumber: null,
+      source: LocationSource.system,
+    );
+    _sightingManager.updateLocation(locationModel);
     
     debugPrint(
-      '[LocationDateTime] Next with location: ${widget.selectedLocation.latitude}, ${widget.selectedLocation.longitude} and datetime: $_selectedDateTime',
+      '[SchademeldingLocationDateTime] Next with location: ${widget.selectedLocation.latitude}, ${widget.selectedLocation.longitude} and datetime: $_selectedDateTime',
     );
 
     navigationManager.pushForward(
       context,
-      const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+      SchademeldingTypeSelectionScreen(appBarTitle: 'Selecteer Schade Type'),
     );
   }
 
@@ -153,20 +173,6 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sightingManager = context.read<AnimalSightingReportingInterface>();
-    final currentSighting = sightingManager.getCurrentanimalSighting();
-    
-    String appBarTitle = 'Waarneming'; // default
-    if (currentSighting?.reportType != null) {
-      if (currentSighting!.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
-    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -175,11 +181,12 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
           children: [
             // Same header as location selection
             CustomAppBar(
-              leftIcon: null,
-              centerText: appBarTitle,
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Schademelding',
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
+              onLeftIconPressed: _handleBackNavigation,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.4,
@@ -210,9 +217,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
                         const SizedBox(height: 8),
                         Center(
                           child: Text(
-                            currentSighting?.reportType == 'verkeersongeval'
-                                ? 'Waar en wanneer is het gebeurd?'
-                                : 'Waar en wanneer werd het\ndier gezien?',
+                            'Waar en wanneer\nis het gebeurd?',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontSize: 16,

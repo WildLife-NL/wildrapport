@@ -13,9 +13,33 @@ class AnimalAantalScreen extends StatefulWidget {
 }
 
 class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
-  int currentCount = 0;
+  late int currentCount;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load saved animal count from sighting if it exists
+    final sightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    
+    currentCount = sighting?.animalCount ?? 0;
+  }
+
+  void _saveAnimalCount() {
+    final sightingManager =
+        context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    
+    if (sighting != null) {
+      sightingManager.updateCurrentanimalSighting(
+        sighting.copyWith(animalCount: currentCount),
+      );
+    }
+  }
 
   void _handleBackNavigation() {
+    _saveAnimalCount();
     if (Navigator.of(context).canPop()) {
       Navigator.pop(context);
     }
@@ -37,6 +61,17 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
       );
     }
 
+    String appBarTitle = 'Waarneming'; // default
+    if (sighting?.reportType != null) {
+      if (sighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (sighting!.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (sighting!.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -46,7 +81,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
             // App Bar
             CustomAppBar(
               
-              centerText: 'Waarneming',
+              centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
@@ -79,7 +114,9 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                         children: [
                           // Question text
                           Text(
-                            'Hoeveel van deze dieren\nheb je gezien?',
+                            sighting?.reportType == 'verkeersongeval'
+                                ? 'Hoeveel dieren\nwaren erbij betrokken?'
+                                : 'Hoeveel van deze dieren\nheb je gezien?',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16,
@@ -335,6 +372,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                               ),
                               onPressed: () {
                                 if (currentCount > 0) {
+                                  _saveAnimalCount();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -402,6 +440,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (currentCount > 0) {
+                            _saveAnimalCount();
                             // Navigate directly to summary, skipping details
                             Navigator.push(
                               context,

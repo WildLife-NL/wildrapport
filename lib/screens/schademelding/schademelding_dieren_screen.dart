@@ -1,24 +1,24 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
-
-import 'package:wildrapport/screens/waarneming/animal_aantal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_damage_details_screen.dart';
 
-class AnimalsScreen extends StatefulWidget {
-  final String appBarTitle;
+class SchademeldingDierenScreen extends StatefulWidget {
+  final String gewasType;
 
-  const AnimalsScreen({super.key, required this.appBarTitle});
+  const SchademeldingDierenScreen({super.key, required this.gewasType});
 
   @override
-  State<AnimalsScreen> createState() => _AnimalsScreenState();
+  State<SchademeldingDierenScreen> createState() =>
+      _SchademeldingDierenScreenState();
 }
 
-class _AnimalsScreenState extends State<AnimalsScreen>
+class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
     with SingleTickerProviderStateMixin {
   late final AnimalManagerInterface _animalManager;
   late final AnimalSightingReportingInterface _animalSightingManager;
@@ -34,10 +34,10 @@ class _AnimalsScreenState extends State<AnimalsScreen>
   @override
   void initState() {
     super.initState();
-    debugPrint('[AnimalsScreen] Initializing screen');
+    debugPrint('[SchademeldingDieren] Initializing screen');
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // Set a default duration
+      duration: const Duration(seconds: 2),
     );
     _animalManager = context.read<AnimalManagerInterface>();
     _animalSightingManager = context.read<AnimalSightingReportingInterface>();
@@ -48,17 +48,16 @@ class _AnimalsScreenState extends State<AnimalsScreen>
   }
 
   void _validateAndLoad() {
-    // Try to validate and set up sighting context, but don't block screen load
     final isValid = _animalSightingManager.validateActiveAnimalSighting();
     if (!isValid) {
-      debugPrint('[AnimalsScreen] No active animal sighting - attempting to initialize');
-      // Try to create a basic sighting state if needed
+      debugPrint(
+          '[SchademeldingDieren] No active animal sighting - attempting to initialize');
     }
     _loadAnimals();
   }
 
   Future<void> _loadAnimals() async {
-    debugPrint('[AnimalsScreen] Starting to load animals');
+    debugPrint('[SchademeldingDieren] Starting to load animals');
     try {
       if (mounted) {
         setState(() {
@@ -67,14 +66,14 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         });
       }
 
-      debugPrint('[AnimalsScreen] Calling getAnimalsByBackendCategory with category: $_selectedCategory');
+      debugPrint(
+          '[SchademeldingDieren] Calling getAnimalsByBackendCategory with category: $_selectedCategory');
       final animals = await _animalManager.getAnimalsByBackendCategory(
         category: _selectedCategory == 'Alle' ? null : _selectedCategory,
       );
 
-      debugPrint('[AnimalsScreen] API returned ${animals.length} animals');
+      debugPrint('[SchademeldingDieren] API returned ${animals.length} animals');
 
-      // Filter out the placeholder/unknown entry from the selection list
       final filtered = animals.where((a) {
         final name = a.animalName.trim().toLowerCase();
         final id = (a.animalId ?? '').trim().toLowerCase();
@@ -82,7 +81,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
       }).toList();
 
       debugPrint(
-        '[AnimalsScreen] Successfully loaded ${animals.length} animals (showing ${filtered.length} after filtering unknown)',
+        '[SchademeldingDieren] Successfully loaded ${animals.length} animals (showing ${filtered.length} after filtering unknown)',
       );
 
       if (mounted) {
@@ -92,9 +91,9 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         });
       }
     } catch (e, stackTrace) {
-      debugPrint('[AnimalsScreen] ERROR: Failed to load animals');
-      debugPrint('[AnimalsScreen] Error details: $e');
-      debugPrint('[AnimalsScreen] Stack trace: $stackTrace');
+      debugPrint('[SchademeldingDieren] ERROR: Failed to load animals');
+      debugPrint('[SchademeldingDieren] Error details: $e');
+      debugPrint('[SchademeldingDieren] Stack trace: $stackTrace');
 
       if (mounted) {
         setState(() {
@@ -107,7 +106,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
 
   @override
   void dispose() {
-    debugPrint('[AnimalsScreen] Disposing screen');
+    debugPrint('[SchademeldingDieren] Disposing screen');
     _scrollController.dispose();
     _animationController.dispose();
     _animalManager.removeListener(_handleStateChange);
@@ -120,37 +119,24 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     }
   }
 
-  // _toggleExpanded removed â€” dropdown replaced by custom filter UI
-
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
-    // Get the previous animal count before changing animals
-    final previousSighting = _animalSightingManager.getCurrentanimalSighting();
-    final previousAnimalCount = previousSighting?.animalCount;
-    
-    // Process the new animal selection
     _animalSightingManager.processAnimalSelection(
       selectedAnimal,
       _animalManager,
     );
-    
-    // Preserve the animal count with the newly selected animal
-    if (previousAnimalCount != null) {
-      final newSighting = _animalSightingManager.getCurrentanimalSighting();
-      if (newSighting != null) {
-        _animalSightingManager.updateCurrentanimalSighting(
-          newSighting.copyWith(animalCount: previousAnimalCount),
-        );
-      }
-    }
 
-    _navigationManager.pushForward(context, const AnimalAantalScreen());
+    debugPrint(
+        '[SchademeldingDieren] Selected animal: ${selectedAnimal.animalName} for gewas type: ${widget.gewasType}');
+    // Navigate to damage details screen
+    _navigationManager.pushForward(
+      context,
+      SchademeldingDamageDetailsScreen(gewasType: widget.gewasType),
+    );
   }
 
   void _handleBackNavigation() {
-    debugPrint('[AnimalsScreen] Back button pressed');
-    // Reset search before navigating back
+    debugPrint('[SchademeldingDieren] Back button pressed');
     _animalManager.updateSearchTerm('');
-    // Prefer popping; if stack was cleared, reset to home to avoid a blank screen
     if (Navigator.of(context).canPop()) {
       Navigator.pop(context);
     } else {
@@ -167,30 +153,12 @@ class _AnimalsScreenState extends State<AnimalsScreen>
         });
       }
     } catch (e) {
-      debugPrint('[AnimalsScreen] Error loading categories: $e');
+      debugPrint('[SchademeldingDieren] Error loading categories: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // New waarneming-styled layout: grey background, Waarneming header,
-    // and a card container with search + animal grid.
-    
-    // Watch the sighting manager so widget rebuilds when sighting state changes
-    final sightingManager = context.watch<AnimalSightingReportingInterface>();
-    final currentSighting = sightingManager.getCurrentanimalSighting();
-    
-    String appBarTitle = 'Waarneming'; // default
-    if (currentSighting?.reportType != null) {
-      if (currentSighting!.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -199,7 +167,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: appBarTitle,
+              centerText: 'Schademelding',
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
@@ -215,7 +183,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Selecteer Dier:',
+                  'Selecteer het verdachte dier:',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
@@ -246,19 +214,18 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: 8),
-                        // Category Filter Label
                         Padding(
                           padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
                           child: Text(
                             'Categorie',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black54,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black54,
+                                    ),
                           ),
                         ),
-                        // Category Filter Dropdown
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -270,8 +237,8 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                           ),
                           child: Theme(
                             data: Theme.of(context).copyWith(
-                              highlightColor: Color(0xFFE8ECE6),
-                              splashColor:  Color(0xFFE8ECE6),
+                              highlightColor: const Color(0xFFE8ECE6),
+                              splashColor: const Color(0xFFE8ECE6),
                             ),
                             child: DropdownButton<String>(
                               value: _selectedCategory,
@@ -296,36 +263,35 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                               ),
                               items: _categories
                                   .map((category) => DropdownMenuItem<String>(
-                                    value: category,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 8.0,
-                                      ),
-                                      child: Text(
-                                        category,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black87,
+                                        value: category,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                            vertical: 8.0,
+                                          ),
+                                          child: Text(
+                                            category,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ))
+                                      ))
                                   .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  _selectedCategory = value;
-                                });
-                                _loadAnimals();
-                              }
-                            },
-                          ),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedCategory = value;
+                                  });
+                                  _loadAnimals();
+                                }
+                              },
                             ),
                           ),
+                        ),
                         const SizedBox(height: 16),
-                        // Animal grid fills remaining space
                         Expanded(
                           child: ScrollableAnimalGrid(
                             animals: _animals,
@@ -334,7 +300,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                             scrollController: _scrollController,
                             onAnimalSelected: _handleAnimalSelection,
                             onRetry: _loadAnimals,
-                            selectedAnimal: sightingManager.getCurrentanimalSighting()?.animalSelected,
+                            selectedAnimal: _animalSightingManager.getCurrentanimalSighting()?.animalSelected,
                           ),
                         ),
                       ],
@@ -349,4 +315,3 @@ class _AnimalsScreenState extends State<AnimalsScreen>
     );
   }
 }
-

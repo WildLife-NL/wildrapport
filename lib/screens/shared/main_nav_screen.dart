@@ -5,7 +5,7 @@ import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
-import 'package:wildrapport/screens/logbook/logbook_screen.dart';
+import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 
@@ -25,7 +25,6 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
-  bool _hasUserInteracted = false;
   
   @override
   void initState() {
@@ -68,7 +67,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   void _onTabSelected(NavTab tab) {
-    _hasUserInteracted = true;
     setState(() => _currentTab = tab);
     if (tab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
   }
@@ -94,10 +92,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
             onBackPressed: _onBackFromTab,
           ),
           KaartOverviewScreen(onBackPressed: _onBackFromTab),
-          LogbookScreen(
-            onBackPressed: _onBackFromTab,
-            openRecentSightings: widget.openRecentSightingsDirectly && _currentTab == NavTab.logboek,
-          ),
+          const RecentSightingsScreen(),
           ProfileScreen(onBackPressed: _onBackFromTab),
         ],
       ),

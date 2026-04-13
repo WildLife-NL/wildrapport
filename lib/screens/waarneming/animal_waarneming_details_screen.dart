@@ -9,6 +9,8 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
+import 'package:wildrapport/screens/dieraanrijding/dieraanrijding_details_screen.dart';
+import 'package:wildrapport/constants/design_system.dart';
 
 class AnimalWaarnemingDetailsScreen extends StatefulWidget {
   final int animalIndex; // 0-based index (0 = Dier 1, 1 = Dier 2, etc)
@@ -122,13 +124,29 @@ class _AnimalWaarnemingDetailsScreenState
         ),
       );
     } else {
-      // Last animal - go to summary screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
-        ),
-      );
+      // Last animal - check if dieraanrijding to go to dieraanrijding details
+      final sightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      final sighting = sightingManager.getCurrentanimalSighting();
+      
+      if (sighting?.reportType == 'verkeersongeval') {
+        // Go to dieraanrijding details screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
+          ),
+        );
+      } else {
+        // Go to summary screen for outros report types
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
+          ),
+        );
+      }
     }
   }
 
@@ -153,6 +171,17 @@ class _AnimalWaarnemingDetailsScreenState
       );
     }
 
+    String appBarTitle = 'Waarneming'; // default
+    if (sighting?.reportType != null) {
+      if (sighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (sighting!.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (sighting!.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -161,7 +190,7 @@ class _AnimalWaarnemingDetailsScreenState
           children: [
             // App Bar
             CustomAppBar(
-              centerText: 'Waarneming',
+              centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
@@ -400,7 +429,7 @@ class _AnimalWaarnemingDetailsScreenState
                         ),
                         child: Text(
                           widget.animalIndex == widget.totalCount - 1
-                              ? 'Indienen'
+                              ? 'Volgende'
                               : 'Klaar met dieren',
                           style: const TextStyle(
                             fontSize: 16,
@@ -446,23 +475,9 @@ class _AnimalWaarnemingDetailsScreenState
             final label = _getEnumLabel(option);
             return OutlinedButton(
               onPressed: () => onSelected(option),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                side: BorderSide(
-                  color: isSelected
-                      ? const Color(0xFF333333)
-                      : const Color(0xFF999999),
-                  width: isSelected ? 2 : 1.5,
-                ),
-                backgroundColor:
-                    isSelected ? const Color(0xFF333333) : Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              style: isSelected
+                  ? AppComponentStyles.selectionButtonSelected()
+                  : AppComponentStyles.selectionButtonUnselected(),
               child: Text(
                 label,
                 style: TextStyle(
