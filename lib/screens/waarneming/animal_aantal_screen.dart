@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_details_screen.dart';
-import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 
 class AnimalAantalScreen extends StatefulWidget {
   const AnimalAantalScreen({super.key});
@@ -441,12 +440,15 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                         onPressed: () {
                           if (currentCount > 0) {
                             _saveAnimalCount();
-                            // Navigate directly to summary, skipping details
+                            debugPrint('[AnimalAantal] Report type: ${sighting?.reportType}');
+                            debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingDetailsScreen');
+                            // Navigate to animal details screen for the first animal
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    AnimalWaarnemingSummaryScreen(
+                                    AnimalWaarnemingDetailsScreen(
+                                      animalIndex: 0,
                                       totalCount: currentCount,
                                     ),
                               ),

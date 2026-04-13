@@ -150,11 +150,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: gapMd),
-                            FilledButton(
+                            OutlinedButton(
                               onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.darkGreen,
-                                foregroundColor: Colors.white,
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 minimumSize: const Size.fromHeight(48),
                                 shape: RoundedRectangleBorder(
@@ -163,7 +162,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: Text(
                                 'Profiel Bewerken',
-                                style: TextStyle(fontSize: fs(15)),
+                                style: TextStyle(
+                                  fontSize: fs(15),
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                             const SizedBox(height: gapLg),
@@ -251,11 +254,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             const SizedBox(height: gapSm),
-                            FilledButton(
+                            OutlinedButton(
                               onPressed: () => _confirmLogout(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.darkGreen,
-                                foregroundColor: Colors.white,
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 minimumSize: const Size.fromHeight(48),
                                 shape: RoundedRectangleBorder(
@@ -264,7 +266,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: Text(
                                 'Uitloggen',
-                                style: TextStyle(fontSize: fs(15)),
+                                style: TextStyle(
+                                  fontSize: fs(15),
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                             const SizedBox(height: gapMd),
@@ -291,8 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             FilledButton(
                               onPressed: () => _confirmDelete(context),
                               style: FilledButton.styleFrom(
-                                backgroundColor: _destructivePink,
-                                foregroundColor: Colors.red.shade700,
+                                backgroundColor: AppColors.error.withValues(alpha: 0.15),
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 minimumSize: const Size.fromHeight(44),
                                 shape: RoundedRectangleBorder(
@@ -304,6 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: TextStyle(
                                   fontSize: fs(14),
                                   fontWeight: FontWeight.w600,
+                                  color: AppColors.error,
                                 ),
                               ),
                             ),
