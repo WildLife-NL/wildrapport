@@ -91,40 +91,39 @@ class _SchademeldingLocationSelectionScreenState extends State<SchademeldingLoca
       body: SafeArea(
         bottom: false,
         child: Column(
-        children: [
-          CustomAppBar(
-            leftIcon: Icons.arrow_back_ios,
-            centerText: 'Schademelding',
-            rightIcon: null,
-            showUserIcon: false,
-            useFixedText: true,
-            onLeftIconPressed: _handleBackNavigation,
-            iconColor: Colors.black,
-            textColor: Colors.black,
-            fontScale: 1.4,
-            iconScale: 1.15,
-            userIconScale: 1.15,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Identificeer locatie:',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black87,
-                    ),
+          children: [
+            CustomAppBar(
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Schademelding',
+              rightIcon: null,
+              showUserIcon: false,
+              useFixedText: true,
+              onLeftIconPressed: _handleBackNavigation,
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.4,
+              iconScale: 1.15,
+              userIconScale: 1.15,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Identificeer locatie:',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black87,
+                      ),
+                ),
               ),
             ),
-          ),
-          // Card container with map + instructions
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.75, // 75% of screen
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
-              child: Card(
+            // Card container with map + instructions
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+                child: Card(
                 elevation: 0,
                 color: Colors.white,
                 shape: RoundedRectangleBorder(

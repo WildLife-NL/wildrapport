@@ -64,9 +64,9 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
     if (sighting?.reportType != null) {
       if (sighting!.reportType == 'gewasschade') {
         appBarTitle = 'Schademelding';
-      } else if (sighting!.reportType == 'verkeersongeval') {
+      } else if (sighting.reportType == 'verkeersongeval') {
         appBarTitle = 'Dieraanrijding';
-      } else if (sighting!.reportType == 'waarneming') {
+      } else if (sighting.reportType == 'waarneming') {
         appBarTitle = 'Waarneming';
       }
     }

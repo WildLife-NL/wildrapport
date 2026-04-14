@@ -19,14 +19,7 @@ class SchademeldingSummaryScreen extends StatefulWidget {
 
 class _SchademeldingSummaryScreenState
     extends State<SchademeldingSummaryScreen> {
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    } else {
-      final navigationManager = context.read<NavigationStateInterface>();
-      navigationManager.resetToHome(context);
-    }
-  }
+
 
   void _onSubmitPressed() {
     final sightingManager = context.read<AnimalSightingReportingInterface>();

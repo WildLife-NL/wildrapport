@@ -98,6 +98,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
+        bottom: false,
         child: CustomNavBar(
           currentTab: _currentTab,
           onTabSelected: _onTabSelected,

@@ -9,7 +9,6 @@ import 'package:wildrapport/providers/map_provider.dart';
 
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';

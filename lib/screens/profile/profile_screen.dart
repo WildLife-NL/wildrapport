@@ -30,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _version = '';
 
   static const _pageBg = Color(0xFFEFF2EF);
-  static const _destructivePink = Color(0xFFFFE6E8);
 
   @override
   void initState() {

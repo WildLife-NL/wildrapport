@@ -31,12 +31,13 @@ class CustomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final safeBottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Positioned(
-          bottom: 45,
+          bottom: 45 + safeBottomPadding,
           left: screenWidth / 2 - 35,
           child: Container(
             width: 70,
@@ -54,7 +55,8 @@ class CustomNavBar extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: _barHeight,
+          width: double.infinity,
+          height: _barHeight + safeBottomPadding,
           child: CustomPaint(
             painter: NavBarCurvePainter(
               backgroundColor: _navBarBackground,
@@ -64,31 +66,34 @@ class CustomNavBar extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildNavItem(
-                      tab: NavTab.zones,
-                      icon: Icons.add_location_alt,
-                      label: "Zone's",
-                    ),
-                    _buildNavItem(
-                      tab: NavTab.rapporten,
-                      icon: Icons.assignment,
-                      label: 'Rapporten',
-                    ),
-                    const SizedBox(width: 60),
-                    _buildNavItem(
-                      tab: NavTab.logboek,
-                      icon: Icons.menu_book,
-                      label: 'LogBoek',
-                    ),
-                    _buildNavItem(
-                      tab: NavTab.profile,
-                      icon: Icons.person,
-                      label: 'Profiel',
-                    ),
-                  ],
+                Padding(
+                  padding: EdgeInsets.only(bottom: safeBottomPadding),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildNavItem(
+                        tab: NavTab.zones,
+                        icon: Icons.add_location_alt,
+                        label: "Zone's",
+                      ),
+                      _buildNavItem(
+                        tab: NavTab.rapporten,
+                        icon: Icons.assignment,
+                        label: 'Rapporten',
+                      ),
+                      const SizedBox(width: 60),
+                      _buildNavItem(
+                        tab: NavTab.logboek,
+                        icon: Icons.menu_book,
+                        label: 'LogBoek',
+                      ),
+                      _buildNavItem(
+                        tab: NavTab.profile,
+                        icon: Icons.person,
+                        label: 'Profiel',
+                      ),
+                    ],
+                  ),
                 ),
                 Positioned(
                   top: _centerButtonOffset,

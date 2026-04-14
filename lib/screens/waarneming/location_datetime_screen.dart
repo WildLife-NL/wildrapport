@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
-import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
@@ -27,15 +26,6 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     super.initState();
     _mapController = fm.MapController();
     _selectedDateTime = DateTime.now();
-  }
-
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    } else {
-      final navigationManager = context.read<NavigationStateInterface>();
-      navigationManager.resetToHome(context);
-    }
   }
 
   Future<void> _pickDate() async {
@@ -160,9 +150,9 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     if (currentSighting?.reportType != null) {
       if (currentSighting!.reportType == 'gewasschade') {
         appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
+      } else if (currentSighting.reportType == 'verkeersongeval') {
         appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
+      } else if (currentSighting.reportType == 'waarneming') {
         appBarTitle = 'Waarneming';
       }
     }

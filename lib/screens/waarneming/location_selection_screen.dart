@@ -93,9 +93,9 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
     if (currentSighting?.reportType != null) {
       if (currentSighting!.reportType == 'gewasschade') {
         appBarTitle = 'Schademelding';
-      } else if (currentSighting!.reportType == 'verkeersongeval') {
+      } else if (currentSighting.reportType == 'verkeersongeval') {
         appBarTitle = 'Dieraanrijding';
-      } else if (currentSighting!.reportType == 'waarneming') {
+      } else if (currentSighting.reportType == 'waarneming') {
         appBarTitle = 'Waarneming';
       }
     }
@@ -136,8 +136,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
           ),
           // Card container with map + instructions
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.75, // 75% of screen
+          Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
               child: Card(
