@@ -45,12 +45,40 @@ class ScrollableAnimalGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Error: $error', textAlign: TextAlign.center),
+            Text(
+              'Error: $error',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 15,
+              ),
+            ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: Colors.grey.shade400,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: onRetry,
-                child: const Text('Retry'),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ],
@@ -63,12 +91,39 @@ class ScrollableAnimalGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('No animals found'),
+            const Text(
+              'No animals found',
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 15,
+              ),
+            ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: Colors.grey.shade400,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: onRetry,
-                child: const Text('Retry'),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ],

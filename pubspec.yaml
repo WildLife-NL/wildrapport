@@ -125,6 +125,7 @@ flutter:
     - assets/damage.svg
     - assets/collision.svg
     - assets/images/vee/
+    - assets/logo-wildlife.svg
     - .env
 
   fonts:
