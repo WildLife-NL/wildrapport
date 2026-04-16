@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/enums/animal_condition.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 
@@ -55,10 +57,7 @@ class _DieraanrijdingDetailsScreenState
     // Load any previously saved data
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
-      _selectedSeverity = currentSighting.accidentSeverity ?? 'Licht';
-      _selectedCondition = currentSighting.animalConditionDieraanrijding ?? 'Gezond';
-      _selectedExpectedLoss = currentSighting.expectedLoss ?? '€0-€250';
-      _additionalInfoController.text = currentSighting.additionalInfo ?? '';
+      _additionalInfoController.text = currentSighting.description ?? '';
     }
   }
 
@@ -69,16 +68,22 @@ class _DieraanrijdingDetailsScreenState
   }
 
   void _onNextPressed() {
-    // Save data to sighting manager
+    // Save supported values to sighting manager
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
-      final updated = currentSighting.copyWith(
-        accidentSeverity: _selectedSeverity,
-        animalConditionDieraanrijding: _selectedCondition,
-        expectedLoss: _selectedExpectedLoss,
-        additionalInfo: _additionalInfoController.text,
-      );
-      _sightingManager.updateCurrentanimalSighting(updated);
+      _sightingManager.updateDescription(_additionalInfoController.text);
+      final selectedAnimal = currentSighting.animalSelected;
+      if (selectedAnimal != null) {
+        final updatedAnimal = AnimalModel(
+          animalId: selectedAnimal.animalId,
+          animalImagePath: selectedAnimal.animalImagePath,
+          animalName: selectedAnimal.animalName,
+          category: selectedAnimal.category,
+          genderViewCounts: selectedAnimal.genderViewCounts,
+          condition: _mapCondition(_selectedCondition),
+        );
+        _sightingManager.updateSelectedAnimal(updatedAnimal);
+      }
     }
 
     debugPrint(
@@ -201,14 +206,6 @@ class _DieraanrijdingDetailsScreenState
                                     setState(() {
                                       _selectedExpectedLoss = newValue;
                                     });
-                                    // Save to sighting manager
-                                    final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                    if (currentSighting != null) {
-                                      final updated = currentSighting.copyWith(
-                                        expectedLoss: newValue,
-                                      );
-                                      _sightingManager.updateCurrentanimalSighting(updated);
-                                    }
                                   }
                                 },
                               ),
@@ -238,14 +235,6 @@ class _DieraanrijdingDetailsScreenState
                                   setState(() {
                                     _selectedSeverity = severity;
                                   });
-                                  // Save to sighting manager
-                                  final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                  if (currentSighting != null) {
-                                    final updated = currentSighting.copyWith(
-                                      accidentSeverity: severity,
-                                    );
-                                    _sightingManager.updateCurrentanimalSighting(updated);
-                                  }
                                 },
                               );
                             }).toList(),
@@ -274,14 +263,6 @@ class _DieraanrijdingDetailsScreenState
                                   setState(() {
                                     _selectedCondition = condition;
                                   });
-                                  // Save to sighting manager
-                                  final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                  if (currentSighting != null) {
-                                    final updated = currentSighting.copyWith(
-                                      animalConditionDieraanrijding: condition,
-                                    );
-                                    _sightingManager.updateCurrentanimalSighting(updated);
-                                  }
                                 },
                               );
                             }).toList(),
@@ -312,14 +293,7 @@ class _DieraanrijdingDetailsScreenState
                               controller: _additionalInfoController,
                               maxLines: 6,
                               onChanged: (value) {
-                                // Save to sighting manager on each change
-                                final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                if (currentSighting != null) {
-                                  final updated = currentSighting.copyWith(
-                                    additionalInfo: value,
-                                  );
-                                  _sightingManager.updateCurrentanimalSighting(updated);
-                                }
+                                // Keep local state during typing; persist on next.
                               },
                               decoration: InputDecoration(
                                 hintText: 'Typ hier...',
@@ -442,5 +416,18 @@ class _DieraanrijdingDetailsScreenState
         ),
       ),
     );
+  }
+
+  AnimalCondition _mapCondition(String conditionLabel) {
+    switch (conditionLabel.toLowerCase()) {
+      case 'gezond':
+        return AnimalCondition.gezond;
+      case 'gewond':
+        return AnimalCondition.ziek;
+      case 'dood':
+        return AnimalCondition.dood;
+      default:
+        return AnimalCondition.andere;
+    }
   }
 }

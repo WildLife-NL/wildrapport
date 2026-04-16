@@ -5,7 +5,9 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
@@ -97,10 +99,12 @@ class _AnimalWaarnemingSummaryScreenState
     final sighting = sightingManager.getCurrentanimalSighting();
     final selectedAnimal = sighting?.animalSelected;
     
-    // Determine the app bar title based on report type
-    final appBarTitle = sighting?.reportType == 'verkeersongeval' 
-        ? 'Dieraanrijding' 
-        : 'Waarneming';
+    final reportType = context.read<AppStateProvider>().currentReportType;
+    final appBarTitle = switch (reportType) {
+      ReportType.verkeersongeval => 'Dieraanrijding',
+      ReportType.gewasschade => 'Schademelding',
+      _ => 'Waarneming',
+    };
 
     if (selectedAnimal == null) {
       return Scaffold(
@@ -400,160 +404,6 @@ class _AnimalWaarnemingSummaryScreenState
                               ),
                             ),
                           ),
-                          // Dieraanrijding specific details
-                          if (sighting?.reportType == 'verkeersongeval') ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Expected loss
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.trending_down, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Verwacht verlies',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.expectedLoss ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Accident severity
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.warning_amber, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ernst van het ongeluk',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.accidentSeverity ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Animal condition
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Toestand dier',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.animalConditionDieraanrijding ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
                         ],
                       ),
                     ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
+import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 
 class SchademeldingVeeTypesScreen extends StatefulWidget {
@@ -15,7 +13,6 @@ class SchademeldingVeeTypesScreen extends StatefulWidget {
 
 class _SchademeldingVeeTypesScreenState
     extends State<SchademeldingVeeTypesScreen> {
-  late AnimalSightingReportingInterface _sightingManager;
   String? _selectedVee;
   
   final List<Map<String, String>> veeTypes = [
@@ -32,13 +29,6 @@ class _SchademeldingVeeTypesScreenState
   @override
   void initState() {
     super.initState();
-    _sightingManager = context.read<AnimalSightingReportingInterface>();
-    
-    // Load any previously selected vee type
-    final currentSighting = _sightingManager.getCurrentanimalSighting();
-    if (currentSighting != null && currentSighting.cropType != null) {
-      _selectedVee = currentSighting.cropType;
-    }
   }
 
   void _handleBackNavigation() {
@@ -49,25 +39,16 @@ class _SchademeldingVeeTypesScreenState
 
   void _handleVeeTypeSelection(String veeType) {
     debugPrint('[SchademeldingVeeTypes] Selected: $veeType');
-    
-    // Save selected vee type to provider
-    final currentSighting = _sightingManager.getCurrentanimalSighting();
-    if (currentSighting != null) {
-      final updated = currentSighting.copyWith(
-        cropType: veeType,
-      );
-      _sightingManager.updateCurrentanimalSighting(updated);
-    }
-    
+
     setState(() {
       _selectedVee = veeType;
     });
-    
-    // Navigate to animal selection
+
+    // Navigate to the current belonging flow animal screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SchademeldingDierenScreen(gewasType: veeType),
+        builder: (context) => const BelongingAnimalScreen(appBarTitle: 'Selecteer Dier'),
       ),
     );
   }

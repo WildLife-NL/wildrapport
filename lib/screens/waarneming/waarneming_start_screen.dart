@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
+import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:provider/provider.dart';
 
 class WaarnemmingStartScreen extends StatelessWidget {
@@ -72,7 +72,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, -2),
                           ),
@@ -87,7 +87,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                               debugPrint('[Waarneming] Start new sighting');
                               navigationManager.pushForward(
                                 context,
-                                const LocationSelectionScreen(),
+                                const LocationScreen(),
                               );
                             },
                             child: Column(
@@ -173,7 +173,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
   }
 
   Widget _buildRecentSightingsList(BuildContext context) {
-    // TODO: Replace with actual API data
+    // Placeholder local data until this list is connected to backend data.
     final recentSightings = [
       {
         'day': 'Vandag',
@@ -210,7 +210,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  // TODO: Navigate to sighting details
+                  // Placeholder tap handling until detail navigation is wired.
                   debugPrint('[Waarneming] Tapped sighting: ${sighting['animal']}');
                 },
                 child: Padding(

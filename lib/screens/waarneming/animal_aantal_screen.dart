@@ -17,24 +17,12 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
   @override
   void initState() {
     super.initState();
-    // Load saved animal count from sighting if it exists
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
-    final sighting = sightingManager.getCurrentanimalSighting();
-    
-    currentCount = sighting?.animalCount ?? 0;
+    currentCount = 0;
   }
 
   void _saveAnimalCount() {
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
-    final sighting = sightingManager.getCurrentanimalSighting();
-    
-    if (sighting != null) {
-      sightingManager.updateCurrentanimalSighting(
-        sighting.copyWith(animalCount: currentCount),
-      );
-    }
+    // Kept for compatibility with existing button flow.
+    // Count is passed forward via navigation args.
   }
 
   void _handleBackNavigation() {
@@ -60,16 +48,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
       );
     }
 
-    String appBarTitle = 'Waarneming'; // default
-    if (sighting?.reportType != null) {
-      if (sighting!.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (sighting!.reportType == 'verkeersongeval') {
-        appBarTitle = 'Dieraanrijding';
-      } else if (sighting!.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
+    const String appBarTitle = 'Waarneming';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
@@ -113,9 +92,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                         children: [
                           // Question text
                           Text(
-                            sighting?.reportType == 'verkeersongeval'
-                                ? 'Hoeveel dieren\nwaren erbij betrokken?'
-                                : 'Hoeveel van deze dieren\nheb je gezien?',
+                            'Hoeveel van deze dieren\nheb je gezien?',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16,
@@ -440,7 +417,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                         onPressed: () {
                           if (currentCount > 0) {
                             _saveAnimalCount();
-                            debugPrint('[AnimalAantal] Report type: ${sighting?.reportType}');
+                            debugPrint('[AnimalAantal] Count selected: $currentCount');
                             debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingDetailsScreen');
                             // Navigate to animal details screen for the first animal
                             Navigator.push(

@@ -22,15 +22,23 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
   }
 
   String _getReportTypeTitle() {
-    switch (widget.sighting.reportType) {
-      case 'verkeersongeval':
-        return 'Dieraanrijding';
-      case 'gewasschade':
-        return 'Schademelding';
-      case 'waarneming':
-      default:
-        return 'Waarneming';
+    return 'Waarneming';
+  }
+
+  int _getAnimalCount() {
+    final animals = widget.sighting.animals;
+    if (animals == null || animals.isEmpty) return 0;
+
+    int total = 0;
+    for (final animal in animals) {
+      for (final gvc in animal.genderViewCounts) {
+        total += gvc.viewCount.pasGeborenAmount;
+        total += gvc.viewCount.onvolwassenAmount;
+        total += gvc.viewCount.volwassenAmount;
+        total += gvc.viewCount.unknownAmount;
+      }
     }
+    return total;
   }
 
   String _getLocationDisplay(List? locations) {
@@ -282,18 +290,16 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Total aantal (if applicable)
-                          if (widget.sighting.animalCount != null)
-                            Text(
-                              'Aantal: ${widget.sighting.animalCount}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
-                              ),
+                          // Total aantal
+                          Text(
+                            'Aantal: ${_getAnimalCount()}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
                             ),
-                          if (widget.sighting.animalCount != null)
-                            const SizedBox(height: 16),
+                          ),
+                          const SizedBox(height: 16),
                           // Location and DateTime info
                           Card(
                             elevation: 0,
@@ -399,418 +405,112 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                               ),
                             ),
                           ),
-                          // Waarneming specific details
-                          if (widget.sighting.reportType == 'waarneming') ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Gender
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Geslacht',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                _getGenderDisplay(selectedAnimal.gender),
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Age
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.calendar_month, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Leeftijd',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                _getAgeDisplay(selectedAnimal.viewCount),
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                          // Waarneming details
+                          const SizedBox(height: 16),
+                          Card(
+                            elevation: 0,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(
+                                color: Color(0xFFE8E8E8),
+                                width: 1,
                               ),
                             ),
-                          ],
-                          // Dieraanrijding specific details
-                          if (widget.sighting.reportType == 'verkeersongeval') ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Expected loss
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.trending_down, size: 18, color: Colors.grey[700]),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Gender
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF0F0F0),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Verwacht verlies',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                widget.sighting.expectedLoss ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Accident severity
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.warning_amber, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ernst van het ongeluk',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                widget.sighting.accidentSeverity ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Animal condition
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Toestand dier',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                widget.sighting.animalConditionDieraanrijding ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                          // Schademelding specific details
-                          if (widget.sighting.reportType == 'gewasschade') ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Expected loss
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.trending_down, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Geschat verlies',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                widget.sighting.expectedLoss ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    // Preventive measures
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.shield, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Preventieve maatregelen',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                widget.sighting.preventiveMeasures == true ? 'Ja' : 'Nee',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                          // Additional info for Schademelding (separate container)
-                          if (widget.sighting.reportType == 'gewasschade' &&
-                              widget.sighting.additionalInfo != null &&
-                              widget.sighting.additionalInfo!.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Aanvullende informatie',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[600],
+                                        child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      widget.sighting.additionalInfo ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontStyle: FontStyle.italic,
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Geslacht',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              _getGenderDisplay(selectedAnimal.gender),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Divider(
+                                    color: Colors.grey.withValues(alpha: 0.15),
+                                    height: 1,
+                                    thickness: 1,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  // Age
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF0F0F0),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(Icons.calendar_month, size: 18, color: Colors.grey[700]),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Leeftijd',
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              _getAgeDisplay(selectedAnimal.viewCount),
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
+                          ),
                         ],
                       ),
                     ),

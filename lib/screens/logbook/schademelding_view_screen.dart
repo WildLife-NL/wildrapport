@@ -68,9 +68,12 @@ class SchademeldingViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final animalName = sighting.animalSelected?.animalName ?? 'Dier';
-    final cropType = sighting.cropType ?? 'Onbekend';
-    final expectedLoss = sighting.expectedLoss ?? 'Onbekend';
-    final preventiveMeasures = sighting.preventiveMeasures ?? false;
+    // Legacy schademelding fields are not part of AnimalSightingModel anymore.
+    final cropType = 'Onbekend';
+    final expectedLoss = sighting.description?.isNotEmpty == true
+        ? sighting.description!
+        : 'Onbekend';
+    const preventiveMeasuresLabel = 'Nee';
     final dateTime = _getDateTimeDisplay(sighting.dateTime);
     final location = _getLocationDisplay(sighting.locations);
 
@@ -344,7 +347,7 @@ class SchademeldingViewScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            preventiveMeasures ? 'Ja' : 'Nee',
+                            preventiveMeasuresLabel,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

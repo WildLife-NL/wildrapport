@@ -237,14 +237,14 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
       );
       debugPrint("✅ Created Possesion with name: '${pos.possesionName}'");
 
-      // locations (fallbacks if missing)
-      final systemReportLocation =
-          formProvider.systemLocation ??
-          ReportLocation(latitude: 20.0, longtitude: 20.0);
-
-      final userReportLocation =
-          formProvider.userLocation ??
-          ReportLocation(latitude: 20.0, longtitude: 20.0);
+      // locations are required; never send hardcoded fallback coordinates
+      final systemReportLocation = formProvider.systemLocation;
+      final userReportLocation = formProvider.userLocation;
+      if (systemReportLocation == null || userReportLocation == null) {
+        throw Exception(
+          "Location is missing: both system and selected location are required",
+        );
+      }
 
       // ✅ Convert UI unit -> API unit using provider helpers
       final String impactType =

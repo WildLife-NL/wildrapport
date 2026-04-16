@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
@@ -29,8 +30,36 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   void initState() {
     super.initState();
     _mapController = fm.MapController();
-    // TODO: Get actual user location from geolocator
-    _currentLocation = defaultCenter;
+    _loadCurrentLocation();
+  }
+
+  Future<void> _loadCurrentLocation() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      if (!mounted) return;
+      final current = LatLng(position.latitude, position.longitude);
+      setState(() {
+        _currentLocation = current;
+      });
+      _mapController.move(current, 15.0);
+    } catch (e) {
+      debugPrint('[LocationSelectionScreen] Could not load current location: $e');
+    }
   }
 
   void _centerOnCurrentLocation() {
@@ -39,6 +68,12 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       setState(() {
         _selectedLocation = _currentLocation;
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Huidige locatie is niet beschikbaar.'),
+        ),
+      );
     }
   }
 
@@ -150,8 +185,11 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                             fm.FlutterMap(
                               mapController: _mapController,
                               options: fm.MapOptions(
-                                initialCenter: defaultCenter,
+                                initialCenter: _currentLocation ?? defaultCenter,
                                 initialZoom: 15.0,
+                                interactionOptions: const fm.InteractionOptions(
+                                  flags: fm.InteractiveFlag.all & ~fm.InteractiveFlag.rotate,
+                                ),
                                 onTap: (tapPosition, point) => _onMapTap(point),
                               ),
                               children: [

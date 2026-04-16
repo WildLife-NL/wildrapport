@@ -7,6 +7,8 @@ import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
+import 'package:wildrapport/models/enums/report_type.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
@@ -125,8 +127,8 @@ class _AnimalWaarnemingDetailsScreenState
       );
     } else {
       // Last animal - Check report type
-      final reportType = sighting?.reportType;
-      if (reportType == 'verkeersongeval') {
+      final reportType = context.read<AppStateProvider>().currentReportType;
+      if (reportType == ReportType.verkeersongeval) {
         // For dieraanrijding, go to details screen first
         Navigator.push(
           context,
@@ -167,14 +169,12 @@ class _AnimalWaarnemingDetailsScreenState
       );
     }
 
-    String appBarTitle = 'Waarneming'; // default
-    if (sighting != null && sighting.reportType != null) {
-      if (sighting.reportType == 'gewasschade') {
-        appBarTitle = 'Schademelding';
-      } else if (sighting.reportType == 'waarneming') {
-        appBarTitle = 'Waarneming';
-      }
-    }
+    final reportType = context.read<AppStateProvider>().currentReportType;
+    final appBarTitle = switch (reportType) {
+      ReportType.gewasschade => 'Schademelding',
+      ReportType.verkeersongeval => 'Dieraanrijding',
+      _ => 'Waarneming',
+    };
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
