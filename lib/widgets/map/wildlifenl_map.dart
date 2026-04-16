@@ -63,6 +63,7 @@ class WildLifeNLMap extends StatelessWidget {
           subdomains: useSatelliteTiles
               ? const []
               : MapStateInterface.standardTileSubdomains,
+          retinaMode: true,
           userAgentPackageName: userAgentPackageName,
           keepBuffer: tileKeepBuffer,
         ),

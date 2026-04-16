@@ -1307,6 +1307,15 @@ packages:
       url: "https://github.com/WildLife-NL/wildlifenl-components.git"
     source: git
     version: "1.1.0"
+  wildlifenl_profile_components:
+    dependency: "direct main"
+    description:
+      path: wildlifenl_profile_components
+      ref: main
+      resolved-ref: b190c51fd1889313618b81d69ad96f91a2ee15e1
+      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
+    source: git
+    version: "0.1.0"
   wildlifenl_rapporten_components:
     dependency: "direct main"
     description:
