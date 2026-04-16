@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wildlifenl_profile_components/wildlifenl_profile_components.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
@@ -30,7 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _version = '';
 
   static const _pageBg = Color(0xFFEFF2EF);
-  static const _destructivePink = Color(0xFFFFE6E8);
 
   @override
   void initState() {
@@ -76,11 +76,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final email = _profile?.email ?? '—';
 
-    final fs = responsive.fontSize;
-    const gapSm = 8.0;
-    const gapMd = 12.0;
-    const gapLg = 18.0;
-
     return Scaffold(
       backgroundColor: _pageBg,
       body: SafeArea(
@@ -101,221 +96,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       maxWidth: cardW,
                       maxHeight: maxBoxH,
                     ),
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 2,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Center(
-                              child: CircleAvatar(
-                                radius: 36,
-                                backgroundColor: Colors.grey.shade200,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            Text(
-                              _userName,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(18),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _loadingProfile ? '…' : email,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(14),
-                                color: Colors.grey.shade600,
-                                height: 1.25,
-                              ),
-                            ),
-                            const SizedBox(height: gapMd),
-                            OutlinedButton(
-                              onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
-                                ),
-                              ),
-                              child: Text(
-                                'Profiel Bewerken',
-                                style: TextStyle(
-                                  fontSize: fs(15),
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: gapLg),
-                            Text(
-                              'Voorkeuren',
-                              style: TextStyle(
-                                fontSize: fs(12),
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                children: [
-                                  SwitchListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 4,
-                                    ),
-                                    title: Text(
-                                      'Locatie delen',
-                                      style: TextStyle(
-                                        fontSize: fs(15),
-                                        color: Colors.grey.shade900,
-                                      ),
-                                    ),
-                                    value: app.isLocationTrackingEnabled,
-                                    activeThumbColor: Colors.white,
-                                    activeTrackColor: AppColors.darkGreen,
-                                    onChanged: (enabled) async {
-                                      await app.setLocationTrackingEnabled(enabled);
-                                      if (!context.mounted) return;
-                                      final map = context.read<MapProvider>();
-                                      final state = context.read<AppStateProvider>();
-                                      if (!enabled) {
-                                        map.clearUserLocationAndStopTracking();
-                                      }
-                                      map.setVicinityNotificationsEnabled(
-                                        state.isLocationTrackingEnabled &&
-                                            state.notificationsEnabled,
-                                      );
-                                    },
-                                  ),
-                                  Divider(height: 1, color: Colors.grey.shade300),
-                                  SwitchListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 4,
-                                    ),
-                                    title: Text(
-                                      'Meldingen',
-                                      style: TextStyle(
-                                        fontSize: fs(15),
-                                        color: Colors.grey.shade900,
-                                      ),
-                                    ),
-                                    value: app.notificationsEnabled,
-                                    activeThumbColor: Colors.white,
-                                    activeTrackColor: AppColors.darkGreen,
-                                    onChanged: (enabled) async {
-                                      await app.setNotificationsEnabled(enabled);
-                                      if (!context.mounted) return;
-                                      final state = context.read<AppStateProvider>();
-                                      context.read<MapProvider>().setVicinityNotificationsEnabled(
-                                            state.isLocationTrackingEnabled &&
-                                                state.notificationsEnabled,
-                                          );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            Text(
-                              _version.isEmpty ? '' : 'App Version: V$_version',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: fs(11),
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            OutlinedButton(
-                              onPressed: () => _confirmLogout(context),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
-                                ),
-                              ),
-                              child: Text(
-                                'Uitloggen',
-                                style: TextStyle(
-                                  fontSize: fs(15),
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: gapMd),
-                            Text(
-                              'Account verwijderen',
-                              style: TextStyle(
-                                fontSize: fs(16),
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Je gegevens gaan permanent verloren; dit kan niet ongedaan worden.',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: fs(12),
-                                color: Colors.grey.shade600,
-                                height: 1.25,
-                              ),
-                            ),
-                            const SizedBox(height: gapSm),
-                            FilledButton(
-                              onPressed: () => _confirmDelete(context),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.error.withValues(alpha: 0.15),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                minimumSize: const Size.fromHeight(44),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(26),
-                                ),
-                              ),
-                              child: Text(
-                                'Account verwijderen',
-                                style: TextStyle(
-                                  fontSize: fs(14),
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.error,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    child: WildLifeNLProfileCard(
+                      userName: _userName,
+                      email: email,
+                      isLoadingProfile: _loadingProfile,
+                      isLocationTrackingEnabled: app.isLocationTrackingEnabled,
+                      notificationsEnabled: app.notificationsEnabled,
+                      version: _version,
+                      primaryColor: AppColors.darkGreen,
+                      onEditProfile: () => _handleEditProfile(context),
+                      onLocationToggle: (enabled) async {
+                        await app.setLocationTrackingEnabled(enabled);
+                        if (!context.mounted) return;
+                        final map = context.read<MapProvider>();
+                        final state = context.read<AppStateProvider>();
+                        if (!enabled) {
+                          map.clearUserLocationAndStopTracking();
+                        }
+                        map.setVicinityNotificationsEnabled(
+                          state.isLocationTrackingEnabled &&
+                              state.notificationsEnabled,
+                        );
+                      },
+                      onNotificationsToggle: (enabled) async {
+                        await app.setNotificationsEnabled(enabled);
+                        if (!context.mounted) return;
+                        final state = context.read<AppStateProvider>();
+                        context.read<MapProvider>().setVicinityNotificationsEnabled(
+                              state.isLocationTrackingEnabled &&
+                                  state.notificationsEnabled,
+                            );
+                      },
+                      onLogout: () => _confirmLogout(context),
+                      onDeleteAccount: () => _confirmDelete(context),
                     ),
                   ),
                 ),
