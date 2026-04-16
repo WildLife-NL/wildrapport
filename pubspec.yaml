@@ -12,6 +12,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wildlifenl_profile_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: main
+      path: wildlifenl_profile_components
   wildlifenl_rapporten_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
