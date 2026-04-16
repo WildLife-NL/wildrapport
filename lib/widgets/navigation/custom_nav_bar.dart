@@ -74,7 +74,7 @@ class CustomNavBar extends StatelessWidget {
                     ),
                     _buildNavItem(
                       tab: NavTab.rapporten,
-                      icon: Icons.campaign,
+                      icon: Icons.assignment,
                       label: 'Rapporten',
                     ),
                     const SizedBox(width: 60),

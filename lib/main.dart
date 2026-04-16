@@ -58,6 +58,7 @@ import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
 
+import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
@@ -172,18 +173,27 @@ void main() async {
 
   prefs.setStringList('interaction_cache', []);
 
-    final bool hasValidToken = await authenticator.hasValidToken();
-    final bool hasAccess = await authenticator.hasAccess();
-    bool hasScopeAccess = false;
-    if (hasValidToken && hasAccess) {
-      final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(apiClient);
-      hasScopeAccess = scopeAccess.checked ? scopeAccess.hasRequiredScope : hasAccess;
+    // Check if dev mode is enabled
+    final bool isDevMode = (dotenv.env['DEV_MODE'] ?? 'false').toLowerCase() == 'true';
+    
+    late final Widget initialScreen;
+    if (isDevMode) {
+      // Skip authentication in dev mode and go directly to main screen
+      initialScreen = const MainNavScreen();
+    } else {
+      final bool hasValidToken = await authenticator.hasValidToken();
+      final bool hasAccess = await authenticator.hasAccess();
+      bool hasScopeAccess = false;
+      if (hasValidToken && hasAccess) {
+        final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(apiClient);
+        hasScopeAccess = scopeAccess.checked ? scopeAccess.hasRequiredScope : hasAccess;
+      }
+      initialScreen = hasValidToken
+        ? ((hasAccess && hasScopeAccess)
+            ? const MainNavScreen()
+            : const AccessDeniedScreen())
+        : const LoginScreen();
     }
-    final Widget initialScreen = hasValidToken
-      ? ((hasAccess && hasScopeAccess)
-          ? const MainNavScreen()
-          : const AccessDeniedScreen())
-      : const LoginScreen();
 
   runApp(
     MultiProvider(
@@ -197,6 +207,9 @@ void main() async {
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
+        ),
+        ChangeNotifierProvider<SubmittedSightingsProvider>(
+          create: (_) => SubmittedSightingsProvider(),
         ),
         Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),

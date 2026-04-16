@@ -4,6 +4,7 @@ class AnimalPin {
   final double lat;
   final double lon;
   final DateTime seenAt;
+  final String? imageUrl;
 
   AnimalPin({
     required this.id,
@@ -11,6 +12,7 @@ class AnimalPin {
     required this.lon,
     required this.seenAt,
     this.speciesName,
+    this.imageUrl,
   });
 
   factory AnimalPin.fromJson(Map<String, dynamic> j) {
@@ -28,6 +30,7 @@ class AnimalPin {
       seenAt: DateTime.tryParse(ts ?? '')?.toUtc() ?? DateTime.now().toUtc(),
       speciesName:
           (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
+      imageUrl: j['imageUrl'] as String?,
     );
   }
 }
