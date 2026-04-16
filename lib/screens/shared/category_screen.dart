@@ -8,7 +8,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/selection_button_group.dart';
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -76,7 +76,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         _navigationManager.dispose(); // Clean up resources
         _navigationManager.pushReplacementForward(
           context,
-          const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+          const LocationSelectionScreen(),
         );
       }
     } catch (e) {

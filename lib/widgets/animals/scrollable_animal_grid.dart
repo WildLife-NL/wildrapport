@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/animals/animal_grid.dart';
 
@@ -29,7 +28,7 @@ class ScrollableAnimalGrid extends StatelessWidget {
           width: 200,
           height: 200,
           child: Lottie.asset(
-            AppIconPaths.loadingPaw,
+            'assets/loaders/loading_paw.json',
             fit: BoxFit.contain,
             repeat: true,
             animate: true,
@@ -44,12 +43,12 @@ class ScrollableAnimalGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Fout: $error'),
+            Text('Error: $error', textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: onRetry,
-                child: const Text('Opnieuw proberen'),
+                child: const Text('Retry'),
               ),
             ],
           ],
@@ -58,22 +57,32 @@ class ScrollableAnimalGrid extends StatelessWidget {
     }
 
     if (animals == null || animals!.isEmpty) {
-      return const Center(child: Text('Geen dieren gevonden'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('No animals found'),
+            if (onRetry != null) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: onRetry,
+                child: const Text('Retry'),
+              ),
+            ],
+          ],
+        ),
+      );
     }
 
-    return SingleChildScrollView(
-      controller: scrollController,
-      child: AnimalGrid(animals: animals!, onAnimalSelected: onAnimalSelected),
-    );
+    return AnimalGrid(animals: animals!, onAnimalSelected: onAnimalSelected);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: _buildContent(),
-      ),
+    return SingleChildScrollView(
+      controller: scrollController,
+      child: _buildContent(),
     );
   }
 }
+
