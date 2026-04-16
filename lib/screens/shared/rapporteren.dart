@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/models/enums/report_type.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/providers/map_provider.dart';
-
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/widgets/questionnaire/report_button.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
@@ -66,96 +57,22 @@ class _RapporterenState extends State<Rapporteren> {
   }
 
   void _handleReportTypeSelection(InteractionType interactionType) {
-    final navigationManager = context.read<NavigationStateInterface>();
-    final appStateProvider = context.read<AppStateProvider>();
-
     debugPrint(
       '[Rapporteren] Selected interaction type: ${interactionType.name} (ID: ${interactionType.id})',
     );
 
-    Widget nextScreen;
-    ReportType selectedReportType;
-
-    // Map interaction type name to ReportType enum
-    final typeName = interactionType.name.toLowerCase();
-
-    if (typeName == 'waarneming' || typeName.contains('sighting')) {
-      selectedReportType = ReportType.waarneming;
-      final animalSightingManager =
-          context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
-      _initializeMapInBackground();
-    } else if (typeName == 'schademelding' ||
-        typeName.contains('crop damage')) {
-      selectedReportType = ReportType.gewasschade;
-      nextScreen = BelongingAnimalScreen(appBarTitle: 'Selecteer Dier');
-      _initializeMapInBackground();
-    } else if (typeName == 'dieraanrijding' ||
-        typeName.contains('animal collision')) {
-      selectedReportType = ReportType.verkeersongeval;
-      final animalSightingManager =
-          context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
-      _initializeMapInBackground();
-    } else {
-      // Default to waarneming for unknown types
-      debugPrint(
-        '[Rapporteren] Unknown interaction type: ${interactionType.name}, defaulting to waarneming',
-      );
-      selectedReportType = ReportType.waarneming;
-      final animalSightingManager =
-          context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
-      _initializeMapInBackground();
-    }
-
-    // Initialize the report in the app state
-    appStateProvider.initializeReport(selectedReportType);
-
-    // Use push instead of pushReplacement
-    navigationManager.pushForward(context, nextScreen);
-  }
-
-  void _initializeMapInBackground() {
-    if (!mounted) return;
-
-    final mapProvider = context.read<MapProvider>();
-    debugPrint(
-      '[Rapporteren] Current map initialization status: ${mapProvider.isInitialized}',
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'De oude ${interactionType.name}-UI is verwijderd. Nieuwe UI volgt via update.',
+        ),
+      ),
     );
-
-    if (!mapProvider.isInitialized) {
-      try {
-        const InvisibleMapPreloader();
-        debugPrint('[Rapporteren] Invisible map preloader initialized');
-      } catch (e) {
-        debugPrint(
-          '[Rapporteren] Error preloading invisible map: ${e.toString()}',
-        );
-      }
-      debugPrint('[Rapporteren] Starting background map initialization');
-      mapProvider
-          .initialize()
-          .then((_) {
-            debugPrint('[Rapporteren] Background map initialization completed');
-          })
-          .catchError((error) {
-            debugPrint(
-              '[Rapporteren] Error in background map initialization: $error',
-            );
-          });
-    } else {
-      debugPrint('[Rapporteren] Map already initialized, skipping');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
-    context.read<NavigationStateInterface>();
 
     return Scaffold(
       body: Column(
