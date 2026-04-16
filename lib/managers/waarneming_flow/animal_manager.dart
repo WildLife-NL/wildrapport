@@ -8,6 +8,14 @@ import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 
+/// Get the image path for an animal by name
+String? getAnimalPhotoPath(String? name) {
+  if (name == null || name.trim().isEmpty) return null;
+
+  final nameLower = name.toLowerCase().trim();
+  return 'assets/animals/$nameLower.png';
+}
+
 class AnimalManager
     implements
         AnimalRepositoryInterface,
@@ -33,14 +41,18 @@ class AnimalManager
       debugPrint('[AnimalManager] species fetched: ${species.length}');
       _cachedAnimals = species
           .map(
-            (s) => AnimalModel(
-              animalId: s.id,
-              animalImagePath: getAnimalPhotoPath(s.commonName),
-              animalName: s.commonName,
-              category: s.category,
-              genderViewCounts: [],
-              condition: AnimalCondition.andere,
-            ),
+            (s) {
+              final imagePath = getAnimalPhotoPath(s.commonName);
+              debugPrint('[AnimalManager] Animal: ${s.commonName} -> Path: $imagePath');
+              return AnimalModel(
+                animalId: s.id,
+                animalImagePath: imagePath,
+                animalName: s.commonName,
+                category: s.category,
+                genderViewCounts: [],
+                condition: AnimalCondition.andere,
+              );
+            },
           )
           .toList();
 

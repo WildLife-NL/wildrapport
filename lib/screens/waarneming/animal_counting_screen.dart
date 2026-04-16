@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
@@ -63,6 +63,16 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = sightingManager.getCurrentanimalSighting();
+    
+    String appBarTitle = 'Telling toevoegen'; // default
+    if (currentSighting?.reportType != null) {
+      if (currentSighting!.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      }
+    }
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -70,10 +80,10 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
           children: [
             CustomAppBar(
               leftIcon: null,
-              centerText: 'Telling toevoegen',
+              centerText: appBarTitle,
               // Show the profile/user icon on the right (like other screens)
               rightIcon: null,
-              showUserIcon: false,
+              showUserIcon: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               // Match the other screens: black icons/text and slightly larger font/icon scales
               iconColor: Colors.black,
@@ -87,6 +97,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
             Expanded(
               child: Center(
                 child: AnimalCounting(
+                  reportType: currentSighting?.reportType,
                   onAddToList: () {
                     setState(() {
                       _hasAddedItems = true;
@@ -115,3 +126,4 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     );
   }
 }
+

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
@@ -86,3 +86,4 @@ class CompactAnimalDisplay extends StatelessWidget {
     );
   }
 }
+

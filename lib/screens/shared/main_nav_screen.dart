@@ -5,19 +5,32 @@ import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
-import 'package:wildrapport/screens/logbook/logbook_screen.dart';
+import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 
 class MainNavScreen extends StatefulWidget {
-  const MainNavScreen({super.key});
+  final NavTab? initialTab;
+  final bool openRecentSightingsDirectly;
+  
+  const MainNavScreen({
+    super.key, 
+    this.initialTab,
+    this.openRecentSightingsDirectly = false,
+  });
 
   @override
   State<MainNavScreen> createState() => _MainNavScreenState();
 }
 
 class _MainNavScreenState extends State<MainNavScreen> {
-  NavTab _currentTab = NavTab.kaart;
+  late NavTab _currentTab;
+  
+  @override
+  void initState() {
+    super.initState();
+    _currentTab = widget.initialTab ?? NavTab.kaart;
+  }
 
   int get _currentIndex => _tabToIndex(_currentTab);
 
@@ -59,8 +72,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_currentTab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
@@ -74,9 +87,12 @@ class _MainNavScreenState extends State<MainNavScreen> {
         index: _currentIndex,
         children: [
           ZonesScreen(onBackPressed: _onBackFromTab),
-          Rapporteren(onBackPressed: _onBackFromTab),
+          Rapporteren(
+            key: _currentTab == NavTab.rapporten ? null : ValueKey(_currentTab),
+            onBackPressed: _onBackFromTab,
+          ),
           KaartOverviewScreen(onBackPressed: _onBackFromTab),
-          LogbookScreen(onBackPressed: _onBackFromTab),
+          const RecentSightingsScreen(),
           ProfileScreen(onBackPressed: _onBackFromTab),
         ],
       ),

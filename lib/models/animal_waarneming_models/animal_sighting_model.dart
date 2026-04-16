@@ -14,6 +14,14 @@ class AnimalSightingModel {
   final List<LocationModel>? locations; 
   final DateTimeModel? dateTime;
   final ImageListModel? images;
+  final String? reportType; // 'waarneming', 'schademelding', or 'verkeersongeval'
+  final String? cropType; // For schademelding: crop type
+  final String? expectedLoss; // For schademelding & dieraanrijding: expected loss
+  final bool? preventiveMeasures; // For schademelding: preventive measures taken
+  final String? additionalInfo; // For schademelding: additional information
+  final String? accidentSeverity; // For dieraanrijding: accident severity
+  final String? animalConditionDieraanrijding; // For dieraanrijding: animal condition
+  final int? animalCount; // Count of animals selected
 
   AnimalSightingModel({
     this.animals,
@@ -23,6 +31,14 @@ class AnimalSightingModel {
     this.dateTime,
     this.images,
     this.animalSelected,
+    this.reportType,
+    this.cropType,
+    this.expectedLoss,
+    this.preventiveMeasures,
+    this.additionalInfo,
+    this.accidentSeverity,
+    this.animalConditionDieraanrijding,
+    this.animalCount,
   });
 
   AnimalSightingModel copyWith({
@@ -33,7 +49,13 @@ class AnimalSightingModel {
     List<LocationModel>? locations,
     DateTimeModel? dateTime,
     ImageListModel? images,
-  }) {
+    String? reportType,
+    String? cropType,
+    String? expectedLoss,
+    bool? preventiveMeasures,
+    String? additionalInfo,
+    String? accidentSeverity,
+    String? animalConditionDieraanrijding,    int? animalCount,  }) {
     return AnimalSightingModel(
       animals: animals ?? this.animals,
       animalSelected: animalSelected ?? this.animalSelected,
@@ -42,7 +64,13 @@ class AnimalSightingModel {
       locations: locations ?? this.locations,
       dateTime: dateTime ?? this.dateTime,
       images: images ?? this.images,
-    );
+      reportType: reportType ?? this.reportType,
+      cropType: cropType ?? this.cropType,
+      expectedLoss: expectedLoss ?? this.expectedLoss,
+      preventiveMeasures: preventiveMeasures ?? this.preventiveMeasures,
+      additionalInfo: additionalInfo ?? this.additionalInfo,
+      accidentSeverity: accidentSeverity ?? this.accidentSeverity,
+      animalConditionDieraanrijding: animalConditionDieraanrijding ?? this.animalConditionDieraanrijding,      animalCount: animalCount ?? this.animalCount,    );
   }
 
   Map<String, dynamic> toJson() {
@@ -67,6 +95,14 @@ class AnimalSightingModel {
       'locations': locations?.map((loc) => loc.toJson()).toList(),
       'dateTime': dateTime?.toJson(),
       'images': images?.toJson(),
+      'reportType': reportType,
+      'cropType': cropType,
+      'expectedLoss': expectedLoss,
+      'preventiveMeasures': preventiveMeasures,
+      'additionalInfo': additionalInfo,
+      'accidentSeverity': accidentSeverity,
+      'animalConditionDieraanrijding': animalConditionDieraanrijding,
+      'animalCount': animalCount,
     };
   }
 
@@ -145,5 +181,13 @@ class AnimalSightingModel {
             : null,
     images:
         json['images'] != null ? ImageListModel.fromJson(json['images']) : null,
+    reportType: json['reportType'],
+    cropType: json['cropType'],
+    expectedLoss: json['expectedLoss'],
+    preventiveMeasures: json['preventiveMeasures'],
+    additionalInfo: json['additionalInfo'],
+    accidentSeverity: json['accidentSeverity'],
+    animalConditionDieraanrijding: json['animalConditionDieraanrijding'],
+    animalCount: json['animalCount'],
   );
 }
