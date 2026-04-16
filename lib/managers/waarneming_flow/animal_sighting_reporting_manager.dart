@@ -28,11 +28,6 @@ class AnimalSightingReportingManager
     List<LocationModel>? locations,
     DateTimeModel? dateTime,
     dynamic images,
-    String? reportType,
-    String? cropType,
-    String? expectedLoss,
-    bool? preventiveMeasures,
-    String? additionalInfo,
     bool logChanges = false,
     String logPrefix = '',
   }) {
@@ -52,11 +47,6 @@ class AnimalSightingReportingManager
       locations: locations ?? _currentanimalSighting!.locations ?? [],
       dateTime: dateTime ?? _currentanimalSighting!.dateTime,
       images: images ?? _currentanimalSighting!.images,
-      reportType: reportType ?? _currentanimalSighting!.reportType,
-      cropType: cropType ?? _currentanimalSighting!.cropType,
-      expectedLoss: expectedLoss ?? _currentanimalSighting!.expectedLoss,
-      preventiveMeasures: preventiveMeasures ?? _currentanimalSighting!.preventiveMeasures,
-      additionalInfo: additionalInfo ?? _currentanimalSighting!.additionalInfo,
     );
 
     if (logChanges) {
@@ -100,7 +90,7 @@ class AnimalSightingReportingManager
   }
 
   @override
-  AnimalSightingModel createanimalSighting({String? reportType}) {
+  AnimalSightingModel createanimalSighting() {
     _currentanimalSighting = AnimalSightingModel(
       animals: [],
       animalSelected: null,
@@ -109,7 +99,6 @@ class AnimalSightingReportingManager
       locations: [],
       dateTime: null,
       images: null,
-      reportType: reportType,
     );
 
     // NEW: reset the counted animal batches when starting a new sighting
@@ -221,13 +210,6 @@ class AnimalSightingReportingManager
 
   @override
   AnimalSightingModel? getCurrentanimalSighting() => _currentanimalSighting;
-
-  @override
-  AnimalSightingModel updateCurrentanimalSighting(AnimalSightingModel sighting) {
-    _currentanimalSighting = sighting;
-    _notifyListeners();
-    return _currentanimalSighting!;
-  }
 
   @override
   void addListener(VoidCallback listener) => _listeners.add(listener);

@@ -6,13 +6,11 @@ import 'package:wildrapport/utils/responsive_utils.dart';
 class AnimalGrid extends StatelessWidget {
   final List<AnimalModel> animals;
   final Function(AnimalModel) onAnimalSelected;
-  final AnimalModel? selectedAnimal;
 
   const AnimalGrid({
     super.key,
     required this.animals,
     required this.onAnimalSelected,
-    this.selectedAnimal,
   });
 
   @override
@@ -39,7 +37,6 @@ class AnimalGrid extends StatelessWidget {
                 child: AnimalTile(
                   animal: animals[index * 2],
                   onTap: () => onAnimalSelected(animals[index * 2]),
-                  isSelected: selectedAnimal?.animalId == animals[index * 2].animalId,
                 ),
               ),
             ),
@@ -56,7 +53,6 @@ class AnimalGrid extends StatelessWidget {
                 child: AnimalTile(
                   animal: animals[index * 2 + 1],
                   onTap: () => onAnimalSelected(animals[index * 2 + 1]),
-                  isSelected: selectedAnimal?.animalId == animals[index * 2 + 1].animalId,
                 ),
               ),
             ),

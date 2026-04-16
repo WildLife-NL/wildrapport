@@ -4,14 +4,8 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 class AnimalTile extends StatefulWidget {
   final AnimalModel animal;
   final VoidCallback onTap;
-  final bool isSelected;
 
-  const AnimalTile({
-    super.key,
-    required this.animal,
-    required this.onTap,
-    this.isSelected = false,
-  });
+  const AnimalTile({super.key, required this.animal, required this.onTap});
 
   @override
   State<AnimalTile> createState() => _AnimalTileState();
@@ -25,18 +19,15 @@ class _AnimalTileState extends State<AnimalTile> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Card(
-          elevation: widget.isSelected ? 4 : 3,
+          elevation: 3,
           shadowColor: Colors.black.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: widget.isSelected 
-                  ? const Color(0xFF4CAF50)
-                  : const Color.fromARGB(64, 0, 0, 0),
-              width: widget.isSelected ? 2 : 1,
+              color: const Color.fromARGB(113, 0, 0, 0),
+              width: 1,
             ),
           ),
-          color: widget.isSelected ? const Color(0xFFF0F4ED) : Colors.white,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -85,15 +76,13 @@ class _AnimalTileState extends State<AnimalTile> {
               // Divider line
               Container(
                 height: 1,
-                color: widget.isSelected 
-                    ? const Color(0xFF4CAF50)
-                    : const Color.fromARGB(84, 0, 0, 0),
+                color: const Color.fromARGB(84, 0, 0, 0),
               ),
               // Name area - bottom section with white background
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: widget.isSelected ? const Color(0xFFF0F4ED) : Colors.white,
+                  color: Colors.white,
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(14),
                     bottomRight: Radius.circular(14),
@@ -102,10 +91,10 @@ class _AnimalTileState extends State<AnimalTile> {
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: Text(
                   widget.animal.animalName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
-                    color: widget.isSelected ? const Color(0xFF2E7D32) : Colors.black,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

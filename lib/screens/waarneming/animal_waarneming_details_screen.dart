@@ -9,6 +9,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
+import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
 import 'package:wildrapport/constants/design_system.dart';
 
 class AnimalWaarnemingDetailsScreen extends StatefulWidget {
@@ -123,13 +124,25 @@ class _AnimalWaarnemingDetailsScreenState
         ),
       );
     } else {
-      // Last animal - Go to summary screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
-        ),
-      );
+      // Last animal - Check report type
+      final reportType = sighting?.reportType;
+      if (reportType == 'verkeersongeval') {
+        // For dieraanrijding, go to details screen first
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
+          ),
+        );
+      } else {
+        // For other types, go directly to summary
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
+          ),
+        );
+      }
     }
   }
 

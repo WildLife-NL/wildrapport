@@ -1,47 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/schademelding/schademelding_summary_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 
-class SchademeldingDamageDetailsScreen extends StatefulWidget {
-  final String gewasType;
+class DieraanrijdingDetailsScreen extends StatefulWidget {
+  final int totalCount;
 
-  const SchademeldingDamageDetailsScreen({super.key, required this.gewasType});
+  const DieraanrijdingDetailsScreen({
+    super.key,
+    required this.totalCount,
+  });
 
   @override
-  State<SchademeldingDamageDetailsScreen> createState() =>
-      _SchademeldingDamageDetailsScreenState();
+  State<DieraanrijdingDetailsScreen> createState() =>
+      _DieraanrijdingDetailsScreenState();
 }
 
-class _SchademeldingDamageDetailsScreenState
-    extends State<SchademeldingDamageDetailsScreen> {
+class _DieraanrijdingDetailsScreenState
+    extends State<DieraanrijdingDetailsScreen> {
   late AnimalSightingReportingInterface _sightingManager;
-  String _selectedExpectedLoss = 'Onbekend';
-  bool? _preventiveMeasures;
+  String _selectedSeverity = 'Licht';
+  String _selectedCondition = 'Gezond';
+  String _selectedExpectedLoss = '€0-€250';
   final TextEditingController _additionalInfoController =
       TextEditingController();
 
+  final List<String> _severityOptions = [
+    'Licht',
+    'Matig',
+    'Ernstig',
+  ];
+
+  final List<String> _conditionOptions = [
+    'Gezond',
+    'Gewond',
+    'Dood',
+  ];
+
   final List<String> _expectedLossOptions = [
-    'Onbekend',
-    '€0 - €250',
-    '€250 - €500',
-    '€500 - €1000',
-    '€1000 - €2000',
-    '€5000 +',
+    '€0-€250',
+    '€250-€500',
+    '€500-€1000',
+    '€1000-€2000',
+    '€2000-€5000',
+    '€5000+',
   ];
 
   @override
   void initState() {
     super.initState();
     _sightingManager = context.read<AnimalSightingReportingInterface>();
-    
+
     // Load any previously saved data
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
-      _selectedExpectedLoss = currentSighting.expectedLoss ?? 'Onbekend';
-      _preventiveMeasures = currentSighting.preventiveMeasures;
+      _selectedSeverity = currentSighting.accidentSeverity ?? 'Licht';
+      _selectedCondition = currentSighting.animalConditionDieraanrijding ?? 'Gezond';
+      _selectedExpectedLoss = currentSighting.expectedLoss ?? '€0-€250';
       _additionalInfoController.text = currentSighting.additionalInfo ?? '';
     }
   }
@@ -53,37 +69,40 @@ class _SchademeldingDamageDetailsScreenState
   }
 
   void _onNextPressed() {
-    if (_preventiveMeasures == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecteer a.u.b. ja of nee voor preventieve maatregelen')),
-      );
-      return;
-    }
-
     // Save data to sighting manager
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
       final updated = currentSighting.copyWith(
+        accidentSeverity: _selectedSeverity,
+        animalConditionDieraanrijding: _selectedCondition,
         expectedLoss: _selectedExpectedLoss,
-        preventiveMeasures: _preventiveMeasures,
         additionalInfo: _additionalInfoController.text,
       );
       _sightingManager.updateCurrentanimalSighting(updated);
     }
 
-    final navigationManager = context.read<NavigationStateInterface>();
-
     debugPrint(
-      '[SchademeldingDamageDetails] Expected Loss: $_selectedExpectedLoss, '
-      'Preventive Measures: $_preventiveMeasures, '
+      '[DieraanrijdingDetails] Severity: $_selectedSeverity, '
+      'Condition: $_selectedCondition, '
+      'Expected Loss: $_selectedExpectedLoss, '
       'Additional Info: ${_additionalInfoController.text}',
     );
 
     // Navigate to summary screen
-    navigationManager.pushForward(
+    Navigator.push(
       context,
-      const SchademeldingSummaryScreen(),
+      MaterialPageRoute(
+        builder: (context) => AnimalWaarnemingSummaryScreen(
+          totalCount: widget.totalCount,
+        ),
+      ),
     );
+  }
+
+  void _handleBackNavigation() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -95,21 +114,18 @@ class _SchademeldingDamageDetailsScreenState
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: null,
-              centerText: 'Schademelding',
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Dieraanrijding',
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
-              onLeftIconPressed: null,
+              onLeftIconPressed: _handleBackNavigation,
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
-            const SizedBox(height: 8),
-
-            // Main card container
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -130,8 +146,6 @@ class _SchademeldingDamageDetailsScreenState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 8),
-                          
-                          const SizedBox(height: 24),
 
                           // Expected Loss Dropdown
                           Text(
@@ -203,9 +217,9 @@ class _SchademeldingDamageDetailsScreenState
 
                           const SizedBox(height: 32),
 
-                          // Preventive Measures Question
+                          // Severity Question
                           Text(
-                            'Heeft u preventieve maatregelen genomen?',
+                            'Ernst van het ongeluk:',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w400,
@@ -213,48 +227,64 @@ class _SchademeldingDamageDetailsScreenState
                                 ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildOptionButton(
-                                  label: 'Nee',
-                                  isSelected: _preventiveMeasures == false,
-                                  onPressed: () {
-                                    setState(() {
-                                      _preventiveMeasures = false;
-                                    });
-                                    // Save to sighting manager
-                                    final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                    if (currentSighting != null) {
-                                      final updated = currentSighting.copyWith(
-                                        preventiveMeasures: false,
-                                      );
-                                      _sightingManager.updateCurrentanimalSighting(updated);
-                                    }
-                                  },
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: _severityOptions.map((severity) {
+                              return _buildOptionButton(
+                                label: severity,
+                                isSelected: _selectedSeverity == severity,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedSeverity = severity;
+                                  });
+                                  // Save to sighting manager
+                                  final currentSighting = _sightingManager.getCurrentanimalSighting();
+                                  if (currentSighting != null) {
+                                    final updated = currentSighting.copyWith(
+                                      accidentSeverity: severity,
+                                    );
+                                    _sightingManager.updateCurrentanimalSighting(updated);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Condition Question
+                          Text(
+                            'Toestand van het dier:',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildOptionButton(
-                                  label: 'Ja',
-                                  isSelected: _preventiveMeasures == true,
-                                  onPressed: () {
-                                    setState(() {
-                                      _preventiveMeasures = true;
-                                    });
-                                    // Save to sighting manager
-                                    final currentSighting = _sightingManager.getCurrentanimalSighting();
-                                    if (currentSighting != null) {
-                                      final updated = currentSighting.copyWith(
-                                        preventiveMeasures: true,
-                                      );
-                                      _sightingManager.updateCurrentanimalSighting(updated);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: _conditionOptions.map((condition) {
+                              return _buildOptionButton(
+                                label: condition,
+                                isSelected: _selectedCondition == condition,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedCondition = condition;
+                                  });
+                                  // Save to sighting manager
+                                  final currentSighting = _sightingManager.getCurrentanimalSighting();
+                                  if (currentSighting != null) {
+                                    final updated = currentSighting.copyWith(
+                                      animalConditionDieraanrijding: condition,
+                                    );
+                                    _sightingManager.updateCurrentanimalSighting(updated);
+                                  }
+                                },
+                              );
+                            }).toList(),
                           ),
 
                           const SizedBox(height: 32),
@@ -319,7 +349,6 @@ class _SchademeldingDamageDetailsScreenState
                 ),
               ),
             ),
-
             // Bottom buttons
             SafeArea(
               top: false,
@@ -329,9 +358,7 @@ class _SchademeldingDamageDetailsScreenState
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: _handleBackNavigation,
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(
@@ -392,7 +419,7 @@ class _SchademeldingDamageDetailsScreenState
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         side: BorderSide(
           color: isSelected
               ? const Color(0xFF333333)
