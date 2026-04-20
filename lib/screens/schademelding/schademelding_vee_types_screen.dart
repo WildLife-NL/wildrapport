@@ -17,6 +17,7 @@ class _SchademeldingVeeTypesScreenState
     extends State<SchademeldingVeeTypesScreen> {
   late AnimalSightingReportingInterface _sightingManager;
   String? _selectedVee;
+  String? _customVeeType;
   
   final List<Map<String, String>> veeTypes = [
     {'title': 'Rund', 'image': 'assets/images/vee/rund.png'},
@@ -25,7 +26,6 @@ class _SchademeldingVeeTypesScreenState
     {'title': 'Paard', 'image': 'assets/images/vee/paard.png'},
     {'title': 'Pluimvee', 'image': 'assets/images/vee/pluimvee.png'},
     {'title': 'Vark', 'image': 'assets/images/vee/vark.png'},
-    {'title': 'Ree', 'image': 'assets/images/vee/ree.png'},
     {'title': 'Ander', 'image': 'ander'},
   ];
 
@@ -37,7 +37,12 @@ class _SchademeldingVeeTypesScreenState
     // Load any previously selected vee type
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null && currentSighting.cropType != null) {
-      _selectedVee = currentSighting.cropType;
+      final savedType = currentSighting.cropType!;
+      final hasExactMatch = veeTypes.any((item) => item['title'] == savedType);
+      _selectedVee = hasExactMatch ? savedType : 'Ander';
+      if (!hasExactMatch) {
+        _customVeeType = savedType;
+      }
     }
   }
 
@@ -47,7 +52,7 @@ class _SchademeldingVeeTypesScreenState
     }
   }
 
-  void _handleVeeTypeSelection(String veeType) {
+  void _handleVeeTypeSelection(String veeType, {String? selectedTileTitle}) {
     debugPrint('[SchademeldingVeeTypes] Selected: $veeType');
     
     // Save selected vee type to provider
@@ -60,7 +65,10 @@ class _SchademeldingVeeTypesScreenState
     }
     
     setState(() {
-      _selectedVee = veeType;
+      _selectedVee = selectedTileTitle ?? veeType;
+      if ((selectedTileTitle ?? veeType) != 'Ander') {
+        _customVeeType = null;
+      }
     });
     
     // Navigate to animal selection
@@ -72,12 +80,165 @@ class _SchademeldingVeeTypesScreenState
     );
   }
 
+  Future<void> _promptCustomVeeType() async {
+    final controller = TextEditingController(text: _customVeeType ?? '');
+    final customValue = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Ander soort vee',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Vul hieronder het soort vee in.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF8D8D8D),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  textInputAction: TextInputAction.done,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Bijv. Alpaca',
+                    hintStyle: TextStyle(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      fontSize: 13,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFD0D0D0), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF999999), width: 1.2),
+                    ),
+                  ),
+                  onSubmitted: (value) {
+                    final trimmed = value.trim();
+                    if (trimmed.isNotEmpty) {
+                      Navigator.of(dialogContext).pop(trimmed);
+                    }
+                  },
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 52),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Color(0xFFB5B5B5), width: 1),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ).copyWith(
+                          backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+                            if (states.contains(WidgetState.pressed) ||
+                                states.contains(WidgetState.selected)) {
+                              return const Color(0xFFF0F0F0);
+                            }
+                            return Colors.white;
+                          }),
+                        ),
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text('Annuleren'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 52),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Color(0xFFAAAAAA), width: 1),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ).copyWith(
+                          backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+                            if (states.contains(WidgetState.pressed) ||
+                                states.contains(WidgetState.selected)) {
+                              return const Color(0xFFEAEAEA);
+                            }
+                            return Colors.white;
+                          }),
+                        ),
+                        onPressed: () {
+                          final trimmed = controller.text.trim();
+                          if (trimmed.isNotEmpty) {
+                            Navigator.of(dialogContext).pop(trimmed);
+                          }
+                        },
+                        child: const Text('Verder'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!mounted || customValue == null || customValue.trim().isEmpty) {
+      return;
+    }
+
+    _customVeeType = customValue.trim();
+    _handleVeeTypeSelection(
+      _customVeeType!,
+      selectedTileTitle: 'Ander',
+    );
+  }
+
   Widget _buildVeeTile(String title, String imagePath) {
     final isSelected = _selectedVee == title;
     final isAnder = imagePath == 'ander';
     
     return GestureDetector(
-      onTap: () => _handleVeeTypeSelection(title),
+      onTap: () {
+        if (isAnder) {
+          _promptCustomVeeType();
+          return;
+        }
+        _handleVeeTypeSelection(title);
+      },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Card(

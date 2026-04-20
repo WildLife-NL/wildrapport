@@ -158,34 +158,43 @@ class _SchademeldingTypeSelectionScreenState
         }
         // TODO: Navigate to next screen for Eigendom
       },
-      child: Card(
-        elevation: isSelected ? 4 : 0,
-        color: isSelected ? const Color(0xFFF0F4ED) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFF0F4ED) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFF999999),
             width: isSelected ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isSelected ? 0.12 : 0.06),
+              blurRadius: isSelected ? 10 : 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image area with selection indicator
+            // Image area with soft background (slightly shorter to fit all cards)
             SizedBox(
-              height: 120,
+              height: 110,
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
                   ),
-                  color: const Color(0xFFE6DCCD),
+                  color: Color(0xFFF3F3F3),
                 ),
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
                   ),
                   child: Image.asset(
                     imagePath,
@@ -194,7 +203,7 @@ class _SchademeldingTypeSelectionScreenState
                       return Center(
                         child: Icon(
                           Icons.image_not_supported_outlined,
-                          size: 50,
+                          size: 48,
                           color: Colors.grey[400],
                         ),
                       );
@@ -210,15 +219,14 @@ class _SchademeldingTypeSelectionScreenState
             ),
             // Title area
             Container(
-              width: double.infinity,
               padding: const EdgeInsets.symmetric(
                 vertical: 12,
                 horizontal: 16,
               ),
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
                 ),
                 color: isSelected ? const Color(0xFFF0F4ED) : Colors.white,
               ),

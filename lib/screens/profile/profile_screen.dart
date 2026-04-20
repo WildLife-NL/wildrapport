@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
@@ -76,9 +75,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final email = _profile?.email ?? '—';
 
     final fs = responsive.fontSize;
-    const gapSm = 8.0;
-    const gapMd = 12.0;
-    const gapLg = 18.0;
 
     return Scaffold(
       backgroundColor: _pageBg,
@@ -391,13 +387,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
             );
           },
         ),

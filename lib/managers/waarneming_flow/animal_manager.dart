@@ -12,7 +12,8 @@ String? getAnimalPhotoPath(String? name) {
   if (name == null || name.trim().isEmpty) return null;
 
   final nameLower = name.toLowerCase().trim();
-  return 'assets/animals/$nameLower.png';
+  // Use new coloured animal photos stored under assets/images/color-animals
+  return 'assets/images/color-animals/$nameLower.png';
 }
 
 class AnimalManager

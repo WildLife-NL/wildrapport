@@ -79,7 +79,7 @@ class _SchademeldingSummaryScreenState
     );
   }
 
-  String _getCropImagePath(String cropType) {
+  String? _getCropImagePath(String cropType) {
     switch (cropType.toLowerCase()) {
       // Gewas types
       case 'maïs':
@@ -111,10 +111,49 @@ class _SchademeldingSummaryScreenState
       case 'ree':
         return 'assets/images/vee/ree.png';
       case 'ander':
-        return 'assets/images/vee/rund.png'; // Default to rund for "ander"
+        return null;
       default:
-        return 'assets/images/gewas/mais.jpg';
+        return null;
     }
+  }
+
+  Widget _buildCropTypeImage(String cropType) {
+    final imagePath = _getCropImagePath(cropType);
+
+    if (imagePath == null) {
+      return Container(
+        height: 120,
+        width: double.infinity,
+        color: const Color(0xFFECECEC),
+        child: const Center(
+          child: Icon(
+            Icons.pets,
+            size: 42,
+            color: Color(0xFF7A7A7A),
+          ),
+        ),
+      );
+    }
+
+    return Image.asset(
+      imagePath,
+      height: 120,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          height: 120,
+          color: const Color(0xFFECECEC),
+          child: const Center(
+            child: Icon(
+              Icons.pets,
+              size: 42,
+              color: Color(0xFF7A7A7A),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -216,21 +255,8 @@ class _SchademeldingSummaryScreenState
                                               topLeft: Radius.circular(12),
                                               topRight: Radius.circular(12),
                                             ),
-                                            child: Image.asset(
-                                              _getCropImagePath(currentSighting?.cropType ?? 'Onbekend'),
-                                              height: 120,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  height: 120,
-                                                  color: Colors.grey[200],
-                                                  child: const Center(
-                                                    child: Icon(Icons.image),
-                                                  ),
-                                                );
-                                              },
+                                            child: _buildCropTypeImage(
+                                              currentSighting?.cropType ?? 'Onbekend',
                                             ),
                                           ),
                                           Container(

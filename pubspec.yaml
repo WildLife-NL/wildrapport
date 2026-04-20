@@ -120,6 +120,7 @@ flutter:
     - assets/location/location_icon.png
     - assets/animals/
     - assets/images/gewas/
+    - assets/images/color-animals/
     - assets/images/
     - assets/sighting.svg
     - assets/damage.svg

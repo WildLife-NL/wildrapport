@@ -9,15 +9,15 @@ class AppColors {
   static const Color lightMintGreen = Color(0xFFF1F5F2);
   static const Color offWhite = Color(0xFFFFFFFC);
   static const Color lightMintGreen100 = Color(0xFFFFFFFF);
-  static const Color brown900 = Color(0xFF1B1716);
+  static const Color brown900 = Color(0xFF000000);
   static const Color deepBlue = Color(0xFF01031A);
   static const Color navy = Color(0xFF0E101F);
-  static const Color brown = Color(0xFF5E3E27);
-  static const Color brown300 = Color(0xFFEBC4A6);
-  static const Color brownDark = Color(0xFF683615);
+  static const Color brown = Color(0xFF000000);
+  static const Color brown300 = Color(0xFF000000);
+  static const Color brownDark = Color(0xFF000000);
   static const Color timber300 = Color(0xFF20352E);
   static const Color darkGreen = Color(0xFF1C4620);
-  static const Color brown600 = Color(0xFF543B20);
+  static const Color brown600 = Color(0xFF000000);
 
   // New standardized colors
   // Primary colors
@@ -31,8 +31,8 @@ class AppColors {
   static const Color lightGrey = Color(0xFFF5F6F4);
 
   // Text colors
-  static const Color textPrimary = Color(0xFFF7F7F7);
-  static const Color textSecondary = Color(0xFF666666);
+  static const Color textPrimary = Color.fromARGB(255, 255, 255, 255);
+  static const Color textSecondary = Color.fromARGB(255, 0, 0, 0);
   static const Color textLight = Color(0xFF999999);
 
   // Background colors
@@ -40,7 +40,7 @@ class AppColors {
   static const Color cardBackground = Color(0xFFFFFFFF);
 
   // Border colors
-  static const Color borderDefault = Color(0xFF999999);
+  static const Color borderDefault = Color(0xFFE0D9C9);
   static const Color borderLight = Color(0xFFCCCCCC);
   static const Color borderDark = Color(0xFF333333);
 

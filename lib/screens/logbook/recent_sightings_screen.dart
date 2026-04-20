@@ -172,27 +172,30 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
 
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 16),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ViewingSummaryScreen(sighting: sighting),
+                                  child: SizedBox(
+                                    height: 200,
+                                    child: Card(
+                                      elevation: 3,
+                                      shadowColor: Colors.black.withValues(alpha: 0.08),
+                                      margin: EdgeInsets.zero,
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18),
+                                        side: BorderSide(
+                                          color: Colors.grey.shade300,
+                                          width: 1,
                                         ),
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      height: 220,
-                                      child: Card(
-                                        elevation: 0,
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          side: const BorderSide(
-                                            color: Color(0xFF999999),
-                                            width: 1,
-                                          ),
-                                        ),
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ViewingSummaryScreen(sighting: sighting),
+                                            ),
+                                          );
+                                        },
                                         child: Row(
                                           crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
@@ -204,7 +207,8 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
                                                     : _buildImageSection(
                                                         sighting.animals?.isNotEmpty == true
                                                             ? sighting.animals!.first.animalImagePath
-                                                            : null),
+                                                            : null,
+                                                      ),
                                             const SizedBox(width: 12),
                                             // Details section
                                             isSchademelding
@@ -253,23 +257,19 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
     debugPrint('[RecentSightings._buildImageSection] imagePath: $imagePath');
     
     return Container(
-      width: 170,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0D9C9),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
-        ),
-        border: Border.all(
-          color: Colors.grey[400] ?? Colors.grey,
-          width: 2,
+      width: 160,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE0D9C9),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
         ),
       ),
       child: (imagePath != null && imagePath.isNotEmpty)
           ? ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
               child: Image.asset(
                 imagePath,
@@ -420,23 +420,19 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
     final animalImagePath = sighting.animalSelected?.animalImagePath;
 
     return Container(
-      width: 170,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0D9C9),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
-        ),
-        border: Border.all(
-          color: Colors.grey[400] ?? Colors.grey,
-          width: 2,
+      width: 160,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE0D9C9),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
         ),
       ),
       child: (animalImagePath != null && animalImagePath.isNotEmpty)
           ? ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
               child: Image.asset(
                 animalImagePath,
@@ -541,23 +537,19 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
     final animalImagePath = sighting.animalSelected?.animalImagePath;
 
     return Container(
-      width: 170,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0D9C9),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
-        ),
-        border: Border.all(
-          color: Colors.grey[400] ?? Colors.grey,
-          width: 2,
+      width: 160,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE0D9C9),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
         ),
       ),
       child: (animalImagePath != null && animalImagePath.isNotEmpty)
           ? ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
               child: Image.asset(
                 animalImagePath,

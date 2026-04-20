@@ -97,21 +97,29 @@ class _LogbookScreenState extends State<LogbookScreen> {
                       children: [
                         _ReportButton(
                           label: 'Recente waarnemingen',
+                          subtitle: 'Overzicht van de meest recente meldingen',
+                          icon: Icons.visibility_outlined,
                           onTap: () => _openRecentSightings(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(
                           label: 'Mijn interacties',
+                          subtitle: 'Bekijk al je schademeldingen en waarnemingen',
+                          icon: Icons.history_toggle_off,
                           onTap: () => _openAllInteractions(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(
                           label: 'Mijn antwoorden',
+                          subtitle: 'Ingevulde vragenlijsten en formulieren',
+                          icon: Icons.assignment_turned_in_outlined,
                           onTap: () => _openMyResponses(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(
                           label: 'Vragenlijsten opgeslagen voor later',
+                          subtitle: 'Ga verder met half ingevulde vragenlijsten',
+                          icon: Icons.bookmark_border,
                           onTap: () => _openSavedQuestionnaires(context),
                         ),
                       ],
@@ -130,19 +138,79 @@ class _LogbookScreenState extends State<LogbookScreen> {
 class _ReportButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  const _ReportButton({required this.label, required this.onTap});
+  final String? subtitle;
+  final IconData icon;
+
+  const _ReportButton({
+    required this.label,
+    required this.onTap,
+    this.subtitle,
+    this.icon = Icons.description_outlined,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.darkGreen,
-          foregroundColor: Colors.white,
+    return Card(
+      color: Colors.white,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.darkGreen.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: AppColors.darkGreen,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                Icons.chevron_right,
+                color: Colors.black.withOpacity(0.35),
+              ),
+            ],
+          ),
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }

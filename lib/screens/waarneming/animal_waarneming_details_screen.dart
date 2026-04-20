@@ -10,6 +10,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_c
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
 import 'package:wildrapport/constants/design_system.dart';
 
 class AnimalWaarnemingDetailsScreen extends StatefulWidget {
@@ -127,15 +128,23 @@ class _AnimalWaarnemingDetailsScreenState
       // Last animal - Check report type
       final reportType = sighting?.reportType;
       if (reportType == 'verkeersongeval') {
-        // For dieraanrijding, go to details screen first
+        // For dieraanrijding, go to accident details screen first
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
           ),
         );
+      } else if (reportType == 'gewasschade') {
+        // For schademelding, go to schademelding-specific details screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SchademeldingDetailsScreen(),
+          ),
+        );
       } else {
-        // For other types, go directly to summary
+        // For waarneming and other types, go directly to summary
         Navigator.push(
           context,
           MaterialPageRoute(

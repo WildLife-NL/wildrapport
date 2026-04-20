@@ -19,8 +19,8 @@ class AnimalGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     // Calculate the width for each column to make image area square
-    final horizontalPadding = responsive.spacing(40);
-    final columnSpacing = responsive.spacing(16);
+    final horizontalPadding = responsive.spacing(14);
+    final columnSpacing = responsive.spacing(0);
     final containerWidth =
         (responsive.width - horizontalPadding - columnSpacing) / 2;
     // Height equals width to make cards square

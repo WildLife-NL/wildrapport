@@ -6,7 +6,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
-import 'package:wildrapport/screens/schademelding/schademelding_damage_details_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_aantal_screen.dart';
 
 class SchademeldingDierenScreen extends StatefulWidget {
   final String gewasType;
@@ -120,18 +120,32 @@ class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
   }
 
   void _handleAnimalSelection(AnimalModel selectedAnimal) {
+    // Preserve any existing animal count before changing animals
+    final previousSighting = _animalSightingManager.getCurrentanimalSighting();
+    final previousAnimalCount = previousSighting?.animalCount;
+
+    // Process the new animal selection
     _animalSightingManager.processAnimalSelection(
       selectedAnimal,
       _animalManager,
     );
 
+    // Restore the animal count on the updated sighting if it existed
+    if (previousAnimalCount != null) {
+      final newSighting = _animalSightingManager.getCurrentanimalSighting();
+      if (newSighting != null) {
+        _animalSightingManager.updateCurrentanimalSighting(
+          newSighting.copyWith(animalCount: previousAnimalCount),
+        );
+      }
+    }
+
     debugPrint(
-        '[SchademeldingDieren] Selected animal: ${selectedAnimal.animalName} for gewas type: ${widget.gewasType}');
-    // Navigate to damage details screen
-    _navigationManager.pushForward(
-      context,
-      SchademeldingDamageDetailsScreen(gewasType: widget.gewasType),
+      '[SchademeldingDieren] Selected animal: ${selectedAnimal.animalName} for gewas type: ${widget.gewasType}',
     );
+
+    // Navigate to animal count screen (shared with waarneming/schademelding flows)
+    _navigationManager.pushForward(context, const AnimalAantalScreen());
   }
 
   void _handleBackNavigation() {
@@ -159,6 +173,9 @@ class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch sighting manager so selection state updates the grid highlight
+    final sightingManager = context.watch<AnimalSightingReportingInterface>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -300,7 +317,8 @@ class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
                             scrollController: _scrollController,
                             onAnimalSelected: _handleAnimalSelection,
                             onRetry: _loadAnimals,
-                            selectedAnimal: _animalSightingManager.getCurrentanimalSighting()?.animalSelected,
+                            selectedAnimal:
+                                sightingManager.getCurrentanimalSighting()?.animalSelected,
                           ),
                         ),
                       ],

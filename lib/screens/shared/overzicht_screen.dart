@@ -6,7 +6,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/overzicht/top_container.dart';
 import 'package:wildrapport/widgets/overzicht/action_buttons.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
-import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
+import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
@@ -163,7 +163,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                 try {
                                   navigationManager.pushReplacementForward(
                                     context,
-                                    const RecentSightingsScreen(),
+                                    const LogbookScreen(),
                                   );
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
