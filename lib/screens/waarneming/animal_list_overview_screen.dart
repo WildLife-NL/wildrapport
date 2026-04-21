@@ -42,8 +42,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
                 );
               },
               // Match the other screens: black icons/text and slightly larger font/icon scales
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -61,7 +61,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
                         Text(
                           'Het overzicht',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AppColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',

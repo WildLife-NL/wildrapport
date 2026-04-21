@@ -121,7 +121,7 @@ class _TermsScreenState extends State<TermsScreen> {
         ),
         backgroundColor: AppColors.lightMintGreen,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: AppColors.textPrimary,
       ),
       body: SafeArea(
         child: Padding(

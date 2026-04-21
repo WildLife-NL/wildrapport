@@ -36,15 +36,15 @@ class LoginOverlay extends StatelessWidget {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black,
-                              Colors.black.withValues(alpha: 0.8),
+                              AppColors.textPrimary,
+                              AppColors.textPrimary.withValues(alpha: 0.8),
                             ],
                           ).createShader(bounds);
                         },
                         child: Icon(
                           Icons.exit_to_app,
                           size: responsive.sp(4),
-                          color: Colors.black,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       onPressed: () => Navigator.of(context).pop(),

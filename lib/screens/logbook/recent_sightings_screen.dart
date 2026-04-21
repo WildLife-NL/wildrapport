@@ -54,7 +54,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -245,7 +245,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -563,7 +563,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -600,7 +600,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
         ),
         Text(
           value,
-          style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

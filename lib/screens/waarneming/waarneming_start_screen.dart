@@ -96,7 +96,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                                   'Start',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color: AppColors.textPrimary,
                                     fontSize: 20,
                                   ),
                                 ),
@@ -155,7 +155,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                     'Recente waarnemingen',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w400,
-                      color: Colors.black,
+                      color: AppColors.textPrimary,
                       fontSize: 16,
                     ),
                   ),

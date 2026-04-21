@@ -62,8 +62,8 @@ class _MyInteractionHistoryScreenState
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () => Navigator.of(context).pop(),
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -73,7 +73,7 @@ class _MyInteractionHistoryScreenState
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  const Icon(Icons.filter_list, size: 20, color: Colors.black54),
+                  const Icon(Icons.filter_list, size: 20, color: AppColors.textPrimary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Container(

@@ -123,8 +123,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     );
                   },
                   // match Rapporteren app bar styling
-                  iconColor: Colors.black,
-                  textColor: Colors.black,
+                  iconColor: AppColors.textPrimary,
+                  textColor: AppColors.textPrimary,
                   fontScale: 1.25,
                   iconScale: 1.15,
                   userIconScale: 1.15,

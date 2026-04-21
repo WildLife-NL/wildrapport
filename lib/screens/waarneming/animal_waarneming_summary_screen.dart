@@ -124,7 +124,7 @@ class _AnimalWaarnemingSummaryScreenState
               onRightIconPressed: _handleExit,
               showUserIcon: false,
               useFixedText: true,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               iconColor: Colors.grey,
               fontScale: 1.4,
               iconScale: 0.85,
@@ -252,7 +252,7 @@ class _AnimalWaarnemingSummaryScreenState
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,
-                                          color: Colors.black,
+                                          color: AppColors.textPrimary,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),

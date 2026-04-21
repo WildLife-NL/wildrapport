@@ -84,7 +84,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
               colorScheme: const ColorScheme.light(
                 primary: Color(0xFF37A904), // header background & selected
                 onPrimary: Colors.white, // header/selected text color
-                onSurface: Colors.black, // body text color
+                onSurface: AppColors.textPrimary, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
@@ -170,8 +170,8 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,

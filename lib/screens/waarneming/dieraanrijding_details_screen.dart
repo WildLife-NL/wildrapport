@@ -121,8 +121,8 @@ class _DieraanrijdingDetailsScreenState
                 showUserIcon: false,
                 useFixedText: true,
                 onLeftIconPressed: _handleBackNavigation,
-                iconColor: Colors.black,
-                textColor: Colors.black,
+                iconColor: AppColors.textPrimary,
+                textColor: AppColors.textPrimary,
                 fontScale: 1.4,
                 iconScale: 1.15,
                 userIconScale: 1.15,
@@ -412,7 +412,7 @@ class _DieraanrijdingDetailsScreenState
         side: BorderSide(
           color: isSelected
               ? const Color(0xFF333333)
-              : Colors.black.withValues(alpha: 0.25),
+              : AppColors.textPrimary.withValues(alpha: 0.25),
           width: isSelected ? 2 : 1,
         ),
         shape: RoundedRectangleBorder(
@@ -426,7 +426,7 @@ class _DieraanrijdingDetailsScreenState
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w600,
-          color: isSelected ? Colors.white : Colors.black,
+          color: isSelected ? Colors.white : AppColors.textPrimary,
         ),
       ),
     );

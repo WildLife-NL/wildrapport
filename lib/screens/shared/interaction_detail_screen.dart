@@ -30,8 +30,8 @@ class InteractionDetailScreen extends StatelessWidget {
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,

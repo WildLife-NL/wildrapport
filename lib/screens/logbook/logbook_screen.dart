@@ -78,8 +78,8 @@ class _LogbookScreenState extends State<LogbookScreen> {
                   MaterialPageRoute(builder: (_) => const OverzichtScreen()),
                 );
               },
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -187,7 +187,7 @@ class _ReportButton extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
-                        color: Colors.black,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[

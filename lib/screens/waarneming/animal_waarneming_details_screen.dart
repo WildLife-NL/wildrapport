@@ -343,7 +343,7 @@ class _AnimalWaarnemingDetailsScreenState
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -377,7 +377,7 @@ class _AnimalWaarnemingDetailsScreenState
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w400,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -633,7 +633,7 @@ class _AnimalWaarnemingDetailsScreenState
                   fontWeight: FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : Colors.black87,
+                      : AppColors.textPrimary,
                 ),
               ),
             );

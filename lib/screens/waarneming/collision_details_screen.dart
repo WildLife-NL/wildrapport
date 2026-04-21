@@ -61,8 +61,8 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                 );
               },
               // Match the other screens: black icons/text and slightly larger font/icon scales
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,

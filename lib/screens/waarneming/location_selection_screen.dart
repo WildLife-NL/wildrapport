@@ -113,8 +113,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             showUserIcon: false,
             useFixedText: true,
             onLeftIconPressed: _handleBackNavigation,
-            iconColor: Colors.black,
-            textColor: Colors.black,
+            iconColor: AppColors.textPrimary,
+            textColor: AppColors.textPrimary,
             fontScale: 1.4,
             iconScale: 1.15,
             userIconScale: 1.15,
@@ -263,7 +263,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                               .bodyMedium
                               ?.copyWith(
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                         ),
                       ),
