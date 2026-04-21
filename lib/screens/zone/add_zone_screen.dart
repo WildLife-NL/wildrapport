@@ -284,7 +284,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Klik op de kaart om punten te markeren en zo je zone af te bakenen:',
+                  'Klik op de kaart om punten te\nmarkeren en zo je zone af te bakenen:',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
