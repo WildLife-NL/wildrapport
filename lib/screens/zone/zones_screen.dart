@@ -20,7 +20,7 @@ class ZonesScreen extends StatelessWidget {
     final responsive = context.responsive;
     final nav = context.read<NavigationStateInterface>();
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [

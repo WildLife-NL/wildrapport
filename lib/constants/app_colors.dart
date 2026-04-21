@@ -4,7 +4,6 @@ class AppColors {
   AppColors._();
 
   // old colors (to be removed once all components are updated to use the new standardized colors)
-  static const Color black = Color(0xFF000000);
   static const Color lightGreen = Color(0xFF1F4A14);
   static const Color lightMintGreen = Color(0xFFF1F5F2);
   static const Color offWhite = Color(0xFFFFFFFC);
@@ -23,6 +22,7 @@ class AppColors {
   // Primary colors
   static const Color primaryGreen = Color(0xFF4CAF50);
   static const Color darkCharcoal = Color(0xFF333333);
+  static const Color black = Color(0xFF000000);
 
   // Neutral colors
   static const Color white = Colors.white;
@@ -31,16 +31,17 @@ class AppColors {
   static const Color lightGrey = Color(0xFFF5F6F4);
 
   // Text colors
-  static const Color textPrimary = Color.fromARGB(255, 255, 255, 255);
-  static const Color textSecondary = Color.fromARGB(255, 0, 0, 0);
+  static const Color textSecondary = Color.fromARGB(255, 255, 255, 255);
+  static const Color textPrimary = Color.fromARGB(255, 0, 0, 0);
   static const Color textLight = Color(0xFF999999);
+  static const Color textExample = Color(0xFFA1B9B9);
 
   // Background colors
   static const Color backgroundLight = Color(0xFFF5F6F4);
   static const Color cardBackground = Color(0xFFFFFFFF);
 
   // Border colors
-  static const Color borderDefault = Color(0xFFE0D9C9);
+  static const Color borderDefault = Color(0xFFC7C7C7);
   static const Color borderLight = Color(0xFFCCCCCC);
   static const Color borderDark = Color(0xFF333333);
 
