@@ -51,7 +51,7 @@ class _MyInteractionHistoryScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -81,7 +81,7 @@ class _MyInteractionHistoryScreenState
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.darkGreen, width: 1.5),
+                        border: Border.all(color: AppColors.primaryGreen, width: 1.5),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
@@ -132,7 +132,7 @@ class _MyInteractionHistoryScreenState
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                       ),
                     );
                   } else if (snapshot.hasError) {
@@ -172,7 +172,7 @@ class _MyInteractionHistoryScreenState
                           children: [
                             const Icon(
                               Icons.history,
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               size: 64,
                             ),
                             const SizedBox(height: 16),
@@ -326,7 +326,7 @@ class _InteractionCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.darkGreen,
+                      color: AppColors.primaryGreen,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -391,7 +391,7 @@ class _InteractionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.lightMintGreen,
+                    color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(

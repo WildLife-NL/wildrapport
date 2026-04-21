@@ -32,7 +32,7 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -111,21 +111,21 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 1.5,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 2,
                                   ),
                                 ),
@@ -260,21 +260,21 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 1.5,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 2,
                                   ),
                                 ),
@@ -351,15 +351,15 @@ class _CollisionDetailsScreenState extends State<CollisionDetailsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.darkGreen : Colors.white,
+          color: isSelected ? AppColors.primaryGreen : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.darkGreen, width: 1.5),
+          border: Border.all(color: AppColors.primaryGreen, width: 1.5),
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.darkGreen,
+              color: isSelected ? Colors.white : AppColors.primaryGreen,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),

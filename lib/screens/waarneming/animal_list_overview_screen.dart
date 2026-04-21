@@ -8,6 +8,7 @@ import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_list_table.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 // Removed AppStateProvider import as collision flow is discontinued
 
 class AnimalListOverviewScreen extends StatelessWidget {

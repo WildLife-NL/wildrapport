@@ -19,7 +19,7 @@ class ZonesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = context.read<NavigationStateInterface>();
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -124,7 +124,7 @@ class _MenuButton extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
             child: Row(
               children: [
-                Icon(icon, color: AppColors.darkGreen, size: 28),
+                Icon(icon, color: AppColors.primaryGreen, size: 28),
                 SizedBox(width: paddingH * 0.7),
                 Expanded(
                   child: Text(

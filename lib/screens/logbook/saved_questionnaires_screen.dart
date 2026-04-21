@@ -11,7 +11,7 @@ class SavedQuestionnairesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -99,7 +99,7 @@ class SavedQuestionnairesScreen extends StatelessWidget {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.darkGreen,
+                                  backgroundColor: AppColors.primaryGreen,
                                   foregroundColor: Colors.white,
                                 ),
                                 child: const Text('Hervat'),

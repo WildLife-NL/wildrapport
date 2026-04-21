@@ -137,7 +137,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -173,7 +173,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                         width: 1.5,
                       ),
                     ),
@@ -230,17 +230,17 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                     child: Container(
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.lightMintGreen,
+                        color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.darkGreen,
+                          color: AppColors.primaryGreen,
                           width: 1.5,
                         ),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: AppColors.darkGreen),
+                          const Icon(Icons.search, color: AppColors.primaryGreen),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -257,7 +257,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                                     ? IconButton(
                                         icon: const Icon(
                                           Icons.clear,
-                                          color: AppColors.darkGreen,
+                                          color: AppColors.primaryGreen,
                                         ),
                                         onPressed: () {
                                           _searchController.clear();

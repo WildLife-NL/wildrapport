@@ -12,7 +12,7 @@ class LoginOverlay extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Material(
-        color: AppColors.lightMintGreen.withValues(alpha: 0.5),
+        color: AppColors.backgroundLight.withValues(alpha: 0.5),
         child: Center(
           child: GestureDetector(
             onTap:

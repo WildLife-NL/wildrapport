@@ -62,7 +62,7 @@ class _TopContainerState extends State<TopContainer> {
           height: widget.height,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.darkGreen,
+            color: AppColors.primaryGreen,
             borderRadius:
                 BorderRadius.zero,
           ),

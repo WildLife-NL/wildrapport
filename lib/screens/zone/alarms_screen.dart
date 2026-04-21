@@ -73,7 +73,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -129,7 +129,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(color: AppColors.darkGreen),
+            const CircularProgressIndicator(color: AppColors.primaryGreen),
             const SizedBox(height: 16),
             Text(
               _showAllAlarms ? 'Alle alarmen ophalen…' : 'Alarmen ophalen…',
@@ -158,7 +158,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                 onPressed: _load,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Opnieuw proberen'),
-                style: TextButton.styleFrom(foregroundColor: AppColors.darkGreen),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
               ),
             ],
           ),
@@ -191,7 +191,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
     }
     return RefreshIndicator(
       onRefresh: _load,
-      color: AppColors.darkGreen,
+      color: AppColors.primaryGreen,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         itemCount: list.length,
@@ -234,7 +234,7 @@ class _SegmentChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.darkGreen : Colors.white,
+      color: selected ? AppColors.primaryGreen : Colors.white,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -312,8 +312,8 @@ class _AlarmTile extends StatelessWidget {
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppColors.darkGreen.withValues(alpha: 0.2),
-          child: const Icon(Icons.notifications_active, color: AppColors.darkGreen),
+          backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.2),
+          child: const Icon(Icons.notifications_active, color: AppColors.primaryGreen),
         ),
         title: Text(
           zoneName,
@@ -410,10 +410,10 @@ class _AlarmDetailSheet extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.darkGreen.withValues(alpha: 0.08),
+        color: AppColors.primaryGreen.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.darkGreen.withValues(alpha: 0.3),
+          color: AppColors.primaryGreen.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -586,7 +586,7 @@ class _AlarmDetailSheet extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: AppColors.darkGreen,
+          color: AppColors.primaryGreen,
         ),
       ),
     );

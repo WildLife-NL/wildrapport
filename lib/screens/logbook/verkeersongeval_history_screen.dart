@@ -21,7 +21,7 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
     final interactionsFuture = myInteractionApi.getMyInteractions();
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -50,7 +50,7 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                       ),
                     );
                   }
@@ -91,7 +91,7 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
                             Icon(Icons.history,
-                                color: AppColors.darkGreen, size: 64),
+                                color: AppColors.primaryGreen, size: 64),
                             SizedBox(height: 16),
                             Text(
                               'Nog geen verkeersongevallen',
@@ -173,7 +173,7 @@ class _InteractionTile extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.darkGreen,
+                    color: AppColors.primaryGreen,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
@@ -274,9 +274,9 @@ class _DetailSheet extends StatelessWidget {
     final collision = interaction.reportOfCollision;
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: AppColors.lightMintGreen,
+        backgroundColor: AppColors.backgroundLight,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),

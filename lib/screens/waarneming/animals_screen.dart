@@ -8,6 +8,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/screens/waarneming/animal_aantal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;

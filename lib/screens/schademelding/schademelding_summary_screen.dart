@@ -6,6 +6,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingSummaryScreen extends StatefulWidget {
   const SchademeldingSummaryScreen({
@@ -96,7 +97,7 @@ class _SchademeldingSummaryScreenState
       case 'tuin':
         return 'assets/images/gewas/tuin.jpg';
       // Vee types
-      case 'rund':
+      case 'runderen':
         return 'assets/images/vee/rund.png';
       case 'schaap':
         return 'assets/images/vee/schaap.png';
@@ -175,7 +176,7 @@ class _SchademeldingSummaryScreenState
               showUserIcon: false,
               useFixedText: true,
               iconColor: Colors.grey,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 0.85,
               userIconScale: 1.15,
@@ -282,7 +283,7 @@ class _SchademeldingSummaryScreenState
                                                   ?.copyWith(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Colors.black,
+                                                    color: AppColors.textPrimary
                                                   ),
                                             ),
                                           ),

@@ -113,13 +113,13 @@ class _TermsScreenState extends State<TermsScreen> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
           'Algemene Voorwaarden',
           style: TextStyle(fontSize: responsive.fontSize(18)),
         ),
-        backgroundColor: AppColors.lightMintGreen,
+        backgroundColor: AppColors.backgroundLight,
         elevation: 0,
         foregroundColor: AppColors.textPrimary,
       ),
@@ -153,7 +153,7 @@ class _TermsScreenState extends State<TermsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.darkGreen),
+                    borderSide: BorderSide(color: AppColors.primaryGreen),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   contentPadding: EdgeInsets.symmetric(
@@ -182,7 +182,7 @@ class _TermsScreenState extends State<TermsScreen> {
                     scale: responsive.sp(0.15),
                     child: Checkbox(
                       value: _checked,
-                      activeColor: AppColors.darkGreen,
+                      activeColor: AppColors.primaryGreen,
                       onChanged:
                           _submitting
                               ? null

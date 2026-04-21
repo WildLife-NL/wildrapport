@@ -166,9 +166,9 @@ class _QuestionnaireCompletionScreenState
                           ),
                           decoration: BoxDecoration(
                             color:
-                                isActive ? AppColors.darkGreen : Colors.white,
+                                isActive ? AppColors.primaryGreen : Colors.white,
                             border: Border.all(
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(12),
@@ -180,7 +180,7 @@ class _QuestionnaireCompletionScreenState
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Roboto',
                               color:
-                                  isActive ? Colors.white : AppColors.darkGreen,
+                                  isActive ? Colors.white : AppColors.primaryGreen,
                             ),
                           ),
                         ),

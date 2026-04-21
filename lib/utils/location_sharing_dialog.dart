@@ -18,7 +18,7 @@ Future<bool?> showLocationSharingOffDialog(BuildContext context) {
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
-          style: TextButton.styleFrom(foregroundColor: AppColors.darkGreen),
+          style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
           child: const Text('Ja'),
         ),
       ],

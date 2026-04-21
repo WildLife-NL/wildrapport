@@ -180,7 +180,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
         : null;
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -217,7 +217,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(color: AppColors.darkGreen),
+                          child: CircularProgressIndicator(color: AppColors.primaryGreen),
                         ),
                       )
                     else if (_loadError != null)
@@ -244,7 +244,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                            border: Border.all(color: AppColors.primaryGreen),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(
@@ -280,7 +280,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.darkGreen),
+                          border: Border.all(color: AppColors.primaryGreen),
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<ZoneSpeciesItem>(
@@ -317,7 +317,7 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                             ? null
                             : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkGreen,
+                          backgroundColor: AppColors.primaryGreen,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),

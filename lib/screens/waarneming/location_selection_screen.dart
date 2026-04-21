@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/waarneming/location_datetime_screen.dart';
 
 class LocationSelectionScreen extends StatefulWidget {

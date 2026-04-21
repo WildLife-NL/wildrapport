@@ -63,7 +63,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -167,12 +167,12 @@ class _ReportButton extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.darkGreen.withOpacity(0.08),
+                  color: AppColors.primaryGreen.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                   size: 22,
                 ),
               ),

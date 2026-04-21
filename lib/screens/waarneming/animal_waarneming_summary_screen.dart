@@ -7,6 +7,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;

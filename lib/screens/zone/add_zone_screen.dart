@@ -232,7 +232,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -268,7 +268,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: AppColors.darkGreen),
+                            borderSide: BorderSide(color: AppColors.borderDefault),
                           ),
                         ),
                         validator: (v) {
@@ -288,7 +288,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: AppColors.darkGreen),
+                            borderSide: BorderSide(color: AppColors.borderDefault),
                           ),
                         ),
                         validator: (v) {
@@ -308,7 +308,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                       const SizedBox(height: 6),
                       Text(
                         'Tik op de kaart om punten te zetten (min. 3). Gebruik "Huidige locatie" om naar je positie te gaan.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                        style: TextStyle(fontSize: 12, color: AppColors.darkGrey),
                       ),
                       const SizedBox(height: 12),
                       ClipRRect(
@@ -339,9 +339,9 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                       polygons: [
                                         fm.Polygon(
                                           points: _polygonPoints,
-                                          color: AppColors.darkGreen.withValues(alpha: 0.25),
+                                          color: AppColors.primaryGreen.withValues(alpha: 0.25),
                                           borderStrokeWidth: 2,
-                                          borderColor: AppColors.darkGreen,
+                                          borderColor: AppColors.primaryGreen,
                                         ),
                                       ],
                                     ),
@@ -354,8 +354,8 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                         child: Container(
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: AppColors.darkGreen,
-                                            border: Border.all(color: Colors.white, width: 2),
+                                            color: AppColors.textPrimary,
+                                            border: Border.all(color: AppColors.borderDefault, width: 2),
                                           ),
                                           child: Center(
                                             child: Text(
@@ -444,11 +444,11 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                               height: 20,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: AppColors.darkGreen,
+                                                color: AppColors.primaryGreen,
                                               ),
                                             )
                                           else
-                                            const Icon(Icons.my_location, size: 20, color: AppColors.darkGreen),
+                                            const Icon(Icons.my_location, size: 20, color: AppColors.primaryGreen),
                                           const SizedBox(width: 6),
                                           Text(
                                             _isLoadingLocation ? 'Bezig…' : 'Huidige locatie',
@@ -457,7 +457,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                               fontWeight: FontWeight.w600,
                                               color: _isLoadingLocation
                                                   ? Colors.grey
-                                                  : AppColors.darkGreen,
+                                                  : AppColors.primaryGreen,
                                             ),
                                           ),
                                         ],
@@ -486,7 +486,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                             onPressed: _polygonPoints.isEmpty ? null : _removeLastPoint,
                             icon: const Icon(Icons.undo, size: 18),
                             label: const Text('Ongedaan'),
-                            style: TextButton.styleFrom(foregroundColor: AppColors.darkGreen),
+                            style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
                           ),
                           TextButton.icon(
                             onPressed: _polygonPoints.isEmpty ? null : _clearPoints,
@@ -502,7 +502,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                         child: ElevatedButton(
                           onPressed: _isSubmitting ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.darkGreen,
+                            backgroundColor: AppColors.primaryGreen,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),

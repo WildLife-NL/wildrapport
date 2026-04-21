@@ -48,8 +48,8 @@ class _ReportButtonState extends State<ReportButton> {
       extraLarge: responsive.wp(12),
     );
 
-    final Color baseColor = AppColors.lightMintGreen; // page background color
-    final Color hoverColor = AppColors.darkGreen;
+    final Color baseColor = AppColors.backgroundLight; // page background color
+    final Color hoverColor = AppColors.primaryGreen;
 
     return MouseRegion(
       onEnter: _onEnter,
@@ -67,7 +67,7 @@ class _ReportButtonState extends State<ReportButton> {
             color: (_isPressed || _isHovered) ? hoverColor : baseColor,
             borderRadius: BorderRadius.circular(responsive.sp(2.5)),
             border: Border.all(
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
               width: responsive.sp(0.2),
             ),
           ),

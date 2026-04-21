@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/logbook/viewing_summary_screen.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class RecentSightingsScreen extends StatefulWidget {
   const RecentSightingsScreen({super.key});

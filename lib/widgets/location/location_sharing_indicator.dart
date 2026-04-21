@@ -33,7 +33,7 @@ class LocationSharingIndicator extends StatelessWidget {
               Text(
                 'Locatie actief',
                 style: TextStyle(
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                   fontSize: iconSize * 0.8,
                   fontWeight: FontWeight.w500,
                 ),
@@ -87,7 +87,7 @@ class _PulsingLocationIconState extends State<_PulsingLocationIcon>
         message: 'Locatie delen is ingeschakeld',
         child: Icon(
           Icons.location_on,
-          color: AppColors.darkGreen,
+          color: AppColors.primaryGreen,
           size: widget.iconSize,
         ),
       ),
@@ -116,9 +116,9 @@ class LocationSharingBadge extends StatelessWidget {
           height: badgeSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.darkGreen.withValues(alpha:0.2),
+            color: AppColors.primaryGreen.withValues(alpha:0.2),
             border: Border.all(
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
               width: 1.5,
             ),
           ),
@@ -127,7 +127,7 @@ class LocationSharingBadge extends StatelessWidget {
               message: 'Locatie delen is ingeschakeld',
               child: Icon(
                 Icons.location_on,
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
                 size: badgeSize * 0.6,
               ),
             ),

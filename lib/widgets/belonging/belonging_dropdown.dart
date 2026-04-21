@@ -174,7 +174,7 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
         width: widget.containerWidth ?? 200,
         height: widget.containerHeight ?? 50,
         decoration: BoxDecoration(
-          color: AppColors.darkGreen,
+          color: AppColors.primaryGreen,
           borderRadius: BorderRadius.circular(30),
           border:
               widget.hasError
@@ -293,7 +293,7 @@ class _BelongingDropdownState extends State<BelongingDropdown> {
         height: widget.containerHeight ?? 50,
         margin: const EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
-          color: AppColors.darkGreen,
+          color: AppColors.primaryGreen,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(

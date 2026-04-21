@@ -7,6 +7,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class LocationDateTimeScreen extends StatefulWidget {
   final LatLng selectedLocation;

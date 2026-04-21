@@ -406,8 +406,8 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                           point: mapCenter,
                           radius: _radiusMeters,
                           useRadiusInMeter: true,
-                          color: AppColors.darkGreen.withValues(alpha: 0.25),
-                          borderColor: AppColors.darkGreen,
+                          color: AppColors.primaryGreen.withValues(alpha: 0.25),
+                          borderColor: AppColors.primaryGreen,
                           borderStrokeWidth: 2,
                         ),
                       ],
@@ -438,7 +438,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.my_location, size: 20, color: AppColors.darkGreen),
+                          Icon(Icons.my_location, size: 20, color: AppColors.primaryGreen),
                           const SizedBox(width: 6),
                           const Text(
                             'Huidige locatie',
@@ -468,9 +468,9 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
         ),
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            activeTrackColor: AppColors.darkGreen,
-            inactiveTrackColor: AppColors.darkGreen.withValues(alpha: 0.3),
-            thumbColor: AppColors.darkGreen,
+            activeTrackColor: AppColors.primaryGreen,
+            inactiveTrackColor: AppColors.primaryGreen.withValues(alpha: 0.3),
+            thumbColor: AppColors.primaryGreen,
           ),
           child: Slider(
             value: _radiusMeters.clamp(_minRadiusM, _maxRadiusM),

@@ -126,7 +126,7 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -160,7 +160,7 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(color: AppColors.darkGreen),
+                          child: CircularProgressIndicator(color: AppColors.primaryGreen),
                         ),
                       )
                     else if (_loadError != null)
@@ -187,7 +187,7 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                            border: Border.all(color: AppColors.primaryGreen),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(

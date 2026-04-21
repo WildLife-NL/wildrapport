@@ -120,7 +120,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -156,7 +156,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                     if (_loading)
                       const Center(child: Padding(
                         padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(color: AppColors.darkGreen),
+                        child: CircularProgressIndicator(color: AppColors.primaryGreen),
                       ))
                     else if (_loadError != null)
                       Padding(
@@ -179,7 +179,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                            border: Border.all(color: AppColors.primaryGreen),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(
@@ -239,7 +239,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                            border: Border.all(color: AppColors.primaryGreen),
                           ),
                           child: Row(
                             children: [
@@ -270,7 +270,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                       child: ElevatedButton(
                         onPressed: (_isSubmitting || _zones.isEmpty) ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkGreen,
+                          backgroundColor: AppColors.primaryGreen,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),

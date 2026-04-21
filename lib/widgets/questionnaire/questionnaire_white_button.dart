@@ -53,10 +53,10 @@ class _QuestionnaireWhiteButtonState extends State<QuestionnaireWhiteButton> {
           height: widget.height,
           width: widget.width,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.darkGreen : Colors.white,
+            color: isActive ? AppColors.primaryGreen : Colors.white,
             borderRadius: BorderRadius.circular(responsive.sp(2.5)),
             border: Border.all(
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
               width: responsive.sp(0.2),
             ),
           ),

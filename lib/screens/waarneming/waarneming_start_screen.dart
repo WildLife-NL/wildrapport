@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class WaarnemmingStartScreen extends StatelessWidget {
   const WaarnemmingStartScreen({super.key});

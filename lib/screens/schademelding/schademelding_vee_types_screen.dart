@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingVeeTypesScreen extends StatefulWidget {
   const SchademeldingVeeTypesScreen({super.key});

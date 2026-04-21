@@ -80,7 +80,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: AppColors.lightMintGreen,
+        backgroundColor: AppColors.backgroundLight,
         body: LayoutBuilder(
           builder: (context, constraints) {
             final double estimatedContentHeight =

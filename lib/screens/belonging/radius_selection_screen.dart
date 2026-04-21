@@ -125,7 +125,7 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return Scaffold(
-        backgroundColor: AppColors.lightMintGreen,
+        backgroundColor: AppColors.backgroundLight,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: CustomAppBar(
@@ -141,7 +141,7 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
 
     if (_error != null) {
       return Scaffold(
-        backgroundColor: AppColors.lightMintGreen,
+        backgroundColor: AppColors.backgroundLight,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: CustomAppBar(
@@ -181,7 +181,7 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
     final center = _currentLocation!;
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
         child: CustomAppBar(
@@ -232,8 +232,8 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
                       point: center,
                       radius: _radiusMeters,
                       useRadiusInMeter: true,
-                      color: AppColors.darkGreen.withValues(alpha: 0.25),
-                      borderColor: AppColors.darkGreen,
+                      color: AppColors.primaryGreen.withValues(alpha: 0.25),
+                      borderColor: AppColors.primaryGreen,
                       borderStrokeWidth: 2,
                     ),
                   ],
@@ -271,9 +271,9 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
                   const SizedBox(height: 8),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: AppColors.darkGreen,
-                      inactiveTrackColor: AppColors.darkGreen.withValues(alpha: 0.3),
-                      thumbColor: AppColors.darkGreen,
+                      activeTrackColor: AppColors.primaryGreen,
+                      inactiveTrackColor: AppColors.primaryGreen.withValues(alpha: 0.3),
+                      thumbColor: AppColors.primaryGreen,
                     ),
                     child: Slider(
                       value: _radiusMeters.clamp(_minRadiusM, _maxRadiusM),
@@ -308,7 +308,7 @@ class _RadiusSelectionScreenState extends State<RadiusSelectionScreen> {
                     child: ElevatedButton(
                       onPressed: _confirmSelection,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkGreen,
+                        backgroundColor: AppColors.primaryGreen,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),

@@ -62,7 +62,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

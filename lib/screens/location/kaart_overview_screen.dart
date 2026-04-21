@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
+import 'dart:io';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -235,6 +237,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   @override
   void initState() {
     super.initState();
+    final bool isIosDebug = !kIsWeb && Platform.isIOS && kDebugMode;
+    if (isIosDebug) {
+      debugPrint('[Kaart] iOS debug: skipping bootstrap and live-follow startup');
+      return;
+    }
+
     _bootstrap();
     _startFollowingMe();
   }
@@ -1110,7 +1118,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         (context, markers) => _clusterBadge(
                                           icon: Icons.pets,
                                           count: markers.length,
-                                          color: AppColors.darkGreen,
+                                          color: AppColors.primaryGreen,
                                           mapRotation:
                                               map.mapController.camera.rotation,
                                         ),
@@ -1222,7 +1230,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         (context, markers) => _clusterBadge(
                                           icon: Icons.sensors,
                                           count: markers.length,
-                                          color: AppColors.darkGreen,
+                                          color: AppColors.primaryGreen,
                                           mapRotation:
                                               map.mapController.camera.rotation,
                                         ),
@@ -1472,7 +1480,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         (context, markers) => _clusterBadge(
                                           icon: Icons.place,
                                           count: markers.length,
-                                          color: AppColors.darkGreen,
+                                          color: AppColors.primaryGreen,
                                           mapRotation:
                                               map.mapController.camera.rotation,
                                         ),
@@ -1684,13 +1692,13 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
               errorBuilder: (context, error, stackTrace) => Icon(
                 Icons.pets,
                 size: iconSize * 0.92,
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
               ),
             )
             : Icon(
               Icons.pets,
               size: iconSize * 0.92,
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
             );
 
     final badge = Container(
@@ -1731,7 +1739,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   Color _animalPinBorderForSeenAt(DateTime seenAt) {
     final age = DateTime.now().difference(seenAt);
-    if (age.inMinutes < 60) return AppColors.darkGreen;
+    if (age.inMinutes < 60) return AppColors.primaryGreen;
     if (age.inHours < 24) return const Color(0xFF1565C0);
     if (age.inDays < 7) return Colors.grey.shade700;
     return Colors.grey.shade500;

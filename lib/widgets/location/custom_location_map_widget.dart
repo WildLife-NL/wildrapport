@@ -366,8 +366,8 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.darkGreen,
-                      side: BorderSide(color: AppColors.darkGreen),
+                      foregroundColor: AppColors.primaryGreen,
+                      side: BorderSide(color: AppColors.primaryGreen),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: const Text('Annuleren'),
@@ -378,7 +378,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
                   child: ElevatedButton(
                     onPressed: _confirmLocation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.darkGreen,
+                      backgroundColor: AppColors.primaryGreen,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),

@@ -157,7 +157,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
               style: TextStyle(
                 fontSize: responsive.fontSize(20),
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
               ),
             ),
             SizedBox(height: responsive.spacing(20)),
@@ -179,7 +179,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             color: AppColors.lightMintGreen100,
             borderRadius: BorderRadius.circular(responsive.sp(3)),
             border: Border.all(
-              color: _errorMessage != null ? Colors.red : AppColors.darkGreen,
+              color: _errorMessage != null ? Colors.red : AppColors.primaryGreen,
               width: 2,
             ),
           ),
@@ -190,7 +190,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 style: TextStyle(
                   fontSize: responsive.fontSize(14),
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                 ),
               ),
               SizedBox(height: responsive.spacing(12)),
@@ -203,7 +203,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(responsive.sp(2)),
-                  border: Border.all(color: AppColors.darkGreen, width: 2),
+                  border: Border.all(color: AppColors.primaryGreen, width: 2),
                 ),
                 child: TextField(
                   controller: _timeController,
@@ -212,7 +212,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   style: TextStyle(
                     fontSize: responsive.fontSize(32),
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGreen,
+                    color: AppColors.primaryGreen,
                     letterSpacing: 4,
                   ),
                   decoration: InputDecoration(
@@ -220,7 +220,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                     contentPadding: EdgeInsets.zero,
                     hintText: 'HH:MM',
                     hintStyle: TextStyle(
-                      color: AppColors.darkGreen.withValues(alpha: 0.3),
+                      color: AppColors.primaryGreen.withValues(alpha: 0.3),
                       fontSize: responsive.fontSize(32),
                     ),
                   ),
@@ -274,7 +274,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
           child: Text(
             'Annuleren',
             style: TextStyle(
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
               fontSize: responsive.fontSize(15),
               fontWeight: FontWeight.w600,
             ),
@@ -294,7 +294,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(responsive.sp(2.5)),
-              side: BorderSide(color: AppColors.darkGreen, width: 2),
+              side: BorderSide(color: AppColors.primaryGreen, width: 2),
             ),
             elevation: 2,
           ),
