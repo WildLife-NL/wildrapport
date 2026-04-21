@@ -167,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                fontSize: fs(14),
+                                                fontSize: fs(11),
                                                 color: Colors.grey.shade600,
                                                 height: 1.25,
                                               ),
