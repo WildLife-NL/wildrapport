@@ -50,7 +50,7 @@ class AnimalManager
                 animalName: s.commonName,
                 category: s.category,
                 genderViewCounts: [],
-                condition: AnimalCondition.andere,
+                
               );
             },
           )

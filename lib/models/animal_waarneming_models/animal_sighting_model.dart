@@ -121,7 +121,7 @@ class AnimalSightingModel {
                       x['condition'] != null
                           ? AnimalCondition.values.firstWhere(
                             (e) => e.toString() == x['condition'],
-                            orElse: () => AnimalCondition.andere,
+                            orElse: () => AnimalCondition.onbekend,
                           )
                           : null,
                   genderViewCounts:
@@ -147,7 +147,7 @@ class AnimalSightingModel {
                       ? AnimalCondition.values.firstWhere(
                         (e) =>
                             e.toString() == json['animalSelected']['condition'],
-                        orElse: () => AnimalCondition.andere,
+                        orElse: () => AnimalCondition.onbekend,
                       )
                       : null,
               genderViewCounts:

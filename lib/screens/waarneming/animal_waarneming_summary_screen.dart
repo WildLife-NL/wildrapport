@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
@@ -663,11 +664,32 @@ List<Widget> _buildAnimalDetailsList(List animals) {
         continue;
       }
 
+      // Get condition label
+      String conditionLabel = 'Onbekend';
+      if (animal.condition != null) {
+        switch (animal.condition) {
+          case AnimalCondition.gezond:
+            conditionLabel = 'Gezond';
+            break;
+          case AnimalCondition.gewond:
+            conditionLabel = 'Gewond';
+            break;
+          case AnimalCondition.dood:
+            conditionLabel = 'Dood';
+            break;
+          case AnimalCondition.onbekend:
+            conditionLabel = 'Onbekend';
+            break;
+          default:
+            conditionLabel = 'Onbekend';
+        }
+      }
+
       // Loop through each gender/age combination for this animal
       for (final genderViewCount in animal.genderViewCounts) {
         final gender = _getGenderDisplay(genderViewCount.gender);
         final viewCount = genderViewCount.viewCount;
-        
+
         // Determine the age
         String age = 'Onbekend';
         if (viewCount.pasGeborenAmount > 0) {
@@ -706,7 +728,7 @@ List<Widget> _buildAnimalDetailsList(List animals) {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '$gender, $age',
+                      'Conditie: $conditionLabel\nGeslacht: $gender\nLeeftijd: $age',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -719,9 +741,9 @@ List<Widget> _buildAnimalDetailsList(List animals) {
             ],
           ),
         );
-        
+
         currentAnimalCount++;
-        
+
         // Add divider between animals (but not after the last one)
         if (currentAnimalCount < totalAnimals) {
           details.add(const SizedBox(height: 14));
@@ -734,7 +756,7 @@ List<Widget> _buildAnimalDetailsList(List animals) {
           );
           details.add(const SizedBox(height: 14));
         }
-        
+
         animalIndex++;
       }
     }

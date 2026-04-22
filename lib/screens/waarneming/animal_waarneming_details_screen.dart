@@ -32,6 +32,7 @@ class _AnimalWaarnemingDetailsScreenState
     extends State<AnimalWaarnemingDetailsScreen> {
   AnimalAge selectedAge = AnimalAge.onbekend;
   AnimalGender selectedGender = AnimalGender.onbekend;
+  AnimalCondition selectedCondition = AnimalCondition.onbekend;
 
   @override
   void initState() {
@@ -52,6 +53,9 @@ class _AnimalWaarnemingDetailsScreenState
     final firstGenderViewCount = savedAnimal.genderViewCounts.first;
     selectedGender = firstGenderViewCount.gender;
     selectedAge = _extractAgeFromViewCount(firstGenderViewCount.viewCount);
+    if (savedAnimal.condition != null) {
+      selectedCondition = savedAnimal.condition!;
+    }
   }
 
   AnimalAge _extractAgeFromViewCount(ViewCountModel viewCount) {
@@ -102,7 +106,7 @@ class _AnimalWaarnemingDetailsScreenState
           viewCount: viewCount,
         ),
       ],
-      condition: template.condition,
+      condition: selectedCondition,
     );
   }
 
@@ -493,9 +497,18 @@ class _AnimalWaarnemingDetailsScreenState
                             AnimalGender.mannelijk,
                             AnimalGender.vrouwelijk,
                           ], (gender) {
-                            setState(() =>
-                                selectedGender = gender as AnimalGender);
+                            setState(() => selectedGender = gender as AnimalGender);
                           }, selectedGender),
+                          const SizedBox(height: 16),
+                          // Condition selector
+                          _buildSelectorSection('Conditie:', [
+                            AnimalCondition.onbekend, // unknown
+                            AnimalCondition.gezond,   // healthy
+                            AnimalCondition.gewond,     // impaired
+                            AnimalCondition.dood,     // dead
+                          ], (condition) {
+                            setState(() => selectedCondition = condition as AnimalCondition);
+                          }, selectedCondition),
                           const SizedBox(height: 20),
                           // Next animal button - only show if not the final animal
                           if (widget.animalIndex < widget.totalCount - 1)
@@ -668,14 +681,12 @@ class _AnimalWaarnemingDetailsScreenState
       switch (value) {
         case AnimalCondition.gezond:
           return 'Gezond';
-        case AnimalCondition.ziek:
-          return 'Gewond/Ziek';
+        case AnimalCondition.gewond:
+          return 'Gewond';
         case AnimalCondition.dood:
           return 'Dood';
-        case AnimalCondition.levend:
-          return 'Levend';
-        case AnimalCondition.andere:
-          return 'Anders';
+        case AnimalCondition.onbekend:
+          return 'Onbekend';
       }
     }
     return 'Onbekend';

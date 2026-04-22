@@ -1,1 +1,1 @@
-enum AnimalCondition { andere, dood, ziek, gezond, levend }
+enum AnimalCondition { onbekend, dood, gewond, gezond}
