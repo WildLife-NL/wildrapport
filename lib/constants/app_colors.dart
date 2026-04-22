@@ -41,8 +41,8 @@ class AppColors {
   static const Color cardBackground = Color(0xFFFFFFFF);
 
   // Border colors
-  static const Color borderDefault = Color(0xFFE0D9C9);
-  static const Color borderLight = Color(0xFFCCCCCC);
+  static const Color borderDefault = Color.fromARGB(255, 207, 207, 207);
+  static const Color borderLight = Color(0xFFD4D4D4);
   static const Color borderDark = Color(0xFF333333);
 
   // State colors

@@ -9,14 +9,17 @@ class SchademeldingDetailsScreen extends StatefulWidget {
   const SchademeldingDetailsScreen({super.key});
 
   @override
-  State<SchademeldingDetailsScreen> createState() => _SchademeldingDetailsScreenState();
+  State<SchademeldingDetailsScreen> createState() =>
+      _SchademeldingDetailsScreenState();
 }
 
-class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen> {
+class _SchademeldingDetailsScreenState
+    extends State<SchademeldingDetailsScreen> {
   late AnimalSightingReportingInterface _sightingManager;
   String _selectedExpectedLoss = '€0-€250';
   bool _preventiveMeasures = false;
-  final TextEditingController _additionalInfoController = TextEditingController();
+  final TextEditingController _additionalInfoController =
+      TextEditingController();
 
   final List<String> _expectedLossOptions = <String>[
     '€0-€250',
@@ -46,13 +49,7 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
     super.dispose();
   }
 
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    }
-  }
-
-  void _onNextPressed() {
+  void _saveDetails() {
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
       final updated = currentSighting.copyWith(
@@ -62,6 +59,10 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
       );
       _sightingManager.updateCurrentanimalSighting(updated);
     }
+  }
+
+  void _onNextPressed() {
+    _saveDetails();
 
     Navigator.push(
       context,
@@ -69,6 +70,14 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
         builder: (BuildContext context) => const SchademeldingSummaryScreen(),
       ),
     );
+  }
+
+  void _onPreviousPressed() {
+    _saveDetails();
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -85,21 +94,22 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
           child: Column(
             children: <Widget>[
               CustomAppBar(
-                leftIcon: Icons.arrow_back_ios,
+                leftIcon: null,
                 centerText: 'Schademelding',
                 rightIcon: null,
                 showUserIcon: false,
                 useFixedText: true,
-                onLeftIconPressed: _handleBackNavigation,
                 iconColor: Colors.black,
                 textColor: Colors.black,
                 fontScale: 1.4,
                 iconScale: 1.15,
                 userIconScale: 1.15,
               ),
-              Expanded(
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.75,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding:
+                      const EdgeInsets.fromLTRB(16, 2, 16, 16),
                   child: Card(
                     elevation: 0,
                     color: Colors.white,
@@ -110,16 +120,19 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                         width: 1,
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: SingleChildScrollView(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             const SizedBox(height: 8),
                             Text(
                               'Wat is het verwachte verlies als gevolg van de schade?',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w400,
                                     color: Colors.black,
@@ -150,7 +163,8 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                                   underline: const SizedBox(),
                                   dropdownColor: Colors.white,
                                   borderRadius: BorderRadius.circular(10),
-                                  items: _expectedLossOptions.map((String value) {
+                                  items: _expectedLossOptions
+                                      .map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(
@@ -170,13 +184,17 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                                       setState(() {
                                         _selectedExpectedLoss = newValue;
                                       });
-                                      final currentSighting =
-                                          _sightingManager.getCurrentanimalSighting();
+                                      final currentSighting = _sightingManager
+                                          .getCurrentanimalSighting();
                                       if (currentSighting != null) {
-                                        final updated = currentSighting.copyWith(
+                                        final updated =
+                                            currentSighting.copyWith(
                                           expectedLoss: newValue,
                                         );
-                                        _sightingManager.updateCurrentanimalSighting(updated);
+                                        _sightingManager
+                                            .updateCurrentanimalSighting(
+                                          updated,
+                                        );
                                       }
                                     }
                                   },
@@ -186,7 +204,10 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                             const SizedBox(height: 32),
                             Text(
                               'Heeft u preventieve maatregelen genomen?',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w400,
                                     color: Colors.black,
@@ -203,13 +224,17 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                                       setState(() {
                                         _preventiveMeasures = false;
                                       });
-                                      final currentSighting =
-                                          _sightingManager.getCurrentanimalSighting();
+                                      final currentSighting = _sightingManager
+                                          .getCurrentanimalSighting();
                                       if (currentSighting != null) {
-                                        final updated = currentSighting.copyWith(
+                                        final updated =
+                                            currentSighting.copyWith(
                                           preventiveMeasures: false,
                                         );
-                                        _sightingManager.updateCurrentanimalSighting(updated);
+                                        _sightingManager
+                                            .updateCurrentanimalSighting(
+                                          updated,
+                                        );
                                       }
                                     },
                                   ),
@@ -223,13 +248,17 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                                       setState(() {
                                         _preventiveMeasures = true;
                                       });
-                                      final currentSighting =
-                                          _sightingManager.getCurrentanimalSighting();
+                                      final currentSighting = _sightingManager
+                                          .getCurrentanimalSighting();
                                       if (currentSighting != null) {
-                                        final updated = currentSighting.copyWith(
+                                        final updated =
+                                            currentSighting.copyWith(
                                           preventiveMeasures: true,
                                         );
-                                        _sightingManager.updateCurrentanimalSighting(updated);
+                                        _sightingManager
+                                            .updateCurrentanimalSighting(
+                                          updated,
+                                        );
                                       }
                                     },
                                   ),
@@ -239,7 +268,10 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                             const SizedBox(height: 32),
                             Text(
                               'Meer informatie (optioneel):',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w400,
                                     color: Colors.black,
@@ -252,7 +284,7 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                               decoration: InputDecoration(
                                 hintText: 'Beschrijf de schade en situatie...',
                                 filled: true,
-                                fillColor: const Color.fromARGB(255, 255, 255, 255),
+                                fillColor: Colors.white,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: const BorderSide(
@@ -282,34 +314,10 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                                   final updated = currentSighting.copyWith(
                                     additionalInfo: value,
                                   );
-                                  _sightingManager.updateCurrentanimalSighting(updated);
+                                  _sightingManager
+                                      .updateCurrentanimalSighting(updated);
                                 }
                               },
-                            ),
-                            const SizedBox(height: 24),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: _onNextPressed,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4CAF50),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Volgende',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
                             ),
                           ],
                         ),
@@ -318,10 +326,67 @@ class _SchademeldingDetailsScreenState extends State<SchademeldingDetailsScreen>
                   ),
                 ),
               ),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _onPreviousPressed,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(
+                              color: Color(0xFF999999),
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            foregroundColor:
+                                const Color.fromARGB(255, 0, 0, 0),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'Vorige',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _onNextPressed,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: const Color(0xFF37A904),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'Volgende',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const SizedBox.shrink(),
     );
   }
 

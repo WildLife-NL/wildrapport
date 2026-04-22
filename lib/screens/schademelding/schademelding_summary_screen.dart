@@ -113,8 +113,13 @@ class _SchademeldingSummaryScreenState
         return 'assets/images/vee/ree.png';
       case 'ander':
         return null;
+        //Eigendom
+      case 'eigendom':
+      return 'assets/images/property.jpg';
       default:
         return null;
+      
+      
     }
   }
 
