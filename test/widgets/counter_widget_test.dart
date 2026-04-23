@@ -68,7 +68,7 @@ void main() {
       await tester.pump();
 
       // Then decrement back to 0
-      await tester.tap(find.text("−"));
+      await tester.tap(find.text("-"));
       await tester.pump();
 
       expect(newCount, 0);
@@ -91,7 +91,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text("−"));
+      await tester.tap(find.text("-"));
       await tester.pump();
 
       // Should still be 0, not -1

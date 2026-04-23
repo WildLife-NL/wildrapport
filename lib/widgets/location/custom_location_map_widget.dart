@@ -100,6 +100,11 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
       if (!mounted) return;
 
       if (position != null) {
+        final appState = context.read<AppStateProvider>();
+        if (!appState.isLocationTrackingEnabled) {
+          await appState.setLocationTrackingEnabled(true);
+          if (!mounted) return;
+        }
         final address = await _locationService.getAddressFromPosition(position);
         if (!mounted) return;
 

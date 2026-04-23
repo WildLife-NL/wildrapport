@@ -13,9 +13,8 @@ import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dar
 
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import '../mock_generator.mocks.dart';
-import 'package:wildrapport/models/enums/animal_age.dart';
-import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 
 void main() {
   late MockNavigationStateInterface mockNavigationManager;
@@ -82,7 +81,7 @@ void main() {
   }
 
   group('AnimalCountingScreen UI Tests', () {
-    testWidgets('renders gender selection buttons', (tester) async {
+    testWidgets('renders screen title and bottom navigation', (tester) async {
       // Arrange
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -91,37 +90,30 @@ void main() {
       await tester.pumpWidget(createAnimalCountingScreen());
       await tester.pumpAndSettle();
 
-      // Assert - Check for gender buttons
-      expect(find.text('Mannelijk'), findsOneWidget);
-      expect(find.text('Vrouwelijk'), findsOneWidget);
-      // Use findsWidgets instead of findsOneWidget since there are multiple "Onbekend" texts
-      expect(find.text('Onbekend'), findsWidgets);
+      // Assert - current screen layout
+      expect(find.text('Hoeveel van deze dieren heb je gezien?'), findsOneWidget);
+      expect(find.text('Vorige'), findsWidgets);
+      expect(find.text('Volgende'), findsWidgets);
 
       // Cleanup
       addTearDown(() => tester.view.resetPhysicalSize());
     });
 
-    testWidgets('gender selection shows age options', (tester) async {
+    testWidgets('next button in bottom app bar is hidden by default', (tester) async {
       // Arrange
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       await tester.pumpWidget(createAnimalCountingScreen());
       await tester.pumpAndSettle();
 
-      // Act - Select male gender
-      await tester.tap(find.text('Mannelijk'));
-      await tester.pumpAndSettle();
-
-      // Assert - Check for age options
-      expect(find.text('Volwassen'), findsOneWidget);
-      expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
-      expect(find.text('Onvolwassen'), findsOneWidget);
+      // Assert - only inner widget has "Volgende" by default
+      expect(find.text('Volgende'), findsOneWidget);
 
       // Cleanup
       addTearDown(() => tester.view.resetPhysicalSize());
     });
 
-    testWidgets('add to list button is visible', (tester) async {
+    testWidgets('default layout does not show add-to-list button', (tester) async {
       // Arrange
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -129,7 +121,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('Voeg toe aan de lijst'), findsOneWidget);
+      expect(find.text('Voeg toe aan de lijst'), findsNothing);
 
       // Cleanup
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -171,12 +163,16 @@ void main() {
       await tester.pumpWidget(createAnimalCountingScreen());
       await tester.pumpAndSettle();
 
-      // The next button should now be visible in the CustomBottomAppBar
-      // Look for the "Volgende" text which is the Dutch word for "Next"
-      expect(find.text('Volgende'), findsOneWidget);
+      // The next button should now also be visible in the CustomBottomAppBar
+      // so there are two "Volgende" labels.
+      expect(find.text('Volgende'), findsNWidgets(2));
 
       // Tap the next button by finding the row containing "Volgende"
-      await tester.tap(find.text('Volgende'));
+      final nextInBottomBar = find.descendant(
+        of: find.byType(CustomBottomAppBar),
+        matching: find.text('Volgende'),
+      );
+      await tester.tap(nextInBottomBar);
       await tester.pumpAndSettle();
 
       // Verify navigation was called

@@ -8,6 +8,10 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/data_managers/my_interaction_api.dart';
+import 'package:wildrapport/data_managers/interaction_query_api.dart';
+import 'package:wildrapport/models/api_models/interaction_query_result.dart';
+import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
@@ -15,6 +19,7 @@ import 'package:wildrapport/models/animal_waarneming_models/interaction_to_anima
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -24,6 +29,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
 
 class _IconStyle {
   final Color color;
@@ -478,14 +484,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     map.setVicinityNotificationsEnabled(
       app.isLocationTrackingEnabled && app.notificationsEnabled,
     );
-    if (!app.isLocationTrackingEnabled) {
-      map.setMockVicinity();
-      return;
-    }
 
     debugPrint('[Map] Fetching data from vicinity endpoint');
 
     await map.loadAllPinsFromVicinity();
+    await _loadMyInteractionsFallback();
+    await _loadInteractionsByFilterFallback();
 
     debugPrint(
       '[Map] vicinity totals  animals=${map.animalPins.length} '
@@ -524,6 +528,77 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     debugPrint(
       '═══════════════════════════════════════════════════════════════',
     );
+  }
+
+  Future<void> _loadMyInteractionsFallback() async {
+    try {
+      final myApi = context.read<MyInteractionApi>();
+      final map = context.read<MapProvider>();
+      final mine = await myApi.getMyInteractions();
+      for (final itx in mine) {
+        final usePlace =
+            !(itx.place.latitude == 0.0 && itx.place.longitude == 0.0);
+        final lat = usePlace ? itx.place.latitude : itx.location.latitude;
+        final lon = usePlace ? itx.place.longitude : itx.location.longitude;
+        final animals =
+            itx.reportOfSighting?.involvedAnimals ??
+            itx.reportOfCollision?.involvedAnimals ??
+            const <InvolvedAnimal>[];
+        map.addOrUpdateInteraction(
+          InteractionQueryResult(
+            id: itx.id,
+            lat: lat,
+            lon: lon,
+            moment: itx.moment,
+            typeName: itx.type.name,
+            speciesName:
+                itx.species.commonName.isNotEmpty
+                    ? itx.species.commonName
+                    : itx.species.name,
+            description: itx.description,
+            userName: itx.user.name,
+            involvedAnimals:
+                animals
+                    .map(
+                      (a) => AnimalInfo(
+                        sex: a.sex,
+                        lifeStage: a.lifeStage,
+                        condition: a.condition,
+                      ),
+                    )
+                    .toList(),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('[Kaart] interactions/me fallback failed: $e');
+    }
+  }
+
+  Future<void> _loadInteractionsByFilterFallback() async {
+    try {
+      final readApi = context.read<InteractionReadApiInterface>();
+      final api = InteractionQueryApi(readApi);
+      final manager = InteractionQueryManager(api);
+      final map = context.read<MapProvider>();
+      final center = map.mapController.camera.center;
+      final zoom = map.mapController.camera.zoom;
+      final radius = manager.radiusFromZoom(
+        zoom: zoom,
+        lat: center.latitude,
+        widthPx: MediaQuery.of(context).size.width,
+      );
+      final nearby = await manager.loadNearby(
+        lat: center.latitude,
+        lon: center.longitude,
+        radiusMeters: radius,
+      );
+      for (final itx in nearby) {
+        map.addOrUpdateInteraction(itx);
+      }
+    } catch (e) {
+      debugPrint('[Kaart] interactions/ filter fallback failed: $e');
+    }
   }
 
   Future<void> _bootstrap() async {
@@ -624,11 +699,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         _pendingZoom = useUserLocation ? _initialZoom : _netherlandsOverviewZoom;
         _applyPendingCamera();
 
-        if (!appStateProvider.isLocationTrackingEnabled) {
-          map.setMockVicinity();
-          return;
-        }
-
         debugPrint('[Bootstrap] Loading data from vicinity endpoint');
         try {
           await map.loadAllPinsFromVicinity().timeout(
@@ -643,6 +713,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           debugPrint('[Bootstrap] ❌ Failed to load vicinity data: $e');
           // Continue anyway - map will show without pins
         }
+
+        await _loadMyInteractionsFallback();
+        await _loadInteractionsByFilterFallback();
 
         debugPrint(
           '[Map] initial totals  '
@@ -1029,8 +1102,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Widget build(BuildContext context) {
     final map = context.watch<MapProvider>();
     final pos = map.selectedPosition ?? map.currentPosition;
-    final locationSharingOn =
-        context.watch<AppStateProvider>().isLocationTrackingEnabled;
+    // Map data (interactions/detections/animals) should remain visible
+    // regardless of whether background location sharing is enabled.
+    const locationSharingOn = true;
     final visibleTrackingPoints = _visibleTrackingPoints();
 
     return PopScope(

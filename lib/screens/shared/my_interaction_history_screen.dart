@@ -214,8 +214,12 @@ class _MyInteractionHistoryScreenState
   }
 
   List<MyInteraction> _applyFilter(List<MyInteraction> items) {
-    if (_selectedTypeId == null) return items; // All
-    return items.where((i) => i.type.id == _selectedTypeId).toList();
+    final filtered =
+        _selectedTypeId == null
+            ? List<MyInteraction>.from(items)
+            : items.where((i) => i.type.id == _selectedTypeId).toList();
+    filtered.sort((a, b) => b.moment.compareTo(a.moment));
+    return filtered;
   }
 }
 
@@ -263,16 +267,13 @@ class _InteractionCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
           const SizedBox(height: 4),
+          Text('Bezit: ${report.belonging}', style: const TextStyle(fontSize: 12)),
           Text(
-            'Type: ${report.impactType}',
+            'Geschat verlies: ${report.estimatedLoss}',
             style: const TextStyle(fontSize: 12),
           ),
           Text(
-            'Waarde: ${report.impactValue}',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            'Geschatte schade: €${report.estimatedDamage}',
+            'Preventieve maatregelen: ${report.preventiveMeasures ? "Ja" : "Nee"}',
             style: const TextStyle(fontSize: 12),
           ),
         ],

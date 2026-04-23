@@ -13,6 +13,7 @@ import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
+import 'package:wildrapport/models/api_models/vicinity.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
@@ -78,6 +79,30 @@ class MapProvider extends ChangeNotifier {
 
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
+  void _applyVicinity(Vicinity vicinity) {
+    _animalPins
+      ..clear()
+      ..addAll(vicinity.animals);
+    _detectionPins
+      ..clear()
+      ..addAll(vicinity.detections);
+    _interactions
+      ..clear()
+      ..addAll(vicinity.interactions);
+    _animalPinsError = null;
+    _detectionPinsError = null;
+    _interactionsError = null;
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
+    debugPrint(
+      '[MapProvider] ✓ Applied vicinity from tracking ping: '
+      '${_animalPins.length} animals, '
+      '${_detectionPins.length} detections, '
+      '${_interactions.length} interactions',
+    );
+  }
+
   Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
     final now = _nowProvider();
     if (_isNightlyAutoDisableWindow(now)) {
@@ -120,21 +145,28 @@ class MapProvider extends ChangeNotifier {
         );
 
         if (notice != null) {
+          if (notice.vicinity != null) {
+            _applyVicinity(notice.vicinity!);
+          }
           _lastTrackingNotice = notice;
-          debugPrint(
-            '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-          );
-          // Also show an OS-level notification on supported platforms
-          final title =
-              notice.severity == 1
-                  ? 'Waarschuwing'
-                  : (notice.severity == 2 ? 'Melding' : 'Informatie');
-          NotificationService.instance.show(title: title, body: notice.text);
+          if (notice.hasMessage) {
+            debugPrint(
+              '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
+            );
+            // Also show an OS-level notification on supported platforms
+            final title =
+                notice.severity == 1
+                    ? 'Waarschuwing'
+                    : (notice.severity == 2 ? 'Melding' : 'Informatie');
+            NotificationService.instance.show(title: title, body: notice.text);
+          }
           notifyListeners(); // if any UI wants to react to changes
-          debugPrint(
-            '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
-            ' sev=${notice.severity ?? '-'}',
-          );
+          if (notice.hasMessage) {
+            debugPrint(
+              '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
+              ' sev=${notice.severity ?? '-'}',
+            );
+          }
         } else {
           debugPrint(
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
@@ -168,21 +200,28 @@ class MapProvider extends ChangeNotifier {
       );
 
       if (notice != null) {
+        if (notice.vicinity != null) {
+          _applyVicinity(notice.vicinity!);
+        }
         _lastTrackingNotice = notice;
-        debugPrint(
-          '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-        );
-        // Also show an OS-level notification on supported platforms
-        final title =
-            notice.severity == 1
-                ? 'Waarschuwing'
-                : (notice.severity == 2 ? 'Melding' : 'Informatie');
-        NotificationService.instance.show(title: title, body: notice.text);
+        if (notice.hasMessage) {
+          debugPrint(
+            '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
+          );
+          // Also show an OS-level notification on supported platforms
+          final title =
+              notice.severity == 1
+                  ? 'Waarschuwing'
+                  : (notice.severity == 2 ? 'Melding' : 'Informatie');
+          NotificationService.instance.show(title: title, body: notice.text);
+        }
         notifyListeners(); // if any UI wants to react to changes
-        debugPrint(
-          '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
-          ' sev=${notice.severity ?? '-'}',
-        );
+        if (notice.hasMessage) {
+          debugPrint(
+            '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
+            ' sev=${notice.severity ?? '-'}',
+          );
+        }
       } else {
         debugPrint(
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
@@ -242,6 +281,16 @@ class MapProvider extends ChangeNotifier {
 
   int get totalPins =>
       _animalPins.length + _detectionPins.length + _interactions.length;
+
+  void addOrUpdateInteraction(InteractionQueryResult interaction) {
+    final index = _interactions.indexWhere((i) => i.id == interaction.id);
+    if (index >= 0) {
+      _interactions[index] = interaction;
+    } else {
+      _interactions.insert(0, interaction);
+    }
+    notifyListeners();
+  }
 
   void setVicinityNotificationsEnabled(bool enabled) {
     // Vicinity data is map-only context; it should never create phone notifications.
@@ -353,7 +402,7 @@ class MapProvider extends ChangeNotifier {
   Future<void> loadAllPinsFromVicinity() async {
     if (_vicinityApi == null) {
       debugPrint(
-        '[MapProvider] ⚠️ VicinityApi not set - falling back to individual calls',
+        '[MapProvider] ⚠️ VicinityApi not set - waiting for tracking ping vicinity payload',
       );
       return;
     }
@@ -394,10 +443,10 @@ class MapProvider extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('[MapProvider] ❌ Vicinity load failed: $e');
-      _animalPinsError = e.toString();
-      _detectionPinsError = e.toString();
-      _interactionsError = e.toString();
+      debugPrint(
+        '[MapProvider] ⚠️ Vicinity endpoint unavailable, '
+        'keeping existing map data and relying on tracking ping payload: $e',
+      );
       _animalPinsLoading = false;
       _detectionPinsLoading = false;
       _interactionsLoading = false;

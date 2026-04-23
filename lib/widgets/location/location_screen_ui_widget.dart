@@ -89,6 +89,21 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       }
     }
 
+    // No cached location yet: fetch current GPS immediately so report map opens on user.
+    final Position? freshPosition = await _locationService.determinePosition();
+    if (!mounted) return;
+    if (freshPosition != null &&
+        _locationService.isLocationInNetherlands(
+          freshPosition.latitude,
+          freshPosition.longitude,
+        )) {
+      final address = await _locationService.getAddressFromPosition(freshPosition);
+      if (!mounted) return;
+      _mapProvider.updatePosition(freshPosition, address);
+      _updateMapView(freshPosition);
+      return;
+    }
+
     _updateMapViewToDefault();
   }
 
@@ -138,6 +153,7 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
   }
 
   Future<void> _applyCurrentAsSelected() async {
+    final appState = context.read<AppStateProvider>();
     final permissionManager = context.read<PermissionInterface>();
     final granted =
         await permissionManager.isPermissionGranted(PermissionType.location);
@@ -148,6 +164,11 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
         showRationale: true,
       );
       if (!ok || !mounted) return;
+    }
+
+    if (!appState.isLocationTrackingEnabled) {
+      await appState.setLocationTrackingEnabled(true);
+      if (!mounted) return;
     }
 
     final Position? pos = await _locationService.determinePosition();

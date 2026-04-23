@@ -1,5 +1,4 @@
 ﻿import 'package:flutter/foundation.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
@@ -7,6 +6,34 @@ import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
+
+/// Get the image path for an animal by name
+String? getAnimalPhotoPath(String? name) {
+  if (name == null || name.trim().isEmpty) return null;
+
+  final nameLower = name.toLowerCase().trim();
+  final normalized = nameLower
+      .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+      .trim()
+      .replaceAll(RegExp(r'\s+'), ' ');
+  final compact = normalized.replaceAll(' ', '');
+
+  // Backend names do not always match file names 1:1.
+  const Map<String, String> aliases = {
+    'konik': 'konikpaard',
+    'konik paard': 'konikpaard',
+    'wilde kat': 'wild kat',
+    'wildkat': 'wild kat',
+    'shetlandpony': 'shetland pony',
+    'exmoorpony': 'exmoor pony',
+  };
+
+  final fileStem = aliases[nameLower] ??
+      aliases[normalized] ??
+      aliases[compact] ??
+      normalized;
+  return 'assets/animals/$fileStem.png';
+}
 
 class AnimalManager
     implements
@@ -33,14 +60,18 @@ class AnimalManager
       debugPrint('[AnimalManager] species fetched: ${species.length}');
       _cachedAnimals = species
           .map(
-            (s) => AnimalModel(
-              animalId: s.id,
-              animalImagePath: getAnimalPhotoPath(s.commonName),
-              animalName: s.commonName,
-              category: s.category,
-              genderViewCounts: [],
-              condition: AnimalCondition.andere,
-            ),
+            (s) {
+              final imagePath = getAnimalPhotoPath(s.commonName);
+              debugPrint('[AnimalManager] Animal: ${s.commonName} -> Path: $imagePath');
+              return AnimalModel(
+                animalId: s.id,
+                animalImagePath: imagePath,
+                animalName: s.commonName,
+                category: s.category,
+                genderViewCounts: [],
+                condition: AnimalCondition.andere,
+              );
+            },
           )
           .toList();
 

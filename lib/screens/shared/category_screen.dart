@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/selection_button_group.dart';
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
+import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -54,8 +55,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
     // Use the navigation manager's clearApplicationState method which should handle all cleanup
     _navigationManager.clearApplicationState(context);
 
-    // Remove all screens and navigate to Rapporteren
-    _navigationManager.pushAndRemoveUntil(context, const Rapporteren());
+    // Go back to app root (kaart tab) with bottom navigation visible
+    _navigationManager.pushAndRemoveUntil(
+      context,
+      const MainNavScreen(initialTab: NavTab.kaart),
+    );
   }
 
   void _handleStatusSelection(BuildContext context, String status) {
@@ -76,7 +80,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         _navigationManager.dispose(); // Clean up resources
         _navigationManager.pushReplacementForward(
           context,
-          const AnimalsScreen(appBarTitle: 'Selecteer Dier'),
+          const LocationSelectionScreen(),
         );
       }
     } catch (e) {

@@ -1,3 +1,25 @@
+DateTime _parseApiDateTimeToLocal(String? value) {
+  final raw = (value ?? '').trim();
+  if (raw.isEmpty) return DateTime.now();
+
+  final parsed = DateTime.tryParse(raw);
+  if (parsed == null) return DateTime.now();
+
+  // If no timezone info is present, treat value as local wall-clock time.
+  // This matches how user-entered moments are shown in the app UI.
+  final hasExplicitTimezone = RegExp(r'(Z|[+\-]\d{2}:\d{2})$').hasMatch(raw);
+  if (!hasExplicitTimezone) return parsed;
+
+  return parsed.isUtc ? parsed.toLocal() : parsed;
+}
+
+int _asInt(dynamic value, {int fallback = 0}) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+
 class MyInteractionLocation {
   final double latitude;
   final double longitude;
@@ -43,14 +65,12 @@ class InvolvedAnimal {
 class ReportOfCollision {
   final List<InvolvedAnimal> involvedAnimals;
   final int estimatedDamage;
-  final String intensity;
-  final String urgency;
+  final String severity;
 
   ReportOfCollision({
     required this.involvedAnimals,
     required this.estimatedDamage,
-    required this.intensity,
-    required this.urgency,
+    required this.severity,
   });
 
   factory ReportOfCollision.fromJson(Map<String, dynamic> json) {
@@ -61,8 +81,9 @@ class ReportOfCollision {
               .toList() ??
           [],
       estimatedDamage: json['estimatedDamage'] ?? 0,
-      intensity: json['intensity'] ?? 'medium',
-      urgency: json['urgency'] ?? 'medium',
+      severity:
+          (json['severity'] ?? json['intensity'] ?? json['urgency'] ?? 'unknown')
+              .toString(),
     );
   }
 
@@ -70,44 +91,55 @@ class ReportOfCollision {
     return {
       'involvedAnimals': involvedAnimals.map((e) => e.toJson()).toList(),
       'estimatedDamage': estimatedDamage,
-      'intensity': intensity,
-      'urgency': urgency,
+      'severity': severity,
     };
   }
+
+  String get intensity => severity;
+  String get urgency => severity;
 }
 
 class ReportOfDamage {
   final String belonging;
+  final String estimatedLoss;
+  final bool preventiveMeasures;
+  final String preventiveMeasuresDescription;
   final String impactType;
   final int impactValue;
   final int estimatedDamage;
-  final int estimatedLoss;
 
   ReportOfDamage({
     required this.belonging,
-    required this.impactType,
-    required this.impactValue,
-    required this.estimatedDamage,
     required this.estimatedLoss,
+    required this.preventiveMeasures,
+    required this.preventiveMeasuresDescription,
+    this.impactType = '',
+    this.impactValue = 0,
+    this.estimatedDamage = 0,
   });
 
   factory ReportOfDamage.fromJson(Map<String, dynamic> json) {
     return ReportOfDamage(
       belonging: json['belonging'] ?? '',
-      impactType: json['impactType'] ?? '',
-      impactValue: json['impactValue'] ?? 0,
-      estimatedDamage: json['estimatedDamage'] ?? 0,
-      estimatedLoss: json['estimatedLoss'] ?? 0,
+      estimatedLoss: (json['estimatedLoss'] ?? '').toString(),
+      preventiveMeasures: json['preventiveMeasures'] == true,
+      preventiveMeasuresDescription:
+          (json['preventiveMeasuresDescription'] ?? '').toString(),
+      impactType: (json['impactType'] ?? '').toString(),
+      impactValue: _asInt(json['impactValue']),
+      estimatedDamage: _asInt(json['estimatedDamage']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'belonging': belonging,
+      'estimatedLoss': estimatedLoss,
+      'preventiveMeasures': preventiveMeasures,
+      'preventiveMeasuresDescription': preventiveMeasuresDescription,
       'impactType': impactType,
       'impactValue': impactValue,
       'estimatedDamage': estimatedDamage,
-      'estimatedLoss': estimatedLoss,
     };
   }
 }
@@ -241,8 +273,14 @@ class ExperimentInfo {
       id: json['ID'] ?? '',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-      start: json['start'] != null ? DateTime.tryParse(json['start']) : null,
-      end: json['end'] != null ? DateTime.tryParse(json['end']) : null,
+      start:
+          json['start'] != null
+              ? _parseApiDateTimeToLocal(json['start']?.toString())
+              : null,
+      end:
+          json['end'] != null
+              ? _parseApiDateTimeToLocal(json['end']?.toString())
+              : null,
       user: InteractionUser.fromJson(json['user'] ?? {}),
     );
   }
@@ -333,9 +371,7 @@ class MyInteraction {
       id: json['ID'] ?? '',
       description: json['description'] ?? '',
       location: MyInteractionLocation.fromJson(json['location'] ?? {}),
-      moment: DateTime.parse(
-        json['moment'] ?? DateTime.now().toIso8601String(),
-      ),
+      moment: _parseApiDateTimeToLocal(json['moment']?.toString()),
       place: MyInteractionLocation.fromJson(json['place'] ?? {}),
       reportOfCollision:
           json['reportOfCollision'] != null
@@ -349,9 +385,7 @@ class MyInteraction {
           json['reportOfSighting'] != null
               ? ReportOfSighting.fromJson(json['reportOfSighting'])
               : null,
-      timestamp: DateTime.parse(
-        json['timestamp'] ?? DateTime.now().toIso8601String(),
-      ),
+      timestamp: _parseApiDateTimeToLocal(json['timestamp']?.toString()),
       species: InteractionSpecies.fromJson(json['species'] ?? {}),
       user: InteractionUser.fromJson(json['user'] ?? {}),
       type: InteractionTypeInfo.fromJson(json['type'] ?? {}),

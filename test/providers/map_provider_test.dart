@@ -379,14 +379,17 @@ void main() {
       expect(mapProvider.interactionsError, isNull);
     });
 
-    test('should set vicinity errors when api fails', () async {
+    test('should keep existing vicinity data when api fails', () async {
       mapProvider.setVicinityApi(ThrowingVicinityApi());
 
       await mapProvider.loadAllPinsFromVicinity();
 
-      expect(mapProvider.animalPinsError, isNotNull);
-      expect(mapProvider.detectionPinsError, isNotNull);
-      expect(mapProvider.interactionsError, isNotNull);
+      expect(mapProvider.animalPinsError, isNull);
+      expect(mapProvider.detectionPinsError, isNull);
+      expect(mapProvider.interactionsError, isNull);
+      expect(mapProvider.animalPinsLoading, isFalse);
+      expect(mapProvider.detectionPinsLoading, isFalse);
+      expect(mapProvider.interactionsLoading, isFalse);
     });
 
     test('should send tracking ping once when api exists', () async {

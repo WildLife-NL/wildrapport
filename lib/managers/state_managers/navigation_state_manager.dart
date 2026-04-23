@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/screens/shared/rapporteren.dart';
+import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 
 class NavigationStateManager implements NavigationStateInterface {
   final List<TextEditingController> _controllers = [];
@@ -24,7 +25,10 @@ class NavigationStateManager implements NavigationStateInterface {
   @override
   void resetToHome(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const Rapporteren()),
+      MaterialPageRoute(
+        builder:
+            (context) => const MainNavScreen(initialTab: NavTab.kaart),
+      ),
       (route) => false,
     );
 

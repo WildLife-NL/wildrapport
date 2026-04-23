@@ -22,6 +22,8 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
 
   @override
   final double estimatedTotalDamages; // estimatedLoss €
+  @override
+  final String estimatedLossBucket; // API enum value
 
   @override
   final String? description;
@@ -44,6 +46,10 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   // New fields for map-based area reporting
   final PolygonArea? polygonArea; // Polygon drawn on map
   final String? damageCategory; // 'livestock' or 'crops'
+  @override
+  final bool preventiveMeasures;
+  @override
+  final String preventiveMeasuresDescription;
 
   BelongingDamageReport({
     this.possesionDamageReportID,
@@ -52,6 +58,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     required this.impactedArea,
     required this.currentImpactDamages,
     required this.estimatedTotalDamages,
+    this.estimatedLossBucket = 'unknown',
     this.description,
     this.suspectedSpeciesID,
     this.userSelectedLocation,
@@ -60,6 +67,8 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     required this.systemDateTime,
     this.polygonArea,
     this.damageCategory,
+    this.preventiveMeasures = false,
+    this.preventiveMeasuresDescription = '',
   });
 
   // ⬇⬇⬇ THIS IS THE IMPORTANT PART ⬇⬇⬇
@@ -110,7 +119,9 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
 
         // ✅ ints (int64)
         "estimatedDamage": currentImpactDamages.round(),
-        "estimatedLoss": estimatedTotalDamages.round(),
+        "estimatedLoss": estimatedLossBucket,
+        "preventiveMeasures": preventiveMeasures,
+        "preventiveMeasuresDescription": preventiveMeasuresDescription,
         "impactType": impactedAreaType, // "square-meters" | "units"
         "impactValue": impactedArea.round(),
       },
@@ -128,7 +139,9 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
         impactedAreaType: json["impactType"],
         impactedArea: (json["impactValue"] as num).toDouble(),
         currentImpactDamages: (json["estimatedDamage"] as num).toDouble(),
-        estimatedTotalDamages: (json["estimatedLoss"] as num).toDouble(),
+        estimatedTotalDamages:
+            double.tryParse(json["estimatedLoss"]?.toString() ?? '') ?? 0,
+        estimatedLossBucket: json["estimatedLoss"]?.toString() ?? 'unknown',
         description: json["description"],
         suspectedSpeciesID: json["suspectedAnimalID"],
         userSelectedLocation:
@@ -149,5 +162,8 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
                 ? PolygonArea.fromJson(json["polygonArea"])
                 : null,
         damageCategory: json["damageCategory"],
+        preventiveMeasures: json["preventiveMeasures"] ?? false,
+        preventiveMeasuresDescription:
+            json["preventiveMeasuresDescription"]?.toString() ?? '',
       );
 }

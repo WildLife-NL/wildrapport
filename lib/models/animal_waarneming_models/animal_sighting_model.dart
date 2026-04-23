@@ -9,6 +9,14 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_c
 class AnimalSightingModel {
   final List<AnimalModel>? animals;
   final AnimalModel? animalSelected;
+  final String? reportType;
+  final int? animalCount;
+  final String? cropType;
+  final String? expectedLoss;
+  final bool? preventiveMeasures;
+  final String? accidentSeverity;
+  final String? animalConditionDieraanrijding;
+  final String? additionalInfo;
   final AnimalCategory? category;
   final String? description;
   final List<LocationModel>? locations; 
@@ -17,6 +25,14 @@ class AnimalSightingModel {
 
   AnimalSightingModel({
     this.animals,
+    this.reportType,
+    this.animalCount,
+    this.cropType,
+    this.expectedLoss,
+    this.preventiveMeasures,
+    this.accidentSeverity,
+    this.animalConditionDieraanrijding,
+    this.additionalInfo,
     this.category,
     this.description,
     this.locations, 
@@ -28,6 +44,14 @@ class AnimalSightingModel {
   AnimalSightingModel copyWith({
     List<AnimalModel>? animals,
     AnimalModel? animalSelected,
+    String? reportType,
+    int? animalCount,
+    String? cropType,
+    String? expectedLoss,
+    bool? preventiveMeasures,
+    String? accidentSeverity,
+    String? animalConditionDieraanrijding,
+    String? additionalInfo,
     AnimalCategory? category,
     String? description,
     List<LocationModel>? locations,
@@ -37,6 +61,15 @@ class AnimalSightingModel {
     return AnimalSightingModel(
       animals: animals ?? this.animals,
       animalSelected: animalSelected ?? this.animalSelected,
+      reportType: reportType ?? this.reportType,
+      animalCount: animalCount ?? this.animalCount,
+      cropType: cropType ?? this.cropType,
+      expectedLoss: expectedLoss ?? this.expectedLoss,
+      preventiveMeasures: preventiveMeasures ?? this.preventiveMeasures,
+      accidentSeverity: accidentSeverity ?? this.accidentSeverity,
+      animalConditionDieraanrijding:
+          animalConditionDieraanrijding ?? this.animalConditionDieraanrijding,
+      additionalInfo: additionalInfo ?? this.additionalInfo,
       category: category ?? this.category,
       description: description ?? this.description,
       locations: locations ?? this.locations,
@@ -62,6 +95,14 @@ class AnimalSightingModel {
                 },
               )
               .toList(),
+      'reportType': reportType,
+      'animalCount': animalCount,
+      'cropType': cropType,
+      'expectedLoss': expectedLoss,
+      'preventiveMeasures': preventiveMeasures,
+      'accidentSeverity': accidentSeverity,
+      'animalConditionDieraanrijding': animalConditionDieraanrijding,
+      'additionalInfo': additionalInfo,
       'category': category?.toString(),
       'description': description,
       'locations': locations?.map((loc) => loc.toJson()).toList(),
@@ -124,6 +165,14 @@ class AnimalSightingModel {
                       : [],
             )
             : null,
+    reportType: json['reportType'],
+    animalCount: json['animalCount'],
+    cropType: json['cropType'],
+    expectedLoss: json['expectedLoss'],
+    preventiveMeasures: json['preventiveMeasures'],
+    accidentSeverity: json['accidentSeverity'],
+    animalConditionDieraanrijding: json['animalConditionDieraanrijding'],
+    additionalInfo: json['additionalInfo'],
     category:
         json['category'] != null
             ? AnimalCategory.values.firstWhere(

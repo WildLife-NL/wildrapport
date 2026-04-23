@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
@@ -73,7 +73,7 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
               centerText: 'Telling toevoegen',
               // Show the profile/user icon on the right (like other screens)
               rightIcon: null,
-              showUserIcon: false,
+              showUserIcon: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               // Match the other screens: black icons/text and slightly larger font/icon scales
               iconColor: Colors.black,
@@ -115,3 +115,4 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
     );
   }
 }
+

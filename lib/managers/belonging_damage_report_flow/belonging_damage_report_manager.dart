@@ -263,6 +263,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
             impactValueInt.toDouble(), // keep double in model; toJson rounds
         currentImpactDamages: formProvider.estimatedDamage,
         estimatedTotalDamages: formProvider.estimatedLoss,
+        estimatedLossBucket: formProvider.estimatedLossBucket,
         description: formProvider.description,
         suspectedSpeciesID: formProvider.suspectedSpeciesID,
         userSelectedDateTime: DateTime.now(),
@@ -271,6 +272,8 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         userSelectedLocation: userReportLocation,
         polygonArea: formProvider.polygonArea,
         damageCategory: formProvider.damageCategory,
+        preventiveMeasures: formProvider.preventiveMeasures,
+        preventiveMeasuresDescription: formProvider.preventiveMeasuresDescription,
       );
 
       debugPrint("✅ Report created: $report");

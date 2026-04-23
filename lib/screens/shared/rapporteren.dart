@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
-import 'package:wildrapport/screens/waarneming/animals_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
+import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
-import 'package:wildrapport/widgets/questionnaire/report_button.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 
 class Rapporteren extends StatefulWidget {
   const Rapporteren({super.key, this.onBackPressed});
@@ -76,28 +76,61 @@ class _RapporterenState extends State<Rapporteren> {
     Widget nextScreen;
     ReportType selectedReportType;
 
-    // Map interaction type name to ReportType enum
     final typeName = interactionType.name.toLowerCase();
+    final typeDescription = interactionType.description.toLowerCase();
+    final isSightingType =
+        interactionType.id == 1 ||
+        typeName == 'waarneming' ||
+        typeName.contains('sighting');
+    final isDamageType =
+        interactionType.id == 2 ||
+        typeName == 'schademelding' ||
+        typeName.contains('crop damage') ||
+        typeName.contains('schade') ||
+        typeDescription.contains('crop damage') ||
+        typeDescription.contains('schade');
+    final isCollisionType =
+        interactionType.id == 3 ||
+        typeName == 'dieraanrijding' ||
+        typeName.contains('animal collision') ||
+        typeName.contains('aanrijding') ||
+        typeDescription.contains('animal collision') ||
+        typeDescription.contains('aanrijding');
 
-    if (typeName == 'waarneming' || typeName.contains('sighting')) {
+    if (isSightingType) {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(reportType: 'waarneming', locations: [], animals: []),
+      );
+      nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
-    } else if (typeName == 'schademelding' ||
-        typeName.contains('crop damage')) {
+    } else if (isDamageType) {
       selectedReportType = ReportType.gewasschade;
-      nextScreen = BelongingAnimalScreen(appBarTitle: 'Selecteer Dier');
+      final animalSightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(
+          reportType: 'gewasschade',
+          locations: [],
+          animals: [],
+        ),
+      );
+      nextScreen = const SchademeldingLocationSelectionScreen();
       _initializeMapInBackground();
-    } else if (typeName == 'dieraanrijding' ||
-        typeName.contains('animal collision')) {
+    } else if (isCollisionType) {
       selectedReportType = ReportType.verkeersongeval;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(
+          reportType: 'verkeersongeval',
+          locations: [],
+          animals: [],
+        ),
+      );
+      nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     } else {
       // Default to waarneming for unknown types
@@ -107,8 +140,10 @@ class _RapporterenState extends State<Rapporteren> {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
-      nextScreen = const AnimalsScreen(appBarTitle: 'Selecteer Dier');
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(reportType: 'waarneming', locations: [], animals: []),
+      );
+      nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     }
 
@@ -185,12 +220,14 @@ class _RapporterenState extends State<Rapporteren> {
           Expanded(
             child: SafeArea(
               top: false,
+              bottom: true,
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: responsive.wp(5),
                   vertical: responsive.hp(1),
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child:
@@ -206,58 +243,115 @@ class _RapporterenState extends State<Rapporteren> {
                                   ),
                                 ),
                               )
-                              : Center(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children:
-                                        _interactionTypes!.map((type) {
-                                          // Map interaction types to appropriate icons
-                                          String icon;
+                              : SingleChildScrollView(
+                                child: Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: responsive.wp(5),
+                                      vertical: responsive.hp(2),
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children:
+                                          _interactionTypes!.map((type) {
+                                          // Map interaction types to appropriate icon paths
+                                          String iconPath;
                                           final typeName =
                                               type.name.toLowerCase();
                                           if (typeName == 'waarneming' ||
                                               typeName.contains('sighting')) {
-                                            icon =
-                                                iconBinoculars;
+                                            iconPath =
+                                                'assets/sighting.svg';
                                           } else if (typeName ==
                                                   'schademelding' ||
                                               typeName.contains(
                                                 'crop damage',
                                               )) {
-                                            icon =
-                                                iconAgriculture;
+                                            iconPath =
+                                                'assets/damage.svg';
                                           } else if (typeName ==
                                                   'dieraanrijding' ||
                                               typeName.contains(
                                                 'animal collision',
                                               )) {
-                                            icon = iconAccident;
+                                            iconPath = 'assets/collision.svg';
                                           } else {
-                                            icon =
-                                                iconBinoculars; // Default icon
+                                            iconPath =
+                                                'assets/sighting.svg'; // Default icon
                                           }
 
                                           return Padding(
                                             padding: EdgeInsets.only(
-                                              bottom: responsive.hp(3),
+                                              bottom: responsive.hp(2),
                                             ),
                                             child: SizedBox(
                                               width: responsive.wp(90),
-                                              height: responsive.hp(22),
-                                              child: ReportButton(
-                                                image: icon,
-                                                text: type.name,
-                                                onPressed:
-                                                    () =>
-                                                        _handleReportTypeSelection(
-                                                          type,
+                                              height: 160,
+                                              child: GestureDetector(
+                                                onTap: () =>
+                                                    _handleReportTypeSelection(
+                                                      type,
+                                                    ),
+                                                child: Card(
+                                                  elevation: 0,
+                                                  color: Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(10),
+                                                    side: BorderSide(
+                                                      color: Colors.grey[300]!,
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                  child: Container(
+                                                    padding: EdgeInsets.symmetric(
+                                                      horizontal: responsive.wp(6),
+                                                      vertical: responsive.hp(3),
+                                                    ),
+                                                    child: Row(                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,                                                    children: [
+                                                        SvgPicture.asset(
+                                                          iconPath,
+                                                          width: 40,
+                                                          height: 40,
+                                                      ),
+                                                      SizedBox(
+                                                        width:
+                                                            responsive.wp(5),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          type.name,
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                responsive
+                                                                    .fontSize(
+                                                              18,
+                                                            ),
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                Colors.black,
+                                                          ),
                                                         ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          );
+                                          ),
+                                        );
                                         }).toList(),
+                                    ),
                                   ),
                                 ),
                               ),

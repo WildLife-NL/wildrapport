@@ -12,6 +12,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wildlifenl_profile_components:
+    git:
+      url: https://github.com/WildLife-NL/wildlifenl-components.git
+      ref: main
+      path: wildlifenl_profile_components
   wildlifenl_rapporten_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
@@ -118,6 +123,16 @@ flutter:
     - assets/gifs/thankyou.gif
     # Icons + dier-assets zitten in wildlifenl_assets (git)
     - assets/location/location_icon.png
+    - assets/animals/
+    - assets/sighting.svg
+    - assets/damage.svg
+    - assets/collision.svg
+    - assets/images/
+    - assets/images/gewas/
+    - assets/images/vee/
+    - assets/images/crops.jpg
+    - assets/images/livestock.jpg
+    - assets/images/property.jpg
     - .env
 
   fonts:

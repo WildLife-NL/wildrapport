@@ -1,16 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/animal_counting_screen.dart';
-import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_list_table.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
-import 'package:wildrapport/models/enums/report_type.dart';
+// Removed AppStateProvider import as collision flow is discontinued
 
 class AnimalListOverviewScreen extends StatelessWidget {
   AnimalListOverviewScreen({super.key});
@@ -31,7 +29,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
               leftIcon: null,
               centerText: 'Waarneming',
               rightIcon: null,
-              showUserIcon: false,
+              showUserIcon: true,
               onLeftIconPressed: () {
                 // Clear only remarks field when leaving overview
                 _animalListTableKey.currentState?.clearRemarksOnly();
@@ -109,7 +107,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
           final navigationManager = context.read<NavigationStateInterface>();
           final animalSightingManager =
               context.read<AnimalSightingReportingInterface>();
-          final appStateProvider = context.read<AppStateProvider>();
+          // App state not needed for flow selection anymore
 
           // Get the description from AnimalListTable
           final description =
@@ -130,27 +128,11 @@ class AnimalListOverviewScreen extends StatelessWidget {
           );
 
           if (context.mounted) {
-            // Check if this is a collision report (verkeersongeval)
-            final isCollision =
-                appStateProvider.currentReportType ==
-                ReportType.verkeersongeval;
-            debugPrint(
-              '[AnimalListOverviewScreen] Report type: ${appStateProvider.currentReportType}, isCollision: $isCollision',
+            // Navigate directly to location screen for sightings
+            navigationManager.pushReplacementForward(
+              context,
+              const LocationScreen(),
             );
-
-            if (isCollision) {
-              // Navigate to collision details screen for traffic accidents
-              navigationManager.pushReplacementForward(
-                context,
-                const CollisionDetailsScreen(),
-              );
-            } else {
-              // Navigate directly to location screen for regular sightings
-              navigationManager.pushReplacementForward(
-                context,
-                const LocationScreen(),
-              );
-            }
           }
         },
         showNextButton: true,
@@ -159,3 +141,4 @@ class AnimalListOverviewScreen extends StatelessWidget {
     );
   }
 }
+

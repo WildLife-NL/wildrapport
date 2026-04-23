@@ -23,6 +23,14 @@ class AnimalSightingReportingManager
   AnimalSightingModel _updateSighting({
     List<AnimalModel>? animals,
     AnimalModel? animalSelected,
+    String? reportType,
+    int? animalCount,
+    String? cropType,
+    String? expectedLoss,
+    bool? preventiveMeasures,
+    String? accidentSeverity,
+    String? animalConditionDieraanrijding,
+    String? additionalInfo,
     AnimalCategory? category,
     String? description,
     List<LocationModel>? locations,
@@ -42,6 +50,18 @@ class AnimalSightingReportingManager
     _currentanimalSighting = AnimalSightingModel(
       animals: animals ?? _currentanimalSighting!.animals ?? [],
       animalSelected: animalSelected ?? _currentanimalSighting!.animalSelected,
+      reportType: reportType ?? _currentanimalSighting!.reportType,
+      animalCount: animalCount ?? _currentanimalSighting!.animalCount,
+      cropType: cropType ?? _currentanimalSighting!.cropType,
+      expectedLoss: expectedLoss ?? _currentanimalSighting!.expectedLoss,
+      preventiveMeasures:
+          preventiveMeasures ?? _currentanimalSighting!.preventiveMeasures,
+      accidentSeverity:
+          accidentSeverity ?? _currentanimalSighting!.accidentSeverity,
+      animalConditionDieraanrijding:
+          animalConditionDieraanrijding ??
+          _currentanimalSighting!.animalConditionDieraanrijding,
+      additionalInfo: additionalInfo ?? _currentanimalSighting!.additionalInfo,
       category: category ?? _currentanimalSighting!.category,
       description: description ?? _currentanimalSighting!.description,
       locations: locations ?? _currentanimalSighting!.locations ?? [],
@@ -117,6 +137,13 @@ class AnimalSightingReportingManager
       logChanges: true,
       logPrefix: '[animalSightingManager] Updating selected animal. ',
     );
+  }
+
+  @override
+  AnimalSightingModel updateCurrentanimalSighting(AnimalSightingModel sighting) {
+    _currentanimalSighting = sighting;
+    _notifyListeners();
+    return _currentanimalSighting!;
   }
 
   AnimalSightingModel updateCondition(AnimalCondition condition) {
@@ -415,6 +442,8 @@ class AnimalSightingReportingManager
   void syncObservedAnimalsToSighting() {
     // We need a sighting to sync into
     if (_currentanimalSighting == null) return;
+    // If there are no observed batches, keep existing animals as-is.
+    if (_observedAnimals.isEmpty) return;
 
     // We also need to know which species was selected
     final baseAnimal = _currentanimalSighting!.animalSelected;

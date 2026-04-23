@@ -17,11 +17,11 @@ class InteractionQueryApi implements InteractionQueryApiInterface {
     DateTime? momentBefore,
   }) async {
     final list = await _api.queryInteractions(
-      areaLatitude: areaLatitude,
-      areaLongitude: areaLongitude,
-      areaRadiusMeters: areaRadiusMeters,
-      momentAfter: momentAfter,
-      momentBefore: momentBefore,
+      latitude: areaLatitude,
+      longitude: areaLongitude,
+      radius: areaRadiusMeters,
+      start: momentAfter,
+      end: momentBefore,
     );
     debugPrint('[InteractionQueryApi] Got ${list.length} interactions');
     return list.map(InteractionQueryResult.fromJson).toList();

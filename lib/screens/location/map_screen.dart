@@ -19,6 +19,10 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(child: widget.mapWidget));
+    return Scaffold(
+      body: SafeArea(
+        child: widget.mapWidget,
+      ),
+    );
   }
 }

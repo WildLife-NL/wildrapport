@@ -91,7 +91,7 @@ class SightingApiTransformer {
       locationLongitude: systemLocation.longitude ?? 0.0,
       placeLatitude: manualLocation.latitude ?? 0.0,
       placeLongitude: manualLocation.longitude ?? 0.0,
-      moment: sighting.dateTime!.dateTime!,
+      moment: sighting.dateTime!.dateTime!.toUtc(),
       speciesID: sighting.animalSelected!.animalId ?? '',
       involvedAnimals: involvedAnimals,
     );
