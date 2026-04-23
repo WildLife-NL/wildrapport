@@ -142,11 +142,11 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
               child: Card(
                 elevation: 0,
-                color: Colors.white,
+                color: AppColors.cardBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: const Color(0xFF999999),
+                    color: AppColors.borderDefault,
                     width: 1,
                   ),
                 ),
@@ -185,7 +185,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                         height: 30,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Color(0xFF0D53FF),
+                                            color: AppColors.liveLocation,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,

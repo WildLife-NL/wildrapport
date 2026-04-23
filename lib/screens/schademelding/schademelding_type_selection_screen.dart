@@ -183,16 +183,11 @@ class _SchademeldingTypeSelectionScreenState
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color:
-                isSelected ? const Color(0xFF4CAF50) : AppColors.borderDefault,
+                isSelected ? AppColors.primaryGreen : AppColors.borderDefault,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.12 : 0.06),
-              blurRadius: isSelected ? 10 : 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          
+          
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

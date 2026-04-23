@@ -6,7 +6,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -160,7 +160,7 @@ class _RapporterenState extends State<Rapporteren> {
     context.read<NavigationStateInterface>();
 
     return Scaffold(
-      backgroundColor: const Color(0XFFF5F6F4),
+      backgroundColor: AppColors.backgroundLight,
       body: Column(
         children: [
           SafeArea(
@@ -173,7 +173,7 @@ class _RapporterenState extends State<Rapporteren> {
               useFixedText: true,
               onRightIconPressed: () {},
               // make title and arrow black and larger for this screen - more on smaller screens
-              iconColor: Colors.black,
+              iconColor: AppColors.darkCharcoal,
               textColor: Colors.black,
               fontScale: responsive.breakpointValue<double>(
                 small: 1.4,
@@ -262,14 +262,14 @@ class _RapporterenState extends State<Rapporteren> {
                                                       type,
                                                     ),
                                                 child: Card(
-                                                  elevation: 2,
-                                                  shadowColor: Colors.black12,
-                                                  color: Colors.white,
+                                                  elevation: 0,
+                                                  //shadowColor: Colors.black12,
+                                                  color: AppColors.cardBackground,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(18),
                                                     side: BorderSide(
-                                                      color: Colors.grey.shade300,
+                                                      color: AppColors.borderDefault,
                                                       width: 1.5,
                                                     ),
                                                   ),
@@ -288,7 +288,7 @@ class _RapporterenState extends State<Rapporteren> {
                                                           width: 60,
                                                           height: 60,
                                                           decoration: BoxDecoration(
-                                                            color: const Color(0xFFF5F6F4),
+                                                            color: AppColors.backgroundLight,
                                                             borderRadius:
                                                                 BorderRadius.circular(14),
                                                           ),
@@ -321,7 +321,7 @@ class _RapporterenState extends State<Rapporteren> {
                                                                   fontWeight:
                                                                       FontWeight.w600,
                                                                   color:
-                                                                      Colors.black,
+                                                                      AppColors.textPrimary,
                                                                 ),
                                                               ),
                                                               const SizedBox(height: 4),
@@ -376,7 +376,7 @@ class _RapporterenState extends State<Rapporteren> {
     if (name == 'waarneming' || name.contains('sighting')) {
       return 'Dierenwaarneming melden';
     } else if (name == 'schademelding' || name.contains('crop damage')) {
-      return 'Gewasschade melden';
+      return 'Gewas, Vee of Eigendom melden';
     } else if (name == 'dieraanrijding' || name.contains('animal collision')) {
       return 'Verkeersongeval melden';
     }

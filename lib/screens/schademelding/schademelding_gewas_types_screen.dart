@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingGewasTypesScreen extends StatefulWidget {
   const SchademeldingGewasTypesScreen({super.key});
@@ -83,7 +84,7 @@ class _SchademeldingGewasTypesScreenState
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFF999999),
+              color: isSelected ? AppColors.primaryGreen: const Color(0xFF999999),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -146,7 +147,7 @@ class _SchademeldingGewasTypesScreenState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? const Color(0xFF2E7D32) : Colors.black87,
+                    color: isSelected ? AppColors.cardBackground : Colors.black87,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
