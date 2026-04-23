@@ -241,7 +241,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
           children: [
             CustomAppBar(
               centerText: 'Logboek',
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,

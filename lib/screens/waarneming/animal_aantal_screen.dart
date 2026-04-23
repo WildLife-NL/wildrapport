@@ -5,6 +5,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_details_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 
 class AnimalAantalScreen extends StatefulWidget {
   const AnimalAantalScreen({super.key});
@@ -331,8 +332,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // Hide "Meer details toevoegen" for gewasschade and verkeersongeval
-                          //if (sighting?.reportType != 'gewasschade' && sighting?.reportType != 'verkeersongeval')
+                          
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton(
@@ -436,13 +436,12 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                 ),
                               );
                             } else {
-                              debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingDetailsScreen');
+                              debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingSummaryScreen');
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      AnimalWaarnemingDetailsScreen(
-                                    animalIndex: 0,
+                                      AnimalWaarnemingSummaryScreen(
                                     totalCount: currentCount,
                                   ),
                                 ),
