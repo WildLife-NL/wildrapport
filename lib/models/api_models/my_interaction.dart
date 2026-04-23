@@ -5,21 +5,10 @@ DateTime _parseApiDateTimeToLocal(String? value) {
   final parsed = DateTime.tryParse(raw);
   if (parsed == null) return DateTime.now();
 
-  // Backend can return UTC timestamps without timezone suffix.
-  // If no timezone info is present, treat it as UTC to avoid fixed +2h drift.
+  // If no timezone info is present, treat value as local wall-clock time.
+  // This matches how user-entered moments are shown in the app UI.
   final hasExplicitTimezone = RegExp(r'(Z|[+\-]\d{2}:\d{2})$').hasMatch(raw);
-  if (!hasExplicitTimezone) {
-    return DateTime.utc(
-      parsed.year,
-      parsed.month,
-      parsed.day,
-      parsed.hour,
-      parsed.minute,
-      parsed.second,
-      parsed.millisecond,
-      parsed.microsecond,
-    ).toLocal();
-  }
+  if (!hasExplicitTimezone) return parsed;
 
   return parsed.isUtc ? parsed.toLocal() : parsed;
 }
