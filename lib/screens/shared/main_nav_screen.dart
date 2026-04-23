@@ -25,7 +25,6 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
-  bool _hasUserInteracted = false;
   
   @override
   void initState() {
@@ -68,7 +67,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   void _onTabSelected(NavTab tab) {
-    _hasUserInteracted = true;
     setState(() => _currentTab = tab);
     if (tab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
   }
