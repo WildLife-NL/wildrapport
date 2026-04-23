@@ -50,4 +50,5 @@ class AppColors {
   static const Color selectedDark = Color(0xFF333333);
   static const Color error = Color(0xFFD65A54);
   static const Color success = Color(0xFF388E3C);
+  static const Color liveLocation = Color(0xFF0D53FF);
 }

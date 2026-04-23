@@ -406,10 +406,10 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color: Colors.blue
-                                                        .withValues(alpha: 0.3),
+                                                    color: AppColors.liveLocation,
+                                            
                                                     border: Border.all(
-                                                      color: Colors.blue,
+                                                      color: AppColors.liveLocation,
                                                       width: 3,
                                                     ),
                                                   ),
@@ -608,6 +608,9 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                       decoration: InputDecoration(
                                         labelText: 'Naam',
                                         hintText: 'Minimaal 2 tekens',
+                                        labelStyle: const TextStyle(fontSize: 13),
+                                        hintStyle: const TextStyle(fontSize: 12),
+
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: OutlineInputBorder(
@@ -633,6 +636,8 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                       decoration: InputDecoration(
                                         labelText: 'Beschrijving',
                                         hintText: 'Minimaal 5 tekens',
+                                        labelStyle: const TextStyle(fontSize: 13),
+                                        hintStyle: const TextStyle(fontSize: 12),
                                         filled: true,
                                         fillColor: Colors.white,
                                         border: OutlineInputBorder(
