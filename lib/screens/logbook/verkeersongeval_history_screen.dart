@@ -81,7 +81,8 @@ class VerkeersongevalHistoryScreen extends StatelessWidget {
                   }
 
                   final data = snapshot.data ?? [];
-                  final filtered = data.where(_isAanrijding).toList();
+                  final filtered = data.where(_isAanrijding).toList()
+                    ..sort((a, b) => b.moment.compareTo(a.moment));
 
                   if (filtered.isEmpty) {
                     return Center(

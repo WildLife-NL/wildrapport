@@ -214,8 +214,12 @@ class _MyInteractionHistoryScreenState
   }
 
   List<MyInteraction> _applyFilter(List<MyInteraction> items) {
-    if (_selectedTypeId == null) return items; // All
-    return items.where((i) => i.type.id == _selectedTypeId).toList();
+    final filtered =
+        _selectedTypeId == null
+            ? List<MyInteraction>.from(items)
+            : items.where((i) => i.type.id == _selectedTypeId).toList();
+    filtered.sort((a, b) => b.moment.compareTo(a.moment));
+    return filtered;
   }
 }
 

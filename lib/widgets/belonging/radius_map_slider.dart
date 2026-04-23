@@ -32,6 +32,10 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
   LatLng? _currentMapCenter;
   String? _error;
   bool _loading = true;
+  bool _mapReady = false;
+  bool _lockRadiusSync = false;
+  LatLng? _pendingMoveCenter;
+  double? _pendingMoveZoom;
 
   static const LatLng _defaultCenter = LatLng(51.69, 5.30);
   static const double _minRadiusM = 5;
@@ -73,7 +77,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
         _loading = false;
       });
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        try { _mapController.move(_defaultCenter, 10); } catch (_) {}
+        _moveMap(_defaultCenter, 10);
         if (mounted) _notifyArea();
       });
       return;
@@ -131,7 +135,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
               _currentMapCenter = loc;
               _loading = false;
             });
-            try { _mapController.move(loc, 16); } catch (_) {}
+            _moveMap(loc, 16);
             _notifyArea();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted && _pinLocation != null) _fitMapToCircle();
@@ -158,7 +162,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
         _error = null;
         _loading = false;
       });
-      _mapController.move(loc, 16);
+      _moveMap(loc, 16);
       _notifyArea();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _pinLocation != null) _fitMapToCircle();
@@ -209,6 +213,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
     final sw = LatLng(center.latitude - dLat, center.longitude - dLon);
     final ne = LatLng(center.latitude + dLat, center.longitude + dLon);
     final bounds = fm.LatLngBounds(sw, ne);
+    _lockRadiusSyncForMapAnimation();
     try {
       _mapController.fitCamera(
         fm.CameraFit.bounds(
@@ -224,7 +229,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
   void _goToCurrentLocation() {
     if (_pinLocation == null) return;
     setState(() => _currentMapCenter = _pinLocation);
-    try { _mapController.move(_pinLocation!, 16); } catch (_) {}
+    _moveMap(_pinLocation!, 16);
     _notifyArea();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _fitMapToCircle();
@@ -239,6 +244,56 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
           : '${km.toStringAsFixed(1)} km';
     }
     return '${meters.round()} m';
+  }
+
+  void _moveMap(LatLng center, double zoom) {
+    if (!_mapReady) {
+      _pendingMoveCenter = center;
+      _pendingMoveZoom = zoom;
+      return;
+    }
+    try {
+      _mapController.move(center, zoom);
+    } catch (_) {}
+  }
+
+  void _lockRadiusSyncForMapAnimation() {
+    _lockRadiusSync = true;
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      _lockRadiusSync = false;
+    });
+  }
+
+  void _syncRadiusWithViewport() {
+    if (_lockRadiusSync || _currentMapCenter == null) return;
+    try {
+      final camera = _mapController.camera;
+      final bounds = camera.visibleBounds;
+      final center = _currentMapCenter!;
+
+      final verticalHalfMeters = Geolocator.distanceBetween(
+        center.latitude,
+        center.longitude,
+        bounds.north,
+        center.longitude,
+      );
+      final horizontalHalfMeters = Geolocator.distanceBetween(
+        center.latitude,
+        center.longitude,
+        center.latitude,
+        bounds.east,
+      );
+
+      final viewportRadius = math.min(verticalHalfMeters, horizontalHalfMeters) * 0.9;
+      final clamped = viewportRadius.clamp(_minRadiusM, _maxRadiusM);
+      final nextRadius = clamped.toDouble();
+
+      if ((nextRadius - _radiusMeters).abs() >= 1) {
+        setState(() => _radiusMeters = nextRadius);
+        _notifyArea();
+      }
+    } catch (_) {}
   }
 
   @override
@@ -363,6 +418,14 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                     initialZoom: 16,
                     minZoom: 4.0,
                     maxZoom: 17.0,
+                    onMapReady: () {
+                      _mapReady = true;
+                      if (_pendingMoveCenter != null && _pendingMoveZoom != null) {
+                        _moveMap(_pendingMoveCenter!, _pendingMoveZoom!);
+                        _pendingMoveCenter = null;
+                        _pendingMoveZoom = null;
+                      }
+                    },
                     onMapEvent: (evt) {
                       if (evt is fm.MapEventMove || evt is fm.MapEventMoveEnd) {
                         if (mounted) {
@@ -370,6 +433,7 @@ class _RadiusMapSliderState extends State<RadiusMapSlider> {
                             final center = _mapController.camera.center;
                             setState(() => _currentMapCenter = center);
                             _notifyArea();
+                            _syncRadiusWithViewport();
                           } catch (_) {}
                         }
                       }

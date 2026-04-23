@@ -77,7 +77,8 @@ class WaarnemingHistoryScreen extends StatelessWidget {
                   }
 
                   final data = snapshot.data ?? [];
-                  final filtered = data.where((e) => e.type.id == 1).toList();
+                  final filtered = data.where((e) => e.type.id == 1).toList()
+                    ..sort((a, b) => b.moment.compareTo(a.moment));
 
                   if (filtered.isEmpty) {
                     return Center(
