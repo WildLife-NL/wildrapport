@@ -10,6 +10,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 /// Profielscherm: witte kaart, voorkeuren (locatie + meldingen), uitloggen, account verwijderen.
 /// Geen aparte titelbalk bovenaan — alleen inhoud + eventueel systeem safe area.
@@ -103,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
                         side: BorderSide(
-                          color: const Color.fromARGB(255, 197, 197, 197),
+                          color: AppColors.borderDefault,
                           width: 1,
                         ),
                       ),
@@ -122,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
-                                  color: Colors.grey.shade300,
+                                  color: AppColors.borderDefault,
                                   width: 1,
                                 ),
                               ),
@@ -141,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         child: Icon(
                                           Icons.person,
                                           size: 40,
-                                          color: Colors.grey.shade700,
+                                          color: AppColors.darkCharcoal,
                                         ),
                                       ),
                                       const SizedBox(width: 16),
@@ -158,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               style: TextStyle(
                                                 fontSize: fs(18),
                                                 fontWeight: FontWeight.w700,
-                                                color: Colors.grey.shade900,
+                                                color: AppColors.textPrimary,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
@@ -181,14 +182,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   FilledButton(
                                     onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
                                     style: FilledButton.styleFrom(
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: AppColors.cardBackground,
                                       foregroundColor: Colors.grey.shade900,
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       minimumSize: const Size.fromHeight(48),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(26),
                                         side: BorderSide(
-                                          color: Colors.grey.shade400,
+                                          color: AppColors.borderDefault,
                                           width: 1.5,
                                         ),
                                       ),
@@ -239,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     value: app.isLocationTrackingEnabled,
                                     activeThumbColor: Colors.white,
-                                    activeTrackColor: const Color(0xFF37A904),
+                                    activeTrackColor: AppColors.primaryGreen,
                                     onChanged: (enabled) async {
                                       await app.setLocationTrackingEnabled(enabled);
                                       if (!context.mounted) return;
@@ -264,12 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       'Meldingen',
                                       style: TextStyle(
                                         fontSize: fs(15),
-                                        color: Colors.grey.shade900,
+                                        color: AppColors.textPrimary,
                                       ),
                                     ),
                                     value: app.notificationsEnabled,
                                     activeThumbColor: Colors.white,
-                                    activeTrackColor: const Color(0xFF37A904),
+                                    activeTrackColor: AppColors.primaryGreen,
                                     onChanged: (enabled) async {
                                       await app.setNotificationsEnabled(enabled);
                                       if (!context.mounted) return;
@@ -322,7 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(26),
                                           side: BorderSide(
-                                            color: Colors.grey.shade400,
+                                            color: AppColors.borderDefault,
                                             width: 1.5,
                                           ),
                                         ),
