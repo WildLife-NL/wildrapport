@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
-import 'text_styles.dart';
 
 /// Centralized component styles for the WildlifeNL app
 /// Reusable style definitions for buttons, cards, inputs, etc.
