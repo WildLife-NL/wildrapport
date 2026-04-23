@@ -1,5 +1,4 @@
 ﻿import 'package:flutter/foundation.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
@@ -13,7 +12,27 @@ String? getAnimalPhotoPath(String? name) {
   if (name == null || name.trim().isEmpty) return null;
 
   final nameLower = name.toLowerCase().trim();
-  return 'assets/animals/$nameLower.png';
+  final normalized = nameLower
+      .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+      .trim()
+      .replaceAll(RegExp(r'\s+'), ' ');
+  final compact = normalized.replaceAll(' ', '');
+
+  // Backend names do not always match file names 1:1.
+  const Map<String, String> aliases = {
+    'konik': 'konikpaard',
+    'konik paard': 'konikpaard',
+    'wilde kat': 'wild kat',
+    'wildkat': 'wild kat',
+    'shetlandpony': 'shetland pony',
+    'exmoorpony': 'exmoor pony',
+  };
+
+  final fileStem = aliases[nameLower] ??
+      aliases[normalized] ??
+      aliases[compact] ??
+      normalized;
+  return 'assets/animals/$fileStem.png';
 }
 
 class AnimalManager
