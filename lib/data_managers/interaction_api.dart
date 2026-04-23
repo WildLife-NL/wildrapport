@@ -58,20 +58,32 @@ class InteractionApi implements InteractionApiInterface {
             final placeLon = report.userSelectedLocation?.longtitude ?? 0.0;
             final moment = report.userSelectedDateTime ?? report.systemDateTime;
             final speciesID = report.suspectedSpeciesID ?? '';
-            final payload = RapportenApiBodyBuilder.buildDamageBody(
-              description: report.description ?? '',
-              locationLatitude: locLat,
-              locationLongitude: locLon,
-              placeLatitude: placeLat,
-              placeLongitude: placeLon,
-              moment: moment,
-              speciesID: speciesID,
-              belonging: report.possesion.possesionName ?? '',
-              estimatedDamage: report.currentImpactDamages.toInt(),
-              estimatedLoss: report.estimatedTotalDamages.toInt(),
-              impactType: report.impactedAreaType == 'units' ? 'units' : 'square-meters',
-              impactValue: report.impactedArea.toInt(),
-            );
+            // NOTE:
+            // Backend schema for reportOfDamage changed:
+            // - estimatedLoss must be string
+            // - preventiveMeasures + preventiveMeasuresDescription are required
+            // - estimatedDamage/impactType/impactValue are rejected
+            final payload = {
+              "description": report.description ?? '',
+              "location": {
+                "latitude": locLat,
+                "longitude": locLon,
+              },
+              "moment": moment.toUtc().toIso8601String(),
+              "place": {
+                "latitude": placeLat,
+                "longitude": placeLon,
+              },
+              "reportOfDamage": {
+                "belonging": report.possesion.possesionName ?? '',
+                "estimatedLoss": report.estimatedLossBucket,
+                "preventiveMeasures": report.preventiveMeasures,
+                "preventiveMeasuresDescription":
+                    report.preventiveMeasuresDescription,
+              },
+              "speciesID": speciesID,
+              "typeID": 2,
+            };
             debugPrint("$yellowLog[InteractionAPI]: GEWASSCHADE Payload:");
             debugPrint("$yellowLog${jsonEncode(payload)}");
             debugPrint("$yellowLog========================================");
@@ -104,19 +116,29 @@ class InteractionApi implements InteractionApiInterface {
                 sex: 'unknown',
               ));
             }
-            final payload = RapportenApiBodyBuilder.buildCollisionBody(
-              description: report.description ?? '',
-              locationLatitude: report.systemLocation?.latitude ?? 0.0,
-              locationLongitude: report.systemLocation?.longtitude ?? 0.0,
-              placeLatitude: report.userSelectedLocation?.latitude ?? 0.0,
-              placeLongitude: report.userSelectedLocation?.longtitude ?? 0.0,
-              moment: report.userSelectedDateTime ?? report.systemDateTime,
-              speciesID: report.suspectedSpeciesID ?? '',
-              estimatedDamage: int.tryParse(report.damages) ?? 0,
-              intensity: report.intensity,
-              urgency: report.urgency,
-              involvedAnimals: involvedList,
-            );
+            final payload = {
+              'description': report.description ?? '',
+              'location': {
+                'latitude': report.systemLocation?.latitude ?? 0.0,
+                'longitude': report.systemLocation?.longtitude ?? 0.0,
+              },
+              'moment':
+                  (report.userSelectedDateTime ?? report.systemDateTime)
+                      .toUtc()
+                      .toIso8601String(),
+              'place': {
+                'latitude': report.userSelectedLocation?.latitude ?? 0.0,
+                'longitude': report.userSelectedLocation?.longtitude ?? 0.0,
+              },
+              'reportOfCollision': {
+                'estimatedDamage': int.tryParse(report.damages) ?? 0,
+                'involvedAnimals':
+                    involvedList.map((a) => a.toJson()).toList(),
+                'severity': _mapCollisionSeverity(report.intensity),
+              },
+              'speciesID': report.suspectedSpeciesID ?? '',
+              'typeID': 3,
+            };
             response = await client.post(
               'interaction/',
               payload,
@@ -353,6 +375,14 @@ class InteractionApi implements InteractionApiInterface {
     if (c == 'healthy' || c == 'impaired' || c == 'dead' || c == 'unknown' || c == 'onbekend') {
       return c == 'onbekend' ? 'unknown' : c;
     }
+    return 'unknown';
+  }
+
+  static String _mapCollisionSeverity(String? value) {
+    final v = (value ?? '').toLowerCase();
+    if (v.contains('ernstig') || v == 'high') return 'high';
+    if (v.contains('matig') || v == 'medium') return 'medium';
+    if (v.contains('licht') || v == 'low') return 'low';
     return 'unknown';
   }
 }

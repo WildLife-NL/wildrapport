@@ -10,16 +10,16 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/waarneming/location_datetime_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_location_datetime_screen.dart';
 
-class LocationSelectionScreen extends StatefulWidget {
-  const LocationSelectionScreen({super.key});
+class SchademeldingLocationSelectionScreen extends StatefulWidget {
+  const SchademeldingLocationSelectionScreen({super.key});
 
   @override
-  State<LocationSelectionScreen> createState() => _LocationSelectionScreenState();
+  State<SchademeldingLocationSelectionScreen> createState() => _SchademeldingLocationSelectionScreenState();
 }
 
-class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
+class _SchademeldingLocationSelectionScreenState extends State<SchademeldingLocationSelectionScreen> {
   late fm.MapController _mapController;
   LatLng? _selectedLocation;
   LatLng? _currentLocation;
@@ -80,19 +80,19 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       sightingManager.updateLocation(location);
       
       debugPrint(
-        '[LocationSelection] Selected location: ${_selectedLocation!.latitude}, ${_selectedLocation!.longitude}',
+        '[SchademeldingLocationSelection] Selected location: ${_selectedLocation!.latitude}, ${_selectedLocation!.longitude}',
       );
 
       // Navigate to the date/time selection screen
       navigationManager.pushForward(
         context,
-        LocationDateTimeScreen(selectedLocation: _selectedLocation!),
+        SchademeldingLocationDateTimeScreen(selectedLocation: _selectedLocation!),
       );
     }
   }
 
   void _handleBackNavigation() {
-    debugPrint('[LocationSelectionScreen] Back button pressed');
+    debugPrint('[SchademeldingLocationSelectionScreen] Back button pressed');
     if (Navigator.of(context).canPop()) {
       Navigator.pop(context);
     } else {
@@ -111,7 +111,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
         children: [
           CustomAppBar(
             leftIcon: Icons.arrow_back_ios,
-            centerText: 'Waarneming',
+            centerText: 'Schademelding',
             rightIcon: null,
             showUserIcon: false,
             useFixedText: true,
@@ -263,7 +263,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Tik op de kaart om de locatie van\nde dierwarneming te bepalen.',
+                          'Tik op de kaart om de locatie van\nde schade aan te geven.',
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme

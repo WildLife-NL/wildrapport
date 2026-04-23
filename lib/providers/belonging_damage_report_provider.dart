@@ -24,6 +24,9 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   String damageCategory = 'crops'; // 'crops' or 'livestock'
   PolygonArea? polygonArea;
   int? livestockAmount;
+  bool preventiveMeasures = false;
+  String preventiveMeasuresDescription = '';
+  String estimatedLossBucket = 'unknown';
 
   // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
   // Use these names everywhere new code touches the provider.
@@ -160,6 +163,21 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPreventiveMeasures(bool value) {
+    preventiveMeasures = value;
+    notifyListeners();
+  }
+
+  void setPreventiveMeasuresDescription(String value) {
+    preventiveMeasuresDescription = value;
+    notifyListeners();
+  }
+
+  void setEstimatedLossBucket(String value) {
+    estimatedLossBucket = value;
+    notifyListeners();
+  }
+
   void clearPolygonArea() {
     polygonArea = null;
     notifyListeners();
@@ -191,6 +209,9 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     damageCategory = 'crops';
     polygonArea = null;
     livestockAmount = null;
+    preventiveMeasures = false;
+    preventiveMeasuresDescription = '';
+    estimatedLossBucket = 'unknown';
     resetInputErrorImpactArea();
     notifyListeners();
   }

@@ -1,7 +1,13 @@
+import 'package:wildrapport/models/api_models/vicinity.dart';
+
 class TrackingNotice {
   final String text;
   final int? severity;
-  TrackingNotice(this.text, {this.severity});
+  final Vicinity? vicinity;
+
+  TrackingNotice(this.text, {this.severity, this.vicinity});
+
+  bool get hasMessage => text.trim().isNotEmpty;
 }
 
 class TrackingReadingResponse {

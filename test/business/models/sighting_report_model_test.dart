@@ -108,7 +108,10 @@ void main() {
       expect(json['description'], 'Wolf sighting in forest');
       expect(json['place']['latitude'], 52.3676);
       expect(json['location']['longtitude'], 4.9041);
-      expect(json['moment'], '2023-05-15T00:00:00.000');
+      expect(
+        json['moment'],
+        DateTime(2023, 5, 15).toUtc().toIso8601String(),
+      );
       expect(json['involvedAnimals'][0]['condition'], 'alive');
       expect(json['involvedAnimals'][0]['lifeStage'], 'adult');
       expect(json['involvedAnimals'][0]['sex'], 'male');

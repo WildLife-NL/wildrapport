@@ -3,108 +3,125 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i18;
+import 'dart:async' as _i20;
 import 'dart:ui' as _i40;
 
-import 'package:connectivity_plus/connectivity_plus.dart' as _i67;
+import 'package:connectivity_plus/connectivity_plus.dart' as _i74;
 import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart'
-    as _i68;
-import 'package:flutter/foundation.dart' as _i12;
-import 'package:flutter/material.dart' as _i9;
-import 'package:flutter_map/flutter_map.dart' as _i10;
+    as _i75;
+import 'package:flutter/foundation.dart' as _i13;
+import 'package:flutter/material.dart' as _i10;
+import 'package:flutter_map/flutter_map.dart' as _i11;
 import 'package:geolocator/geolocator.dart' as _i28;
-import 'package:latlong2/latlong.dart' as _i6;
+import 'package:latlong2/latlong.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i29;
-import 'package:shared_preferences/src/shared_preferences_legacy.dart' as _i66;
+import 'package:shared_preferences/shared_preferences.dart' as _i73;
+import 'package:wildlifenl_login_components/src/interfaces/login_interface.dart'
+    as _i57;
+import 'package:wildlifenl_map_logic_components/src/interfaces/location_service_interface.dart'
+    as _i27;
+import 'package:wildlifenl_map_logic_components/src/interfaces/map_service_interface.dart'
+    as _i30;
+import 'package:wildlifenl_map_logic_components/src/interfaces/map_state_interface.dart'
+    as _i31;
 import 'package:wildrapport/interfaces/data_apis/belonging_api_interface.dart'
     as _i19;
 import 'package:wildrapport/interfaces/data_apis/interaction_api_interface.dart'
-    as _i21;
+    as _i22;
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart'
-    as _i23;
-import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart'
     as _i24;
-import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart'
+import 'package:wildrapport/interfaces/data_apis/questionnaire_api_interface.dart'
     as _i25;
+import 'package:wildrapport/interfaces/data_apis/response_api_interface.dart'
+    as _i5;
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart'
     as _i26;
-import 'package:wildrapport/interfaces/filters/dropdown_interface.dart' as _i46;
-import 'package:wildrapport/interfaces/filters/filter_interface.dart' as _i49;
+import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
+    as _i70;
+import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart'
+    as _i72;
+import 'package:wildrapport/interfaces/filters/dropdown_interface.dart' as _i47;
+import 'package:wildrapport/interfaces/filters/filter_interface.dart' as _i50;
 import 'package:wildrapport/interfaces/location/living_lab_interface.dart'
-    as _i53;
+    as _i54;
 import 'package:wildrapport/interfaces/location/location_screen_interface.dart'
-    as _i55;
-import 'package:wildrapport/interfaces/map/location_service_interface.dart'
-    as _i27;
-import 'package:wildrapport/interfaces/map/map_service_interface.dart' as _i30;
-import 'package:wildrapport/interfaces/map/map_state_interface.dart' as _i31;
+    as _i56;
 import 'package:wildrapport/interfaces/other/belonging_manager_interface.dart'
-    as _i45;
-import 'package:wildrapport/interfaces/other/login_interface.dart' as _i56;
-import 'package:wildrapport/interfaces/other/overzicht_interface.dart' as _i58;
-import 'package:wildrapport/interfaces/other/permission_interface.dart' as _i59;
+    as _i46;
+import 'package:wildrapport/interfaces/other/overzicht_interface.dart' as _i59;
+import 'package:wildrapport/interfaces/other/permission_interface.dart' as _i60;
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart'
-    as _i43;
+    as _i44;
 import 'package:wildrapport/interfaces/reporting/common_report_fields.dart'
     as _i32;
 import 'package:wildrapport/interfaces/reporting/interaction_interface.dart'
-    as _i51;
+    as _i52;
 import 'package:wildrapport/interfaces/reporting/possesion_report_fields.dart'
     as _i33;
 import 'package:wildrapport/interfaces/reporting/questionnaire_interface.dart'
-    as _i60;
-import 'package:wildrapport/interfaces/reporting/reportable_interface.dart'
-    as _i15;
-import 'package:wildrapport/interfaces/reporting/response_interface.dart'
     as _i61;
-import 'package:wildrapport/interfaces/state/edit_state_interface.dart' as _i48;
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart'
-    as _i57;
-import 'package:wildrapport/interfaces/state/screen_state_interface.dart'
+import 'package:wildrapport/interfaces/reporting/reportable_interface.dart'
+    as _i16;
+import 'package:wildrapport/interfaces/reporting/response_interface.dart'
     as _i62;
+import 'package:wildrapport/interfaces/state/edit_state_interface.dart' as _i49;
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart'
+    as _i58;
+import 'package:wildrapport/interfaces/state/screen_state_interface.dart'
+    as _i63;
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart'
     as _i34;
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
     as _i35;
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart'
+    as _i71;
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart'
-    as _i69;
+    as _i76;
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart'
-    as _i11;
+    as _i12;
+import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart'
+    as _i67;
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart'
-    as _i8;
+    as _i9;
+import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart'
+    as _i43;
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
     as _i38;
-import 'package:wildrapport/models/api_models/answer.dart' as _i72;
-import 'package:wildrapport/models/api_models/experiment.dart' as _i13;
-import 'package:wildrapport/models/api_models/interaction_type.dart' as _i14;
-import 'package:wildrapport/models/api_models/living_labs.dart' as _i73;
-import 'package:wildrapport/models/api_models/question.dart' as _i71;
+import 'package:wildrapport/models/api_models/answer.dart' as _i79;
+import 'package:wildrapport/models/api_models/detection_pin.dart' as _i68;
+import 'package:wildrapport/models/api_models/experiment.dart' as _i14;
+import 'package:wildrapport/models/api_models/interaction_query_result.dart'
+    as _i69;
+import 'package:wildrapport/models/api_models/interaction_type.dart' as _i15;
+import 'package:wildrapport/models/api_models/living_labs.dart' as _i80;
+import 'package:wildrapport/models/api_models/question.dart' as _i78;
 import 'package:wildrapport/models/api_models/questionaire.dart' as _i4;
-import 'package:wildrapport/models/api_models/species.dart' as _i5;
-import 'package:wildrapport/models/api_models/user.dart' as _i2;
-import 'package:wildrapport/models/beta_models/belonging_model.dart' as _i20;
-import 'package:wildrapport/models/beta_models/interaction_model.dart' as _i22;
+import 'package:wildrapport/models/api_models/species.dart' as _i6;
+import 'package:wildrapport/models/api_models/user.dart' as _i18;
+import 'package:wildrapport/models/beta_models/belonging_model.dart' as _i21;
+import 'package:wildrapport/models/beta_models/interaction_model.dart' as _i23;
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart'
-    as _i3;
+    as _i2;
 import 'package:wildrapport/models/beta_models/location_model.dart' as _i41;
-import 'package:wildrapport/models/beta_models/possesion_model.dart' as _i7;
+import 'package:wildrapport/models/beta_models/possesion_model.dart' as _i8;
+import 'package:wildrapport/models/beta_models/profile_model.dart' as _i3;
 import 'package:wildrapport/models/beta_models/report_location_model.dart'
-    as _i44;
-import 'package:wildrapport/models/beta_models/response_model.dart' as _i16;
+    as _i45;
+import 'package:wildrapport/models/beta_models/response_model.dart' as _i17;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i37;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i39;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i36;
-import 'package:wildrapport/models/enums/dropdown_type.dart' as _i47;
-import 'package:wildrapport/models/enums/interaction_type.dart' as _i52;
-import 'package:wildrapport/models/enums/location_source.dart' as _i74;
-import 'package:wildrapport/models/enums/report_type.dart' as _i64;
-import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i50;
+import 'package:wildrapport/models/enums/dropdown_type.dart' as _i48;
+import 'package:wildrapport/models/enums/interaction_type.dart' as _i53;
+import 'package:wildrapport/models/enums/location_source.dart' as _i81;
+import 'package:wildrapport/models/enums/report_type.dart' as _i65;
+import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i51;
 import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i42;
-import 'package:wildrapport/models/ui_models/image_list_model.dart' as _i70;
-import 'package:wildrapport/models/ui_models/living_lab_area.dart' as _i54;
-import 'package:wildrapport/providers/app_state_provider.dart' as _i63;
-import 'package:wildrapport/providers/map_provider.dart' as _i65;
+import 'package:wildrapport/models/ui_models/image_list_model.dart' as _i77;
+import 'package:wildrapport/models/ui_models/living_lab_area.dart' as _i55;
+import 'package:wildrapport/providers/app_state_provider.dart' as _i64;
+import 'package:wildrapport/providers/map_provider.dart' as _i66;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -119,15 +136,16 @@ import 'package:wildrapport/providers/map_provider.dart' as _i65;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
-class _FakeUser_0 extends _i1.SmartFake implements _i2.User {
-  _FakeUser_0(Object parent, Invocation parentInvocation)
+class _FakeInteractionResponse_0 extends _i1.SmartFake
+    implements _i2.InteractionResponse {
+  _FakeInteractionResponse_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeInteractionResponse_1 extends _i1.SmartFake
-    implements _i3.InteractionResponse {
-  _FakeInteractionResponse_1(Object parent, Invocation parentInvocation)
+class _FakeProfile_1 extends _i1.SmartFake implements _i3.Profile {
+  _FakeProfile_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -136,99 +154,117 @@ class _FakeQuestionnaire_2 extends _i1.SmartFake implements _i4.Questionnaire {
     : super(parent, parentInvocation);
 }
 
-class _FakeSpecies_3 extends _i1.SmartFake implements _i5.Species {
-  _FakeSpecies_3(Object parent, Invocation parentInvocation)
+class _FakeResponseSubmissionResult_3 extends _i1.SmartFake
+    implements _i5.ResponseSubmissionResult {
+  _FakeResponseSubmissionResult_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLatLng_4 extends _i1.SmartFake implements _i6.LatLng {
-  _FakeLatLng_4(Object parent, Invocation parentInvocation)
+class _FakeSpecies_4 extends _i1.SmartFake implements _i6.Species {
+  _FakeSpecies_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDateTime_5 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_5(Object parent, Invocation parentInvocation)
+class _FakeLatLng_5 extends _i1.SmartFake implements _i7.LatLng {
+  _FakeLatLng_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakePossesion_6 extends _i1.SmartFake implements _i7.Possesion {
-  _FakePossesion_6(Object parent, Invocation parentInvocation)
+class _FakeDateTime_6 extends _i1.SmartFake implements DateTime {
+  _FakeDateTime_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAnimalSightingModel_7 extends _i1.SmartFake
-    implements _i8.AnimalSightingModel {
-  _FakeAnimalSightingModel_7(Object parent, Invocation parentInvocation)
+class _FakePossesion_7 extends _i1.SmartFake implements _i8.Possesion {
+  _FakePossesion_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeWidget_8 extends _i1.SmartFake implements _i9.Widget {
-  _FakeWidget_8(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-
-  @override
-  String toString({_i9.DiagnosticLevel? minLevel = _i9.DiagnosticLevel.info}) =>
-      super.toString();
-}
-
-class _FakeGlobalKey_9<T extends _i9.State<_i9.StatefulWidget>>
-    extends _i1.SmartFake
-    implements _i9.GlobalKey<T> {
-  _FakeGlobalKey_9(Object parent, Invocation parentInvocation)
+class _FakeAnimalSightingModel_8 extends _i1.SmartFake
+    implements _i9.AnimalSightingModel {
+  _FakeAnimalSightingModel_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMapController_10 extends _i1.SmartFake
-    implements _i10.MapController {
-  _FakeMapController_10(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeAnimalModel_11 extends _i1.SmartFake implements _i11.AnimalModel {
-  _FakeAnimalModel_11(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeInheritedWidget_12 extends _i1.SmartFake
-    implements _i9.InheritedWidget {
-  _FakeInheritedWidget_12(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-
-  @override
-  String toString({_i9.DiagnosticLevel? minLevel = _i9.DiagnosticLevel.info}) =>
-      super.toString();
-}
-
-class _FakeDiagnosticsNode_13 extends _i1.SmartFake
-    implements _i9.DiagnosticsNode {
-  _FakeDiagnosticsNode_13(Object parent, Invocation parentInvocation)
+class _FakeWidget_9 extends _i1.SmartFake implements _i10.Widget {
+  _FakeWidget_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
   String toString({
-    _i12.TextTreeConfiguration? parentConfiguration,
-    _i9.DiagnosticLevel? minLevel = _i9.DiagnosticLevel.info,
+    _i10.DiagnosticLevel? minLevel = _i10.DiagnosticLevel.info,
   }) => super.toString();
 }
 
-class _FakeExperiment_14 extends _i1.SmartFake implements _i13.Experiment {
-  _FakeExperiment_14(Object parent, Invocation parentInvocation)
+class _FakeGlobalKey_10<T extends _i10.State<_i10.StatefulWidget>>
+    extends _i1.SmartFake
+    implements _i10.GlobalKey<T> {
+  _FakeGlobalKey_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeInteractionType_15 extends _i1.SmartFake
-    implements _i14.InteractionType {
-  _FakeInteractionType_15(Object parent, Invocation parentInvocation)
+class _FakeDuration_11 extends _i1.SmartFake implements Duration {
+  _FakeDuration_11(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeReportable_16 extends _i1.SmartFake implements _i15.Reportable {
-  _FakeReportable_16(Object parent, Invocation parentInvocation)
+class _FakeMapController_12 extends _i1.SmartFake
+    implements _i11.MapController {
+  _FakeMapController_12(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeResponse_17 extends _i1.SmartFake implements _i16.Response {
-  _FakeResponse_17(Object parent, Invocation parentInvocation)
+class _FakeAnimalModel_13 extends _i1.SmartFake implements _i12.AnimalModel {
+  _FakeAnimalModel_13(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeInheritedWidget_14 extends _i1.SmartFake
+    implements _i10.InheritedWidget {
+  _FakeInheritedWidget_14(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+
+  @override
+  String toString({
+    _i10.DiagnosticLevel? minLevel = _i10.DiagnosticLevel.info,
+  }) => super.toString();
+}
+
+class _FakeDiagnosticsNode_15 extends _i1.SmartFake
+    implements _i10.DiagnosticsNode {
+  _FakeDiagnosticsNode_15(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+
+  @override
+  String toString({
+    _i13.TextTreeConfiguration? parentConfiguration,
+    _i10.DiagnosticLevel? minLevel = _i10.DiagnosticLevel.info,
+  }) => super.toString();
+}
+
+class _FakeExperiment_16 extends _i1.SmartFake implements _i14.Experiment {
+  _FakeExperiment_16(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeInteractionType_17 extends _i1.SmartFake
+    implements _i15.InteractionType {
+  _FakeInteractionType_17(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeReportable_18 extends _i1.SmartFake implements _i16.Reportable {
+  _FakeReportable_18(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeResponse_19 extends _i1.SmartFake implements _i17.Response {
+  _FakeResponse_19(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeUser_20 extends _i1.SmartFake implements _i18.User {
+  _FakeUser_20(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -242,94 +278,139 @@ class MockBelongingApiInterface extends _i1.Mock
   }
 
   @override
-  _i18.Future<List<_i20.Belonging>> getAllBelongings() =>
+  _i20.Future<List<_i21.Belonging>> getAllBelongings() =>
       (super.noSuchMethod(
             Invocation.method(#getAllBelongings, []),
-            returnValue: _i18.Future<List<_i20.Belonging>>.value(
-              <_i20.Belonging>[],
+            returnValue: _i20.Future<List<_i21.Belonging>>.value(
+              <_i21.Belonging>[],
             ),
           )
-          as _i18.Future<List<_i20.Belonging>>);
+          as _i20.Future<List<_i21.Belonging>>);
 }
 
 /// A class which mocks [InteractionApiInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockInteractionApiInterface extends _i1.Mock
-    implements _i21.InteractionApiInterface {
+    implements _i22.InteractionApiInterface {
   MockInteractionApiInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<_i3.InteractionResponse> sendInteraction(
-    _i22.Interaction? interaction,
+  _i20.Future<_i2.InteractionResponse> sendInteraction(
+    _i23.Interaction? interaction,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#sendInteraction, [interaction]),
-            returnValue: _i18.Future<_i3.InteractionResponse>.value(
-              _FakeInteractionResponse_1(
+            returnValue: _i20.Future<_i2.InteractionResponse>.value(
+              _FakeInteractionResponse_0(
                 this,
                 Invocation.method(#sendInteraction, [interaction]),
               ),
             ),
           )
-          as _i18.Future<_i3.InteractionResponse>);
+          as _i20.Future<_i2.InteractionResponse>);
 }
 
 /// A class which mocks [ProfileApiInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockProfileApiInterface extends _i1.Mock
-    implements _i23.ProfileApiInterface {
+    implements _i24.ProfileApiInterface {
   MockProfileApiInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<void> setProfileDataInDeviceStorage() =>
+  _i20.Future<void> setProfileDataInDeviceStorage() =>
       (super.noSuchMethod(
             Invocation.method(#setProfileDataInDeviceStorage, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<_i3.Profile> fetchMyProfile() =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchMyProfile, []),
+            returnValue: _i20.Future<_i3.Profile>.value(
+              _FakeProfile_1(this, Invocation.method(#fetchMyProfile, [])),
+            ),
+          )
+          as _i20.Future<_i3.Profile>);
+
+  @override
+  _i20.Future<_i3.Profile> updateReportAppTerms(bool? accepted) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateReportAppTerms, [accepted]),
+            returnValue: _i20.Future<_i3.Profile>.value(
+              _FakeProfile_1(
+                this,
+                Invocation.method(#updateReportAppTerms, [accepted]),
+              ),
+            ),
+          )
+          as _i20.Future<_i3.Profile>);
+
+  @override
+  _i20.Future<void> deleteMyProfile() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteMyProfile, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<_i3.Profile> updateMyProfile(_i3.Profile? updatedProfile) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateMyProfile, [updatedProfile]),
+            returnValue: _i20.Future<_i3.Profile>.value(
+              _FakeProfile_1(
+                this,
+                Invocation.method(#updateMyProfile, [updatedProfile]),
+              ),
+            ),
+          )
+          as _i20.Future<_i3.Profile>);
 }
 
 /// A class which mocks [QuestionnaireApiInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockQuestionnaireApiInterface extends _i1.Mock
-    implements _i24.QuestionnaireApiInterface {
+    implements _i25.QuestionnaireApiInterface {
   MockQuestionnaireApiInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<_i4.Questionnaire> getQuestionnaireByID(String? id) =>
+  _i20.Future<_i4.Questionnaire> getQuestionnaireByID(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#getQuestionnaireByID, [id]),
-            returnValue: _i18.Future<_i4.Questionnaire>.value(
+            returnValue: _i20.Future<_i4.Questionnaire>.value(
               _FakeQuestionnaire_2(
                 this,
                 Invocation.method(#getQuestionnaireByID, [id]),
               ),
             ),
           )
-          as _i18.Future<_i4.Questionnaire>);
+          as _i20.Future<_i4.Questionnaire>);
 }
 
 /// A class which mocks [ResponseApiInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockResponseApiInterface extends _i1.Mock
-    implements _i25.ResponseApiInterface {
+    implements _i5.ResponseApiInterface {
   MockResponseApiInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<_i25.ResponseSubmissionResult> addReponse(
+  _i20.Future<_i5.ResponseSubmissionResult> addReponse(
     String? interactionID,
     String? questionID,
     String? answerID,
@@ -342,11 +423,27 @@ class MockResponseApiInterface extends _i1.Mock
               answerID,
               text,
             ]),
-            returnValue: _i18.Future<_i25.ResponseSubmissionResult>.value(
-              _i25.ResponseSubmissionResult(success: false),
+            returnValue: _i20.Future<_i5.ResponseSubmissionResult>.value(
+              _FakeResponseSubmissionResult_3(
+                this,
+                Invocation.method(#addReponse, [
+                  interactionID,
+                  questionID,
+                  answerID,
+                  text,
+                ]),
+              ),
             ),
           )
-          as _i18.Future<_i25.ResponseSubmissionResult>);
+          as _i20.Future<_i5.ResponseSubmissionResult>);
+
+  @override
+  _i20.Future<List<dynamic>> getMyResponsesRaw() =>
+      (super.noSuchMethod(
+            Invocation.method(#getMyResponsesRaw, []),
+            returnValue: _i20.Future<List<dynamic>>.value(<dynamic>[]),
+          )
+          as _i20.Future<List<dynamic>>);
 }
 
 /// A class which mocks [SpeciesApiInterface].
@@ -359,35 +456,35 @@ class MockSpeciesApiInterface extends _i1.Mock
   }
 
   @override
-  _i18.Future<List<_i5.Species>> getAllSpecies() =>
+  _i20.Future<List<_i6.Species>> getAllSpecies() =>
       (super.noSuchMethod(
             Invocation.method(#getAllSpecies, []),
-            returnValue: _i18.Future<List<_i5.Species>>.value(<_i5.Species>[]),
+            returnValue: _i20.Future<List<_i6.Species>>.value(<_i6.Species>[]),
           )
-          as _i18.Future<List<_i5.Species>>);
+          as _i20.Future<List<_i6.Species>>);
 
   @override
-  _i18.Future<_i5.Species> getSpecies(String? id) =>
+  _i20.Future<_i6.Species> getSpecies(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#getSpecies, [id]),
-            returnValue: _i18.Future<_i5.Species>.value(
-              _FakeSpecies_3(this, Invocation.method(#getSpecies, [id])),
+            returnValue: _i20.Future<_i6.Species>.value(
+              _FakeSpecies_4(this, Invocation.method(#getSpecies, [id])),
             ),
           )
-          as _i18.Future<_i5.Species>);
+          as _i20.Future<_i6.Species>);
 
   @override
-  _i18.Future<_i5.Species> getSpeciesByCategory(String? category) =>
+  _i20.Future<_i6.Species> getSpeciesByCategory(String? category) =>
       (super.noSuchMethod(
             Invocation.method(#getSpeciesByCategory, [category]),
-            returnValue: _i18.Future<_i5.Species>.value(
-              _FakeSpecies_3(
+            returnValue: _i20.Future<_i6.Species>.value(
+              _FakeSpecies_4(
                 this,
                 Invocation.method(#getSpeciesByCategory, [category]),
               ),
             ),
           )
-          as _i18.Future<_i5.Species>);
+          as _i20.Future<_i6.Species>);
 }
 
 /// A class which mocks [LocationServiceInterface].
@@ -400,25 +497,25 @@ class MockLocationServiceInterface extends _i1.Mock
   }
 
   @override
-  _i18.Future<_i28.Position?> determinePosition() =>
+  _i20.Future<_i28.Position?> determinePosition() =>
       (super.noSuchMethod(
             Invocation.method(#determinePosition, []),
-            returnValue: _i18.Future<_i28.Position?>.value(),
+            returnValue: _i20.Future<_i28.Position?>.value(),
           )
-          as _i18.Future<_i28.Position?>);
+          as _i20.Future<_i28.Position?>);
 
   @override
-  _i18.Future<String> getAddressFromPosition(_i28.Position? position) =>
+  _i20.Future<String> getAddressFromPosition(_i28.Position? position) =>
       (super.noSuchMethod(
             Invocation.method(#getAddressFromPosition, [position]),
-            returnValue: _i18.Future<String>.value(
+            returnValue: _i20.Future<String>.value(
               _i29.dummyValue<String>(
                 this,
                 Invocation.method(#getAddressFromPosition, [position]),
               ),
             ),
           )
-          as _i18.Future<String>);
+          as _i20.Future<String>);
 
   @override
   bool isLocationInNetherlands(double? lat, double? lon) =>
@@ -439,28 +536,28 @@ class MockMapServiceInterface extends _i1.Mock
   }
 
   @override
-  _i6.LatLng constrainLatLng(_i6.LatLng? point) =>
+  _i7.LatLng constrainLatLng(_i7.LatLng? point) =>
       (super.noSuchMethod(
             Invocation.method(#constrainLatLng, [point]),
-            returnValue: _FakeLatLng_4(
+            returnValue: _FakeLatLng_5(
               this,
               Invocation.method(#constrainLatLng, [point]),
             ),
           )
-          as _i6.LatLng);
+          as _i7.LatLng);
 
   @override
-  _i18.Future<String> getAddressFromLatLng(_i6.LatLng? point) =>
+  _i20.Future<String> getAddressFromLatLng(_i7.LatLng? point) =>
       (super.noSuchMethod(
             Invocation.method(#getAddressFromLatLng, [point]),
-            returnValue: _i18.Future<String>.value(
+            returnValue: _i20.Future<String>.value(
               _i29.dummyValue<String>(
                 this,
                 Invocation.method(#getAddressFromLatLng, [point]),
               ),
             ),
           )
-          as _i18.Future<String>);
+          as _i20.Future<String>);
 
   @override
   bool isLocationInNetherlands(double? lat, double? lon) =>
@@ -480,7 +577,7 @@ class MockMapStateInterface extends _i1.Mock implements _i31.MapStateInterface {
   }
 
   @override
-  void constrainMapCamera(_i10.MapController? mapController) =>
+  void constrainMapCamera(_i11.MapController? mapController) =>
       super.noSuchMethod(
         Invocation.method(#constrainMapCamera, [mapController]),
         returnValueForMissingStub: null,
@@ -488,10 +585,10 @@ class MockMapStateInterface extends _i1.Mock implements _i31.MapStateInterface {
 
   @override
   void animateToLocation({
-    required _i10.MapController? mapController,
-    required _i6.LatLng? targetLocation,
+    required _i11.MapController? mapController,
+    required _i7.LatLng? targetLocation,
     required double? targetZoom,
-    required _i9.TickerProvider? vsync,
+    required _i10.TickerProvider? vsync,
     Duration? duration = const Duration(milliseconds: 500),
   }) => super.noSuchMethod(
     Invocation.method(#animateToLocation, [], {
@@ -518,7 +615,7 @@ class MockCommonReportFields extends _i1.Mock
   DateTime get systemDateTime =>
       (super.noSuchMethod(
             Invocation.getter(#systemDateTime),
-            returnValue: _FakeDateTime_5(
+            returnValue: _FakeDateTime_6(
               this,
               Invocation.getter(#systemDateTime),
             ),
@@ -536,12 +633,12 @@ class MockPossesionReportFields extends _i1.Mock
   }
 
   @override
-  _i7.Possesion get possesion =>
+  _i8.Possesion get possesion =>
       (super.noSuchMethod(
             Invocation.getter(#possesion),
-            returnValue: _FakePossesion_6(this, Invocation.getter(#possesion)),
+            returnValue: _FakePossesion_7(this, Invocation.getter(#possesion)),
           )
-          as _i7.Possesion);
+          as _i8.Possesion);
 
   @override
   double get currentImpactDamages =>
@@ -560,6 +657,17 @@ class MockPossesionReportFields extends _i1.Mock
           as double);
 
   @override
+  String get estimatedLossBucket =>
+      (super.noSuchMethod(
+            Invocation.getter(#estimatedLossBucket),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#estimatedLossBucket),
+            ),
+          )
+          as String);
+
+  @override
   String get impactedAreaType =>
       (super.noSuchMethod(
             Invocation.getter(#impactedAreaType),
@@ -576,10 +684,29 @@ class MockPossesionReportFields extends _i1.Mock
           as double);
 
   @override
+  bool get preventiveMeasures =>
+      (super.noSuchMethod(
+            Invocation.getter(#preventiveMeasures),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  String get preventiveMeasuresDescription =>
+      (super.noSuchMethod(
+            Invocation.getter(#preventiveMeasuresDescription),
+            returnValue: _i29.dummyValue<String>(
+              this,
+              Invocation.getter(#preventiveMeasuresDescription),
+            ),
+          )
+          as String);
+
+  @override
   DateTime get systemDateTime =>
       (super.noSuchMethod(
             Invocation.getter(#systemDateTime),
-            returnValue: _FakeDateTime_5(
+            returnValue: _FakeDateTime_6(
               this,
               Invocation.getter(#systemDateTime),
             ),
@@ -590,7 +717,7 @@ class MockPossesionReportFields extends _i1.Mock
 /// A class which mocks [Reportable].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockReportable extends _i1.Mock implements _i15.Reportable {
+class MockReportable extends _i1.Mock implements _i16.Reportable {
   MockReportable() {
     _i1.throwOnMissingStub(this);
   }
@@ -614,14 +741,14 @@ class MockAnimalRepositoryInterface extends _i1.Mock
   }
 
   @override
-  _i18.Future<List<_i11.AnimalModel>> getAnimals() =>
+  _i20.Future<List<_i12.AnimalModel>> getAnimals() =>
       (super.noSuchMethod(
             Invocation.method(#getAnimals, []),
-            returnValue: _i18.Future<List<_i11.AnimalModel>>.value(
-              <_i11.AnimalModel>[],
+            returnValue: _i20.Future<List<_i12.AnimalModel>>.value(
+              <_i12.AnimalModel>[],
             ),
           )
-          as _i18.Future<List<_i11.AnimalModel>>);
+          as _i20.Future<List<_i12.AnimalModel>>);
 }
 
 /// A class which mocks [AnimalSightingReportingInterface].
@@ -634,72 +761,85 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
   }
 
   @override
-  _i8.AnimalSightingModel createanimalSighting() =>
+  _i9.AnimalSightingModel createanimalSighting() =>
       (super.noSuchMethod(
             Invocation.method(#createanimalSighting, []),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#createanimalSighting, []),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateSelectedAnimal(
-    _i11.AnimalModel? selectedAnimal,
+  _i9.AnimalSightingModel updateSelectedAnimal(
+    _i12.AnimalModel? selectedAnimal,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateSelectedAnimal, [selectedAnimal]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateSelectedAnimal, [selectedAnimal]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateGender(_i36.AnimalGender? gender) =>
+  _i9.AnimalSightingModel updateCurrentanimalSighting(
+    _i9.AnimalSightingModel? sighting,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateCurrentanimalSighting, [sighting]),
+            returnValue: _FakeAnimalSightingModel_8(
+              this,
+              Invocation.method(#updateCurrentanimalSighting, [sighting]),
+            ),
+          )
+          as _i9.AnimalSightingModel);
+
+  @override
+  _i9.AnimalSightingModel updateGender(_i36.AnimalGender? gender) =>
       (super.noSuchMethod(
             Invocation.method(#updateGender, [gender]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateGender, [gender]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateAge(_i37.AnimalAge? age) =>
+  _i9.AnimalSightingModel updateAge(_i37.AnimalAge? age) =>
       (super.noSuchMethod(
             Invocation.method(#updateAge, [age]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateAge, [age]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateViewCount(_i38.ViewCountModel? viewCount) =>
+  _i9.AnimalSightingModel updateViewCount(_i38.ViewCountModel? viewCount) =>
       (super.noSuchMethod(
             Invocation.method(#updateViewCount, [viewCount]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateViewCount, [viewCount]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateCategory(_i39.AnimalCategory? category) =>
+  _i9.AnimalSightingModel updateCategory(_i39.AnimalCategory? category) =>
       (super.noSuchMethod(
             Invocation.method(#updateCategory, [category]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateCategory, [category]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
   _i39.AnimalCategory convertStringToCategory(String? status) =>
@@ -722,19 +862,19 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
   );
 
   @override
-  _i8.AnimalSightingModel finalizeAnimal({bool? clearSelected = true}) =>
+  _i9.AnimalSightingModel finalizeAnimal({bool? clearSelected = true}) =>
       (super.noSuchMethod(
             Invocation.method(#finalizeAnimal, [], {
               #clearSelected: clearSelected,
             }),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#finalizeAnimal, [], {
                 #clearSelected: clearSelected,
               }),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
   void clearCurrentanimalSighting() => super.noSuchMethod(
@@ -743,15 +883,15 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
   );
 
   @override
-  _i8.AnimalSightingModel updateDescription(String? description) =>
+  _i9.AnimalSightingModel updateDescription(String? description) =>
       (super.noSuchMethod(
             Invocation.method(#updateDescription, [description]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateDescription, [description]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
   bool validateActiveAnimalSighting() =>
@@ -762,8 +902,8 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
           as bool);
 
   @override
-  _i8.AnimalSightingModel processAnimalSelection(
-    _i11.AnimalModel? selectedAnimal,
+  _i9.AnimalSightingModel processAnimalSelection(
+    _i12.AnimalModel? selectedAnimal,
     _i34.AnimalManagerInterface? animalManager,
   ) =>
       (super.noSuchMethod(
@@ -771,7 +911,7 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
               selectedAnimal,
               animalManager,
             ]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#processAnimalSelection, [
                 selectedAnimal,
@@ -779,7 +919,7 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
               ]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
   bool handleGenderSelection(_i36.AnimalGender? selectedGender) =>
@@ -790,68 +930,88 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
           as bool);
 
   @override
-  _i8.AnimalSightingModel updateAnimal(_i11.AnimalModel? updatedAnimal) =>
+  _i9.AnimalSightingModel updateAnimal(_i12.AnimalModel? updatedAnimal) =>
       (super.noSuchMethod(
             Invocation.method(#updateAnimal, [updatedAnimal]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateAnimal, [updatedAnimal]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateLocation(_i41.LocationModel? location) =>
+  _i9.AnimalSightingModel updateLocation(_i41.LocationModel? location) =>
       (super.noSuchMethod(
             Invocation.method(#updateLocation, [location]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateLocation, [location]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel removeLocation(_i41.LocationModel? location) =>
+  _i9.AnimalSightingModel removeLocation(_i41.LocationModel? location) =>
       (super.noSuchMethod(
             Invocation.method(#removeLocation, [location]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#removeLocation, [location]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateDateTime(DateTime? dateTime) =>
+  _i9.AnimalSightingModel updateDateTime(DateTime? dateTime) =>
       (super.noSuchMethod(
             Invocation.method(#updateDateTime, [dateTime]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateDateTime, [dateTime]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
-  _i8.AnimalSightingModel updateDateTimeModel(
+  _i9.AnimalSightingModel updateDateTimeModel(
     _i42.DateTimeModel? dateTimeModel,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateDateTimeModel, [dateTimeModel]),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#updateDateTimeModel, [dateTimeModel]),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
+
+  @override
+  void addObservedAnimal(_i43.ObservedAnimalEntry? entry) => super.noSuchMethod(
+    Invocation.method(#addObservedAnimal, [entry]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  List<_i43.ObservedAnimalEntry> getObservedAnimals() =>
+      (super.noSuchMethod(
+            Invocation.method(#getObservedAnimals, []),
+            returnValue: <_i43.ObservedAnimalEntry>[],
+          )
+          as List<_i43.ObservedAnimalEntry>);
+
+  @override
+  void syncObservedAnimalsToSighting() => super.noSuchMethod(
+    Invocation.method(#syncObservedAnimalsToSighting, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [BelongingDamageReportInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBelongingDamageReportInterface extends _i1.Mock
-    implements _i43.BelongingDamageReportInterface {
+    implements _i44.BelongingDamageReportInterface {
   MockBelongingDamageReportInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -865,12 +1025,12 @@ class MockBelongingDamageReportInterface extends _i1.Mock
           as List<dynamic>);
 
   @override
-  _i18.Future<_i3.InteractionResponse?> postInteraction() =>
+  _i20.Future<_i2.InteractionResponse?> postInteraction() =>
       (super.noSuchMethod(
             Invocation.method(#postInteraction, []),
-            returnValue: _i18.Future<_i3.InteractionResponse?>.value(),
+            returnValue: _i20.Future<_i2.InteractionResponse?>.value(),
           )
-          as _i18.Future<_i3.InteractionResponse?>);
+          as _i20.Future<_i2.InteractionResponse?>);
 
   @override
   void updateImpactedCrop(String? value) => super.noSuchMethod(
@@ -915,13 +1075,13 @@ class MockBelongingDamageReportInterface extends _i1.Mock
   );
 
   @override
-  void updateSystemLocation(_i44.ReportLocation? value) => super.noSuchMethod(
+  void updateSystemLocation(_i45.ReportLocation? value) => super.noSuchMethod(
     Invocation.method(#updateSystemLocation, [value]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void updateUserLocation(_i44.ReportLocation? value) => super.noSuchMethod(
+  void updateUserLocation(_i45.ReportLocation? value) => super.noSuchMethod(
     Invocation.method(#updateUserLocation, [value]),
     returnValueForMissingStub: null,
   );
@@ -931,40 +1091,40 @@ class MockBelongingDamageReportInterface extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBelongingManagerInterface extends _i1.Mock
-    implements _i45.BelongingManagerInterface {
+    implements _i46.BelongingManagerInterface {
   MockBelongingManagerInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<List<String>> getAllBelongingsFilteredAndFormatted(
+  _i20.Future<List<String>> getAllBelongingsFilteredAndFormatted(
     String? category,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getAllBelongingsFilteredAndFormatted, [
               category,
             ]),
-            returnValue: _i18.Future<List<String>>.value(<String>[]),
+            returnValue: _i20.Future<List<String>>.value(<String>[]),
           )
-          as _i18.Future<List<String>>);
+          as _i20.Future<List<String>>);
 }
 
 /// A class which mocks [DropdownInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDropdownInterface extends _i1.Mock implements _i46.DropdownInterface {
+class MockDropdownInterface extends _i1.Mock implements _i47.DropdownInterface {
   MockDropdownInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Widget buildDropdown({
-    required _i47.DropdownType? type,
+  _i10.Widget buildDropdown({
+    required _i48.DropdownType? type,
     required String? selectedValue,
     required bool? isExpanded,
     required dynamic Function(bool)? onExpandChanged,
     required dynamic Function(String)? onOptionSelected,
-    required _i9.BuildContext? context,
+    required _i10.BuildContext? context,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#buildDropdown, [], {
@@ -975,7 +1135,7 @@ class MockDropdownInterface extends _i1.Mock implements _i46.DropdownInterface {
               #onOptionSelected: onOptionSelected,
               #context: context,
             }),
-            returnValue: _FakeWidget_8(
+            returnValue: _FakeWidget_9(
               this,
               Invocation.method(#buildDropdown, [], {
                 #type: type,
@@ -987,14 +1147,14 @@ class MockDropdownInterface extends _i1.Mock implements _i46.DropdownInterface {
               }),
             ),
           )
-          as _i9.Widget);
+          as _i10.Widget);
 }
 
 /// A class which mocks [EditStateInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockEditStateInterface extends _i1.Mock
-    implements _i48.EditStateInterface {
+    implements _i49.EditStateInterface {
   MockEditStateInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1026,7 +1186,7 @@ class MockEditStateInterface extends _i1.Mock
 /// A class which mocks [CategoryInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCategoryInterface extends _i1.Mock implements _i49.CategoryInterface {
+class MockCategoryInterface extends _i1.Mock implements _i50.CategoryInterface {
   MockCategoryInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1043,7 +1203,7 @@ class MockCategoryInterface extends _i1.Mock implements _i49.CategoryInterface {
 /// A class which mocks [FilterInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFilterInterface extends _i1.Mock implements _i49.FilterInterface {
+class MockFilterInterface extends _i1.Mock implements _i50.FilterInterface {
   MockFilterInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1065,87 +1225,87 @@ class MockFilterInterface extends _i1.Mock implements _i49.FilterInterface {
           as List<T>);
 
   @override
-  List<_i50.BrownButtonModel> getAvailableFilters(String? currentFilter) =>
+  List<_i51.BrownButtonModel> getAvailableFilters(String? currentFilter) =>
       (super.noSuchMethod(
             Invocation.method(#getAvailableFilters, [currentFilter]),
-            returnValue: <_i50.BrownButtonModel>[],
+            returnValue: <_i51.BrownButtonModel>[],
           )
-          as List<_i50.BrownButtonModel>);
+          as List<_i51.BrownButtonModel>);
 
   @override
-  List<_i11.AnimalModel> filterAnimalsAlphabetically(
-    List<_i11.AnimalModel>? animals,
+  List<_i12.AnimalModel> filterAnimalsAlphabetically(
+    List<_i12.AnimalModel>? animals,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#filterAnimalsAlphabetically, [animals]),
-            returnValue: <_i11.AnimalModel>[],
+            returnValue: <_i12.AnimalModel>[],
           )
-          as List<_i11.AnimalModel>);
+          as List<_i12.AnimalModel>);
 
   @override
-  List<_i11.AnimalModel> searchAnimals(
-    List<_i11.AnimalModel>? animals,
+  List<_i12.AnimalModel> searchAnimals(
+    List<_i12.AnimalModel>? animals,
     String? searchTerm,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#searchAnimals, [animals, searchTerm]),
-            returnValue: <_i11.AnimalModel>[],
+            returnValue: <_i12.AnimalModel>[],
           )
-          as List<_i11.AnimalModel>);
+          as List<_i12.AnimalModel>);
 }
 
 /// A class which mocks [InteractionInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockInteractionInterface extends _i1.Mock
-    implements _i51.InteractionInterface {
+    implements _i52.InteractionInterface {
   MockInteractionInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<_i3.InteractionResponse?> postInteraction(
-    _i15.Reportable? report,
-    _i52.InteractionType? type,
+  _i20.Future<_i2.InteractionResponse?> postInteraction(
+    _i16.Reportable? report,
+    _i53.InteractionType? type,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#postInteraction, [report, type]),
-            returnValue: _i18.Future<_i3.InteractionResponse?>.value(),
+            returnValue: _i20.Future<_i2.InteractionResponse?>.value(),
           )
-          as _i18.Future<_i3.InteractionResponse?>);
+          as _i20.Future<_i2.InteractionResponse?>);
 }
 
 /// A class which mocks [LivingLabInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLivingLabInterface extends _i1.Mock
-    implements _i53.LivingLabInterface {
+    implements _i54.LivingLabInterface {
   MockLivingLabInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i54.LivingLabArea> getAllLivingLabs() =>
+  List<_i55.LivingLabArea> getAllLivingLabs() =>
       (super.noSuchMethod(
             Invocation.method(#getAllLivingLabs, []),
-            returnValue: <_i54.LivingLabArea>[],
+            returnValue: <_i55.LivingLabArea>[],
           )
-          as List<_i54.LivingLabArea>);
+          as List<_i55.LivingLabArea>);
 
   @override
-  _i54.LivingLabArea? getLivingLabById(String? id) =>
+  _i55.LivingLabArea? getLivingLabById(String? id) =>
       (super.noSuchMethod(Invocation.method(#getLivingLabById, [id]))
-          as _i54.LivingLabArea?);
+          as _i55.LivingLabArea?);
 
   @override
-  _i54.LivingLabArea? getLivingLabByLocation(_i6.LatLng? location) =>
+  _i55.LivingLabArea? getLivingLabByLocation(_i7.LatLng? location) =>
       (super.noSuchMethod(
             Invocation.method(#getLivingLabByLocation, [location]),
           )
-          as _i54.LivingLabArea?);
+          as _i55.LivingLabArea?);
 
   @override
-  bool isLocationInAnyLivingLab(_i6.LatLng? location) =>
+  bool isLocationInAnyLivingLab(_i7.LatLng? location) =>
       (super.noSuchMethod(
             Invocation.method(#isLocationInAnyLivingLab, [location]),
             returnValue: false,
@@ -1157,7 +1317,7 @@ class MockLivingLabInterface extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocationScreenInterface extends _i1.Mock
-    implements _i55.LocationScreenInterface {
+    implements _i56.LocationScreenInterface {
   MockLocationScreenInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1212,60 +1372,58 @@ class MockLocationScreenInterface extends _i1.Mock
           as String);
 
   @override
-  _i18.Future<Map<String, dynamic>> getLocationAndDateTime(
-    _i9.BuildContext? context,
+  _i20.Future<Map<String, dynamic>> getLocationAndDateTime(
+    _i10.BuildContext? context,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getLocationAndDateTime, [context]),
-            returnValue: _i18.Future<Map<String, dynamic>>.value(
+            returnValue: _i20.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i18.Future<Map<String, dynamic>>);
+          as _i20.Future<Map<String, dynamic>>);
 
   @override
-  _i18.Future<void> handleNextPressed(_i9.BuildContext? context) =>
+  _i20.Future<void> handleNextPressed(_i10.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#handleNextPressed, [context]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 }
 
 /// A class which mocks [LoginInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLoginInterface extends _i1.Mock implements _i56.LoginInterface {
+class MockLoginInterface extends _i1.Mock implements _i57.LoginInterface {
   MockLoginInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<bool> resendCode(String? email) =>
-      (super.noSuchMethod(
-            Invocation.method(#resendCode, [email]),
-            returnValue: _i18.Future<bool>.value(false),
-          )
-          as _i18.Future<bool>);
-
-  @override
-  _i18.Future<_i2.User> verifyCode(String? email, String? code) =>
-      (super.noSuchMethod(
-            Invocation.method(#verifyCode, [email, code]),
-            returnValue: _i18.Future<_i2.User>.value(
-              _FakeUser_0(this, Invocation.method(#verifyCode, [email, code])),
-            ),
-          )
-          as _i18.Future<_i2.User>);
-
-  @override
-  _i18.Future<bool> sendLoginCode(String? email) =>
+  _i20.Future<bool> sendLoginCode(String? email) =>
       (super.noSuchMethod(
             Invocation.method(#sendLoginCode, [email]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
+
+  @override
+  _i20.Future<dynamic> verifyCode(String? email, String? code) =>
+      (super.noSuchMethod(
+            Invocation.method(#verifyCode, [email, code]),
+            returnValue: _i20.Future<dynamic>.value(),
+          )
+          as _i20.Future<dynamic>);
+
+  @override
+  _i20.Future<bool> resendCode(String? email) =>
+      (super.noSuchMethod(
+            Invocation.method(#resendCode, [email]),
+            returnValue: _i20.Future<bool>.value(false),
+          )
+          as _i20.Future<bool>);
 
   @override
   void setVerificationVisible(bool? visible) => super.noSuchMethod(
@@ -1296,7 +1454,7 @@ class MockLoginInterface extends _i1.Mock implements _i56.LoginInterface {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigationStateInterface extends _i1.Mock
-    implements _i57.NavigationStateInterface {
+    implements _i58.NavigationStateInterface {
   MockNavigationStateInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1308,40 +1466,42 @@ class MockNavigationStateInterface extends _i1.Mock
   );
 
   @override
-  void resetToHome(_i9.BuildContext? context) => super.noSuchMethod(
+  void resetToHome(_i10.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#resetToHome, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void clearApplicationState(_i9.BuildContext? context) => super.noSuchMethod(
+  void clearApplicationState(_i10.BuildContext? context) => super.noSuchMethod(
     Invocation.method(#clearApplicationState, [context]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void pushAndRemoveUntil(_i9.BuildContext? context, _i9.Widget? screen) =>
+  void pushAndRemoveUntil(_i10.BuildContext? context, _i10.Widget? screen) =>
       super.noSuchMethod(
         Invocation.method(#pushAndRemoveUntil, [context, screen]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void pushReplacementForward(_i9.BuildContext? context, _i9.Widget? screen) =>
-      super.noSuchMethod(
-        Invocation.method(#pushReplacementForward, [context, screen]),
-        returnValueForMissingStub: null,
-      );
+  void pushReplacementForward(
+    _i10.BuildContext? context,
+    _i10.Widget? screen,
+  ) => super.noSuchMethod(
+    Invocation.method(#pushReplacementForward, [context, screen]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void pushReplacementBack(_i9.BuildContext? context, _i9.Widget? screen) =>
+  void pushReplacementBack(_i10.BuildContext? context, _i10.Widget? screen) =>
       super.noSuchMethod(
         Invocation.method(#pushReplacementBack, [context, screen]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void pushForward(_i9.BuildContext? context, _i9.Widget? screen) =>
+  void pushForward(_i10.BuildContext? context, _i10.Widget? screen) =>
       super.noSuchMethod(
         Invocation.method(#pushForward, [context, screen]),
         returnValueForMissingStub: null,
@@ -1352,7 +1512,7 @@ class MockNavigationStateInterface extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockOverzichtInterface extends _i1.Mock
-    implements _i58.OverzichtInterface {
+    implements _i59.OverzichtInterface {
   MockOverzichtInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1422,23 +1582,23 @@ class MockOverzichtInterface extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPermissionInterface extends _i1.Mock
-    implements _i59.PermissionInterface {
+    implements _i60.PermissionInterface {
   MockPermissionInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<bool> isPermissionGranted(_i59.PermissionType? permission) =>
+  _i20.Future<bool> isPermissionGranted(_i60.PermissionType? permission) =>
       (super.noSuchMethod(
             Invocation.method(#isPermissionGranted, [permission]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> requestPermission(
-    _i9.BuildContext? context,
-    _i59.PermissionType? permission, {
+  _i20.Future<bool> requestPermission(
+    _i10.BuildContext? context,
+    _i60.PermissionType? permission, {
     bool? showRationale = true,
   }) =>
       (super.noSuchMethod(
@@ -1447,55 +1607,55 @@ class MockPermissionInterface extends _i1.Mock
               [context, permission],
               {#showRationale: showRationale},
             ),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> showPermissionRationale(
-    _i9.BuildContext? context,
-    _i59.PermissionType? permission,
+  _i20.Future<bool> showPermissionRationale(
+    _i10.BuildContext? context,
+    _i60.PermissionType? permission,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#showPermissionRationale, [context, permission]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<void> handleInitialPermissions(_i9.BuildContext? context) =>
+  _i20.Future<void> handleInitialPermissions(_i10.BuildContext? context) =>
       (super.noSuchMethod(
             Invocation.method(#handleInitialPermissions, [context]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 }
 
 /// A class which mocks [QuestionnaireInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockQuestionnaireInterface extends _i1.Mock
-    implements _i60.QuestionnaireInterface {
+    implements _i61.QuestionnaireInterface {
   MockQuestionnaireInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<_i4.Questionnaire> getQuestionnaire() =>
+  _i20.Future<_i4.Questionnaire> getQuestionnaire() =>
       (super.noSuchMethod(
             Invocation.method(#getQuestionnaire, []),
-            returnValue: _i18.Future<_i4.Questionnaire>.value(
+            returnValue: _i20.Future<_i4.Questionnaire>.value(
               _FakeQuestionnaire_2(
                 this,
                 Invocation.method(#getQuestionnaire, []),
               ),
             ),
           )
-          as _i18.Future<_i4.Questionnaire>);
+          as _i20.Future<_i4.Questionnaire>);
 
   @override
-  _i18.Future<List<dynamic>> buildQuestionnaireLayout(
+  _i20.Future<List<dynamic>> buildQuestionnaireLayout(
     _i4.Questionnaire? questionnaire,
     String? interactionID,
     _i40.VoidCallback? nextScreen,
@@ -1510,22 +1670,22 @@ class MockQuestionnaireInterface extends _i1.Mock
               lastNextScreen,
               previousScreen,
             ]),
-            returnValue: _i18.Future<List<dynamic>>.value(<dynamic>[]),
+            returnValue: _i20.Future<List<dynamic>>.value(<dynamic>[]),
           )
-          as _i18.Future<List<dynamic>>);
+          as _i20.Future<List<dynamic>>);
 }
 
 /// A class which mocks [ResponseInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockResponseInterface extends _i1.Mock implements _i61.ResponseInterface {
+class MockResponseInterface extends _i1.Mock implements _i62.ResponseInterface {
   MockResponseInterface() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Future<void> storeResponse(
-    _i16.Response? response,
+  _i20.Future<void> storeResponse(
+    _i17.Response? response,
     String? questionaireID,
     String? questionID,
   ) =>
@@ -1535,23 +1695,23 @@ class MockResponseInterface extends _i1.Mock implements _i61.ResponseInterface {
               questionaireID,
               questionID,
             ]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
-  _i18.Future<void> submitResponses() =>
+  _i20.Future<void> submitResponses() =>
       (super.noSuchMethod(
             Invocation.method(#submitResponses, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
-  _i18.Future<void> updateResponse(
-    _i16.Response? response,
+  _i20.Future<void> updateResponse(
+    _i17.Response? response,
     String? questionaireID,
     String? questionID,
   ) =>
@@ -1561,17 +1721,17 @@ class MockResponseInterface extends _i1.Mock implements _i61.ResponseInterface {
               questionaireID,
               questionID,
             ]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 }
 
 /// A class which mocks [ScreenStateInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockScreenStateInterface extends _i1.Mock
-    implements _i62.ScreenStateInterface {
+    implements _i63.ScreenStateInterface {
   MockScreenStateInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -1612,21 +1772,37 @@ class MockScreenStateInterface extends _i1.Mock
 /// A class which mocks [AppStateProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAppStateProvider extends _i1.Mock implements _i63.AppStateProvider {
+class MockAppStateProvider extends _i1.Mock implements _i64.AppStateProvider {
   MockAppStateProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.GlobalKey<_i9.NavigatorState> get navigatorKey =>
+  _i10.GlobalKey<_i10.NavigatorState> get navigatorKey =>
       (super.noSuchMethod(
             Invocation.getter(#navigatorKey),
-            returnValue: _FakeGlobalKey_9<_i9.NavigatorState>(
+            returnValue: _FakeGlobalKey_10<_i10.NavigatorState>(
               this,
               Invocation.getter(#navigatorKey),
             ),
           )
-          as _i9.GlobalKey<_i9.NavigatorState>);
+          as _i10.GlobalKey<_i10.NavigatorState>);
+
+  @override
+  bool get isLocationTrackingEnabled =>
+      (super.noSuchMethod(
+            Invocation.getter(#isLocationTrackingEnabled),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get notificationsEnabled =>
+      (super.noSuchMethod(
+            Invocation.getter(#notificationsEnabled),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   bool get isLocationCacheValid =>
@@ -1660,7 +1836,7 @@ class MockAppStateProvider extends _i1.Mock implements _i63.AppStateProvider {
   );
 
   @override
-  void initializeReport(_i64.ReportType? reportType) => super.noSuchMethod(
+  void initializeReport(_i65.ReportType? reportType) => super.noSuchMethod(
     Invocation.method(#initializeReport, [reportType]),
     returnValueForMissingStub: null,
   );
@@ -1674,8 +1850,8 @@ class MockAppStateProvider extends _i1.Mock implements _i63.AppStateProvider {
 
   @override
   void resetApplicationState(
-    _i9.BuildContext? context, {
-    _i9.Widget? destination,
+    _i10.BuildContext? context, {
+    _i10.Widget? destination,
   }) => super.noSuchMethod(
     Invocation.method(
       #resetApplicationState,
@@ -1692,19 +1868,73 @@ class MockAppStateProvider extends _i1.Mock implements _i63.AppStateProvider {
   );
 
   @override
-  _i18.Future<void> updateLocationCache() =>
+  _i20.Future<void> updateLocationCache() =>
       (super.noSuchMethod(
             Invocation.method(#updateLocationCache, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
   void startLocationUpdates() => super.noSuchMethod(
     Invocation.method(#startLocationUpdates, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i20.Future<void> loadLocationTrackingPreference() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadLocationTrackingPreference, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> setLocationTrackingEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#setLocationTrackingEnabled, [enabled]),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> loadNotificationsPreference() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadNotificationsPreference, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> setNotificationsEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#setNotificationsEnabled, [enabled]),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> logout() =>
+      (super.noSuchMethod(
+            Invocation.method(#logout, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> deleteProfile() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteProfile, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
 
   @override
   void addListener(_i40.VoidCallback? listener) => super.noSuchMethod(
@@ -1728,7 +1958,7 @@ class MockAppStateProvider extends _i1.Mock implements _i63.AppStateProvider {
 /// A class which mocks [MapProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
+class MockMapProvider extends _i1.Mock implements _i66.MapProvider {
   MockMapProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -1756,6 +1986,22 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
           as String);
 
   @override
+  bool get isTracking =>
+      (super.noSuchMethod(Invocation.getter(#isTracking), returnValue: false)
+          as bool);
+
+  @override
+  Duration get trackingInterval =>
+      (super.noSuchMethod(
+            Invocation.getter(#trackingInterval),
+            returnValue: _FakeDuration_11(
+              this,
+              Invocation.getter(#trackingInterval),
+            ),
+          )
+          as Duration);
+
+  @override
   bool get isLoading =>
       (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
           as bool);
@@ -1766,37 +2012,98 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
           as bool);
 
   @override
-  _i10.MapController get mapController =>
+  _i11.MapController get mapController =>
       (super.noSuchMethod(
             Invocation.getter(#mapController),
-            returnValue: _FakeMapController_10(
+            returnValue: _FakeMapController_12(
               this,
               Invocation.getter(#mapController),
             ),
           )
-          as _i10.MapController);
+          as _i11.MapController);
 
   @override
-  set selectedPosition(_i28.Position? _selectedPosition) => super.noSuchMethod(
-    Invocation.setter(#selectedPosition, _selectedPosition),
+  List<_i67.AnimalPin> get animalPins =>
+      (super.noSuchMethod(
+            Invocation.getter(#animalPins),
+            returnValue: <_i67.AnimalPin>[],
+          )
+          as List<_i67.AnimalPin>);
+
+  @override
+  List<_i68.DetectionPin> get detectionPins =>
+      (super.noSuchMethod(
+            Invocation.getter(#detectionPins),
+            returnValue: <_i68.DetectionPin>[],
+          )
+          as List<_i68.DetectionPin>);
+
+  @override
+  bool get animalPinsLoading =>
+      (super.noSuchMethod(
+            Invocation.getter(#animalPinsLoading),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get detectionPinsLoading =>
+      (super.noSuchMethod(
+            Invocation.getter(#detectionPinsLoading),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  List<_i69.InteractionQueryResult> get interactions =>
+      (super.noSuchMethod(
+            Invocation.getter(#interactions),
+            returnValue: <_i69.InteractionQueryResult>[],
+          )
+          as List<_i69.InteractionQueryResult>);
+
+  @override
+  bool get interactionsLoading =>
+      (super.noSuchMethod(
+            Invocation.getter(#interactionsLoading),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get hasInteractions =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasInteractions),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  int get totalPins =>
+      (super.noSuchMethod(Invocation.getter(#totalPins), returnValue: 0)
+          as int);
+
+  @override
+  set selectedPosition(_i28.Position? value) => super.noSuchMethod(
+    Invocation.setter(#selectedPosition, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set selectedAddress(String? _selectedAddress) => super.noSuchMethod(
-    Invocation.setter(#selectedAddress, _selectedAddress),
+  set selectedAddress(String? value) => super.noSuchMethod(
+    Invocation.setter(#selectedAddress, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set currentPosition(_i28.Position? _currentPosition) => super.noSuchMethod(
-    Invocation.setter(#currentPosition, _currentPosition),
+  set currentPosition(_i28.Position? value) => super.noSuchMethod(
+    Invocation.setter(#currentPosition, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set currentAddress(String? _currentAddress) => super.noSuchMethod(
-    Invocation.setter(#currentAddress, _currentAddress),
+  set currentAddress(String? value) => super.noSuchMethod(
+    Invocation.setter(#currentAddress, value),
     returnValueForMissingStub: null,
   );
 
@@ -1806,16 +2113,82 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
           as bool);
 
   @override
-  _i18.Future<void> initialize() =>
-      (super.noSuchMethod(
-            Invocation.method(#initialize, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
-          )
-          as _i18.Future<void>);
+  void setTrackingApi(_i70.TrackingApiInterface? api) => super.noSuchMethod(
+    Invocation.method(#setTrackingApi, [api]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void setMapController(_i10.MapController? controller) => super.noSuchMethod(
+  void setTrackingCacheManager(_i71.TrackingCacheManager? manager) =>
+      super.noSuchMethod(
+        Invocation.method(#setTrackingCacheManager, [manager]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAppStateProvider(_i64.AppStateProvider? appStateProvider) =>
+      super.noSuchMethod(
+        Invocation.method(#setAppStateProvider, [appStateProvider]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setNowProvider(DateTime Function()? nowProvider) => super.noSuchMethod(
+    Invocation.method(#setNowProvider, [nowProvider]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i20.Future<_i70.TrackingNotice?> sendTrackingPingFromPosition(
+    _i28.Position? pos,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#sendTrackingPingFromPosition, [pos]),
+            returnValue: _i20.Future<_i70.TrackingNotice?>.value(),
+          )
+          as _i20.Future<_i70.TrackingNotice?>);
+
+  @override
+  void emitMockTrackingNotice(String? text, {int? severity}) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #emitMockTrackingNotice,
+          [text],
+          {#severity: severity},
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setVicinityApi(_i72.VicinityApiInterface? api) => super.noSuchMethod(
+    Invocation.method(#setVicinityApi, [api]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addOrUpdateInteraction(_i69.InteractionQueryResult? interaction) =>
+      super.noSuchMethod(
+        Invocation.method(#addOrUpdateInteraction, [interaction]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setVicinityNotificationsEnabled(bool? enabled) => super.noSuchMethod(
+    Invocation.method(#setVicinityNotificationsEnabled, [enabled]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i20.Future<void> initialize() =>
+      (super.noSuchMethod(
+            Invocation.method(#initialize, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  void setMapController(_i11.MapController? controller) => super.noSuchMethod(
     Invocation.method(#setMapController, [controller]),
     returnValueForMissingStub: null,
   );
@@ -1827,13 +2200,13 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
   );
 
   @override
-  _i18.Future<void> updatePosition(_i28.Position? position, String? address) =>
+  _i20.Future<void> updatePosition(_i28.Position? position, String? address) =>
       (super.noSuchMethod(
             Invocation.method(#updatePosition, [position, address]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
   void setSelectedLocation(_i28.Position? position, String? address) =>
@@ -1843,43 +2216,90 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
       );
 
   @override
-  _i18.Future<void> clearSelectedLocation() =>
+  _i20.Future<void> clearSelectedLocation() =>
       (super.noSuchMethod(
             Invocation.method(#clearSelectedLocation, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
-  _i18.Future<void> resetToCurrentLocation(
+  _i20.Future<void> resetToCurrentLocation(
     _i28.Position? position,
     String? address,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#resetToCurrentLocation, [position, address]),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
-  _i18.Future<void> resetState() =>
+  _i20.Future<void> resetState() =>
       (super.noSuchMethod(
             Invocation.method(#resetState, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 
   @override
-  _i18.Future<void> resetMapState() =>
+  _i20.Future<void> resetMapState() =>
       (super.noSuchMethod(
             Invocation.method(#resetMapState, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
+
+  @override
+  _i20.Future<void> loadAllPinsFromVicinity() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadAllPinsFromVicinity, []),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
+          )
+          as _i20.Future<void>);
+
+  @override
+  void setMockVicinity({
+    List<_i67.AnimalPin>? animals = const [],
+    List<_i68.DetectionPin>? detections = const [],
+    List<_i69.InteractionQueryResult>? interactions = const [],
+  }) => super.noSuchMethod(
+    Invocation.method(#setMockVicinity, [], {
+      #animals: animals,
+      #detections: detections,
+      #interactions: interactions,
+    }),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void startTracking({Duration? interval}) => super.noSuchMethod(
+    Invocation.method(#startTracking, [], {#interval: interval}),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void stopTracking() => super.noSuchMethod(
+    Invocation.method(#stopTracking, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void clearUserLocationAndStopTracking() => super.noSuchMethod(
+    Invocation.method(#clearUserLocationAndStopTracking, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void addListener(_i40.VoidCallback? listener) => super.noSuchMethod(
@@ -1890,12 +2310,6 @@ class MockMapProvider extends _i1.Mock implements _i65.MapProvider {
   @override
   void removeListener(_i40.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
 
@@ -1916,25 +2330,25 @@ class MockAnimalManagerInterface extends _i1.Mock
   }
 
   @override
-  _i18.Future<List<_i11.AnimalModel>> getAnimals() =>
+  _i20.Future<List<_i12.AnimalModel>> getAnimals() =>
       (super.noSuchMethod(
             Invocation.method(#getAnimals, []),
-            returnValue: _i18.Future<List<_i11.AnimalModel>>.value(
-              <_i11.AnimalModel>[],
+            returnValue: _i20.Future<List<_i12.AnimalModel>>.value(
+              <_i12.AnimalModel>[],
             ),
           )
-          as _i18.Future<List<_i11.AnimalModel>>);
+          as _i20.Future<List<_i12.AnimalModel>>);
 
   @override
-  _i11.AnimalModel handleAnimalSelection(_i11.AnimalModel? selectedAnimal) =>
+  _i12.AnimalModel handleAnimalSelection(_i12.AnimalModel? selectedAnimal) =>
       (super.noSuchMethod(
             Invocation.method(#handleAnimalSelection, [selectedAnimal]),
-            returnValue: _FakeAnimalModel_11(
+            returnValue: _FakeAnimalModel_13(
               this,
               Invocation.method(#handleAnimalSelection, [selectedAnimal]),
             ),
           )
-          as _i11.AnimalModel);
+          as _i12.AnimalModel);
 
   @override
   String getSelectedFilter() =>
@@ -1970,23 +2384,57 @@ class MockAnimalManagerInterface extends _i1.Mock
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i20.Future<List<_i12.AnimalModel>> getAnimalsByCategory({
+    _i39.AnimalCategory? category,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getAnimalsByCategory, [], {#category: category}),
+            returnValue: _i20.Future<List<_i12.AnimalModel>>.value(
+              <_i12.AnimalModel>[],
+            ),
+          )
+          as _i20.Future<List<_i12.AnimalModel>>);
+
+  @override
+  _i20.Future<List<String>> getBackendCategories() =>
+      (super.noSuchMethod(
+            Invocation.method(#getBackendCategories, []),
+            returnValue: _i20.Future<List<String>>.value(<String>[]),
+          )
+          as _i20.Future<List<String>>);
+
+  @override
+  _i20.Future<List<_i12.AnimalModel>> getAnimalsByBackendCategory({
+    String? category,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getAnimalsByBackendCategory, [], {
+              #category: category,
+            }),
+            returnValue: _i20.Future<List<_i12.AnimalModel>>.value(
+              <_i12.AnimalModel>[],
+            ),
+          )
+          as _i20.Future<List<_i12.AnimalModel>>);
 }
 
 /// A class which mocks [BuildContext].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBuildContext extends _i1.Mock implements _i9.BuildContext {
+class MockBuildContext extends _i1.Mock implements _i10.BuildContext {
   MockBuildContext() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Widget get widget =>
+  _i10.Widget get widget =>
       (super.noSuchMethod(
             Invocation.getter(#widget),
-            returnValue: _FakeWidget_8(this, Invocation.getter(#widget)),
+            returnValue: _FakeWidget_9(this, Invocation.getter(#widget)),
           )
-          as _i9.Widget);
+          as _i10.Widget);
 
   @override
   bool get mounted =>
@@ -2002,8 +2450,8 @@ class MockBuildContext extends _i1.Mock implements _i9.BuildContext {
           as bool);
 
   @override
-  _i9.InheritedWidget dependOnInheritedElement(
-    _i9.InheritedElement? ancestor, {
+  _i10.InheritedWidget dependOnInheritedElement(
+    _i10.InheritedElement? ancestor, {
     Object? aspect,
   }) =>
       (super.noSuchMethod(
@@ -2012,7 +2460,7 @@ class MockBuildContext extends _i1.Mock implements _i9.BuildContext {
               [ancestor],
               {#aspect: aspect},
             ),
-            returnValue: _FakeInheritedWidget_12(
+            returnValue: _FakeInheritedWidget_14(
               this,
               Invocation.method(
                 #dependOnInheritedElement,
@@ -2021,84 +2469,84 @@ class MockBuildContext extends _i1.Mock implements _i9.BuildContext {
               ),
             ),
           )
-          as _i9.InheritedWidget);
+          as _i10.InheritedWidget);
 
   @override
-  void visitAncestorElements(_i9.ConditionalElementVisitor? visitor) =>
+  void visitAncestorElements(_i10.ConditionalElementVisitor? visitor) =>
       super.noSuchMethod(
         Invocation.method(#visitAncestorElements, [visitor]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void visitChildElements(_i9.ElementVisitor? visitor) => super.noSuchMethod(
+  void visitChildElements(_i10.ElementVisitor? visitor) => super.noSuchMethod(
     Invocation.method(#visitChildElements, [visitor]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void dispatchNotification(_i9.Notification? notification) =>
+  void dispatchNotification(_i10.Notification? notification) =>
       super.noSuchMethod(
         Invocation.method(#dispatchNotification, [notification]),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i9.DiagnosticsNode describeElement(
+  _i10.DiagnosticsNode describeElement(
     String? name, {
-    _i12.DiagnosticsTreeStyle? style = _i12.DiagnosticsTreeStyle.errorProperty,
+    _i13.DiagnosticsTreeStyle? style = _i13.DiagnosticsTreeStyle.errorProperty,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#describeElement, [name], {#style: style}),
-            returnValue: _FakeDiagnosticsNode_13(
+            returnValue: _FakeDiagnosticsNode_15(
               this,
               Invocation.method(#describeElement, [name], {#style: style}),
             ),
           )
-          as _i9.DiagnosticsNode);
+          as _i10.DiagnosticsNode);
 
   @override
-  _i9.DiagnosticsNode describeWidget(
+  _i10.DiagnosticsNode describeWidget(
     String? name, {
-    _i12.DiagnosticsTreeStyle? style = _i12.DiagnosticsTreeStyle.errorProperty,
+    _i13.DiagnosticsTreeStyle? style = _i13.DiagnosticsTreeStyle.errorProperty,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#describeWidget, [name], {#style: style}),
-            returnValue: _FakeDiagnosticsNode_13(
+            returnValue: _FakeDiagnosticsNode_15(
               this,
               Invocation.method(#describeWidget, [name], {#style: style}),
             ),
           )
-          as _i9.DiagnosticsNode);
+          as _i10.DiagnosticsNode);
 
   @override
-  List<_i9.DiagnosticsNode> describeMissingAncestor({
+  List<_i10.DiagnosticsNode> describeMissingAncestor({
     required Type? expectedAncestorType,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#describeMissingAncestor, [], {
               #expectedAncestorType: expectedAncestorType,
             }),
-            returnValue: <_i9.DiagnosticsNode>[],
+            returnValue: <_i10.DiagnosticsNode>[],
           )
-          as List<_i9.DiagnosticsNode>);
+          as List<_i10.DiagnosticsNode>);
 
   @override
-  _i9.DiagnosticsNode describeOwnershipChain(String? name) =>
+  _i10.DiagnosticsNode describeOwnershipChain(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#describeOwnershipChain, [name]),
-            returnValue: _FakeDiagnosticsNode_13(
+            returnValue: _FakeDiagnosticsNode_15(
               this,
               Invocation.method(#describeOwnershipChain, [name]),
             ),
           )
-          as _i9.DiagnosticsNode);
+          as _i10.DiagnosticsNode);
 }
 
 /// A class which mocks [SharedPreferences].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSharedPreferences extends _i1.Mock implements _i66.SharedPreferences {
+class MockSharedPreferences extends _i1.Mock implements _i73.SharedPreferences {
   MockSharedPreferences() {
     _i1.throwOnMissingStub(this);
   }
@@ -2145,110 +2593,110 @@ class MockSharedPreferences extends _i1.Mock implements _i66.SharedPreferences {
           as List<String>?);
 
   @override
-  _i18.Future<bool> setBool(String? key, bool? value) =>
+  _i20.Future<bool> setBool(String? key, bool? value) =>
       (super.noSuchMethod(
             Invocation.method(#setBool, [key, value]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> setInt(String? key, int? value) =>
+  _i20.Future<bool> setInt(String? key, int? value) =>
       (super.noSuchMethod(
             Invocation.method(#setInt, [key, value]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> setDouble(String? key, double? value) =>
+  _i20.Future<bool> setDouble(String? key, double? value) =>
       (super.noSuchMethod(
             Invocation.method(#setDouble, [key, value]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> setString(String? key, String? value) =>
+  _i20.Future<bool> setString(String? key, String? value) =>
       (super.noSuchMethod(
             Invocation.method(#setString, [key, value]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> setStringList(String? key, List<String>? value) =>
+  _i20.Future<bool> setStringList(String? key, List<String>? value) =>
       (super.noSuchMethod(
             Invocation.method(#setStringList, [key, value]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> remove(String? key) =>
+  _i20.Future<bool> remove(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#remove, [key]),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> commit() =>
+  _i20.Future<bool> commit() =>
       (super.noSuchMethod(
             Invocation.method(#commit, []),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<bool> clear() =>
+  _i20.Future<bool> clear() =>
       (super.noSuchMethod(
             Invocation.method(#clear, []),
-            returnValue: _i18.Future<bool>.value(false),
+            returnValue: _i20.Future<bool>.value(false),
           )
-          as _i18.Future<bool>);
+          as _i20.Future<bool>);
 
   @override
-  _i18.Future<void> reload() =>
+  _i20.Future<void> reload() =>
       (super.noSuchMethod(
             Invocation.method(#reload, []),
-            returnValue: _i18.Future<void>.value(),
-            returnValueForMissingStub: _i18.Future<void>.value(),
+            returnValue: _i20.Future<void>.value(),
+            returnValueForMissingStub: _i20.Future<void>.value(),
           )
-          as _i18.Future<void>);
+          as _i20.Future<void>);
 }
 
 /// A class which mocks [Connectivity].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockConnectivity extends _i1.Mock implements _i67.Connectivity {
+class MockConnectivity extends _i1.Mock implements _i74.Connectivity {
   MockConnectivity() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i18.Stream<List<_i68.ConnectivityResult>> get onConnectivityChanged =>
+  _i20.Stream<List<_i75.ConnectivityResult>> get onConnectivityChanged =>
       (super.noSuchMethod(
             Invocation.getter(#onConnectivityChanged),
-            returnValue: _i18.Stream<List<_i68.ConnectivityResult>>.empty(),
+            returnValue: _i20.Stream<List<_i75.ConnectivityResult>>.empty(),
           )
-          as _i18.Stream<List<_i68.ConnectivityResult>>);
+          as _i20.Stream<List<_i75.ConnectivityResult>>);
 
   @override
-  _i18.Future<List<_i68.ConnectivityResult>> checkConnectivity() =>
+  _i20.Future<List<_i75.ConnectivityResult>> checkConnectivity() =>
       (super.noSuchMethod(
             Invocation.method(#checkConnectivity, []),
-            returnValue: _i18.Future<List<_i68.ConnectivityResult>>.value(
-              <_i68.ConnectivityResult>[],
+            returnValue: _i20.Future<List<_i75.ConnectivityResult>>.value(
+              <_i75.ConnectivityResult>[],
             ),
           )
-          as _i18.Future<List<_i68.ConnectivityResult>>);
+          as _i20.Future<List<_i75.ConnectivityResult>>);
 }
 
 /// A class which mocks [AnimalModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAnimalModel extends _i1.Mock implements _i11.AnimalModel {
+class MockAnimalModel extends _i1.Mock implements _i12.AnimalModel {
   MockAnimalModel() {
     _i1.throwOnMissingStub(this);
   }
@@ -2265,70 +2713,94 @@ class MockAnimalModel extends _i1.Mock implements _i11.AnimalModel {
           as String);
 
   @override
-  List<_i69.AnimalGenderViewCount> get genderViewCounts =>
+  List<_i76.AnimalGenderViewCount> get genderViewCounts =>
       (super.noSuchMethod(
             Invocation.getter(#genderViewCounts),
-            returnValue: <_i69.AnimalGenderViewCount>[],
+            returnValue: <_i76.AnimalGenderViewCount>[],
           )
-          as List<_i69.AnimalGenderViewCount>);
+          as List<_i76.AnimalGenderViewCount>);
 
   @override
-  _i11.AnimalModel updateGender(_i36.AnimalGender? newGender) =>
+  _i12.AnimalModel updateGender(_i36.AnimalGender? newGender) =>
       (super.noSuchMethod(
             Invocation.method(#updateGender, [newGender]),
-            returnValue: _FakeAnimalModel_11(
+            returnValue: _FakeAnimalModel_13(
               this,
               Invocation.method(#updateGender, [newGender]),
             ),
           )
-          as _i11.AnimalModel);
+          as _i12.AnimalModel);
 
   @override
-  _i11.AnimalModel updateViewCount(_i38.ViewCountModel? newViewCount) =>
+  _i12.AnimalModel updateViewCount(_i38.ViewCountModel? newViewCount) =>
       (super.noSuchMethod(
             Invocation.method(#updateViewCount, [newViewCount]),
-            returnValue: _FakeAnimalModel_11(
+            returnValue: _FakeAnimalModel_13(
               this,
               Invocation.method(#updateViewCount, [newViewCount]),
             ),
           )
-          as _i11.AnimalModel);
+          as _i12.AnimalModel);
 }
 
 /// A class which mocks [AnimalSightingModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAnimalSightingModel extends _i1.Mock
-    implements _i8.AnimalSightingModel {
+    implements _i9.AnimalSightingModel {
   MockAnimalSightingModel() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i8.AnimalSightingModel copyWith({
-    List<_i11.AnimalModel>? animals,
-    _i11.AnimalModel? animalSelected,
+  _i9.AnimalSightingModel copyWith({
+    List<_i12.AnimalModel>? animals,
+    _i12.AnimalModel? animalSelected,
+    String? reportType,
+    int? animalCount,
+    String? cropType,
+    String? expectedLoss,
+    bool? preventiveMeasures,
+    String? accidentSeverity,
+    String? animalConditionDieraanrijding,
+    String? additionalInfo,
     _i39.AnimalCategory? category,
     String? description,
     List<_i41.LocationModel>? locations,
     _i42.DateTimeModel? dateTime,
-    _i70.ImageListModel? images,
+    _i77.ImageListModel? images,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#copyWith, [], {
               #animals: animals,
               #animalSelected: animalSelected,
+              #reportType: reportType,
+              #animalCount: animalCount,
+              #cropType: cropType,
+              #expectedLoss: expectedLoss,
+              #preventiveMeasures: preventiveMeasures,
+              #accidentSeverity: accidentSeverity,
+              #animalConditionDieraanrijding: animalConditionDieraanrijding,
+              #additionalInfo: additionalInfo,
               #category: category,
               #description: description,
               #locations: locations,
               #dateTime: dateTime,
               #images: images,
             }),
-            returnValue: _FakeAnimalSightingModel_7(
+            returnValue: _FakeAnimalSightingModel_8(
               this,
               Invocation.method(#copyWith, [], {
                 #animals: animals,
                 #animalSelected: animalSelected,
+                #reportType: reportType,
+                #animalCount: animalCount,
+                #cropType: cropType,
+                #expectedLoss: expectedLoss,
+                #preventiveMeasures: preventiveMeasures,
+                #accidentSeverity: accidentSeverity,
+                #animalConditionDieraanrijding: animalConditionDieraanrijding,
+                #additionalInfo: additionalInfo,
                 #category: category,
                 #description: description,
                 #locations: locations,
@@ -2337,7 +2809,7 @@ class MockAnimalSightingModel extends _i1.Mock
               }),
             ),
           )
-          as _i8.AnimalSightingModel);
+          as _i9.AnimalSightingModel);
 
   @override
   Map<String, dynamic> toJson() =>
@@ -2365,26 +2837,26 @@ class MockQuestionnaire extends _i1.Mock implements _i4.Questionnaire {
           as String);
 
   @override
-  _i13.Experiment get experiment =>
+  _i14.Experiment get experiment =>
       (super.noSuchMethod(
             Invocation.getter(#experiment),
-            returnValue: _FakeExperiment_14(
+            returnValue: _FakeExperiment_16(
               this,
               Invocation.getter(#experiment),
             ),
           )
-          as _i13.Experiment);
+          as _i14.Experiment);
 
   @override
-  _i14.InteractionType get interactionType =>
+  _i15.InteractionType get interactionType =>
       (super.noSuchMethod(
             Invocation.getter(#interactionType),
-            returnValue: _FakeInteractionType_15(
+            returnValue: _FakeInteractionType_17(
               this,
               Invocation.getter(#interactionType),
             ),
           )
-          as _i14.InteractionType);
+          as _i15.InteractionType);
 
   @override
   String get name =>
@@ -2398,39 +2870,38 @@ class MockQuestionnaire extends _i1.Mock implements _i4.Questionnaire {
           as String);
 
   @override
-  set id(String? _id) => super.noSuchMethod(
-    Invocation.setter(#id, _id),
+  set id(String? value) => super.noSuchMethod(
+    Invocation.setter(#id, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set experiment(_i13.Experiment? _experiment) => super.noSuchMethod(
-    Invocation.setter(#experiment, _experiment),
+  set experiment(_i14.Experiment? value) => super.noSuchMethod(
+    Invocation.setter(#experiment, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set identifier(String? _identifier) => super.noSuchMethod(
-    Invocation.setter(#identifier, _identifier),
+  set identifier(String? value) => super.noSuchMethod(
+    Invocation.setter(#identifier, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set interactionType(_i14.InteractionType? _interactionType) =>
-      super.noSuchMethod(
-        Invocation.setter(#interactionType, _interactionType),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set name(String? _name) => super.noSuchMethod(
-    Invocation.setter(#name, _name),
+  set interactionType(_i15.InteractionType? value) => super.noSuchMethod(
+    Invocation.setter(#interactionType, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set questions(List<_i71.Question>? _questions) => super.noSuchMethod(
-    Invocation.setter(#questions, _questions),
+  set name(String? value) => super.noSuchMethod(
+    Invocation.setter(#name, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set questions(List<_i78.Question>? value) => super.noSuchMethod(
+    Invocation.setter(#questions, value),
     returnValueForMissingStub: null,
   );
 
@@ -2446,7 +2917,7 @@ class MockQuestionnaire extends _i1.Mock implements _i4.Questionnaire {
 /// A class which mocks [Species].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSpecies extends _i1.Mock implements _i5.Species {
+class MockSpecies extends _i1.Mock implements _i6.Species {
   MockSpecies() {
     _i1.throwOnMissingStub(this);
   }
@@ -2493,7 +2964,7 @@ class MockSpecies extends _i1.Mock implements _i5.Species {
 /// A class which mocks [User].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUser extends _i1.Mock implements _i2.User {
+class MockUser extends _i1.Mock implements _i18.User {
   MockUser() {
     _i1.throwOnMissingStub(this);
   }
@@ -2507,8 +2978,8 @@ class MockUser extends _i1.Mock implements _i2.User {
           as String);
 
   @override
-  set name(String? _name) => super.noSuchMethod(
-    Invocation.setter(#name, _name),
+  set name(String? value) => super.noSuchMethod(
+    Invocation.setter(#name, value),
     returnValueForMissingStub: null,
   );
 
@@ -2519,12 +2990,20 @@ class MockUser extends _i1.Mock implements _i2.User {
             returnValue: <String, dynamic>{},
           )
           as Map<String, dynamic>);
+
+  @override
+  Map<String, dynamic> toTermsUpdateJson() =>
+      (super.noSuchMethod(
+            Invocation.method(#toTermsUpdateJson, []),
+            returnValue: <String, dynamic>{},
+          )
+          as Map<String, dynamic>);
 }
 
 /// A class which mocks [Belonging].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBelonging extends _i1.Mock implements _i20.Belonging {
+class MockBelonging extends _i1.Mock implements _i21.Belonging {
   MockBelonging() {
     _i1.throwOnMissingStub(this);
   }
@@ -2552,20 +3031,20 @@ class MockBelonging extends _i1.Mock implements _i20.Belonging {
           as String);
 
   @override
-  set ID(String? _ID) => super.noSuchMethod(
-    Invocation.setter(#ID, _ID),
+  set ID(String? value) => super.noSuchMethod(
+    Invocation.setter(#ID, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set category(String? _category) => super.noSuchMethod(
-    Invocation.setter(#category, _category),
+  set category(String? value) => super.noSuchMethod(
+    Invocation.setter(#category, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set name(String? _name) => super.noSuchMethod(
-    Invocation.setter(#name, _name),
+  set name(String? value) => super.noSuchMethod(
+    Invocation.setter(#name, value),
     returnValueForMissingStub: null,
   );
 
@@ -2581,18 +3060,18 @@ class MockBelonging extends _i1.Mock implements _i20.Belonging {
 /// A class which mocks [Interaction].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInteraction extends _i1.Mock implements _i22.Interaction {
+class MockInteraction extends _i1.Mock implements _i23.Interaction {
   MockInteraction() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i52.InteractionType get interactionType =>
+  _i53.InteractionType get interactionType =>
       (super.noSuchMethod(
             Invocation.getter(#interactionType),
-            returnValue: _i52.InteractionType.waarneming,
+            returnValue: _i53.InteractionType.waarneming,
           )
-          as _i52.InteractionType);
+          as _i53.InteractionType);
 
   @override
   String get userID =>
@@ -2606,12 +3085,12 @@ class MockInteraction extends _i1.Mock implements _i22.Interaction {
           as String);
 
   @override
-  _i15.Reportable get report =>
+  _i16.Reportable get report =>
       (super.noSuchMethod(
             Invocation.getter(#report),
-            returnValue: _FakeReportable_16(this, Invocation.getter(#report)),
+            returnValue: _FakeReportable_18(this, Invocation.getter(#report)),
           )
-          as _i15.Reportable);
+          as _i16.Reportable);
 
   @override
   Map<String, dynamic> toJson() =>
@@ -2625,21 +3104,10 @@ class MockInteraction extends _i1.Mock implements _i22.Interaction {
 /// A class which mocks [Possesion].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPossesion extends _i1.Mock implements _i7.Possesion {
+class MockPossesion extends _i1.Mock implements _i8.Possesion {
   MockPossesion() {
     _i1.throwOnMissingStub(this);
   }
-
-  @override
-  String get possesionName =>
-      (super.noSuchMethod(
-            Invocation.getter(#possesionName),
-            returnValue: _i29.dummyValue<String>(
-              this,
-              Invocation.getter(#possesionName),
-            ),
-          )
-          as String);
 
   @override
   Map<String, dynamic> toJson() =>
@@ -2653,7 +3121,7 @@ class MockPossesion extends _i1.Mock implements _i7.Possesion {
 /// A class which mocks [ReportLocation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockReportLocation extends _i1.Mock implements _i44.ReportLocation {
+class MockReportLocation extends _i1.Mock implements _i45.ReportLocation {
   MockReportLocation() {
     _i1.throwOnMissingStub(this);
   }
@@ -2670,7 +3138,7 @@ class MockReportLocation extends _i1.Mock implements _i44.ReportLocation {
 /// A class which mocks [Response].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockResponse extends _i1.Mock implements _i16.Response {
+class MockResponse extends _i1.Mock implements _i17.Response {
   MockResponse() {
     _i1.throwOnMissingStub(this);
   }
@@ -2698,26 +3166,26 @@ class MockResponse extends _i1.Mock implements _i16.Response {
           as String);
 
   @override
-  set answerID(String? _answerID) => super.noSuchMethod(
-    Invocation.setter(#answerID, _answerID),
+  set answerID(String? value) => super.noSuchMethod(
+    Invocation.setter(#answerID, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set interactionID(String? _interactionID) => super.noSuchMethod(
-    Invocation.setter(#interactionID, _interactionID),
+  set interactionID(String? value) => super.noSuchMethod(
+    Invocation.setter(#interactionID, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set questionID(String? _questionID) => super.noSuchMethod(
-    Invocation.setter(#questionID, _questionID),
+  set questionID(String? value) => super.noSuchMethod(
+    Invocation.setter(#questionID, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set text(String? _text) => super.noSuchMethod(
-    Invocation.setter(#text, _text),
+  set text(String? value) => super.noSuchMethod(
+    Invocation.setter(#text, value),
     returnValueForMissingStub: null,
   );
 
@@ -2730,7 +3198,7 @@ class MockResponse extends _i1.Mock implements _i16.Response {
           as Map<String, dynamic>);
 
   @override
-  _i16.Response copyWith({
+  _i17.Response copyWith({
     String? answerID,
     String? interactionID,
     String? questionID,
@@ -2743,7 +3211,7 @@ class MockResponse extends _i1.Mock implements _i16.Response {
               #questionID: questionID,
               #text: text,
             }),
-            returnValue: _FakeResponse_17(
+            returnValue: _FakeResponse_19(
               this,
               Invocation.method(#copyWith, [], {
                 #answerID: answerID,
@@ -2753,13 +3221,13 @@ class MockResponse extends _i1.Mock implements _i16.Response {
               }),
             ),
           )
-          as _i16.Response);
+          as _i17.Response);
 }
 
 /// A class which mocks [InteractionType].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInteractionType extends _i1.Mock implements _i14.InteractionType {
+class MockInteractionType extends _i1.Mock implements _i15.InteractionType {
   MockInteractionType() {
     _i1.throwOnMissingStub(this);
   }
@@ -2802,7 +3270,7 @@ class MockInteractionType extends _i1.Mock implements _i14.InteractionType {
 /// A class which mocks [Question].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockQuestion extends _i1.Mock implements _i71.Question {
+class MockQuestion extends _i1.Mock implements _i78.Question {
   MockQuestion() {
     _i1.throwOnMissingStub(this);
   }
@@ -2858,50 +3326,50 @@ class MockQuestion extends _i1.Mock implements _i71.Question {
           as String);
 
   @override
-  set id(String? _id) => super.noSuchMethod(
-    Invocation.setter(#id, _id),
+  set id(String? value) => super.noSuchMethod(
+    Invocation.setter(#id, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set allowMultipleResponse(bool? _allowMultipleResponse) => super.noSuchMethod(
-    Invocation.setter(#allowMultipleResponse, _allowMultipleResponse),
+  set allowMultipleResponse(bool? value) => super.noSuchMethod(
+    Invocation.setter(#allowMultipleResponse, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set allowOpenResponse(bool? _allowOpenResponse) => super.noSuchMethod(
-    Invocation.setter(#allowOpenResponse, _allowOpenResponse),
+  set allowOpenResponse(bool? value) => super.noSuchMethod(
+    Invocation.setter(#allowOpenResponse, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set answers(List<_i72.Answer>? _answers) => super.noSuchMethod(
-    Invocation.setter(#answers, _answers),
+  set answers(List<_i79.Answer>? value) => super.noSuchMethod(
+    Invocation.setter(#answers, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set description(String? _description) => super.noSuchMethod(
-    Invocation.setter(#description, _description),
+  set description(String? value) => super.noSuchMethod(
+    Invocation.setter(#description, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set index(int? _index) => super.noSuchMethod(
-    Invocation.setter(#index, _index),
+  set index(int? value) => super.noSuchMethod(
+    Invocation.setter(#index, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set openResponseFormat(String? _openResponseFormat) => super.noSuchMethod(
-    Invocation.setter(#openResponseFormat, _openResponseFormat),
+  set openResponseFormat(String? value) => super.noSuchMethod(
+    Invocation.setter(#openResponseFormat, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set text(String? _text) => super.noSuchMethod(
-    Invocation.setter(#text, _text),
+  set text(String? value) => super.noSuchMethod(
+    Invocation.setter(#text, value),
     returnValueForMissingStub: null,
   );
 
@@ -2917,7 +3385,7 @@ class MockQuestion extends _i1.Mock implements _i71.Question {
 /// A class which mocks [Experiment].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockExperiment extends _i1.Mock implements _i13.Experiment {
+class MockExperiment extends _i1.Mock implements _i14.Experiment {
   MockExperiment() {
     _i1.throwOnMissingStub(this);
   }
@@ -2956,82 +3424,81 @@ class MockExperiment extends _i1.Mock implements _i13.Experiment {
   DateTime get start =>
       (super.noSuchMethod(
             Invocation.getter(#start),
-            returnValue: _FakeDateTime_5(this, Invocation.getter(#start)),
+            returnValue: _FakeDateTime_6(this, Invocation.getter(#start)),
           )
           as DateTime);
 
   @override
-  _i2.User get user =>
+  _i18.User get user =>
       (super.noSuchMethod(
             Invocation.getter(#user),
-            returnValue: _FakeUser_0(this, Invocation.getter(#user)),
+            returnValue: _FakeUser_20(this, Invocation.getter(#user)),
           )
-          as _i2.User);
+          as _i18.User);
 
   @override
-  set id(String? _id) => super.noSuchMethod(
-    Invocation.setter(#id, _id),
+  set id(String? value) => super.noSuchMethod(
+    Invocation.setter(#id, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set description(String? _description) => super.noSuchMethod(
-    Invocation.setter(#description, _description),
+  set description(String? value) => super.noSuchMethod(
+    Invocation.setter(#description, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set end(DateTime? _end) => super.noSuchMethod(
-    Invocation.setter(#end, _end),
+  set end(DateTime? value) => super.noSuchMethod(
+    Invocation.setter(#end, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set livingLab(_i73.LivingLabs? _livingLab) => super.noSuchMethod(
-    Invocation.setter(#livingLab, _livingLab),
+  set livingLab(_i80.LivingLabs? value) => super.noSuchMethod(
+    Invocation.setter(#livingLab, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set messageActivity(int? _messageActivity) => super.noSuchMethod(
-    Invocation.setter(#messageActivity, _messageActivity),
+  set messageActivity(int? value) => super.noSuchMethod(
+    Invocation.setter(#messageActivity, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set name(String? _name) => super.noSuchMethod(
-    Invocation.setter(#name, _name),
+  set name(String? value) => super.noSuchMethod(
+    Invocation.setter(#name, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set numberOfMessages(int? _numberOfMessages) => super.noSuchMethod(
-    Invocation.setter(#numberOfMessages, _numberOfMessages),
+  set numberOfMessages(int? value) => super.noSuchMethod(
+    Invocation.setter(#numberOfMessages, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set numberOfQuestionnaires(int? _numberOfQuestionnaires) =>
-      super.noSuchMethod(
-        Invocation.setter(#numberOfQuestionnaires, _numberOfQuestionnaires),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set questionnaireActivity(int? _questionnaireActivity) => super.noSuchMethod(
-    Invocation.setter(#questionnaireActivity, _questionnaireActivity),
+  set numberOfQuestionnaires(int? value) => super.noSuchMethod(
+    Invocation.setter(#numberOfQuestionnaires, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set start(DateTime? _start) => super.noSuchMethod(
-    Invocation.setter(#start, _start),
+  set questionnaireActivity(int? value) => super.noSuchMethod(
+    Invocation.setter(#questionnaireActivity, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set user(_i2.User? _user) => super.noSuchMethod(
-    Invocation.setter(#user, _user),
+  set start(DateTime? value) => super.noSuchMethod(
+    Invocation.setter(#start, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set user(_i18.User? value) => super.noSuchMethod(
+    Invocation.setter(#user, value),
     returnValueForMissingStub: null,
   );
 
@@ -3073,26 +3540,26 @@ class MockViewCountModel extends _i1.Mock implements _i38.ViewCountModel {
           as int);
 
   @override
-  set pasGeborenAmount(int? _pasGeborenAmount) => super.noSuchMethod(
-    Invocation.setter(#pasGeborenAmount, _pasGeborenAmount),
+  set pasGeborenAmount(int? value) => super.noSuchMethod(
+    Invocation.setter(#pasGeborenAmount, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set onvolwassenAmount(int? _onvolwassenAmount) => super.noSuchMethod(
-    Invocation.setter(#onvolwassenAmount, _onvolwassenAmount),
+  set onvolwassenAmount(int? value) => super.noSuchMethod(
+    Invocation.setter(#onvolwassenAmount, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set volwassenAmount(int? _volwassenAmount) => super.noSuchMethod(
-    Invocation.setter(#volwassenAmount, _volwassenAmount),
+  set volwassenAmount(int? value) => super.noSuchMethod(
+    Invocation.setter(#volwassenAmount, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  set unknownAmount(int? _unknownAmount) => super.noSuchMethod(
-    Invocation.setter(#unknownAmount, _unknownAmount),
+  set unknownAmount(int? value) => super.noSuchMethod(
+    Invocation.setter(#unknownAmount, value),
     returnValueForMissingStub: null,
   );
 
@@ -3122,12 +3589,12 @@ class MockLocationModel extends _i1.Mock implements _i41.LocationModel {
   }
 
   @override
-  _i74.LocationSource get source =>
+  _i81.LocationSource get source =>
       (super.noSuchMethod(
             Invocation.getter(#source),
-            returnValue: _i74.LocationSource.manual,
+            returnValue: _i81.LocationSource.manual,
           )
-          as _i74.LocationSource);
+          as _i81.LocationSource);
 
   @override
   Map<String, dynamic> toJson() =>

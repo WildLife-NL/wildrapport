@@ -6,8 +6,6 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/animals/animal_counting.dart';
-import 'package:wildrapport/models/enums/animal_age.dart';
-import 'package:wildrapport/models/enums/animal_age_extensions.dart';
 import '../business/mock_generator.mocks.dart';
 
 void main() {
@@ -41,51 +39,34 @@ void main() {
   }
 
   group('AnimalCounting Widget Tests', () {
-    testWidgets('should display gender selection buttons', (
+    testWidgets('should display heading and navigation buttons', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Mannelijk'), findsOneWidget);
-      expect(find.text('Vrouwelijk'), findsOneWidget);
-      expect(find.text('Onbekend'), findsWidgets);
+      expect(find.text('Hoeveel van deze dieren heb je gezien?'), findsOneWidget);
+      expect(find.text('Vorige'), findsOneWidget);
+      expect(find.text('Volgende'), findsOneWidget);
     });
 
-    testWidgets('should show age options when gender is selected', (
+    testWidgets('should render container card and no add-list button', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Mannelijk'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Volwassen'), findsOneWidget);
-      expect(find.text('Onvolwassen'), findsOneWidget);
-      expect(find.text(AnimalAge.pasGeboren.label), findsOneWidget);
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.text('Voeg toe aan de lijst'), findsNothing);
     });
 
-    testWidgets('should update count when the wheel is scrolled', (
+    testWidgets('should contain one next button', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createAnimalCountingWidget());
       await tester.pumpAndSettle();
 
-      // Select gender
-      await tester.tap(find.text('Mannelijk'));
-      await tester.pumpAndSettle();
-
-      // Select age category
-      await tester.tap(find.text('Volwassen'));
-      await tester.pumpAndSettle();
-
-      // Scroll the number wheel down by one item (1 -> 2)
-      await tester.drag(find.byType(ListWheelScrollView), const Offset(0, -40));
-      await tester.pumpAndSettle();
-
-      // Verify that the new value appears in the wheel
-      expect(find.text('2'), findsWidgets);
+      expect(find.text('Volgende'), findsOneWidget);
     });
 
     testWidgets('should show error overlay when an error occurs', (

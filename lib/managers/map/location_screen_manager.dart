@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/interfaces/location/location_screen_interface.dart';
 import 'package:wildrapport/interfaces/map/location_service_interface.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
@@ -53,9 +52,10 @@ class LocationScreenManager implements LocationScreenInterface {
     Position? currentPosition;
     Map<String, dynamic>? currentGpsLocation;
 
+    // Always try to use the real phone location first for interaction reports.
+    // If unavailable, the user can still provide a custom map selection.
     final wantsCurrent = _selectedLocation == LocationType.current.displayText;
-    if (wantsCurrent) {
-      // Only touch GPS when the user explicitly chose current location
+    if (wantsCurrent || appState.isLocationTrackingEnabled) {
       if (appState.isLocationCacheValid) {
         currentPosition = appState.cachedPosition;
         currentGpsLocation = currentPosition != null
@@ -66,27 +66,14 @@ class LocationScreenManager implements LocationScreenInterface {
               }
             : null;
       } else {
-        currentPosition = MockLocationConfig.kForceMockLocation
-            ? Position(
-                latitude: MockLocationConfig.kMockLat,
-                longitude: MockLocationConfig.kMockLon,
-                timestamp: DateTime.now(),
-                accuracy: 5.0,
-                altitude: 0.0,
-                heading: 0.0,
-                speed: 0.0,
-                speedAccuracy: 0.0,
-                altitudeAccuracy: 0.0,
-                headingAccuracy: 0.0,
-              )
-            : await Geolocator.getCurrentPosition(
-                locationSettings: const LocationSettings(
-                  accuracy: LocationAccuracy.high,
-                  timeLimit: Duration(seconds: 5),
-                ),
-              ).catchError((error) {
-                throw error;
-              });
+        currentPosition = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 5),
+          ),
+        ).catchError((error) {
+          throw error;
+        });
 
         final address = await locationService.getAddressFromPosition(
           currentPosition,

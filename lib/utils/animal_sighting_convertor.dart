@@ -25,7 +25,7 @@ class AnimalSightingConvertor {
         "latitude": systemLocation.latitude,
         "longitude": systemLocation.longitude,
       },
-      "moment": report.dateTime?.dateTime?.toIso8601String(),
+      "moment": report.dateTime?.dateTime?.toUtc().toIso8601String(),
       "place": {
         "latitude": userLocation.latitude,
         "longitude": userLocation.longitude,

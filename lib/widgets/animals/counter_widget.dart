@@ -86,7 +86,7 @@ class AnimalCounterState extends State<AnimalCounter> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 6.0),
-            child: _buildButton("âˆ’", _decrement),
+            child: _buildButton("-", _decrement),
           ),
           Container(
             height: widget.height - 20, // Adjust height of divider
@@ -161,7 +161,7 @@ class AnimalCounterState extends State<AnimalCounter> {
   }
 
   Widget _buildButton(String symbol, VoidCallback onPressed) {
-    final bool isMinus = symbol == "âˆ’";
+    final bool isMinus = symbol == "-";
     return SizedBox(
       width: 44, // Same width for both buttons
       height: widget.height - 13, // Adjust height based on parent container

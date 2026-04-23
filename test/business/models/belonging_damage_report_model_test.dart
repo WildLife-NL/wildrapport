@@ -80,6 +80,7 @@ void main() {
         impactedArea: 100.0,
         currentImpactDamages: 500.0,
         estimatedTotalDamages: 1000.0,
+        estimatedLossBucket: '1000-2000',
         description: 'Test damage',
         systemDateTime: DateTime(2023, 5, 15),
         userSelectedLocation: location,
@@ -93,7 +94,7 @@ void main() {
       expect(reportOfDamage['impactType'], 'square-meters');
       expect(reportOfDamage['impactValue'], 100);
       expect(reportOfDamage['estimatedDamage'], 500);
-      expect(reportOfDamage['estimatedLoss'], 1000);
+      expect(reportOfDamage['estimatedLoss'], '1000-2000');
       expect(json['description'], 'Test damage');
     });
 

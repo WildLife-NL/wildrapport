@@ -296,10 +296,15 @@ class InteractionDetailScreen extends StatelessWidget {
       title: 'Schade Details',
       children: [
         _buildInfoRow('Bezit', report.belonging),
-        _buildInfoRow('Impact type', report.impactType),
-        _buildInfoRow('Impact waarde', report.impactValue.toString()),
-        _buildInfoRow('Geschatte schade', '€${report.estimatedDamage}'),
-        _buildInfoRow('Geschat verlies', '€${report.estimatedLoss}'),
+        _buildInfoRow('Geschat verlies', report.estimatedLoss),
+        _buildInfoRow(
+          'Preventieve maatregelen',
+          report.preventiveMeasures ? 'Ja' : 'Nee',
+        ),
+        _buildInfoRow(
+          'Toelichting maatregelen',
+          report.preventiveMeasuresDescription,
+        ),
       ],
     );
   }

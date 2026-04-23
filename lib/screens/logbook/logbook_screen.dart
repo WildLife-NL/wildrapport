@@ -1,7 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/shared/overzicht_screen.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
 import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
@@ -72,11 +71,15 @@ class _LogbookScreenState extends State<LogbookScreen> {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Logboek',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const OverzichtScreen()),
-                );
+                if (widget.onBackPressed != null) {
+                  widget.onBackPressed!();
+                  return;
+                }
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
               },
               iconColor: Colors.black,
               textColor: Colors.black,

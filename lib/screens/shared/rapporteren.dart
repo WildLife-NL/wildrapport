@@ -8,7 +8,8 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
-import 'package:wildrapport/screens/belonging/belonging_animal_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/location/invisible_map_preloader.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
@@ -75,27 +76,60 @@ class _RapporterenState extends State<Rapporteren> {
     Widget nextScreen;
     ReportType selectedReportType;
 
-    // Map interaction type name to ReportType enum
     final typeName = interactionType.name.toLowerCase();
+    final typeDescription = interactionType.description.toLowerCase();
+    final isSightingType =
+        interactionType.id == 1 ||
+        typeName == 'waarneming' ||
+        typeName.contains('sighting');
+    final isDamageType =
+        interactionType.id == 2 ||
+        typeName == 'schademelding' ||
+        typeName.contains('crop damage') ||
+        typeName.contains('schade') ||
+        typeDescription.contains('crop damage') ||
+        typeDescription.contains('schade');
+    final isCollisionType =
+        interactionType.id == 3 ||
+        typeName == 'dieraanrijding' ||
+        typeName.contains('animal collision') ||
+        typeName.contains('aanrijding') ||
+        typeDescription.contains('animal collision') ||
+        typeDescription.contains('aanrijding');
 
-    if (typeName == 'waarneming' || typeName.contains('sighting')) {
+    if (isSightingType) {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(reportType: 'waarneming', locations: [], animals: []),
+      );
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
-    } else if (typeName == 'schademelding' ||
-        typeName.contains('crop damage')) {
+    } else if (isDamageType) {
       selectedReportType = ReportType.gewasschade;
-      nextScreen = BelongingAnimalScreen(appBarTitle: 'Selecteer Dier');
+      final animalSightingManager =
+          context.read<AnimalSightingReportingInterface>();
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(
+          reportType: 'gewasschade',
+          locations: [],
+          animals: [],
+        ),
+      );
+      nextScreen = const SchademeldingLocationSelectionScreen();
       _initializeMapInBackground();
-    } else if (typeName == 'dieraanrijding' ||
-        typeName.contains('animal collision')) {
+    } else if (isCollisionType) {
       selectedReportType = ReportType.verkeersongeval;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(
+          reportType: 'verkeersongeval',
+          locations: [],
+          animals: [],
+        ),
+      );
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     } else {
@@ -106,7 +140,9 @@ class _RapporterenState extends State<Rapporteren> {
       selectedReportType = ReportType.waarneming;
       final animalSightingManager =
           context.read<AnimalSightingReportingInterface>();
-      animalSightingManager.createanimalSighting();
+      animalSightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(reportType: 'waarneming', locations: [], animals: []),
+      );
       nextScreen = const LocationSelectionScreen();
       _initializeMapInBackground();
     }

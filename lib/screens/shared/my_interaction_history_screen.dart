@@ -263,16 +263,13 @@ class _InteractionCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
           const SizedBox(height: 4),
+          Text('Bezit: ${report.belonging}', style: const TextStyle(fontSize: 12)),
           Text(
-            'Type: ${report.impactType}',
+            'Geschat verlies: ${report.estimatedLoss}',
             style: const TextStyle(fontSize: 12),
           ),
           Text(
-            'Waarde: ${report.impactValue}',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            'Geschatte schade: €${report.estimatedDamage}',
+            'Preventieve maatregelen: ${report.preventiveMeasures ? "Ja" : "Nee"}',
             style: const TextStyle(fontSize: 12),
           ),
         ],

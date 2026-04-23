@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ntp_dart/ntp_dart.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+import 'package:wildrapport/models/api_models/vicinity.dart';
 
 class TrackingApi implements TrackingApiInterface {
   final ApiClient client;
@@ -55,9 +56,13 @@ class TrackingApi implements TrackingApiInterface {
       throw Exception('[TrackingApi] Failed (${res.statusCode}): ${res.body}');
     }
 
-    // Only notify when backend returns a conveyance message.
+    // Parse optional conveyance message and optional vicinity payload.
     try {
       final Map<String, dynamic> decoded = jsonDecode(res.body);
+      Vicinity? vicinity;
+      if (decoded['vicinity'] is Map<String, dynamic>) {
+        vicinity = Vicinity.fromJson(decoded['vicinity'] as Map<String, dynamic>);
+      }
 
       // Supported shape: { conveyance: { message: { text, severity? } } }
       final conv = decoded['conveyance'];
@@ -69,9 +74,13 @@ class TrackingApi implements TrackingApiInterface {
               ? (msgObj['severity'] as num).toInt()
               : null;
 
-      if (msgText1 != null && msgText1.isNotEmpty) {
+      if ((msgText1 != null && msgText1.isNotEmpty) || vicinity != null) {
         debugPrint('[TrackingApi] Message received: "$msgText1"');
-        return TrackingNotice(msgText1, severity: sev1);
+        return TrackingNotice(
+          msgText1 ?? '',
+          severity: sev1,
+          vicinity: vicinity,
+        );
       }
     } catch (e) {
       debugPrint('[TrackingApi] Error parsing message: $e');

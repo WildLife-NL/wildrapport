@@ -5,6 +5,9 @@ abstract class PossesionReportFields extends CommonReportFields {
   Possesion get possesion;
   double get currentImpactDamages;
   double get estimatedTotalDamages;
+  String get estimatedLossBucket;
   String get impactedAreaType;
   double get impactedArea;
+  bool get preventiveMeasures;
+  String get preventiveMeasuresDescription;
 }

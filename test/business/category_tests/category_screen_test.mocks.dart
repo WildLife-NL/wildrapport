@@ -3,13 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i17;
+import 'dart:async' as _i18;
 import 'dart:ui' as _i10;
 
 import 'package:flutter/material.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart'
-    as _i14;
+    as _i15;
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart'
     as _i11;
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
@@ -18,15 +18,17 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart'
     as _i5;
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart'
     as _i2;
+import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entry.dart'
+    as _i14;
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
     as _i8;
 import 'package:wildrapport/models/beta_models/location_model.dart' as _i12;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i7;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i9;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i6;
-import 'package:wildrapport/models/enums/report_type.dart' as _i16;
+import 'package:wildrapport/models/enums/report_type.dart' as _i17;
 import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i13;
-import 'package:wildrapport/providers/app_state_provider.dart' as _i15;
+import 'package:wildrapport/providers/app_state_provider.dart' as _i16;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -41,6 +43,7 @@ import 'package:wildrapport/providers/app_state_provider.dart' as _i15;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeAnimalSightingModel_0 extends _i1.SmartFake
     implements _i2.AnimalSightingModel {
@@ -84,6 +87,19 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
             returnValue: _FakeAnimalSightingModel_0(
               this,
               Invocation.method(#updateSelectedAnimal, [selectedAnimal]),
+            ),
+          )
+          as _i2.AnimalSightingModel);
+
+  @override
+  _i2.AnimalSightingModel updateCurrentanimalSighting(
+    _i2.AnimalSightingModel? sighting,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateCurrentanimalSighting, [sighting]),
+            returnValue: _FakeAnimalSightingModel_0(
+              this,
+              Invocation.method(#updateCurrentanimalSighting, [sighting]),
             ),
           )
           as _i2.AnimalSightingModel);
@@ -276,13 +292,33 @@ class MockAnimalSightingReportingInterface extends _i1.Mock
             ),
           )
           as _i2.AnimalSightingModel);
+
+  @override
+  void addObservedAnimal(_i14.ObservedAnimalEntry? entry) => super.noSuchMethod(
+    Invocation.method(#addObservedAnimal, [entry]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  List<_i14.ObservedAnimalEntry> getObservedAnimals() =>
+      (super.noSuchMethod(
+            Invocation.method(#getObservedAnimals, []),
+            returnValue: <_i14.ObservedAnimalEntry>[],
+          )
+          as List<_i14.ObservedAnimalEntry>);
+
+  @override
+  void syncObservedAnimalsToSighting() => super.noSuchMethod(
+    Invocation.method(#syncObservedAnimalsToSighting, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [NavigationStateInterface].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockNavigationStateInterface extends _i1.Mock
-    implements _i14.NavigationStateInterface {
+    implements _i15.NavigationStateInterface {
   MockNavigationStateInterface() {
     _i1.throwOnMissingStub(this);
   }
@@ -337,7 +373,7 @@ class MockNavigationStateInterface extends _i1.Mock
 /// A class which mocks [AppStateProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
+class MockAppStateProvider extends _i1.Mock implements _i16.AppStateProvider {
   MockAppStateProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -352,6 +388,22 @@ class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
             ),
           )
           as _i3.GlobalKey<_i3.NavigatorState>);
+
+  @override
+  bool get isLocationTrackingEnabled =>
+      (super.noSuchMethod(
+            Invocation.getter(#isLocationTrackingEnabled),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get notificationsEnabled =>
+      (super.noSuchMethod(
+            Invocation.getter(#notificationsEnabled),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   bool get isLocationCacheValid =>
@@ -385,7 +437,7 @@ class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
   );
 
   @override
-  void initializeReport(_i16.ReportType? reportType) => super.noSuchMethod(
+  void initializeReport(_i17.ReportType? reportType) => super.noSuchMethod(
     Invocation.method(#initializeReport, [reportType]),
     returnValueForMissingStub: null,
   );
@@ -417,13 +469,13 @@ class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
   );
 
   @override
-  _i17.Future<void> updateLocationCache() =>
+  _i18.Future<void> updateLocationCache() =>
       (super.noSuchMethod(
             Invocation.method(#updateLocationCache, []),
-            returnValue: _i17.Future<void>.value(),
-            returnValueForMissingStub: _i17.Future<void>.value(),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
           )
-          as _i17.Future<void>);
+          as _i18.Future<void>);
 
   @override
   void startLocationUpdates() => super.noSuchMethod(
@@ -432,13 +484,58 @@ class MockAppStateProvider extends _i1.Mock implements _i15.AppStateProvider {
   );
 
   @override
-  _i17.Future<void> logout() =>
+  _i18.Future<void> loadLocationTrackingPreference() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadLocationTrackingPreference, []),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
+
+  @override
+  _i18.Future<void> setLocationTrackingEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#setLocationTrackingEnabled, [enabled]),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
+
+  @override
+  _i18.Future<void> loadNotificationsPreference() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadNotificationsPreference, []),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
+
+  @override
+  _i18.Future<void> setNotificationsEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#setNotificationsEnabled, [enabled]),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
+
+  @override
+  _i18.Future<void> logout() =>
       (super.noSuchMethod(
             Invocation.method(#logout, []),
-            returnValue: _i17.Future<void>.value(),
-            returnValueForMissingStub: _i17.Future<void>.value(),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
           )
-          as _i17.Future<void>);
+          as _i18.Future<void>);
+
+  @override
+  _i18.Future<void> deleteProfile() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteProfile, []),
+            returnValue: _i18.Future<void>.value(),
+            returnValueForMissingStub: _i18.Future<void>.value(),
+          )
+          as _i18.Future<void>);
 
   @override
   void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(

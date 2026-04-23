@@ -16,6 +16,8 @@ abstract class AnimalSightingReportingInterface {
 
   AnimalSightingModel updateSelectedAnimal(AnimalModel selectedAnimal);
 
+  AnimalSightingModel updateCurrentanimalSighting(AnimalSightingModel sighting);
+
   AnimalSightingModel updateGender(AnimalGender gender);
 
   AnimalSightingModel updateAge(AnimalAge age);

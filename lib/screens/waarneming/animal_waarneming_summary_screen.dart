@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/interfaces/reporting/interaction_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 
@@ -23,20 +24,29 @@ class AnimalWaarnemingSummaryScreen extends StatefulWidget {
 
 class _AnimalWaarnemingSummaryScreenState
     extends State<AnimalWaarnemingSummaryScreen> {
+  bool _isSubmitting = false;
 
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
     debugPrint('[AnimalWaarnemingSummaryScreen] _handleSubmit called');
     try {
       final sightingManager =
           context.read<AnimalSightingReportingInterface>();
-      final submittedProvider =
-          context.read<SubmittedSightingsProvider>();
+      final interactionManager = context.read<InteractionInterface>();
       var sighting = sightingManager.getCurrentanimalSighting();
 
       debugPrint('[AnimalWaarnemingSummaryScreen] Submitting sighting: $sighting');
 
       if (sighting != null) {
+        if (sighting.locations == null || sighting.locations!.isEmpty) {
+          throw Exception('Geen locatie geselecteerd');
+        }
+        if (sighting.dateTime?.dateTime == null) {
+          throw Exception('Geen datum/tijd geselecteerd');
+        }
+
         // If animals list is empty (skipped details), populate with selected animal N times
         if ((sighting.animals?.isEmpty ?? true) && sighting.animalSelected != null && widget.totalCount > 0) {
           debugPrint('[AnimalWaarnemingSummaryScreen] Animals list was empty, populating with selected animal x${widget.totalCount}');
@@ -48,12 +58,24 @@ class _AnimalWaarnemingSummaryScreenState
           }
           // Create a new sighting with the populated animals list
           sighting = sighting.copyWith(animals: animalsToAdd);
+          sightingManager.updateCurrentanimalSighting(sighting);
         }
-        
-        // Save the sighting to submitted sightings
-        submittedProvider.addSighting(sighting);
-        debugPrint('[AnimalWaarnemingSummaryScreen] Sighting saved to provider');
-        
+
+        // Make sure grouped/edited animal entries are synced before sending.
+        sightingManager.syncObservedAnimalsToSighting();
+
+        // Real submit to backend via the same interaction pipeline.
+        final response = await submitReport(
+          sightingManager,
+          interactionManager,
+          context,
+        );
+        if (response == null) {
+          throw Exception(
+            'Geen verbinding of verzenden mislukt. Controleer internet en probeer opnieuw.',
+          );
+        }
+
         // Clear the current sighting and navigate to logbook with recent sightings
         sightingManager.clearCurrentanimalSighting();
         debugPrint('[AnimalWaarnemingSummaryScreen] Navigating to recent sightings');
@@ -73,6 +95,13 @@ class _AnimalWaarnemingSummaryScreenState
     } catch (e, stackTrace) {
       debugPrint('[AnimalWaarnemingSummaryScreen] Error submitting: $e');
       debugPrint('[AnimalWaarnemingSummaryScreen] Stack trace: $stackTrace');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Versturen mislukt: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -597,7 +626,7 @@ class _AnimalWaarnemingSummaryScreenState
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _handleSubmit,
+                        onPressed: _isSubmitting ? null : _handleSubmit,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color(0xFF37A904),
@@ -606,9 +635,9 @@ class _AnimalWaarnemingSummaryScreenState
                           ),
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text(
-                          'Versturen',
-                          style: TextStyle(
+                        child: Text(
+                          _isSubmitting ? 'Bezig met versturen...' : 'Versturen',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
