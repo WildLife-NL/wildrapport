@@ -40,13 +40,6 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
-  void _openRecentSightings(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // If openRecentSightings is true and we haven't navigated yet, navigate to RecentSightingsScreen
@@ -98,11 +91,6 @@ class _LogbookScreenState extends State<LogbookScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _ReportButton(
-                          label: 'Recente waarnemingen',
-                          onTap: () => _openRecentSightings(context),
-                        ),
-                        const SizedBox(height: 12),
                         _ReportButton(
                           label: 'Mijn interacties',
                           onTap: () => _openAllInteractions(context),
