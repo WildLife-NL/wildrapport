@@ -4,6 +4,23 @@ import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart'; // <-- Import the new file!
 
 class AnimalModel {
+    AnimalModel copyWith({
+      String? animalId,
+      String? animalImagePath,
+      String? animalName,
+      String? category,
+      List<AnimalGenderViewCount>? genderViewCounts,
+      AnimalCondition? condition,
+    }) {
+      return AnimalModel(
+        animalId: animalId ?? this.animalId,
+        animalImagePath: animalImagePath ?? this.animalImagePath,
+        animalName: animalName ?? this.animalName,
+        category: category ?? this.category,
+        genderViewCounts: genderViewCounts ?? this.genderViewCounts,
+        condition: condition ?? this.condition,
+      );
+    }
   final String? animalId;
   final String? animalImagePath;
   final String animalName;

@@ -20,8 +20,6 @@ class SchademeldingSummaryScreen extends StatefulWidget {
 
 class _SchademeldingSummaryScreenState
     extends State<SchademeldingSummaryScreen> {
-
-
   void _onSubmitPressed() {
     final sightingManager = context.read<AnimalSightingReportingInterface>();
     final submittedProvider = context.read<SubmittedSightingsProvider>();
@@ -29,18 +27,13 @@ class _SchademeldingSummaryScreenState
     try {
       // Get the current sighting data from provider
       var sighting = sightingManager.getCurrentanimalSighting();
-      
       if (sighting != null) {
         // Save to submitted sightings
         submittedProvider.addSighting(sighting);
-        
         debugPrint('[SchademeldingSummary] Schademelding: ${sighting.reportType}, Gewas: ${sighting.cropType}');
-        
         // Clear the current sighting
         sightingManager.clearCurrentanimalSighting();
-        
         debugPrint('[SchademeldingSummary] Schademelding saved and navigating to logbook');
-        
         // Navigate to logbook with recent sightings shown directly
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -113,13 +106,11 @@ class _SchademeldingSummaryScreenState
         return 'assets/images/vee/ree.png';
       case 'ander':
         return null;
-        //Eigendom
+      //Eigendom
       case 'eigendom':
-      return 'assets/images/property.jpg';
+        return 'assets/images/property.jpg';
       default:
         return null;
-      
-      
     }
   }
 
@@ -691,6 +682,11 @@ class _SchademeldingSummaryScreenState
       ),
     );
 
+    if (imagePath.isEmpty) {
+      // Fallback for missing image path
+      return placeholder;
+    }
+
     if (isNetworkUrl) {
       return Image.network(
         imagePath,
@@ -714,4 +710,5 @@ class _SchademeldingSummaryScreenState
         return placeholder;
       }
     }
-  }}
+  }
+}

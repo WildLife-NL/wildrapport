@@ -55,23 +55,38 @@ class _SchademeldingVeeTypesScreenState
 
   void _handleVeeTypeSelection(String veeType, {String? selectedTileTitle}) {
     debugPrint('[SchademeldingVeeTypes] Selected: $veeType');
-    
-    // Save selected vee type to provider
+
+    // Save selected vee type to provider and set animal image path if possible
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
+      // Find the image path for the selected vee type
+      final selectedVee = veeTypes.firstWhere(
+        (item) => item['title'] == (selectedTileTitle ?? veeType),
+        orElse: () => {'image': ''},
+      );
+      final imagePath = selectedVee['image'] ?? '';
+
+      // If animalSelected exists, update its image path
+      final updatedAnimalSelected = currentSighting.animalSelected != null
+          ? currentSighting.animalSelected!.copyWith(
+              animalImagePath: imagePath.isNotEmpty ? imagePath : currentSighting.animalSelected!.animalImagePath,
+            )
+          : null;
+
       final updated = currentSighting.copyWith(
         cropType: veeType,
+        animalSelected: updatedAnimalSelected,
       );
       _sightingManager.updateCurrentanimalSighting(updated);
     }
-    
+
     setState(() {
       _selectedVee = selectedTileTitle ?? veeType;
       if ((selectedTileTitle ?? veeType) != 'Ander') {
         _customVeeType = null;
       }
     });
-    
+
     // Navigate to animal selection
     Navigator.push(
       context,

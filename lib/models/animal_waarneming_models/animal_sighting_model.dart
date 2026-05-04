@@ -90,6 +90,19 @@ class AnimalSightingModel {
                 },
               )
               .toList(),
+      'animalSelected':
+          animalSelected != null
+              ? {
+                'animalId': animalSelected!.animalId,
+                'animalImagePath': animalSelected!.animalImagePath,
+                'animalName': animalSelected!.animalName,
+                'condition': animalSelected!.condition?.toString(),
+                'genderViewCounts':
+                    animalSelected!.genderViewCounts
+                        .map((gvc) => gvc.toJson())
+                        .toList(),
+              }
+              : null,
       'category': category?.toString(),
       'description': description,
       'locations': locations?.map((loc) => loc.toJson()).toList(),

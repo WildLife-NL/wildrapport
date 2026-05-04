@@ -229,28 +229,47 @@ class _AnimalWaarnemingSummaryScreenState
                                       width: 140,
                                     ),
                                     Container(
-                                      width: 140,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(14),
-                                          bottomRight: Radius.circular(14),
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        selectedAnimal.animalName,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
+  width: 140,
+  decoration: const BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(14),
+      bottomRight: Radius.circular(14),
+    ),
+  ),
+  padding: const EdgeInsets.symmetric(
+    vertical: 8,
+    horizontal: 12,
+  ),
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        selectedAnimal.animalName,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textPrimary,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        _getConditionDisplay(
+          sighting?.animals?.isNotEmpty == true
+              ? sighting!.animals!.first.condition
+              : AnimalCondition.onbekend,
+        ),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey[600],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+),
                                   ],
                                 ),
                               ),
@@ -764,6 +783,19 @@ class _AnimalWaarnemingSummaryScreenState
         return 'Onbekend';
     }
   }
+  String _getConditionDisplay(AnimalCondition? condition) {
+  switch (condition) {
+    case AnimalCondition.gezond:
+      return 'Conditie: Gezond';
+    case AnimalCondition.gewond:
+      return 'Conditie: Gewond';
+    case AnimalCondition.dood:
+      return 'Conditie: Dood';
+    case AnimalCondition.onbekend:
+    default:
+      return 'Conditie: Onbekend';
+  }
+}
 
   String _getLocationDisplay(List? locations) {
     if (locations?.isEmpty != false) return 'Locatie nog niet ingesteld';
