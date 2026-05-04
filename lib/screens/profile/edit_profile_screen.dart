@@ -18,10 +18,10 @@ class EditProfileScreen extends StatefulWidget {
 
 String _genderLabelNl(String? apiValue) {
   switch (apiValue?.toLowerCase()) {
-    case 'male':
-      return 'man';
-    case 'female':
-      return 'vrouw';
+    case 'farmer':
+      return 'Boer';
+    case 'researcher':
+      return 'Onderzoeker';
     case 'other':
       return 'anders';
     default:
