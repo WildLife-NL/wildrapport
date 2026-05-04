@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
+//import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
@@ -99,15 +99,15 @@ class _SchademeldingSummaryScreenState
       // Vee types
       case 'runderen':
         return 'assets/images/vee/rund.png';
-      case 'schaap':
+      case 'schapen':
         return 'assets/images/vee/schaap.png';
-      case 'geit':
+      case 'geiten':
         return 'assets/images/vee/geit.png';
-      case 'paard':
+      case 'paarden':
         return 'assets/images/vee/paard.png';
       case 'pluimvee':
         return 'assets/images/vee/pluimvee.png';
-      case 'vark':
+      case 'varkens':
         return 'assets/images/vee/vark.png';
       case 'ree':
         return 'assets/images/vee/ree.png';

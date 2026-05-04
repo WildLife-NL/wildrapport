@@ -22,11 +22,11 @@ class _SchademeldingVeeTypesScreenState
   
   final List<Map<String, String>> veeTypes = [
     {'title': 'Rund', 'image': 'assets/images/vee/rund.png'},
-    {'title': 'Schaap', 'image': 'assets/images/vee/schaap.png'},
-    {'title': 'Geit', 'image': 'assets/images/vee/geit.png'},
-    {'title': 'Paard', 'image': 'assets/images/vee/paard.png'},
+    {'title': 'Schapen', 'image': 'assets/images/vee/schaap.png'},
+    {'title': 'Geiten', 'image': 'assets/images/vee/geit.png'},
+    {'title': 'Paarden', 'image': 'assets/images/vee/paard.png'},
     {'title': 'Pluimvee', 'image': 'assets/images/vee/pluimvee.png'},
-    {'title': 'Vark', 'image': 'assets/images/vee/vark.png'},
+    {'title': 'Varkens', 'image': 'assets/images/vee/vark.png'},
     {'title': 'Ander', 'image': 'ander'},
   ];
 
