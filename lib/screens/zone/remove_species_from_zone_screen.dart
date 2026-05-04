@@ -166,96 +166,150 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
   }
 
   @override
-  Widget build(BuildContext context) {
-    final safeSelectedZone = _selectedZone != null &&
-            _zones.where((z) => z.id == _selectedZone!.id).length == 1
-        ? _zones.firstWhere((z) => z.id == _selectedZone!.id)
-        : null;
-    final currentSpecies = safeSelectedZone == null
-        ? <ZoneSpeciesItem>[]
-        : (_zoneIdToSpecies[safeSelectedZone.id] ?? <ZoneSpeciesItem>[]);
-    final safeSelectedSpecies = _selectedSpecies != null &&
-            currentSpecies.where((s) => s.id == _selectedSpecies!.id).length == 1
-        ? currentSpecies.firstWhere((s) => s.id == _selectedSpecies!.id)
-        : null;
+Widget build(BuildContext context) {
+  final safeSelectedZone = _selectedZone != null &&
+          _zones.where((z) => z.id == _selectedZone!.id).length == 1
+      ? _zones.firstWhere((z) => z.id == _selectedZone!.id)
+      : null;
 
-    return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
-      body: SafeArea(
-        child: Column(
-          children: [
-            CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
-              centerText: 'Dier verwijderen uit zone',
-              rightIcon: null,
-              showUserIcon: false,
-              onLeftIconPressed: () {
-                Navigator.of(context).pop();
-              },
-              iconColor: Colors.black,
-              textColor: Colors.black,
-              fontScale: 1.15,
-              iconScale: 1.15,
-              userIconScale: 1.15,
-              useFixedText: true,
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Zone',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+  final currentSpecies = safeSelectedZone == null
+      ? <ZoneSpeciesItem>[]
+      : (_zoneIdToSpecies[safeSelectedZone.id] ?? <ZoneSpeciesItem>[]);
+
+  final safeSelectedSpecies = _selectedSpecies != null &&
+          currentSpecies.where((s) => s.id == _selectedSpecies!.id).length == 1
+      ? currentSpecies.firstWhere((s) => s.id == _selectedSpecies!.id)
+      : null;
+
+  return Scaffold(
+    backgroundColor: AppColors.backgroundLight,
+    body: SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          CustomAppBar(
+            leftIcon: Icons.arrow_back_ios,
+            centerText: 'Dier verwijderen',
+            rightIcon: null,
+            showUserIcon: false,
+            onLeftIconPressed: () {
+              Navigator.of(context).pop();
+            },
+            iconColor: Colors.black,
+            textColor: Colors.black,
+            fontScale: 1.4,
+            iconScale: 1.15,
+            userIconScale: 1.15,
+            useFixedText: true,
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(
+                    color: AppColors.borderDefault,
+                    width: 1,
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Text(
+                          'Kies een zone en een diersoort',
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                  ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_loading)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(color: AppColors.darkGreen),
-                        ),
-                      )
-                    else if (_loadError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          _loadError!,
-                          style: TextStyle(color: Colors.red[700], fontSize: 13),
-                        ),
-                      )
-                    else if (_zones.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          'Je hebt nog geen zones.',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 13),
-                        ),
-                      )
-                    else
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                      const SizedBox(height: 24),
+
+                      Text(
+                        'Zone',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      if (_loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.darkGreen,
+                            ),
+                          ),
+                        )
+                      else if (_loadError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Text(
+                            _loadError!,
+                            style: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      else if (_zones.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Text(
+                            'Je hebt nog geen zones.',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              width: 1,
+                            ),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(
                               value: safeSelectedZone,
                               isExpanded: true,
-                              hint: const Text('Kies een zone'),
+                              hint: const Text(
+                                'Kies een zone',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              borderRadius: BorderRadius.circular(16),
                               items: _zones.map((z) {
-                                final count = (_zoneIdToSpecies[z.id] ?? []).length;
+                                final count =
+                                    (_zoneIdToSpecies[z.id] ?? []).length;
                                 return DropdownMenuItem<Zone>(
                                   value: z,
-                                  child: Text('${z.name} (${count} dier${count == 1 ? '' : 'en'})'),
+                                  child: Text(
+                                    '${z.name} ($count dier${count == 1 ? '' : 'en'})',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (z) => setState(() {
@@ -265,83 +319,140 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
                             ),
                           ),
                         ),
-                      ),
-                    if (safeSelectedZone != null && currentSpecies.isNotEmpty) ...[
-                      const Text(
-                        'Dier om te verwijderen',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+
+                      const SizedBox(height: 24),
+
+                      Text(
+                        'Diersoort',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textPrimary,
+                            ),
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppColors.darkGreen),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<ZoneSpeciesItem>(
-                            value: safeSelectedSpecies,
-                            isExpanded: true,
-                            hint: const Text('Kies een dier'),
-                            items: currentSpecies.map((s) {
-                              return DropdownMenuItem<ZoneSpeciesItem>(
-                                value: s,
-                                child: Text(s.commonName.isEmpty ? s.id : s.commonName),
-                              );
-                            }).toList(),
-                            onChanged: (s) => setState(() => _selectedSpecies = s),
+
+                      if (safeSelectedZone != null && currentSpecies.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              width: 1,
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
-                    if (safeSelectedZone != null && currentSpecies.isEmpty && !_loading)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<ZoneSpeciesItem>(
+                              value: safeSelectedSpecies,
+                              isExpanded: true,
+                              hint: const Text(
+                                'Kies een dier',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              items: currentSpecies.map((s) {
+                                return DropdownMenuItem<ZoneSpeciesItem>(
+                                  value: s,
+                                  child: Text(
+                                    s.commonName.isEmpty ? s.id : s.commonName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (s) {
+                                setState(() => _selectedSpecies = s);
+                              },
+                            ),
+                          ),
+                        )
+                      else if (safeSelectedZone != null &&
+                          currentSpecies.isEmpty &&
+                          !_loading)
+                        Text(
                           'Deze zone heeft geen soorten. Voeg eerst een dier toe aan de zone.',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 13),
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: primaryButtonHeight(context),
-                      child: ElevatedButton(
-                        onPressed: (_isSubmitting ||
-                                _zones.isEmpty ||
-                                _selectedZone == null ||
-                                _selectedSpecies == null)
-                            ? null
-                            : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 13,
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Text(
+                            'Kies eerst een zone',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF7A7A7A),
+                            ),
                           ),
                         ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Dier uit zone verwijderen'),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: SizedBox(
+                width: double.infinity,
+                height: primaryButtonHeight(context),
+                child: ElevatedButton(
+                  onPressed: (_isSubmitting ||
+                          _zones.isEmpty ||
+                          _selectedZone == null ||
+                          _selectedSpecies == null)
+                      ? null
+                      : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF37A904),
+                    disabledBackgroundColor: const Color(0xFFEFEFEF),
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor: const Color(0xFFACACAC),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Dier uit zone verwijderen',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
