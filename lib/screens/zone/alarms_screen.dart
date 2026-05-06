@@ -199,7 +199,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
     }
     return RefreshIndicator(
       onRefresh: _load,
-      color: AppColors.darkGreen,
+      color: AppColors.primaryGreen,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         itemCount: list.length,
@@ -323,10 +323,10 @@ class _AlarmTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-         leading: CircleAvatar(
-           backgroundColor: Color(0xFFF2F2F2),
-           child: const Icon(Icons.notifications_active, color: AppColors.darkCharcoal),
-         ),
+        leading: CircleAvatar(
+          backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.2),
+          child: const Icon(Icons.notifications_active, color: AppColors.primaryGreen),
+        ),
         title: Text(
           zoneName,
           style: const TextStyle(
@@ -422,10 +422,10 @@ class _AlarmDetailSheet extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.darkGreen.withValues(alpha: 0.08),
+        color: AppColors.primaryGreen.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.darkGreen.withValues(alpha: 0.3),
+          color: AppColors.primaryGreen.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -598,7 +598,7 @@ class _AlarmDetailSheet extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: AppColors.darkGreen,
+          color: AppColors.primaryGreen,
         ),
       ),
     );

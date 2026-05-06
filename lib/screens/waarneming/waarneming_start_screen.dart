@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class WaarnemmingStartScreen extends StatelessWidget {
   const WaarnemmingStartScreen({super.key});
@@ -96,7 +97,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                                   'Start',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color: AppColors.textPrimary,
                                     fontSize: 20,
                                   ),
                                 ),
@@ -155,7 +156,7 @@ class WaarnemmingStartScreen extends StatelessWidget {
                     'Recente waarnemingen',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w400,
-                      color: Colors.black,
+                      color: AppColors.textPrimary,
                       fontSize: 16,
                     ),
                   ),

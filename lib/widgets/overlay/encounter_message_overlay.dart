@@ -24,7 +24,7 @@ class EncounterMessageOverlay extends StatelessWidget {
             ? Colors.red.shade700
             : (severity == 2)
             ? Colors.orange.shade700
-            : AppColors.darkGreen;
+            : AppColors.primaryGreen;
 
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
@@ -45,10 +45,10 @@ class EncounterMessageOverlay extends StatelessWidget {
                   vertical: responsive.hp(1.2),
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.lightMintGreen.withValues(alpha:0.95),
+                  color: AppColors.backgroundLight.withValues(alpha:0.95),
                   borderRadius: BorderRadius.circular(responsive.sp(1.75)),
                   border: Border.all(
-                    color: AppColors.darkGreen,
+                    color: AppColors.primaryGreen,
                     width: responsive.sp(0.2),
                   ),
                 ),
@@ -86,7 +86,7 @@ class EncounterMessageOverlay extends StatelessWidget {
                             Text(
                               title!,
                               style: TextStyle(
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                                 fontSize: responsive.fontSize(14),
                                 fontWeight: FontWeight.w700,
                               ),

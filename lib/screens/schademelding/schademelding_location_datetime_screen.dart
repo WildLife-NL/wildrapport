@@ -8,6 +8,7 @@ import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_type_selection_screen.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class SchademeldingLocationDateTimeScreen extends StatefulWidget {
@@ -102,7 +103,7 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
               colorScheme: const ColorScheme.light(
                 primary: Color(0xFF37A904), // header background & selected
                 onPrimary: Colors.white, // header/selected text color
-                onSurface: Colors.black, // body text color
+                onSurface: AppColors.textPrimary, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
@@ -187,8 +188,8 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,

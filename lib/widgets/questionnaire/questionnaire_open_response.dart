@@ -223,7 +223,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
           decoration: BoxDecoration(
             color: AppColors.offWhite,
             borderRadius: BorderRadius.circular(12.0),
-            border: Border.all(color: AppColors.darkGreen, width: 2),
+            border: Border.all(color: AppColors.primaryGreen, width: 2),
           ),
           child: Column(
             children: [
@@ -233,7 +233,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Roboto',
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                 ),
               ),
               const SizedBox(height: 20),
@@ -243,7 +243,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
                 max: _maxValue.toDouble(),
                 divisions: _maxValue - _minValue,
                 label: _sliderValue.toInt().toString(),
-                activeColor: AppColors.darkGreen,
+                activeColor: AppColors.primaryGreen,
                 inactiveColor: AppColors.brown300,
                 onChanged: (value) {
                   setState(() {
@@ -332,7 +332,7 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide(
                 color:
-                    _validationError != null ? Colors.red : AppColors.darkGreen,
+                    _validationError != null ? Colors.red : AppColors.primaryGreen,
                 width: 2,
               ),
             ),
@@ -340,14 +340,14 @@ class _QuestionnaireOpenResponseState extends State<QuestionnaireOpenResponse> {
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide(
                 color:
-                    _validationError != null ? Colors.red : AppColors.darkGreen,
+                    _validationError != null ? Colors.red : AppColors.primaryGreen,
                 width: 2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: const BorderSide(
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
                 width: 2,
               ),
             ),

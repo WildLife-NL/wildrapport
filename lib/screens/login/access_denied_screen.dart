@@ -75,7 +75,7 @@ class AccessDeniedScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -87,7 +87,7 @@ class AccessDeniedScreen extends StatelessWidget {
                           'Ontbreekt één van deze rollen? Neem dan rechtstreeks contact op met WildlifeNL om toegang te verkrijgen.',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 14,
-                            color: Colors.black87,
+                            color: AppColors.textPrimary,
                             height: 1.5,
                           ),
                         ),

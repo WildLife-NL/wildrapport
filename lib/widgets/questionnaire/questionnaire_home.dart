@@ -146,7 +146,7 @@ class QuestionnaireHome extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(responsive.sp(2)),
                       side: BorderSide(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                         width: responsive.sp(0.2),
                       ),
                     ),

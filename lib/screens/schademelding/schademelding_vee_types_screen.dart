@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingVeeTypesScreen extends StatefulWidget {
   const SchademeldingVeeTypesScreen({super.key});
@@ -21,11 +22,11 @@ class _SchademeldingVeeTypesScreenState
   
   final List<Map<String, String>> veeTypes = [
     {'title': 'Rund', 'image': 'assets/images/vee/rund.png'},
-    {'title': 'Schaap', 'image': 'assets/images/vee/schaap.png'},
-    {'title': 'Geit', 'image': 'assets/images/vee/geit.png'},
-    {'title': 'Paard', 'image': 'assets/images/vee/paard.png'},
+    {'title': 'Schapen', 'image': 'assets/images/vee/schaap.png'},
+    {'title': 'Geiten', 'image': 'assets/images/vee/geit.png'},
+    {'title': 'Paarden', 'image': 'assets/images/vee/paard.png'},
     {'title': 'Pluimvee', 'image': 'assets/images/vee/pluimvee.png'},
-    {'title': 'Vark', 'image': 'assets/images/vee/vark.png'},
+    {'title': 'Varkens', 'image': 'assets/images/vee/vark.png'},
     {'title': 'Ander', 'image': 'ander'},
   ];
 
@@ -54,23 +55,38 @@ class _SchademeldingVeeTypesScreenState
 
   void _handleVeeTypeSelection(String veeType, {String? selectedTileTitle}) {
     debugPrint('[SchademeldingVeeTypes] Selected: $veeType');
-    
-    // Save selected vee type to provider
+
+    // Save selected vee type to provider and set animal image path if possible
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
+      // Find the image path for the selected vee type
+      final selectedVee = veeTypes.firstWhere(
+        (item) => item['title'] == (selectedTileTitle ?? veeType),
+        orElse: () => {'image': ''},
+      );
+      final imagePath = selectedVee['image'] ?? '';
+
+      // If animalSelected exists, update its image path
+      final updatedAnimalSelected = currentSighting.animalSelected != null
+          ? currentSighting.animalSelected!.copyWith(
+              animalImagePath: imagePath.isNotEmpty ? imagePath : currentSighting.animalSelected!.animalImagePath,
+            )
+          : null;
+
       final updated = currentSighting.copyWith(
         cropType: veeType,
+        animalSelected: updatedAnimalSelected,
       );
       _sightingManager.updateCurrentanimalSighting(updated);
     }
-    
+
     setState(() {
       _selectedVee = selectedTileTitle ?? veeType;
       if ((selectedTileTitle ?? veeType) != 'Ander') {
         _customVeeType = null;
       }
     });
-    
+
     // Navigate to animal selection
     Navigator.push(
       context,
@@ -358,8 +374,8 @@ class _SchademeldingVeeTypesScreenState
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -374,7 +390,7 @@ class _SchademeldingVeeTypesScreenState
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                       ),
                 ),
               ),

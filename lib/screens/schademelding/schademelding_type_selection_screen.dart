@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_gewas_types_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_vee_types_screen.dart';
-import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class SchademeldingTypeSelectionScreen extends StatefulWidget {
   final String appBarTitle;
@@ -23,12 +23,7 @@ class SchademeldingTypeSelectionScreen extends StatefulWidget {
 class _SchademeldingTypeSelectionScreenState
     extends State<SchademeldingTypeSelectionScreen> {
   String? _selectedType;
-  
-  @override
-  void initState() {
-    super.initState();
-  }
-  
+
   void _handleBackNavigation() {
     if (Navigator.of(context).canPop()) {
       Navigator.pop(context);
@@ -80,8 +75,8 @@ class _SchademeldingTypeSelectionScreenState
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(
-                      color: const Color(0xFF999999),
+                    side: const BorderSide(
+                      color: AppColors.borderDefault,
                       width: 1,
                     ),
                   ),
@@ -111,7 +106,6 @@ class _SchademeldingTypeSelectionScreenState
                           ),
                           const SizedBox(height: 16),
                           SizedBox(
-
                             width: 240,
                             child: _buildDamageTypeCard(
                               title: 'Eigendom',
@@ -177,10 +171,23 @@ class _SchademeldingTypeSelectionScreenState
             ),
           );
         } else if (title == 'Eigendom') {
+          final sightingManager =
+              context.read<AnimalSightingReportingInterface>();
+          final currentSighting = sightingManager.getCurrentanimalSighting();
+
+          if (currentSighting != null) {
+            final updated = currentSighting.copyWith(
+              cropType: 'Eigendom',
+            );
+            sightingManager.updateCurrentanimalSighting(updated);
+          }
+
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const SchademeldingDierenScreen(gewasType: 'Eigendom'),
+              builder: (context) => const SchademeldingDierenScreen(
+                gewasType: 'Eigendom',
+              ),
             ),
           );
         }
@@ -192,22 +199,17 @@ class _SchademeldingTypeSelectionScreenState
           color: isSelected ? const Color(0xFFF0F4ED) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFF999999),
+            color:
+                isSelected ? AppColors.primaryGreen : AppColors.borderDefault,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.12 : 0.06),
-              blurRadius: isSelected ? 10 : 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          
+          
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image area with soft background (slightly shorter to fit all cards)
             SizedBox(
               height: 110,
               child: Container(
@@ -239,12 +241,11 @@ class _SchademeldingTypeSelectionScreenState
                 ),
               ),
             ),
-            // Divider line
             Container(
               height: 1,
-              color: isSelected ? const Color(0xFF4CAF50) : const Color(0xFF999999),
+              color:
+                  isSelected ? const Color(0xFF4CAF50) : AppColors.borderDefault,
             ),
-            // Title area
             Container(
               padding: const EdgeInsets.symmetric(
                 vertical: 12,
@@ -263,7 +264,9 @@ class _SchademeldingTypeSelectionScreenState
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? const Color(0xFF2E7D32) : Colors.black87,
+                  color: isSelected
+                      ? const Color(0xFF2E7D32)
+                      : Colors.black87,
                 ),
               ),
             ),

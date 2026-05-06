@@ -33,7 +33,7 @@ class AnimalDetailDialog extends StatelessWidget {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: AppColors.darkGreen.withValues(alpha:0.1),
+                        color: AppColors.primaryGreen.withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child:
@@ -47,7 +47,7 @@ class AnimalDetailDialog extends StatelessWidget {
                                     return const Icon(
                                       Icons.pets,
                                       size: 32,
-                                      color: AppColors.darkGreen,
+                                      color: AppColors.primaryGreen,
                                     );
                                   },
                                 ),
@@ -55,7 +55,7 @@ class AnimalDetailDialog extends StatelessWidget {
                               : const Icon(
                                 Icons.pets,
                                 size: 32,
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                               ),
                     ),
                     const SizedBox(width: 16),
@@ -77,7 +77,7 @@ class AnimalDetailDialog extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                             ),
                           ),
                         ],
@@ -125,12 +125,12 @@ class AnimalDetailDialog extends StatelessWidget {
         children: [
           Text(
             DateFormat('EEEE d MMMM yyyy').format(local),
-            style: const TextStyle(fontSize: 14, color: AppColors.darkGreen),
+            style: const TextStyle(fontSize: 14, color: AppColors.primaryGreen),
           ),
           const SizedBox(height: 4),
           Text(
             DateFormat('HH:mm').format(local),
-            style: const TextStyle(fontSize: 14, color: AppColors.darkGreen),
+            style: const TextStyle(fontSize: 14, color: AppColors.primaryGreen),
           ),
           const SizedBox(height: 4),
           Text(
@@ -170,14 +170,14 @@ class AnimalDetailDialog extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.darkGreen),
+              Icon(icon, size: 20, color: AppColors.primaryGreen),
               const SizedBox(width: 8),
               Text(
                 title,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                 ),
               ),
             ],

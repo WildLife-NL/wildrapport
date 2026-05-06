@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
+//import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
@@ -10,6 +11,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingSummaryScreen extends StatefulWidget {
   const SchademeldingSummaryScreen({
@@ -183,16 +185,22 @@ class _SchademeldingSummaryScreenState
     try {
       // Get the current sighting data from provider
       var sighting = sightingManager.getCurrentanimalSighting();
-
-      _debugDumpBeforeSubmit(
-        sighting: sighting,
-        damageProvider: damageProvider,
-      );
-
       if (sighting != null) {
-        _syncSightingToBelongingProvider(
-          sighting: sighting,
-          damageProvider: damageProvider,
+        // Save to submitted sightings
+        submittedProvider.addSighting(sighting);
+        debugPrint('[SchademeldingSummary] Schademelding: ${sighting.reportType}, Gewas: ${sighting.cropType}');
+        // Clear the current sighting
+        sightingManager.clearCurrentanimalSighting();
+        debugPrint('[SchademeldingSummary] Schademelding saved and navigating to logbook');
+        // Navigate to logbook with recent sightings shown directly
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const MainNavScreen(
+              initialTab: NavTab.logboek,
+              openRecentSightingsDirectly: true,
+            ),
+          ),
+          (route) => false,
         );
 
         debugPrint('[SchademeldingSubmit] Posting interaction to backend...');
@@ -276,22 +284,25 @@ class _SchademeldingSummaryScreenState
       case 'tuin':
         return 'assets/images/gewas/tuin.jpg';
       // Vee types
-      case 'rund':
+      case 'runderen':
         return 'assets/images/vee/rund.png';
-      case 'schaap':
+      case 'schapen':
         return 'assets/images/vee/schaap.png';
-      case 'geit':
+      case 'geiten':
         return 'assets/images/vee/geit.png';
-      case 'paard':
+      case 'paarden':
         return 'assets/images/vee/paard.png';
       case 'pluimvee':
         return 'assets/images/vee/pluimvee.png';
-      case 'vark':
+      case 'varkens':
         return 'assets/images/vee/vark.png';
       case 'ree':
         return 'assets/images/vee/ree.png';
       case 'ander':
         return null;
+      //Eigendom
+      case 'eigendom':
+        return 'assets/images/property.jpg';
       default:
         return null;
     }
@@ -355,7 +366,7 @@ class _SchademeldingSummaryScreenState
               showUserIcon: false,
               useFixedText: true,
               iconColor: Colors.grey,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 0.85,
               userIconScale: 1.15,
@@ -462,7 +473,7 @@ class _SchademeldingSummaryScreenState
                                                   ?.copyWith(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Colors.black,
+                                                    color: AppColors.textPrimary
                                                   ),
                                             ),
                                           ),
@@ -817,6 +828,11 @@ class _SchademeldingSummaryScreenState
       ),
     );
 
+    if (imagePath.isEmpty) {
+      // Fallback for missing image path
+      return placeholder;
+    }
+
     if (isNetworkUrl) {
       return Image.network(
         imagePath,
@@ -840,4 +856,5 @@ class _SchademeldingSummaryScreenState
         return placeholder;
       }
     }
-  }}
+  }
+}

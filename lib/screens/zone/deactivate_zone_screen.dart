@@ -123,52 +123,49 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: AppColors.backgroundLight,
-    body: SafeArea(
-      bottom: false,
-      child: Column(
-        children: [
-          CustomAppBar(
-            leftIcon: Icons.arrow_back_ios,
-            centerText: 'Zone deactiveren',
-            rightIcon: null,
-            showUserIcon: false,
-            onLeftIconPressed: () {
-              Navigator.of(context).pop();
-            },
-            iconColor: Colors.black,
-            textColor: Colors.black,
-            fontScale: 1.4,
-            iconScale: 1.15,
-            userIconScale: 1.15,
-            useFixedText: true,
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Card(
-                elevation: 0,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(
-                    color: AppColors.borderDefault,
-                    width: 1,
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomAppBar(
+              leftIcon: Icons.arrow_back_ios,
+              centerText: 'Zone deactiveren',
+              rightIcon: null,
+              showUserIcon: false,
+              onLeftIconPressed: () {
+                Navigator.of(context).pop();
+              },
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              fontScale: 1.15,
+              iconScale: 1.15,
+              userIconScale: 1.15,
+              useFixedText: true,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Kies de zone die je wilt deactiveren. Een gedeactiveerde zone wordt niet meer gebruikt voor alarmen.',
+                      style: TextStyle(fontSize: 14, height: 1.4),
+                    ),
+                    const SizedBox(height: 20),
+                    if (_loading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator(color: AppColors.primaryGreen),
+                        ),
+                      )
+                    else if (_loadError != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
                         child: Text(
                           'Kies de zone die je wilt deactiveren',
                           textAlign: TextAlign.center,
@@ -238,11 +235,8 @@ Widget build(BuildContext context) {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              width: 1,
-                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.primaryGreen),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Zone>(

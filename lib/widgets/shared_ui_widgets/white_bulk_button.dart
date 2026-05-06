@@ -70,7 +70,7 @@ class _WhiteBulkButtonState extends State<WhiteBulkButton> {
     // to the previous darkGreen behavior for background, and to initialBg for border.
     final Color bgColor =
         active
-            ? (widget.hoverBackgroundColor ?? AppColors.darkGreen)
+            ? (widget.hoverBackgroundColor ?? AppColors.primaryGreen)
             : initialBg;
     final Color borderColor =
         active ? (widget.hoverBorderColor ?? initialBg) : initialBorder;

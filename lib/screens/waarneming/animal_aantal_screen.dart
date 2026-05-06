@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_details_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
+import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 
 class AnimalAantalScreen extends StatefulWidget {
   const AnimalAantalScreen({super.key});
@@ -17,19 +20,14 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
   @override
   void initState() {
     super.initState();
-    // Load saved animal count from sighting if it exists
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
-    
     currentCount = sighting?.animalCount ?? 0;
   }
 
   void _saveAnimalCount() {
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
-    
     if (sighting != null) {
       sightingManager.updateCurrentanimalSighting(
         sighting.copyWith(animalCount: currentCount),
@@ -46,24 +44,22 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
     final selectedAnimal = sighting?.animalSelected;
 
     if (selectedAnimal == null) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF5F6F4),
-        body: const Center(
+      return const Scaffold(
+        backgroundColor: Color(0xFFF5F6F4),
+        body: Center(
           child: Text('No animal selected'),
         ),
       );
     }
 
-    String appBarTitle = 'Waarneming'; // default
-    final reportType = sighting?.reportType;
-    if (reportType != null) {
-      if (reportType == 'gewasschade') {
+    String appBarTitle = 'Waarneming';
+    if (sighting?.reportType != null) {
+      if (sighting!.reportType == 'gewasschade') {
         appBarTitle = 'Schademelding';
       } else if (reportType == 'verkeersongeval') {
         appBarTitle = 'Dieraanrijding';
@@ -78,9 +74,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
         bottom: false,
         child: Column(
           children: [
-            // App Bar
             CustomAppBar(
-              
               centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
@@ -91,8 +85,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
-          
-            // Main card container
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.75,
               child: Padding(
@@ -102,8 +94,8 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(
-                      color: const Color(0xFF999999),
+                    side: const BorderSide(
+                      color: Color(0xFF999999),
                       width: 1,
                     ),
                   ),
@@ -112,7 +104,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
-                          // Question text
                           Text(
                             sighting?.reportType == 'verkeersongeval'
                                 ? 'Hoeveel dieren\nwaren erbij betrokken?'
@@ -125,25 +116,22 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // Animal card with image
                           Center(
                             child: SizedBox(
                               width: 180,
-                          
                               child: Card(
-                                
-                                shadowColor: const Color.fromARGB(133, 0, 0, 0).withValues(alpha: 0.1),
+                                shadowColor: const Color.fromARGB(133, 0, 0, 0)
+                                    .withValues(alpha: 0.1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(
-                                    color: const Color(0xFF999999),
+                                  side: const BorderSide(
+                                    color: Color(0xFF999999),
                                     width: 1,
                                   ),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Image area
                                     Center(
                                       child: SizedBox(
                                         width: 180,
@@ -151,13 +139,12 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                         child: AspectRatio(
                                           aspectRatio: 1.0,
                                           child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.only(
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(14),
                                                 topRight: Radius.circular(14),
                                               ),
                                               color: Colors.white,
-                                              
                                             ),
                                             child: ClipRRect(
                                               borderRadius: const BorderRadius.only(
@@ -165,8 +152,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                                 topRight: Radius.circular(14),
                                               ),
                                               child: SizedBox.expand(
-                                                child: selectedAnimal.animalImagePath !=
-                                                        null
+                                                child: selectedAnimal.animalImagePath != null
                                                     ? Image(
                                                         image: AssetImage(
                                                           selectedAnimal.animalImagePath!,
@@ -175,8 +161,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                                       )
                                                     : Center(
                                                         child: Icon(
-                                                          Icons
-                                                              .image_not_supported_outlined,
+                                                          Icons.image_not_supported_outlined,
                                                           size: 50,
                                                           color: Colors.grey[400],
                                                         ),
@@ -187,18 +172,16 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                         ),
                                       ),
                                     ),
-                                    // Divider line
                                     Container(
                                       height: 1,
                                       color: const Color(0xFF999999),
                                       width: 180,
                                     ),
-                                    // Name area
                                     Container(
                                       width: 180,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: const BorderRadius.only(
+                                        borderRadius: BorderRadius.only(
                                           bottomLeft: Radius.circular(14),
                                           bottomRight: Radius.circular(14),
                                         ),
@@ -223,7 +206,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          // Aantal label
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -236,7 +218,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Stepper with - and + buttons
                           Container(
                             height: 80,
                             decoration: BoxDecoration(
@@ -249,7 +230,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ),
                             child: Row(
                               children: [
-                                // Minus button
                                 Expanded(
                                   child: ClipRRect(
                                     borderRadius: const BorderRadius.only(
@@ -269,14 +249,14 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                         splashColor:
                                             Colors.black.withValues(alpha: 0.1),
                                         child: Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.black87,
-                                            borderRadius: const BorderRadius.only(
+                                            borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(40),
                                               bottomLeft: Radius.circular(40),
                                             ),
                                           ),
-                                          child: SizedBox.expand(
+                                          child: const SizedBox.expand(
                                             child: Icon(
                                               Icons.remove,
                                               color: Colors.white,
@@ -288,7 +268,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                     ),
                                   ),
                                 ),
-                                // Number display
                                 Expanded(
                                   flex: 2,
                                   child: Center(
@@ -302,7 +281,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                     ),
                                   ),
                                 ),
-                                // Plus button
                                 Expanded(
                                   child: ClipRRect(
                                     borderRadius: const BorderRadius.only(
@@ -320,14 +298,14 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                                         splashColor:
                                             Colors.black.withValues(alpha: 0.1),
                                         child: Container(
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             color: Colors.black87,
-                                            borderRadius: const BorderRadius.only(
+                                            borderRadius: BorderRadius.only(
                                               topRight: Radius.circular(25),
                                               bottomRight: Radius.circular(25),
                                             ),
                                           ),
-                                          child: SizedBox.expand(
+                                          child: const SizedBox.expand(
                                             child: Icon(
                                               Icons.add,
                                               color: Colors.white,
@@ -343,7 +321,6 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Quick add buttons
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -355,46 +332,45 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // More details button
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: const Color(0xFF999999),
-                                  width: 1.5,
+                          
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Color(0xFF999999),
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                              onPressed: () {
-                                if (currentCount > 0) {
-                                  _saveAnimalCount();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          AnimalWaarnemingDetailsScreen(
-                                            animalIndex: 0,
-                                            totalCount: currentCount,
-                                          ),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: const Text(
-                                '+ Meer details toevoegen?',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                onPressed: () {
+                                  if (currentCount > 0) {
+                                    _saveAnimalCount();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AnimalWaarnemingDetailsScreen(
+                                          animalIndex: 0,
+                                          totalCount: currentCount,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: const Text(
+                                  '+ Meer details toevoegen?',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -442,18 +418,35 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                           if (currentCount > 0) {
                             _saveAnimalCount();
                             debugPrint('[AnimalAantal] Report type: ${sighting?.reportType}');
-                            debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingDetailsScreen');
-                            // Navigate to animal details screen for the first animal
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AnimalWaarnemingDetailsScreen(
-                                      animalIndex: 0,
-                                      totalCount: currentCount,
-                                    ),
-                              ),
-                            );
+
+                            if (sighting?.reportType == 'gewasschade') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SchademeldingDetailsScreen(),
+                                ),
+                              );
+                            } else if (sighting?.reportType == 'verkeersongeval') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DieraanrijdingDetailsScreen(totalCount: currentCount),
+                                ),
+                              );
+                            } else {
+                              debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingSummaryScreen');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AnimalWaarnemingSummaryScreen(
+                                    totalCount: currentCount,
+                                  ),
+                                ),
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -480,7 +473,7 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SizedBox.shrink(),
+      bottomNavigationBar: const SizedBox.shrink(),
     );
   }
 

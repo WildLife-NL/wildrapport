@@ -32,6 +32,7 @@ class _AnimalWaarnemingDetailsScreenState
     extends State<AnimalWaarnemingDetailsScreen> {
   AnimalAge selectedAge = AnimalAge.onbekend;
   AnimalGender selectedGender = AnimalGender.onbekend;
+  AnimalCondition selectedCondition = AnimalCondition.onbekend;
 
   @override
   void initState() {
@@ -52,6 +53,9 @@ class _AnimalWaarnemingDetailsScreenState
     final firstGenderViewCount = savedAnimal.genderViewCounts.first;
     selectedGender = firstGenderViewCount.gender;
     selectedAge = _extractAgeFromViewCount(firstGenderViewCount.viewCount);
+    if (savedAnimal.condition != null) {
+      selectedCondition = savedAnimal.condition!;
+    }
   }
 
   AnimalAge _extractAgeFromViewCount(ViewCountModel viewCount) {
@@ -102,7 +106,7 @@ class _AnimalWaarnemingDetailsScreenState
           viewCount: viewCount,
         ),
       ],
-      condition: template.condition,
+      condition: selectedCondition,
     );
   }
 
@@ -343,7 +347,7 @@ class _AnimalWaarnemingDetailsScreenState
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -377,7 +381,7 @@ class _AnimalWaarnemingDetailsScreenState
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w400,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -493,9 +497,18 @@ class _AnimalWaarnemingDetailsScreenState
                             AnimalGender.mannelijk,
                             AnimalGender.vrouwelijk,
                           ], (gender) {
-                            setState(() =>
-                                selectedGender = gender as AnimalGender);
+                            setState(() => selectedGender = gender as AnimalGender);
                           }, selectedGender),
+                          const SizedBox(height: 16),
+                          // Condition selector
+                          _buildSelectorSection('Conditie:', [
+                            AnimalCondition.onbekend, // unknown
+                            AnimalCondition.gezond,   // healthy
+                            AnimalCondition.gewond,     // impaired
+                            AnimalCondition.dood,     // dead
+                          ], (condition) {
+                            setState(() => selectedCondition = condition as AnimalCondition);
+                          }, selectedCondition),
                           const SizedBox(height: 20),
                           // Next animal button - only show if not the final animal
                           if (widget.animalIndex < widget.totalCount - 1)
@@ -633,7 +646,7 @@ class _AnimalWaarnemingDetailsScreenState
                   fontWeight: FontWeight.w600,
                   color: isSelected
                       ? Colors.white
-                      : Colors.black87,
+                      : AppColors.textPrimary,
                 ),
               ),
             );
@@ -668,14 +681,12 @@ class _AnimalWaarnemingDetailsScreenState
       switch (value) {
         case AnimalCondition.gezond:
           return 'Gezond';
-        case AnimalCondition.ziek:
-          return 'Gewond/Ziek';
+        case AnimalCondition.gewond:
+          return 'Gewond';
         case AnimalCondition.dood:
           return 'Dood';
-        case AnimalCondition.levend:
-          return 'Levend';
-        case AnimalCondition.andere:
-          return 'Anders';
+        case AnimalCondition.onbekend:
+          return 'Onbekend';
       }
     }
     return 'Onbekend';

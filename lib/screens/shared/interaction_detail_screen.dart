@@ -17,7 +17,7 @@ class InteractionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -30,8 +30,8 @@ class InteractionDetailScreen extends StatelessWidget {
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -50,7 +50,7 @@ class InteractionDetailScreen extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -207,7 +207,7 @@ class InteractionDetailScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.darkGreen,
+              color: AppColors.primaryGreen,
             ),
           ),
           const SizedBox(height: 12),
@@ -257,7 +257,7 @@ class InteractionDetailScreen extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.lightMintGreen,
+              color: AppColors.backgroundLight,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -325,7 +325,7 @@ class InteractionDetailScreen extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.lightMintGreen,
+              color: AppColors.backgroundLight,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -374,7 +374,7 @@ class InteractionDetailScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.lightMintGreen,
+            color: AppColors.backgroundLight,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(

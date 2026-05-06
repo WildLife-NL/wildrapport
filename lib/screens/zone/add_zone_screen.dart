@@ -260,7 +260,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -294,107 +294,96 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 0,
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: const Color(0xFF999999),
-                            width: 1,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Naam',
+                          hintText: 'Minimaal 2 tekens',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.borderDefault),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Map area expands to fill available space
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
+                        validator: (v) {
+                          final s = v?.trim() ?? '';
+                          if (s.length < 2) return 'Naam moet minimaal 2 tekens zijn.';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Beschrijving',
+                          hintText: 'Minimaal 5 tekens',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.borderDefault),
+                          ),
+                        ),
+                        validator: (v) {
+                          final s = v?.trim() ?? '';
+                          if (s.length < 5) return 'Beschrijving moet minimaal 5 tekens zijn.';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Teken je zone op de kaart',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Tik op de kaart om punten te zetten (min. 3). Gebruik "Huidige locatie" om naar je positie te gaan.',
+                        style: TextStyle(fontSize: 12, color: AppColors.darkGrey),
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox(
+                          height: 280,
+                          child: Stack(
+                            children: [
+                              WildLifeNLMap(
+                                mapController: _mapController,
+                                options: fm.MapOptions(
+                                  initialCenter: _defaultCenter,
+                                  initialZoom: 10,
+                                  minZoom: 4,
+                                  maxZoom: 17,
+                                  onTap: (_, point) => _onMapTap(point),
+                                  interactionOptions: const fm.InteractionOptions(
+                                    flags: fm.InteractiveFlag.drag |
+                                        fm.InteractiveFlag.pinchZoom |
+                                        fm.InteractiveFlag.doubleTapZoom |
+                                        fm.InteractiveFlag.flingAnimation |
+                                        fm.InteractiveFlag.pinchMove,
+                                  ),
                                 ),
-                                child: Stack(
-                                  children: [
-                                    WildLifeNLMap(
-                                      mapController: _mapController,
-                                      options: fm.MapOptions(
-                                        initialCenter: _defaultCenter,
-                                        initialZoom: 10,
-                                        minZoom: 4,
-                                        maxZoom: 17,
-                                        onTap: (_, point) => _onMapTap(point),
-                                        interactionOptions:
-                                            const fm.InteractionOptions(
-                                              flags:
-                                                  fm.InteractiveFlag.drag |
-                                                  fm.InteractiveFlag.pinchZoom |
-                                                  fm
-                                                      .InteractiveFlag
-                                                      .doubleTapZoom |
-                                                  fm
-                                                      .InteractiveFlag
-                                                      .flingAnimation |
-                                                  fm.InteractiveFlag.pinchMove,
-                                            ),
-                                      ),
-                                      extraLayers: [
-                                        if (_polygonPoints.isNotEmpty)
-                                          fm.PolygonLayer(
-                                            polygons: [
-                                              fm.Polygon(
-                                                points: _polygonPoints,
-                                                color: AppColors.darkGreen
-                                                    .withValues(alpha: 0.25),
-                                                borderStrokeWidth: 2,
-                                                borderColor:
-                                                    AppColors.darkGreen,
-                                              ),
-                                            ],
-                                          ),
-                                        fm.MarkerLayer(
-                                          markers:
-                                              _polygonPoints.asMap().entries.map(
-                                                (e) {
-                                                  return fm.Marker(
-                                                    point: e.value,
-                                                    width: 24,
-                                                    height: 24,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color:
-                                                            AppColors.darkGreen,
-                                                        border: Border.all(
-                                                          color: Colors.white,
-                                                          width: 2,
-                                                        ),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          '${e.key + 1}',
-                                                          style:
-                                                              const TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .white,
-                                                                fontSize: 10,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ).toList(),
+                                extraLayers: [
+                                  if (_polygonPoints.isNotEmpty)
+                                    fm.PolygonLayer(
+                                      polygons: [
+                                        fm.Polygon(
+                                          points: _polygonPoints,
+                                          color: AppColors.primaryGreen.withValues(alpha: 0.25),
+                                          borderStrokeWidth: 2,
+                                          borderColor: AppColors.primaryGreen,
                                         ),
                                         if (_currentLocation != null)
                                           fm.MarkerLayer(
@@ -469,17 +458,16 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                           height: 50,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color:
-                                                _polygonPoints.isEmpty
-                                                    ? const Color(0xFFCCCCCC)
-                                                    : const Color(0xFF333333),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.2,
-                                                ),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
+                                            color: AppColors.textPrimary,
+                                            border: Border.all(color: AppColors.borderDefault, width: 2),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${e.key + 1}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ],
                                           ),
@@ -537,19 +525,48 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                            Container(
-                              height: 1,
-                              color: AppColors.borderDefault,
-                            ),
-                            // Point management footer
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: AppColors.borderDefault,
-                                    width: 1,
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    if (!_isLoadingLocation) _goToMyLocation();
+                                  },
+                                  child: Material(
+                                    elevation: 2,
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (_isLoadingLocation)
+                                            SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: AppColors.primaryGreen,
+                                              ),
+                                            )
+                                          else
+                                            const Icon(Icons.my_location, size: 20, color: AppColors.primaryGreen),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            _isLoadingLocation ? 'Bezig…' : 'Huidige locatie',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: _isLoadingLocation
+                                                  ? Colors.grey
+                                                  : AppColors.primaryGreen,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -663,45 +680,42 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: SafeArea(
-                top: false,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isSubmitting ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF37A904),
-                      disabledBackgroundColor: const Color(0xFFEFEFEF),
-                      foregroundColor: Colors.white,
-                      disabledForegroundColor: const Color(0xFFACACAC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Text(
+                            '${_polygonPoints.length} punt${_polygonPoints.length == 1 ? '' : 'en'}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.brown900,
+                            ),
+                          ),
+                          const Spacer(),
+                          TextButton.icon(
+                            onPressed: _polygonPoints.isEmpty ? null : _removeLastPoint,
+                            icon: const Icon(Icons.undo, size: 18),
+                            label: const Text('Ongedaan'),
+                            style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
+                          ),
+                          TextButton.icon(
+                            onPressed: _polygonPoints.isEmpty ? null : _clearPoints,
+                            icon: const Icon(Icons.clear_all, size: 18),
+                            label: const Text('Wissen'),
+                            style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          ),
+                        ],
                       ),
-                    ),
-                    child:
-                        _isSubmitting
-                            ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                            : const Text(
-                              'Zone toevoegen',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: primaryButtonHeight(context),
+                        child: ElevatedButton(
+                          onPressed: _isSubmitting ? null : _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryGreen,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                   ),
                 ),

@@ -62,7 +62,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -81,8 +81,8 @@ class _LogbookScreenState extends State<LogbookScreen> {
                   Navigator.of(context).pop();
                 }
               },
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -170,12 +170,12 @@ class _ReportButton extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.darkGreen.withValues(alpha: 0.08),
+                  color: AppColors.primaryGreen.withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                   size: 22,
                 ),
               ),
@@ -190,7 +190,7 @@ class _ReportButton extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
-                        color: Colors.black,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[

@@ -207,14 +207,14 @@ class DropdownManager implements DropdownInterface {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: AppColors.darkGreen, width: 1.5),
+            border: Border.all(color: AppColors.primaryGreen, width: 1.5),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => onExpandChanged(!isExpanded),
               borderRadius: BorderRadius.circular(25),
-              hoverColor: AppColors.darkGreen.withValues(alpha:0.15),
+              hoverColor: AppColors.primaryGreen.withValues(alpha:0.15),
               child: Container(
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -238,7 +238,7 @@ class DropdownManager implements DropdownInterface {
                       isExpanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: AppColors.darkGreen,
+                      color: AppColors.primaryGreen,
                       size: 24,
                     ),
                   ],
@@ -275,7 +275,7 @@ class DropdownManager implements DropdownInterface {
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: AppColors.darkGreen, width: 1.5),
+                border: Border.all(color: AppColors.primaryGreen, width: 1.5),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -285,7 +285,7 @@ class DropdownManager implements DropdownInterface {
                     onExpandChanged(false);
                   },
                   borderRadius: BorderRadius.circular(25),
-                  hoverColor: AppColors.darkGreen.withValues(alpha:0.15),
+                  hoverColor: AppColors.primaryGreen.withValues(alpha:0.15),
                   child: Container(
                     height: 48,
                     padding: const EdgeInsets.symmetric(horizontal: 16),

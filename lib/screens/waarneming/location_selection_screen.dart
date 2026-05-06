@@ -10,6 +10,7 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/waarneming/location_datetime_screen.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
@@ -130,8 +131,8 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             showUserIcon: false,
             useFixedText: true,
             onLeftIconPressed: _handleBackNavigation,
-            iconColor: Colors.black,
-            textColor: Colors.black,
+            iconColor: AppColors.textPrimary,
+            textColor: AppColors.textPrimary,
             fontScale: 1.4,
             iconScale: 1.15,
             userIconScale: 1.15,
@@ -156,11 +157,11 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
               child: Card(
                 elevation: 0,
-                color: Colors.white,
+                color: AppColors.cardBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: const Color(0xFF999999),
+                    color: AppColors.borderDefault,
                     width: 1,
                   ),
                 ),
@@ -204,7 +205,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                         height: 30,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Color(0xFF0D53FF),
+                                            color: AppColors.liveLocation,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -283,7 +284,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                               .bodyMedium
                               ?.copyWith(
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                         ),
                       ),

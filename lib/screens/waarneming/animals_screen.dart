@@ -8,6 +8,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/screens/waarneming/animal_aantal_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalsScreen extends StatefulWidget {
   final String appBarTitle;
@@ -189,8 +190,8 @@ class _AnimalsScreenState extends State<AnimalsScreen>
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -239,7 +240,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black54,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ),

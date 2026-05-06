@@ -142,7 +142,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F4),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -161,17 +161,124 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
               userIconScale: 1.15,
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Selecteer diersoort:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black87,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 12.0,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    height: 44,
+                    constraints: const BoxConstraints(
+                      minWidth: 140,
+                      maxWidth: 220,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primaryGreen,
+                        width: 1.5,
                       ),
-                ),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isDense: true,
+                        iconSize: 18,
+                        value: _selectedCategory,
+                        items: _categories
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c,
+                                child: Tooltip(
+                                  message: c,
+                                  waitDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                  child: Text(
+                                    c,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        selectedItemBuilder: (ctx) => _categories
+                            .map(
+                              (c) => Align(
+                                alignment: Alignment.centerLeft,
+                                child: Tooltip(
+                                  message: c,
+                                  waitDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                  child: Text(
+                                    c,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: _loading ? null : _onCategoryChanged,
+                        isExpanded: true,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundLight,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primaryGreen,
+                          width: 1.5,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: AppColors.primaryGreen),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              style: const TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Zoeken',
+                                border: InputBorder.none,
+                                isCollapsed: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear,
+                                          color: AppColors.primaryGreen,
+                                        ),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(

@@ -330,7 +330,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
   Widget build(BuildContext context) {
     final areaFmt = NumberFormat('#,##0', 'nl_NL');
     return Scaffold(
-      backgroundColor: AppColors.darkGreen,
+      backgroundColor: AppColors.primaryGreen,
       body: Column(
         children: [
           SafeArea(
@@ -508,7 +508,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                   left: 0,
                   right: 0,
                   child: Container(
-                    color: AppColors.darkGreen.withValues(alpha:0.95),
+                    color: AppColors.primaryGreen.withValues(alpha:0.95),
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 44),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -572,7 +572,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                                   backgroundColor:
                                       _isDrawing
                                           ? AppColors.lightGreen
-                                          : AppColors.lightMintGreen,
+                                          : AppColors.backgroundLight,
                                   foregroundColor:
                                       _isDrawing
                                           ? AppColors.offWhite
@@ -598,7 +598,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                                   backgroundColor:
                                       _isGpsRecording
                                           ? Colors.red
-                                          : AppColors.lightMintGreen,
+                                          : AppColors.backgroundLight,
                                   foregroundColor:
                                       _isGpsRecording
                                           ? AppColors.offWhite
@@ -683,7 +683,7 @@ class _AreaSelectionMapState extends State<AreaSelectionMap> {
                                   : 'Prijs: €${_formatPrice(_unitPricePerM2!)}/m²',
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.lightMintGreen,
+                              backgroundColor: AppColors.backgroundLight,
                               foregroundColor: AppColors.black,
                             ),
                           ),

@@ -29,13 +29,13 @@ class DetectionDetailDialog extends StatelessWidget {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: AppColors.darkGreen.withValues(alpha:0.1),
+                        color: AppColors.primaryGreen.withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.sensors,
                         size: 32,
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -48,7 +48,7 @@ class DetectionDetailDialog extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                             ),
                           ),
                           if (detection.label != null) ...[
@@ -78,7 +78,7 @@ class DetectionDetailDialog extends StatelessWidget {
                       Translator.toDutch(detection.deviceType!),
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                       ),
                     ),
                   ),
@@ -94,7 +94,7 @@ class DetectionDetailDialog extends StatelessWidget {
                       '${(detection.confidence! * 100).toStringAsFixed(1)}%',
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                       ),
                     ),
                   ),
@@ -138,12 +138,12 @@ class DetectionDetailDialog extends StatelessWidget {
         children: [
           Text(
             DateFormat('EEEE d MMMM yyyy').format(local),
-            style: const TextStyle(fontSize: 14, color: AppColors.darkGreen),
+            style: const TextStyle(fontSize: 14, color: AppColors.primaryGreen),
           ),
           const SizedBox(height: 4),
           Text(
             DateFormat('HH:mm').format(local),
-            style: const TextStyle(fontSize: 14, color: AppColors.darkGreen),
+            style: const TextStyle(fontSize: 14, color: AppColors.primaryGreen),
           ),
           const SizedBox(height: 4),
           Text(
@@ -183,14 +183,14 @@ class DetectionDetailDialog extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.darkGreen),
+              Icon(icon, size: 20, color: AppColors.primaryGreen),
               const SizedBox(width: 8),
               Text(
                 title,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                 ),
               ),
             ],

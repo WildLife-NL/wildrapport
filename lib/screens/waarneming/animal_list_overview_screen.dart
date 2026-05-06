@@ -8,6 +8,7 @@ import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_list_table.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 // Removed AppStateProvider import as collision flow is discontinued
 
 class AnimalListOverviewScreen extends StatelessWidget {
@@ -42,8 +43,8 @@ class AnimalListOverviewScreen extends StatelessWidget {
                 );
               },
               // Match the other screens: black icons/text and slightly larger font/icon scales
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -61,7 +62,7 @@ class AnimalListOverviewScreen extends StatelessWidget {
                         Text(
                           'Het overzicht',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: AppColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto',

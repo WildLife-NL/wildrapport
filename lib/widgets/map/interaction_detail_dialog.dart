@@ -27,7 +27,7 @@ class InteractionDetailDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
@@ -78,7 +78,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.darkGreen.withValues(alpha:0.1),
+                            color: AppColors.primaryGreen.withValues(alpha:0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Image.asset(
@@ -90,7 +90,7 @@ class InteractionDetailDialog extends StatelessWidget {
                               return const Icon(
                                 Icons.pets,
                                 size: 80,
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                               );
                             },
                           ),
@@ -184,7 +184,7 @@ class InteractionDetailDialog extends StatelessWidget {
                     child: const Text(
                       'Sluiten',
                       style: TextStyle(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                         fontSize: 16,
                       ),
                     ),
@@ -208,14 +208,14 @@ class InteractionDetailDialog extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: AppColors.darkGreen),
+            Icon(icon, size: 20, color: AppColors.primaryGreen),
             const SizedBox(width: 8),
             Text(
               title,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkGreen,
+                color: AppColors.primaryGreen,
               ),
             ),
           ],
@@ -379,7 +379,7 @@ class InteractionDetailDialog extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.darkGreen.withValues(alpha:0.1),
+                    color: AppColors.primaryGreen.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -387,7 +387,7 @@ class InteractionDetailDialog extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.darkGreen,
+                      color: AppColors.primaryGreen,
                     ),
                   ),
                 ),
