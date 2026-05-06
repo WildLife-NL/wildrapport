@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_gewas_types_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_vee_types_screen.dart';

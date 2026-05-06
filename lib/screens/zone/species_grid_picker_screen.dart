@@ -7,7 +7,6 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/api_models/species.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
-import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
@@ -48,6 +47,7 @@ AnimalModel _animalModelFromSpecies(Species s) {
 }
 class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   List<Species> _allSpecies = [];
   final Map<String, Species> _speciesById = {};
@@ -67,6 +67,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -105,8 +106,12 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   }
 
   void _applyFilters() {
+    final query = _searchController.text.trim().toLowerCase();
     final filtered = _allSpecies.where((s) {
       if (_selectedCategory != 'Alle' && s.category != _selectedCategory) {
+        return false;
+      }
+      if (query.isNotEmpty && !s.commonName.toLowerCase().contains(query)) {
         return false;
       }
       return true;
@@ -266,12 +271,12 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                                         ),
                                         onPressed: () {
                                           _searchController.clear();
-                                          setState(() {});
+                                          _applyFilters();
                                         },
                                       )
                                     : null,
                               ),
-                              onChanged: (_) => setState(() {}),
+                              onChanged: (_) => _applyFilters(),
                             ),
                           ),
                         ],

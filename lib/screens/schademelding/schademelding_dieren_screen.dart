@@ -174,7 +174,7 @@ class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
   @override
   Widget build(BuildContext context) {
     // Watch sighting manager so selection state updates the grid highlight
-    final sightingManager = context.watch<AnimalSightingReportingInterface>();
+    context.watch<AnimalSightingReportingInterface>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),

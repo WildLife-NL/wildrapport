@@ -628,29 +628,36 @@ class _AnimalWaarnemingDetailsScreenState
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: options.map((option) {
-            final isSelected = option == selectedValue;
-            final label = _getEnumLabel(option);
-            return OutlinedButton(
-              onPressed: () => onSelected(option),
-              style: isSelected
-                  ? AppComponentStyles.selectionButtonSelected()
-                  : AppComponentStyles.selectionButtonUnselected(),
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? Colors.white
-                      : AppColors.textPrimary,
-                ),
-              ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final itemWidth = (constraints.maxWidth - 8) / 2;
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map((option) {
+                final isSelected = option == selectedValue;
+                final label = _getEnumLabel(option);
+                return SizedBox(
+                  width: itemWidth,
+                  child: OutlinedButton(
+                    onPressed: () => onSelected(option),
+                    style: isSelected
+                        ? AppComponentStyles.selectionButtonSelected()
+                        : AppComponentStyles.selectionButtonUnselected(),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? Colors.white : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
       ],
     );

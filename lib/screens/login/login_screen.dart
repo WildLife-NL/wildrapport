@@ -10,11 +10,9 @@ import 'package:wildrapport/screens/login/login_overlay.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
-import 'package:wildrapport/widgets/overlay/error_overlay.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 import 'package:wildrapport/constants/app_icon_paths.dart';
 import 'package:lottie/lottie.dart';
-import 'package:wildrapport/utils/access_scope_utils.dart';
 
 Future<void> _routeAfterLogin(BuildContext context) async {
   try {

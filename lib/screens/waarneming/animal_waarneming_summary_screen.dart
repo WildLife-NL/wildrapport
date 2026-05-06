@@ -12,6 +12,7 @@ import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
+import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;
@@ -39,6 +40,7 @@ class _AnimalWaarnemingSummaryScreenState
       final sightingManager =
           context.read<AnimalSightingReportingInterface>();
       final interactionManager = context.read<InteractionInterface>();
+      final submittedProvider = context.read<SubmittedSightingsProvider>();
       var sighting = sightingManager.getCurrentanimalSighting();
 
       debugPrint('[AnimalWaarnemingSummaryScreen] Submitting sighting: $sighting');

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
 //import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/models/enums/location_source.dart';
-import 'package:wildrapport/models/beta_models/report_location_model.dart';
-import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
@@ -25,161 +21,10 @@ class SchademeldingSummaryScreen extends StatefulWidget {
 
 class _SchademeldingSummaryScreenState
     extends State<SchademeldingSummaryScreen> {
-  String _toApiEstimatedLossBucket(String? uiExpectedLoss) {
-    final raw = (uiExpectedLoss ?? '').trim().toLowerCase();
-    switch (raw) {
-      case 'onbekend':
-      case 'unknown':
-      case '':
-        return 'unknown';
-      case '€0 - €250':
-      case '0-250':
-      case '€0-€250':
-        return '0-250';
-      case '€250 - €500':
-      case '250-500':
-      case '€250-€500':
-        return '250-500';
-      case '€500 - €1000':
-      case '500-1000':
-      case '€500-€1000':
-        return '500-1000';
-      case '€1000 - €2000':
-      case '1000-2000':
-      case '€1000-€2000':
-        return '1000-2000';
-      case '€2000 - €5000':
-      case '2000-5000':
-      case '€2000-€5000':
-        return '2000-5000';
-      case '€5000 +':
-      case '5000+':
-      case '€5000+':
-        return '5000+';
-      default:
-        return 'unknown';
-    }
-  }
-
-  double _parseLossToAmount(String? expectedLoss) {
-    if (expectedLoss == null || expectedLoss.trim().isEmpty) return 0;
-    final normalized = expectedLoss.replaceAll('.', '').replaceAll(',', '.');
-    final matches = RegExp(r'\d+(\.\d+)?').allMatches(normalized).toList();
-    if (matches.isEmpty) return 0;
-    final last = matches.last.group(0);
-    return double.tryParse(last ?? '') ?? 0;
-  }
-
-  void _syncSightingToBelongingProvider({
-    required dynamic sighting,
-    required BelongingDamageReportProvider damageProvider,
-  }) {
-    final cropFromSighting = (sighting.cropType ?? '').toString().trim();
-    final existingCrop = damageProvider.impactedCrop.trim();
-    final fallbackCrop = (cropFromSighting.isNotEmpty)
-        ? cropFromSighting
-        : (existingCrop.isNotEmpty ? existingCrop : 'Onbekend');
-    if (cropFromSighting.isEmpty) {
-      debugPrint(
-        '[SchademeldingSubmit][WARN] sighting.cropType is empty; '
-        'using fallback impactedCrop="$fallbackCrop"',
-      );
-    }
-    damageProvider.setImpactedCrop(fallbackCrop);
-    damageProvider.setDescription((sighting.additionalInfo ?? '').toString());
-    damageProvider.setEstimatedLoss(_parseLossToAmount(sighting.expectedLoss));
-    damageProvider.setEstimatedLossBucket(
-      _toApiEstimatedLossBucket(sighting.expectedLoss),
-    );
-    damageProvider.setPreventiveMeasures(sighting.preventiveMeasures ?? false);
-    damageProvider.setPreventiveMeasuresDescription(
-      (sighting.additionalInfo ?? '').toString(),
-    );
-    // Keep current damage deterministic for backend if not collected explicitly.
-    damageProvider.setEstimatedDamage(0);
-    if (sighting.animalSelected?.animalId != null) {
-      damageProvider.setSuspectedAnimal(sighting.animalSelected!.animalId!);
-    }
-
-    // Ensure impact type/value exist so buildBelongingReport can pass validation.
-    final isLivestock = [
-      'rund',
-      'schaap',
-      'geit',
-      'paard',
-      'pluimvee',
-      'vark',
-      'ree',
-      'ander',
-    ].contains((sighting.cropType ?? '').toString().toLowerCase());
-    if (isLivestock) {
-      damageProvider.setDamageCategory('livestock');
-      damageProvider.setLivestockAmount(1);
-    } else {
-      damageProvider.setDamageCategory('crops');
-      if (damageProvider.impactedArea == null || damageProvider.impactedArea! <= 0) {
-        damageProvider.setImpactedAreaType('vierkante meters');
-        damageProvider.setImpactedArea(1);
-      }
-    }
-
-    final locations = sighting.locations ?? [];
-    for (final loc in locations) {
-      final reportLoc = ReportLocation(
-        latitude: loc.latitude,
-        longtitude: loc.longitude,
-      );
-      if (loc.source == LocationSource.system) {
-        damageProvider.setSystemLocation(reportLoc);
-      } else if (loc.source == LocationSource.manual) {
-        damageProvider.setUserLocation(reportLoc);
-      }
-    }
-  }
-
-  void _debugDumpBeforeSubmit({
-    required dynamic sighting,
-    required BelongingDamageReportProvider damageProvider,
-  }) {
-    debugPrint('[SchademeldingSubmit][DEBUG] ===== START SUBMIT DEBUG =====');
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] sighting null: ${sighting == null}',
-    );
-    if (sighting != null) {
-      try {
-        final sightingJson = sighting.toJson();
-        debugPrint(
-          '[SchademeldingSubmit][DEBUG] sighting payload:\n${const JsonEncoder.withIndent('  ').convert(sightingJson)}',
-        );
-      } catch (_) {
-        debugPrint(
-          '[SchademeldingSubmit][DEBUG] sighting.toJson() unavailable; '
-          'reportType=${sighting.reportType}, cropType=${sighting.cropType}, '
-          'animal=${sighting.animalSelected?.animalName}',
-        );
-      }
-    }
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] damageProvider state: '
-      'category=${damageProvider.damageCategory}, '
-      'impactedCrop="${damageProvider.impactedCrop}", '
-      'impactedArea=${damageProvider.impactedArea}, '
-      'impactedAreaType=${damageProvider.impactedAreaType}, '
-      'apiImpactType=${damageProvider.apiImpactType}, '
-      'apiImpactValue=${damageProvider.apiImpactValueOrNull}, '
-      'suspectedSpeciesID=${damageProvider.suspectedSpeciesID}',
-    );
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] NOTE: This screen posts via '
-      'BelongingDamageReportManager.postInteraction().',
-    );
-    debugPrint('[SchademeldingSubmit][DEBUG] ===== END SUBMIT DEBUG =====');
-  }
 
   void _onSubmitPressed() {
     final sightingManager = context.read<AnimalSightingReportingInterface>();
     final submittedProvider = context.read<SubmittedSightingsProvider>();
-    final damageProvider = context.read<BelongingDamageReportProvider>();
     final belongingManager = context.read<BelongingDamageReportInterface>();
 
     try {

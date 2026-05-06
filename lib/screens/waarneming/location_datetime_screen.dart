@@ -177,6 +177,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
+              onLeftIconPressed: _handleBackNavigation,
               iconColor: AppColors.textPrimary,
               textColor: AppColors.textPrimary,
               fontScale: 1.4,

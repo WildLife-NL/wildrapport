@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:wildrapport/screens/shared/interaction_detail_screen.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 
 class MyInteractionHistoryScreen extends StatefulWidget {
   const MyInteractionHistoryScreen({super.key});
@@ -228,78 +229,86 @@ class _InteractionCard extends StatelessWidget {
 
   const _InteractionCard({required this.interaction});
 
-  String _formatDateTime(DateTime dateTime) {
-    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+  String _dateOnly(DateTime dateTime) {
+    return DateFormat('dd-MM-yyyy').format(dateTime);
   }
 
-  Widget _buildReportDetails() {
+  String _timeOnly(DateTime dateTime) {
+    return DateFormat('HH:mm').format(dateTime);
+  }
+
+  String _speciesName() {
+    return interaction.species.commonName.isNotEmpty
+        ? interaction.species.commonName
+        : interaction.species.name;
+  }
+
+  String _locationWithoutCoordinates(String locationText) {
+    final withoutCoords = locationText.replaceAll(
+      RegExp(r'\s*-?\d+(?:\.\d+)?\s*/\s*-?\d+(?:\.\d+)?'),
+      '',
+    );
+    return withoutCoords.trim();
+  }
+
+  String? _animalImagePath() {
+    return getAnimalPhotoPath(_speciesName());
+  }
+
+  (String, String) _titleAndPrimaryValue() {
     if (interaction.reportOfCollision != null) {
       final report = interaction.reportOfCollision!;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Aanrijding',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Dieren betrokken: ${report.involvedAnimals.length}',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            'Intensiteit: ${report.intensity}',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            'Urgentie: ${report.urgency}',
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-      );
+      return ('Dieraanrijding', '${report.involvedAnimals.length} dieren');
     } else if (interaction.reportOfDamage != null) {
       final report = interaction.reportOfDamage!;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Schademelding',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-          Text('Bezit: ${report.belonging}', style: const TextStyle(fontSize: 12)),
-          Text(
-            'Geschat verlies: ${report.estimatedLoss}',
-            style: const TextStyle(fontSize: 12),
-          ),
-          Text(
-            'Preventieve maatregelen: ${report.preventiveMeasures ? "Ja" : "Nee"}',
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-      );
+      return ('Schademelding', report.belonging.isNotEmpty ? report.belonging : 'Onbekend');
     } else if (interaction.reportOfSighting != null) {
       final report = interaction.reportOfSighting!;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Waarneming',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Dieren gezien: ${report.involvedAnimals.length}',
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-      );
+      return ('Waarneming', '${report.involvedAnimals.length} dieren');
     }
-    return const SizedBox.shrink();
+    return ('Interactie', '-');
+  }
+
+  int _animalCount() {
+    if (interaction.reportOfCollision != null) {
+      return interaction.reportOfCollision!.involvedAnimals.length;
+    }
+    if (interaction.reportOfSighting != null) {
+      return interaction.reportOfSighting!.involvedAnimals.length;
+    }
+    return 1;
+  }
+
+  Widget _buildDetailColumn(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 115, 115, 115)),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final typeAndValue = _titleAndPrimaryValue();
+    final locationText = formatFriendlyLocation(
+      interaction.place.latitude,
+      interaction.place.longitude,
+    );
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -310,112 +319,104 @@ class _InteractionCard extends StatelessWidget {
           ),
         );
       },
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: SizedBox(
+        height: 205,
+        child: Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFF999999), width: 1),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      interaction.type.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              Container(
+                width: 150,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE0D9C9),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
                   ),
-                  const Spacer(),
-                  Text(
-                    _formatDateTime(interaction.moment),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                interaction.species.commonName.isNotEmpty
-                    ? interaction.species.commonName
-                    : interaction.species.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 8),
-              if (interaction.description.isNotEmpty) ...[
-                Text(
-                  interaction.description,
-                  style: const TextStyle(fontSize: 14),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-              ],
-              const Divider(),
-              const SizedBox(height: 8),
-              _buildReportDetails(),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      formatFriendlyLocation(
-                        interaction.place.latitude,
-                        interaction.place.longitude,
+                child: () {
+                  final imagePath = _animalImagePath();
+                  if (imagePath != null && imagePath.isNotEmpty) {
+                    return ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
                       ),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.pets,
+                          size: 38,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    );
+                  }
+                  return const Icon(
+                    Icons.pets,
+                    size: 38,
+                    color: AppColors.primaryGreen,
+                  );
+                }(),
               ),
-              if (interaction.questionnaire != null) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundLight,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Vragenlijst: ${interaction.questionnaire!.name}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        typeAndValue.$1,
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                       Text(
-                        'Experiment: ${interaction.questionnaire!.experiment.name}',
+                        _speciesName(),
                         style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
+                      const SizedBox(height: 6),
+                      _buildDetailColumn('Aantal', '${_animalCount()}'),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(child: _buildDetailColumn('Datum', _dateOnly(interaction.moment))),
+                          const SizedBox(width: 8),
+                          Expanded(child: _buildDetailColumn('Tijd', _timeOnly(interaction.moment))),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _locationWithoutCoordinates(locationText),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 115, 115, 115),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
                     ],
                   ),
                 ),
-              ],
+              ),
             ],
           ),
         ),

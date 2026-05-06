@@ -170,7 +170,7 @@ class _ReportButton extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGreen.withOpacity(0.08),
+                  color: AppColors.primaryGreen.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

@@ -145,26 +145,6 @@ class _MenuCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(icon, color: AppColors.primaryGreen, size: 28),
-                SizedBox(width: paddingH * 0.7),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      icon,
-                      size: 32,
-                      color: AppColors.brownDark,
-                    ),
-                  ),
-                ),
                 SizedBox(width: responsive.wp(5)),
                 Expanded(
                   child: Column(

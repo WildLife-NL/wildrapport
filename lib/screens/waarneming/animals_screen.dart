@@ -185,7 +185,7 @@ class _AnimalsScreenState extends State<AnimalsScreen>
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Waarneming',
+              centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
