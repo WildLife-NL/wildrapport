@@ -105,6 +105,7 @@ jobs:
           NEW_VERSION="${NAME_PART}+${TODAY}"
           sed -i "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
           echo "New version: ${NEW_VERSION}"
+          echo "RELEASE_DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
 
       - name: Commit updated pubspec version
         run: |
@@ -120,8 +121,18 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: release-${{ env.RELEASE_DATE }}
+          name: Versie ${{ env.RELEASE_DATE }}
+          body: Automatische release build van ${{ env.RELEASE_DATE }}
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
