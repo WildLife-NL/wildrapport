@@ -126,7 +126,7 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
           children: [
             CustomAppBar(
               centerText: 'Logboek',
-              leftIcon: null,
+              leftIcon: Icons.arrow_back_ios,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
@@ -192,6 +192,16 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
                                   const SizedBox(width: 12),
                                   // Details section
                                   _buildDetailsSection(sighting),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.chevron_right,
+                                        size: 22,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),

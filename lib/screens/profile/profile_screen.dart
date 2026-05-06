@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -241,6 +242,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       final state = context.read<AppStateProvider>();
                                       if (!enabled) {
                                         map.clearUserLocationAndStopTracking();
+                                        if (map.isInitialized) {
+                                          map.mapController.move(
+                                            const LatLng(52.1326, 5.2913),
+                                            7.0,
+                                          );
+                                        }
                                       }
                                       map.setVicinityNotificationsEnabled(
                                         state.isLocationTrackingEnabled &&

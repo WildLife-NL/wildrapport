@@ -68,7 +68,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               centerText: 'Logboek',
               rightIcon: null,
               showUserIcon: false,
@@ -205,11 +205,6 @@ class _ReportButton extends StatelessWidget {
                     ],
                   ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.black.withValues(alpha: 0.35),
               ),
             ],
           ),

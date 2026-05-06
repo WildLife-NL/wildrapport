@@ -30,6 +30,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
     as cl;
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
+import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
 
@@ -159,6 +160,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           final currentZoom = mp.mapController.camera.zoom;
           final isProgrammatic = evt.source == fm.MapEventSource.mapController;
 
+          // Keep scale bar in sync for both user and programmatic zoom changes.
+          if (_lastZoom != currentZoom) {
+            _lastZoom = currentZoom;
+            _updateScaleBar();
+          }
+
           // Stop following only on user gestures
           if (!isProgrammatic &&
               (evt is fm.MapEventMoveStart || evt is fm.MapEventMove)) {
@@ -171,14 +178,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           }
 
           // Handle zoom changes only for user gestures
-          if (!isProgrammatic && _lastZoom != currentZoom) {
-            _lastZoom = currentZoom;
+          if (!isProgrammatic) {
             _queueFetch();
             final next = currentZoom < _clusterUntilZoom;
             if (next != _useClusters && mounted) {
               setState(() => _useClusters = next);
             }
-            _updateScaleBar();
             // Recenter only if following AND tracking is enabled (still user-driven)
             final p = mp.currentPosition ?? mp.selectedPosition;
             final appStateProvider = context.read<AppStateProvider>();
@@ -345,11 +350,25 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   Future<void> _centerOnMyLocation() async {
     final mp = context.read<MapProvider>();
+    final appState = context.read<AppStateProvider>();
     debugPrint('[Map] centreer op locatie');
 
-    _followUser = true;
+    if (!appState.isLocationTrackingEnabled) {
+      final enable = await showLocationSharingOffDialog(context);
+      if (!mounted) return;
+      if (enable == true) {
+        await appState.setLocationTrackingEnabled(true);
+      } else {
+        _followUser = false;
+        mp.mapController.move(_netherlandsCenter, _netherlandsOverviewZoom);
+        _updateScaleBar();
+        return;
+      }
+    }
 
-    final currentZoom = mp.mapController.camera.zoom;
+    _followUser = true;
+    // Always zoom in to the configured "my location" zoom level.
+    const targetZoom = _initialZoom;
 
     Position? target = mp.currentPosition ?? mp.selectedPosition;
     if (target == null) {
@@ -359,8 +378,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (target != null) {
       mp.mapController.move(
         LatLng(target.latitude, target.longitude),
-        currentZoom,
+        targetZoom,
       );
+      _updateScaleBar();
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -405,8 +425,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       if (_followUser && appStateProvider.isLocationTrackingEnabled) {
         mp.mapController.move(
           LatLng(fresh.latitude, fresh.longitude),
-          currentZoom,
+          targetZoom,
         );
+        _updateScaleBar();
       }
       _queueFetch();
     });
