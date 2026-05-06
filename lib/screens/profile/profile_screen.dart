@@ -43,8 +43,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final info = await PackageInfo.fromPlatform();
     if (!mounted) return;
     setState(() {
-      _version = '${info.version}+${info.buildNumber}';
+      _version = _buildDateFromBuildNumber(info.buildNumber);
     });
+  }
+
+  String _buildDateFromBuildNumber(String buildNumber) {
+    final digitsOnly = buildNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.length == 8) {
+      final year = digitsOnly.substring(0, 4);
+      final month = digitsOnly.substring(4, 6);
+      final day = digitsOnly.substring(6, 8);
+      return '$year-$month-$day';
+    }
+    if (digitsOnly.length == 6) {
+      final year = '20${digitsOnly.substring(0, 2)}';
+      final month = digitsOnly.substring(2, 4);
+      final day = digitsOnly.substring(4, 6);
+      return '$year-$month-$day';
+    }
+    return buildNumber;
   }
 
   Future<void> _loadUserData() async {

@@ -192,15 +192,18 @@ class AnimalDetailCard extends StatelessWidget {
 
   String _formatDate(DateTime? dateTime) {
     if (dateTime == null) return '--';
-    final dateStr = dateTime.toString().split(' ')[0];
-    if (dateStr.length != 10) return dateStr;
-    return '${dateStr.substring(2, 4)}-${dateStr.substring(5, 7)}-${dateStr.substring(8, 10)}';
+    final local = dateTime.toLocal();
+    final year = local.year.toString().padLeft(4, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
   }
 
   String _formatTime(DateTime? dateTime) {
     if (dateTime == null) return '--';
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final local = dateTime.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 

@@ -8,6 +8,7 @@ import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 
 class MainNavScreen extends StatefulWidget {
   final NavTab? initialTab;
@@ -55,14 +56,24 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   void _requestLocationPermissionIfKaartTab(BuildContext context) {
     final permissionManager = context.read<PermissionInterface>();
+    final appState = context.read<AppStateProvider>();
     permissionManager.isPermissionGranted(PermissionType.location).then((granted) {
-      if (granted) return;
+      if (granted) {
+        if (!appState.isLocationTrackingEnabled) {
+          appState.setLocationTrackingEnabled(true);
+        }
+        return;
+      }
       if (!mounted) return;
       permissionManager.requestPermission(
         context,
         PermissionType.location,
         showRationale: false,
-      );
+      ).then((approved) {
+        if (approved && !appState.isLocationTrackingEnabled) {
+          appState.setLocationTrackingEnabled(true);
+        }
+      });
     });
   }
 

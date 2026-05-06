@@ -104,7 +104,8 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
       return 'Datum en tijd nog niet ingesteld';
     }
     try {
-      final dt = dateTimeModel.dateTime as DateTime?;
+      final raw = dateTimeModel.dateTime as DateTime?;
+      final dt = raw?.toLocal();
       if (dt == null) {
         return 'Datum en tijd nog niet ingesteld';
       }
