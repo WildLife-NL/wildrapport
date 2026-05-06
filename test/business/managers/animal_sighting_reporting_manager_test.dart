@@ -423,7 +423,7 @@ void main() {
 
       // Act
       final manager = reportingManager as AnimalSightingReportingManager;
-      final sighting = manager.updateCondition(AnimalCondition.levend);
+      final sighting = manager.updateCondition(AnimalCondition.gezond);
 
       // Assert
       expect(sighting, isNotNull);
@@ -533,7 +533,7 @@ void main() {
             viewCount: ViewCountModel(),
           ),
         ],
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
       );
 
       // Act
@@ -544,7 +544,7 @@ void main() {
       expect(sighting.animals, isNotEmpty);
       final animalInList = sighting.animals!.first;
       expect(animalInList.genderViewCounts.first.viewCount.volwassenAmount, 0);
-      expect(animalInList.condition, AnimalCondition.levend);
+      expect(animalInList.condition, AnimalCondition.gezond);
     });
 
     test('should convert string to category correctly for all categories', () {
@@ -778,7 +778,7 @@ void main() {
           ),
         ],
         // Set the condition directly in the initial animal
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
       );
       reportingManager.createanimalSighting();
       reportingManager.updateSelectedAnimal(animal);
@@ -790,7 +790,7 @@ void main() {
         'Wolf',
         AnimalGender.mannelijk,
         viewCount: ViewCountModel()..volwassenAmount = 3,
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
         description: 'Updated description',
       );
 
@@ -808,7 +808,7 @@ void main() {
       );
 
       // Check if the condition is actually set in the animals list, not just the selected animal
-      expect(sighting.animals!.first.condition, AnimalCondition.levend);
+      expect(sighting.animals!.first.condition, AnimalCondition.gezond);
     });
 
     test('should create animal model correctly', () {

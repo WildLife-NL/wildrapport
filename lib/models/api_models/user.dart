@@ -5,7 +5,7 @@ class User {
 
   final bool? reportAppTerms;
 
-  User({required this.id, required this.email, this.name, this.reportAppTerms});
+  User({required this.id, this.email, this.name, this.reportAppTerms});
 
   factory User.fromJson(Map<String, dynamic> json) {
     final id = json['ID'] ?? json['id'] ?? json['userID'];

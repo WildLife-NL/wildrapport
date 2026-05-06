@@ -59,22 +59,20 @@ void main() {
     expect(find.text('Aanmelden'), findsOneWidget);
   });
 
-  testWidgets('should validate email and show error for invalid email', (
+  testWidgets('should show error when login code cannot be sent', (
     WidgetTester tester,
   ) async {
-    when(
-      mockLoginInterface.validateEmail(any),
-    ).thenReturn('Ongeldig e-mailadres');
+    when(mockLoginInterface.sendLoginCode(any)).thenAnswer((_) async => false);
 
     await tester.pumpWidget(createLoginScreen());
 
-    // Enter invalid email and tap login button
+    // Enter email and tap login button
     await tester.enterText(find.byType(TextField), 'invalid-email');
     await tester.tap(find.text('Aanmelden'));
     await tester.pump();
-    await tester.pumpAndSettle(); // Wait for dialog
+    await tester.pumpAndSettle();
 
-    // Verify error dialog is shown
-    expect(find.text('Ongeldig e-mailadres'), findsOneWidget);
+    // Verify inline error is shown
+    expect(find.text('Kon verificatiecode niet verzenden'), findsOneWidget);
   });
 }

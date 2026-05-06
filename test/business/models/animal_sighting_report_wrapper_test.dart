@@ -307,7 +307,7 @@ void main() {
             viewCount: ViewCountModel()..volwassenAmount = 1,
           ),
         ],
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
       );
 
       final fox = AnimalModel(
@@ -320,7 +320,7 @@ void main() {
             viewCount: ViewCountModel()..volwassenAmount = 3,
           ),
         ],
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
       );
 
       final sightingModel = AnimalSightingModel(
