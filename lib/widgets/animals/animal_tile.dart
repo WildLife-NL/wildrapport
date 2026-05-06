@@ -4,8 +4,14 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 class AnimalTile extends StatefulWidget {
   final AnimalModel animal;
   final VoidCallback onTap;
+  final bool isSelected;
 
-  const AnimalTile({super.key, required this.animal, required this.onTap});
+  const AnimalTile({
+    super.key,
+    required this.animal,
+    required this.onTap,
+    this.isSelected = false,
+  });
 
   @override
   State<AnimalTile> createState() => _AnimalTileState();
@@ -98,7 +104,7 @@ class _AnimalTileState extends State<AnimalTile> {
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: Text(
                   widget.animal.animalName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: widget.isSelected
                         ? FontWeight.w600

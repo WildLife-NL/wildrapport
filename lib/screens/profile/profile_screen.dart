@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wildlifenl_profile_components/wildlifenl_profile_components.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
@@ -85,20 +83,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, constraints) {
             final horizontalPad = responsive.wp(3.5).clamp(10.0, 18.0);
             final cardW = math.min(540.0, constraints.maxWidth - horizontalPad * 2);
-            final maxBoxH = constraints.maxHeight - 8;
 
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: 4),
               child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: cardW,
-                      maxHeight: maxBoxH,
-                    ),
-                    child: Card(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: cardW),
+                  child: Card(
                       color: Colors.white,
                       elevation: 2,
                       shadowColor: Colors.black26,
@@ -391,12 +382,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 20),
                         ],
                       ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            );
+              );
           },
         ),
       ),

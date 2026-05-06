@@ -40,6 +40,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
+  void _openRecentSightings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // If openRecentSightings is true and we haven't navigated yet, navigate to RecentSightingsScreen
@@ -163,7 +170,7 @@ class _ReportButton extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.darkGreen.withOpacity(0.08),
+                  color: AppColors.darkGreen.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -192,7 +199,7 @@ class _ReportButton extends StatelessWidget {
                         subtitle!,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -202,7 +209,7 @@ class _ReportButton extends StatelessWidget {
               const SizedBox(width: 12),
               Icon(
                 Icons.chevron_right,
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withValues(alpha: 0.35),
               ),
             ],
           ),

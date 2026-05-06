@@ -24,15 +24,21 @@ String? getAnimalPhotoPath(String? name) {
     'konik paard': 'konikpaard',
     'wilde kat': 'wild kat',
     'wildkat': 'wild kat',
-    'shetlandpony': 'shetland pony',
-    'exmoorpony': 'exmoor pony',
+    'shetland pony': 'shetlandpony',
+    'shetlandpony': 'shetlandpony',
+    'exmoor pony': 'exmoorpony',
+    'exmoorpony': 'exmoorpony',
+    'wilde zwijn': 'wildezwijn',
+    'wild zwijn': 'wildzwijn',
+    'europese nerts': 'europese nerts',
+    'europesenerts': 'europesenerts',
   };
 
   final fileStem = aliases[nameLower] ??
       aliases[normalized] ??
       aliases[compact] ??
       normalized;
-  return 'assets/animals/$fileStem.png';
+  return 'assets/images/color-animals/$fileStem.png';
 }
 
 class AnimalManager

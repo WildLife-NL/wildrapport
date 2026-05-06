@@ -179,19 +179,19 @@ class WaarnemmingStartScreen extends StatelessWidget {
         'day': 'Vandag',
         'animal': 'Eekhoorn',
         'distance': '3km verderop',
-        'image': 'assets/animals/eekhoorn.png',
+        'image': 'assets/images/color-animals/eekhoorn.png',
       },
       {
         'day': 'Gisteren',
         'animal': 'Ree',
         'distance': '5km verderop',
-        'image': 'assets/animals/ree.png',
+        'image': 'assets/images/color-animals/ree.png',
       },
       {
         'day': '3 Dagen Geleden',
         'animal': 'Vos',
         'distance': '8km verderop',
-        'image': 'assets/animals/vos.png',
+        'image': 'assets/images/color-animals/vos.png',
       },
     ];
 

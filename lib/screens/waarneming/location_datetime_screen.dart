@@ -128,6 +128,12 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     );
   }
 
+  void _handleBackNavigation() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
   String _formatDate(DateTime dateTime) {
     final String day = dateTime.day.toString().padLeft(1, '0');
     final String month = dateTime.month.toString().padLeft(1, '0');
@@ -166,7 +172,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
             // Same header as location selection
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Waarneming',
+              centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
