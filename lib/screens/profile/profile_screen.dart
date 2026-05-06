@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final info = await PackageInfo.fromPlatform();
     if (!mounted) return;
     setState(() {
-      _version = info.version;
+      _version = '${info.version}+${info.buildNumber}';
     });
   }
 
