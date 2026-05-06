@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635742717996",
+    "project_id": "wildrapport",
+    "storage_bucket": "wildrapport.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635742717996:android:cf44a44c548e1b40b0e989",
+        "android_client_info": {
+          "package_name": "com.example.wildrapport"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAc8cDDcQbchoiTI3SYUiRLcwVCw0yvoVc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

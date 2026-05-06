@@ -6,6 +6,8 @@ include: package:lints/recommended.yaml
 
 analyzer:
   exclude:
+    # Kopie van waarneming-schermen voor wildgids; zelfde class-namen als screens/waarneming — niet analyseren.
+    - "lib/wildgids/**"
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "test/**"

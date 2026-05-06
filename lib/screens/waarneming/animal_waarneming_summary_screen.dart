@@ -5,9 +5,14 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/screens/location/location_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
+import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
+import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;
@@ -35,6 +40,7 @@ class _AnimalWaarnemingSummaryScreenState
       final sightingManager =
           context.read<AnimalSightingReportingInterface>();
       final interactionManager = context.read<InteractionInterface>();
+      final submittedProvider = context.read<SubmittedSightingsProvider>();
       var sighting = sightingManager.getCurrentanimalSighting();
 
       debugPrint('[AnimalWaarnemingSummaryScreen] Submitting sighting: $sighting');
@@ -49,14 +55,24 @@ class _AnimalWaarnemingSummaryScreenState
 
         // If animals list is empty (skipped details), populate with selected animal N times
         if ((sighting.animals?.isEmpty ?? true) && sighting.animalSelected != null && widget.totalCount > 0) {
-          debugPrint('[AnimalWaarnemingSummaryScreen] Animals list was empty, populating with selected animal x${widget.totalCount}');
-          final animalsToAdd = List<AnimalModel>.from(
-            sighting.animals ?? [],
-          );
+          debugPrint('[AnimalWaarnemingSummaryScreen] Animals list was empty, populating with unknown animals x${widget.totalCount}');
+          final animalsToAdd = <AnimalModel>[];
           for (int i = 0; i < widget.totalCount; i++) {
-            animalsToAdd.add(sighting.animalSelected!);
+            final unknownViewCount = ViewCountModel()..unknownAmount = 1;
+            animalsToAdd.add(AnimalModel(
+              animalId: sighting.animalSelected!.animalId,
+              animalImagePath: sighting.animalSelected!.animalImagePath,
+              animalName: sighting.animalSelected!.animalName,
+              category: sighting.animalSelected!.category,
+              genderViewCounts: [
+                AnimalGenderViewCount(
+                  gender: AnimalGender.onbekend,
+                  viewCount: unknownViewCount,
+                ),
+              ],
+              condition: AnimalCondition.onbekend,
+            ));
           }
-          // Create a new sighting with the populated animals list
           sighting = sighting.copyWith(animals: animalsToAdd);
           sightingManager.updateCurrentanimalSighting(sighting);
         }
@@ -75,11 +91,14 @@ class _AnimalWaarnemingSummaryScreenState
             'Geen verbinding of verzenden mislukt. Controleer internet en probeer opnieuw.',
           );
         }
+        // Save the sighting to submitted sightings
+        submittedProvider.addSighting(sighting);
+        debugPrint('[AnimalWaarnemingSummaryScreen] Sighting saved to provider');
 
         // Clear the current sighting and navigate to logbook with recent sightings
         sightingManager.clearCurrentanimalSighting();
         debugPrint('[AnimalWaarnemingSummaryScreen] Navigating to recent sightings');
-        
+
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const MainNavScreen(
@@ -106,8 +125,7 @@ class _AnimalWaarnemingSummaryScreenState
   }
 
   void _handleExit() {
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     sightingManager.clearCurrentanimalSighting();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
@@ -121,14 +139,12 @@ class _AnimalWaarnemingSummaryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
     final selectedAnimal = sighting?.animalSelected;
-    
-    // Determine the app bar title based on report type
-    final appBarTitle = sighting?.reportType == 'verkeersongeval' 
-        ? 'Dieraanrijding' 
+
+    final appBarTitle = sighting?.reportType == 'verkeersongeval'
+        ? 'Dieraanrijding'
         : 'Waarneming';
 
     if (selectedAnimal == null) {
@@ -146,20 +162,18 @@ class _AnimalWaarnemingSummaryScreenState
         bottom: false,
         child: Column(
           children: [
-            // App Bar
             CustomAppBar(
               centerText: appBarTitle,
               rightIcon: Icons.exit_to_app_rounded,
               onRightIconPressed: _handleExit,
               showUserIcon: false,
               useFixedText: true,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               iconColor: Colors.grey,
               fontScale: 1.4,
               iconScale: 0.85,
               userIconScale: 1.15,
             ),
-            // Main card container
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.75,
               child: Padding(
@@ -180,7 +194,6 @@ class _AnimalWaarnemingSummaryScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Heading
                           const Text(
                             'Overzicht',
                             textAlign: TextAlign.center,
@@ -191,7 +204,6 @@ class _AnimalWaarnemingSummaryScreenState
                             ),
                           ),
                           const SizedBox(height: 20),
-                          // Animal info card (compact)
                           Center(
                             child: SizedBox(
                               width: 140,
@@ -208,7 +220,6 @@ class _AnimalWaarnemingSummaryScreenState
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Image area
                                     Center(
                                       child: SizedBox(
                                         width: 140,
@@ -216,38 +227,31 @@ class _AnimalWaarnemingSummaryScreenState
                                         child: AspectRatio(
                                           aspectRatio: 1.0,
                                           child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  const BorderRadius.only(
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(14),
                                                 topRight: Radius.circular(14),
                                               ),
                                               color: Colors.white,
                                             ),
                                             child: ClipRRect(
-                                              borderRadius:
-                                                  const BorderRadius.only(
+                                              borderRadius: const BorderRadius.only(
                                                 topLeft: Radius.circular(14),
                                                 topRight: Radius.circular(14),
                                               ),
                                               child: SizedBox.expand(
-                                                child: selectedAnimal
-                                                            .animalImagePath !=
-                                                        null
+                                                child: selectedAnimal.animalImagePath != null
                                                     ? Image(
                                                         image: AssetImage(
-                                                          selectedAnimal
-                                                              .animalImagePath!,
+                                                          selectedAnimal.animalImagePath!,
                                                         ),
                                                         fit: BoxFit.cover,
                                                       )
                                                     : Center(
                                                         child: Icon(
-                                                          Icons
-                                                              .image_not_supported_outlined,
+                                                          Icons.image_not_supported_outlined,
                                                           size: 50,
-                                                          color:
-                                                              Colors.grey[400],
+                                                          color: Colors.grey[400],
                                                         ),
                                                       ),
                                               ),
@@ -256,43 +260,59 @@ class _AnimalWaarnemingSummaryScreenState
                                         ),
                                       ),
                                     ),
-                                    // Divider line
                                     Container(
                                       height: 1,
                                       color: const Color(0xFF999999),
                                       width: 140,
                                     ),
-                                    // Name area
                                     Container(
-                                      width: 140,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: const BorderRadius.only(
-                                          bottomLeft: Radius.circular(14),
-                                          bottomRight: Radius.circular(14),
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        selectedAnimal.animalName,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
+  width: 140,
+  decoration: const BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(14),
+      bottomRight: Radius.circular(14),
+    ),
+  ),
+  padding: const EdgeInsets.symmetric(
+    vertical: 8,
+    horizontal: 12,
+  ),
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(
+        selectedAnimal.animalName,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: AppColors.textPrimary,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        _getConditionDisplay(
+          sighting?.animals?.isNotEmpty == true
+              ? sighting!.animals!.first.condition
+              : AnimalCondition.onbekend,
+        ),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey[600],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ],
+  ),
+),
                                   ],
                                 ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 16),
-                          // Total aantal
                           Text(
                             'Aantal: ${widget.totalCount}',
                             style: const TextStyle(
@@ -318,7 +338,7 @@ class _AnimalWaarnemingSummaryScreenState
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ..._buildAnimalDetailsList(sighting?.animals ?? []),
+                                  ..._buildAnimalDetailsList(sighting?.animals, widget.totalCount, sighting?.animalSelected),
                                 ],
                               ),
                             ),
@@ -340,7 +360,6 @@ class _AnimalWaarnemingSummaryScreenState
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Location
                                   Row(
                                     children: [
                                       Container(
@@ -386,7 +405,6 @@ class _AnimalWaarnemingSummaryScreenState
                                     thickness: 1,
                                   ),
                                   const SizedBox(height: 14),
-                                  // Date/Time
                                   Row(
                                     children: [
                                       Container(
@@ -447,7 +465,6 @@ class _AnimalWaarnemingSummaryScreenState
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Expected loss
                                     Row(
                                       children: [
                                         Container(
@@ -493,7 +510,6 @@ class _AnimalWaarnemingSummaryScreenState
                                       thickness: 1,
                                     ),
                                     const SizedBox(height: 14),
-                                    // Accident severity
                                     Row(
                                       children: [
                                         Container(
@@ -539,7 +555,6 @@ class _AnimalWaarnemingSummaryScreenState
                                       thickness: 1,
                                     ),
                                     const SizedBox(height: 14),
-                                    // Animal condition
                                     Row(
                                       children: [
                                         Container(
@@ -651,52 +666,77 @@ class _AnimalWaarnemingSummaryScreenState
           ],
         ),
       ),
-      bottomNavigationBar: SizedBox.shrink(),
+      bottomNavigationBar: const SizedBox.shrink(),
     );
   }
 
-List<Widget> _buildAnimalDetailsList(List animals) {
+  List<Widget> _buildAnimalDetailsList(List? animals, int totalCount, AnimalModel? templateAnimal) {
     final details = <Widget>[];
-    
-    if (animals.isEmpty) {
+
+    // If no animals saved, generate placeholder "Onbekend" entries
+    List effectiveAnimals = animals ?? [];
+    if (effectiveAnimals.isEmpty && templateAnimal != null && totalCount > 0) {
+      final unknownViewCount = ViewCountModel()..unknownAmount = 1;
+      effectiveAnimals = List.generate(totalCount, (_) => AnimalModel(
+        animalId: templateAnimal.animalId,
+        animalImagePath: templateAnimal.animalImagePath,
+        animalName: templateAnimal.animalName,
+        category: templateAnimal.category,
+        genderViewCounts: [
+          AnimalGenderViewCount(
+            gender: AnimalGender.onbekend,
+            viewCount: unknownViewCount,
+          ),
+        ],
+        condition: AnimalCondition.onbekend,
+      ));
+    }
+
+    if (effectiveAnimals.isEmpty) {
       return [
         const Center(
           child: Text(
             'Geen dier details beschikbaar',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
         ),
       ];
     }
 
     int animalIndex = 1;
-    int totalAnimals = 0;
-    
-    // First count total animals
-    for (final animal in animals) {
-      if (animal?.genderViewCounts == null || animal.genderViewCounts.isEmpty) {
-        continue;
+    int totalEntries = 0;
+    for (final animal in effectiveAnimals) {
+      if (animal?.genderViewCounts != null) {
+        totalEntries += (animal.genderViewCounts.length as int);
       }
-      totalAnimals += (animal.genderViewCounts.length as int);
     }
-    
-    int currentAnimalCount = 0;
-    
-    // Loop through each animal in the list
-    for (final animal in animals) {
-      if (animal?.genderViewCounts == null || animal.genderViewCounts.isEmpty) {
-        continue;
+
+    int currentCount = 0;
+
+    for (final animal in effectiveAnimals) {
+      if (animal?.genderViewCounts == null || animal.genderViewCounts.isEmpty) continue;
+
+      String conditionLabel = 'Onbekend';
+      if (animal.condition != null) {
+        switch (animal.condition) {
+          case AnimalCondition.gezond:
+            conditionLabel = 'Gezond';
+            break;
+          case AnimalCondition.gewond:
+            conditionLabel = 'Gewond';
+            break;
+          case AnimalCondition.dood:
+            conditionLabel = 'Dood';
+            break;
+          default:
+            conditionLabel = 'Onbekend';
+        }
       }
 
-      // Loop through each gender/age combination for this animal
       for (final genderViewCount in animal.genderViewCounts) {
         final gender = _getGenderDisplay(genderViewCount.gender);
         final viewCount = genderViewCount.viewCount;
-        
-        // Determine the age
+
         String age = 'Onbekend';
         if (viewCount.pasGeborenAmount > 0) {
           age = 'Pas geboren';
@@ -706,7 +746,6 @@ List<Widget> _buildAnimalDetailsList(List animals) {
           age = 'Volwassen';
         }
 
-        // Add a detail item with icon box
         details.add(
           Row(
             children: [
@@ -734,11 +773,11 @@ List<Widget> _buildAnimalDetailsList(List animals) {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '$gender, $age',
+                      'Conditie: $conditionLabel\nGeslacht: $gender\nLeeftijd: $age',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -747,41 +786,28 @@ List<Widget> _buildAnimalDetailsList(List animals) {
             ],
           ),
         );
-        
-        currentAnimalCount++;
-        
-        // Add divider between animals (but not after the last one)
-        if (currentAnimalCount < totalAnimals) {
+
+        currentCount++;
+        if (currentCount < totalEntries) {
           details.add(const SizedBox(height: 14));
-          details.add(
-            Divider(
-              color: Colors.grey.withValues(alpha: 0.15),
-              height: 1,
-              thickness: 1,
-            ),
-          );
+          details.add(Divider(color: Colors.grey.withValues(alpha: 0.15), height: 1, thickness: 1));
           details.add(const SizedBox(height: 14));
         }
-        
+
         animalIndex++;
       }
     }
 
-    if (details.isEmpty) {
-      return [
-        const Center(
-          child: Text(
-            'Geen dier details beschikbaar',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
+    return details.isEmpty
+        ? [
+            const Center(
+              child: Text(
+                'Geen dier details beschikbaar',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
             ),
-          ),
-        ),
-      ];
-    }
-
-    return details;
+          ]
+        : details;
   }
 
   String _getGenderDisplay(AnimalGender gender) {
@@ -794,13 +820,23 @@ List<Widget> _buildAnimalDetailsList(List animals) {
         return 'Onbekend';
     }
   }
+  String _getConditionDisplay(AnimalCondition? condition) {
+  switch (condition) {
+    case AnimalCondition.gezond:
+      return 'Conditie: Gezond';
+    case AnimalCondition.gewond:
+      return 'Conditie: Gewond';
+    case AnimalCondition.dood:
+      return 'Conditie: Dood';
+    case AnimalCondition.onbekend:
+    default:
+      return 'Conditie: Onbekend';
+  }
+}
 
   String _getLocationDisplay(List? locations) {
-    if (locations?.isEmpty != false) {
-      return 'Locatie nog niet ingesteld';
-    }
+    if (locations?.isEmpty != false) return 'Locatie nog niet ingesteld';
     final loc = locations!.first;
-    // Try to show address if available
     if (loc.streetName != null && loc.houseNumber != null) {
       return '${loc.streetName} ${loc.houseNumber}, ${loc.cityName ?? ""}';
     } else if (loc.streetName != null) {
@@ -808,7 +844,6 @@ List<Widget> _buildAnimalDetailsList(List animals) {
     } else if (loc.cityName != null) {
       return loc.cityName!;
     }
-    // Fall back to showing coordinates in a readable format
     if (loc.latitude != null && loc.longitude != null) {
       return '${loc.latitude?.toStringAsFixed(2)}, ${loc.longitude?.toStringAsFixed(2)}';
     }
@@ -816,15 +851,10 @@ List<Widget> _buildAnimalDetailsList(List animals) {
   }
 
   String _getDateTimeDisplay(dynamic dateTimeModel) {
-    if (dateTimeModel == null) {
-      return 'Datum en tijd nog niet ingesteld';
-    }
+    if (dateTimeModel == null) return 'Datum en tijd nog niet ingesteld';
     try {
       final dt = dateTimeModel.dateTime as DateTime?;
-      if (dt == null) {
-        return 'Datum en tijd nog niet ingesteld';
-      }
-      // Format: DD-MM-YYYY | HH:MM
+      if (dt == null) return 'Datum en tijd nog niet ingesteld';
       final date = '${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}';
       final time = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
       return '$date | $time';

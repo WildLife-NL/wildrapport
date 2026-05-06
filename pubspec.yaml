@@ -83,6 +83,7 @@ dependencies:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
       ref: main
       path: wildlifenl_alarms_components
+  firebase_core: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -123,16 +124,16 @@ flutter:
     - assets/gifs/thankyou.gif
     # Icons + dier-assets zitten in wildlifenl_assets (git)
     - assets/location/location_icon.png
-    - assets/animals/
+    - assets/images/gewas/
+    - assets/images/color-animals/
+    - assets/images/
     - assets/sighting.svg
     - assets/damage.svg
     - assets/collision.svg
     - assets/images/
     - assets/images/gewas/
     - assets/images/vee/
-    - assets/images/crops.jpg
-    - assets/images/livestock.jpg
-    - assets/images/property.jpg
+    - assets/logo-wildlife.svg
     - .env
 
   fonts:

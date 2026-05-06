@@ -10,6 +10,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_c
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
+import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
 import 'package:wildrapport/constants/design_system.dart';
 
 class AnimalWaarnemingDetailsScreen extends StatefulWidget {
@@ -31,20 +32,129 @@ class _AnimalWaarnemingDetailsScreenState
     extends State<AnimalWaarnemingDetailsScreen> {
   AnimalAge selectedAge = AnimalAge.onbekend;
   AnimalGender selectedGender = AnimalGender.onbekend;
+  AnimalCondition selectedCondition = AnimalCondition.onbekend;
+
+  @override
+  void initState() {
+    super.initState();
+    _hydrateSelectionFromSavedAnimal();
+  }
+
+  void _hydrateSelectionFromSavedAnimal() {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    final animals = sighting?.animals;
+
+    if (animals == null || widget.animalIndex >= animals.length) return;
+
+    final savedAnimal = animals[widget.animalIndex];
+    if (savedAnimal.genderViewCounts.isEmpty) return;
+
+    final firstGenderViewCount = savedAnimal.genderViewCounts.first;
+    selectedGender = firstGenderViewCount.gender;
+    selectedAge = _extractAgeFromViewCount(firstGenderViewCount.viewCount);
+    if (savedAnimal.condition != null) {
+      selectedCondition = savedAnimal.condition!;
+    }
+  }
+
+  AnimalAge _extractAgeFromViewCount(ViewCountModel viewCount) {
+    if (viewCount.pasGeborenAmount > 0) return AnimalAge.pasGeboren;
+    if (viewCount.onvolwassenAmount > 0) return AnimalAge.onvolwassen;
+    if (viewCount.volwassenAmount > 0) return AnimalAge.volwassen;
+    return AnimalAge.onbekend;
+  }
+
+  AnimalModel? _getTemplateAnimal() {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+
+    if (sighting == null) return null;
+
+    final existingAnimals = sighting.animals;
+    if (existingAnimals != null && widget.animalIndex < existingAnimals.length) {
+      return existingAnimals[widget.animalIndex];
+    }
+
+    return sighting.animalSelected;
+  }
+
+  AnimalModel _buildAnimalWithSelection({
+    required AnimalModel template,
+    required AnimalAge age,
+    required AnimalGender gender,
+  }) {
+    final viewCount = ViewCountModel();
+    if (age == AnimalAge.pasGeboren) {
+      viewCount.pasGeborenAmount = 1;
+    } else if (age == AnimalAge.onvolwassen) {
+      viewCount.onvolwassenAmount = 1;
+    } else if (age == AnimalAge.volwassen) {
+      viewCount.volwassenAmount = 1;
+    } else {
+      viewCount.unknownAmount = 1;
+    }
+
+    return AnimalModel(
+      animalId: template.animalId,
+      animalImagePath: template.animalImagePath,
+      animalName: template.animalName,
+      category: template.category,
+      genderViewCounts: [
+        AnimalGenderViewCount(
+          gender: gender,
+          viewCount: viewCount,
+        ),
+      ],
+      condition: selectedCondition,
+    );
+  }
+
+  void _upsertAnimalAtIndex({
+    required int index,
+    required AnimalModel animal,
+  }) {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    if (sighting == null) return;
+
+    final updatedAnimals = List<AnimalModel>.from(sighting.animals ?? []);
+
+    if (index < updatedAnimals.length) {
+      updatedAnimals[index] = animal;
+    } else {
+      updatedAnimals.add(animal);
+    }
+
+    final normalizedAnimals = updatedAnimals.length > widget.totalCount
+        ? updatedAnimals.sublist(0, widget.totalCount)
+        : updatedAnimals;
+
+    sightingManager.updateCurrentanimalSighting(
+      sighting.copyWith(
+        animals: normalizedAnimals,
+        animalSelected: animal,
+      ),
+    );
+  }
 
   void _handleBackNavigation() {
+    _saveDraftBeforeBackNavigation();
+
     if (widget.animalIndex > 0) {
-      // Go to previous animal details
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnimalWaarnemingDetailsScreen(
-            animalIndex: widget.animalIndex - 1,
-            totalCount: widget.totalCount,
+      if (Navigator.of(context).canPop()) {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnimalWaarnemingDetailsScreen(
+              animalIndex: widget.animalIndex - 1,
+              totalCount: widget.totalCount,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } else {
       // Go back to animal_aantal_screen
       if (Navigator.of(context).canPop()) {
@@ -53,67 +163,115 @@ class _AnimalWaarnemingDetailsScreenState
     }
   }
 
-  void _handleNext() {
-    // Save the current animal's details before moving on
-    final sightingManager =
-        context.read<AnimalSightingReportingInterface>();
+  void _saveDraftBeforeBackNavigation() {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
-    final currentAnimal = sighting?.animalSelected;
-    
-    if (currentAnimal == null) return;
-    
-    // Create a ViewCountModel with the selected age
-    final viewCount = ViewCountModel();
-    if (selectedAge == AnimalAge.pasGeboren) {
-      viewCount.pasGeborenAmount = 1;
-    } else if (selectedAge == AnimalAge.onvolwassen) {
-      viewCount.onvolwassenAmount = 1;
-    } else if (selectedAge == AnimalAge.volwassen) {
-      viewCount.volwassenAmount = 1;
-    } else {
-      viewCount.unknownAmount = 1;
+    if (sighting == null) return;
+
+    final hasExistingEntry =
+        sighting.animals != null && widget.animalIndex < sighting.animals!.length;
+    final hasExplicitSelection =
+        selectedAge != AnimalAge.onbekend || selectedGender != AnimalGender.onbekend;
+
+    if (!hasExistingEntry && !hasExplicitSelection) {
+      return;
     }
-    
-    // Create the complete AnimalGenderViewCount with both gender and age
-    final genderViewCount = AnimalGenderViewCount(
+
+    final templateAnimal = _getTemplateAnimal();
+    if (templateAnimal == null) return;
+
+    final draftAnimal = _buildAnimalWithSelection(
+      template: templateAnimal,
+      age: selectedAge,
       gender: selectedGender,
-      viewCount: viewCount,
     );
-    
-    // Update selectedAnimal with this complete gender/age data
-    final updatedAnimal = AnimalModel(
-      animalId: currentAnimal.animalId,
-      animalImagePath: currentAnimal.animalImagePath,
-      animalName: currentAnimal.animalName,
-      category: currentAnimal.category,
-      genderViewCounts: [genderViewCount],
-      condition: currentAnimal.condition,
+
+    _upsertAnimalAtIndex(
+      index: widget.animalIndex,
+      animal: draftAnimal,
     );
-    
-    sightingManager.updateSelectedAnimal(updatedAnimal);
-    
-    // Finalize/save this animal to the animals list, but keep it selected for the next iteration
-    sightingManager.finalizeAnimal(clearSelected: false);
-    
-    // Reset the selected animal to have empty genderViewCounts for the next animal
-    final freshAnimal = AnimalModel(
-      animalId: currentAnimal.animalId,
-      animalImagePath: currentAnimal.animalImagePath,
-      animalName: currentAnimal.animalName,
-      category: currentAnimal.category,
-      genderViewCounts: [],
-      condition: currentAnimal.condition,
+  }
+
+  AnimalModel? _saveCurrentAnimalDetails({
+    AnimalAge? age,
+    AnimalGender? gender,
+    bool prepareNextSelection = true,
+  }) {
+    final templateAnimal = _getTemplateAnimal();
+    if (templateAnimal == null) return null;
+
+    final chosenAge = age ?? selectedAge;
+    final chosenGender = gender ?? selectedGender;
+
+    final updatedAnimal = _buildAnimalWithSelection(
+      template: templateAnimal,
+      age: chosenAge,
+      gender: chosenGender,
     );
-    sightingManager.updateSelectedAnimal(freshAnimal);
-    
+
+    _upsertAnimalAtIndex(
+      index: widget.animalIndex,
+      animal: updatedAnimal,
+    );
+
+    if (!prepareNextSelection) {
+      return templateAnimal;
+    }
+
+    return templateAnimal;
+  }
+
+  void _navigateAfterAnimalDetails() {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    final reportType = sighting?.reportType;
+
+    if (reportType == 'verkeersongeval') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
+        ),
+      );
+    } else if (reportType == 'gewasschade') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SchademeldingDetailsScreen(),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
+        ),
+      );
+    }
+  }
+
+  AnimalModel _buildUnknownAnimalFromTemplate(AnimalModel templateAnimal) {
+    final unknownViewCount = ViewCountModel()..unknownAmount = 1;
+    return AnimalModel(
+      animalId: templateAnimal.animalId,
+      animalImagePath: templateAnimal.animalImagePath,
+      animalName: templateAnimal.animalName,
+      category: templateAnimal.category,
+      genderViewCounts: [
+        AnimalGenderViewCount(
+          gender: AnimalGender.onbekend,
+          viewCount: unknownViewCount,
+        ),
+      ],
+      condition: templateAnimal.condition,
+    );
+  }
+
+  void _handleNextAnimal() {
+    final savedTemplate = _saveCurrentAnimalDetails(prepareNextSelection: true);
+    if (savedTemplate == null) return;
+
     if (widget.animalIndex < widget.totalCount - 1) {
-      // Reset state for next animal
-      setState(() {
-        selectedAge = AnimalAge.onbekend;
-        selectedGender = AnimalGender.onbekend;
-      });
-      
-      // Go to next animal details
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -124,26 +282,26 @@ class _AnimalWaarnemingDetailsScreenState
         ),
       );
     } else {
-      // Last animal - Check report type
-      final reportType = sighting?.reportType;
-      if (reportType == 'verkeersongeval') {
-        // For dieraanrijding, go to details screen first
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DieraanrijdingDetailsScreen(totalCount: widget.totalCount),
-          ),
-        );
-      } else {
-        // For other types, go directly to summary
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
-          ),
-        );
-      }
+      _navigateAfterAnimalDetails();
     }
+  }
+
+  void _handleFinishAnimals() {
+    final templateAnimal =
+        _saveCurrentAnimalDetails(prepareNextSelection: false);
+    if (templateAnimal == null) return;
+
+    final remainingAnimals = widget.totalCount - (widget.animalIndex + 1);
+    for (int i = 0; i < remainingAnimals; i++) {
+      final targetIndex = widget.animalIndex + 1 + i;
+      final unknownAnimal = _buildUnknownAnimalFromTemplate(templateAnimal);
+      _upsertAnimalAtIndex(
+        index: targetIndex,
+        animal: unknownAnimal,
+      );
+    }
+
+    _navigateAfterAnimalDetails();
   }
 
   @override
@@ -189,7 +347,7 @@ class _AnimalWaarnemingDetailsScreenState
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -223,7 +381,7 @@ class _AnimalWaarnemingDetailsScreenState
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w400,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -339,9 +497,18 @@ class _AnimalWaarnemingDetailsScreenState
                             AnimalGender.mannelijk,
                             AnimalGender.vrouwelijk,
                           ], (gender) {
-                            setState(() =>
-                                selectedGender = gender as AnimalGender);
+                            setState(() => selectedGender = gender as AnimalGender);
                           }, selectedGender),
+                          const SizedBox(height: 16),
+                          // Condition selector
+                          _buildSelectorSection('Conditie:', [
+                            AnimalCondition.onbekend, // unknown
+                            AnimalCondition.gezond,   // healthy
+                            AnimalCondition.gewond,     // impaired
+                            AnimalCondition.dood,     // dead
+                          ], (condition) {
+                            setState(() => selectedCondition = condition as AnimalCondition);
+                          }, selectedCondition),
                           const SizedBox(height: 20),
                           // Next animal button - only show if not the final animal
                           if (widget.animalIndex < widget.totalCount - 1)
@@ -358,7 +525,7 @@ class _AnimalWaarnemingDetailsScreenState
                                     borderRadius: BorderRadius.circular(25),
                                   ),
                                 ),
-                                onPressed: _handleNext,
+                                onPressed: _handleNextAnimal,
                                 child: const Text(
                                   '+ Volgende Dier',
                                   style: TextStyle(
@@ -385,9 +552,7 @@ class _AnimalWaarnemingDetailsScreenState
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: _handleBackNavigation,
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: BorderSide(
@@ -412,7 +577,9 @@ class _AnimalWaarnemingDetailsScreenState
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _handleNext,
+                        onPressed: widget.animalIndex == widget.totalCount - 1
+                          ? _handleNextAnimal
+                          : _handleFinishAnimals,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color(0xFF37A904),
@@ -461,29 +628,36 @@ class _AnimalWaarnemingDetailsScreenState
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: options.map((option) {
-            final isSelected = option == selectedValue;
-            final label = _getEnumLabel(option);
-            return OutlinedButton(
-              onPressed: () => onSelected(option),
-              style: isSelected
-                  ? AppComponentStyles.selectionButtonSelected()
-                  : AppComponentStyles.selectionButtonUnselected(),
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? Colors.white
-                      : Colors.black87,
-                ),
-              ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final itemWidth = (constraints.maxWidth - 8) / 2;
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map((option) {
+                final isSelected = option == selectedValue;
+                final label = _getEnumLabel(option);
+                return SizedBox(
+                  width: itemWidth,
+                  child: OutlinedButton(
+                    onPressed: () => onSelected(option),
+                    style: isSelected
+                        ? AppComponentStyles.selectionButtonSelected()
+                        : AppComponentStyles.selectionButtonUnselected(),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? Colors.white : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         ),
       ],
     );
@@ -514,14 +688,12 @@ class _AnimalWaarnemingDetailsScreenState
       switch (value) {
         case AnimalCondition.gezond:
           return 'Gezond';
-        case AnimalCondition.ziek:
-          return 'Gewond/Ziek';
+        case AnimalCondition.gewond:
+          return 'Gewond';
         case AnimalCondition.dood:
           return 'Dood';
-        case AnimalCondition.levend:
-          return 'Levend';
-        case AnimalCondition.andere:
-          return 'Anders';
+        case AnimalCondition.onbekend:
+          return 'Onbekend';
       }
     }
     return 'Onbekend';

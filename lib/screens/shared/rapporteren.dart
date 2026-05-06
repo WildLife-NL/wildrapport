@@ -6,7 +6,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
-
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/waarneming/location_selection_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_location_selection_screen.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
@@ -193,6 +193,7 @@ class _RapporterenState extends State<Rapporteren> {
     context.read<NavigationStateInterface>();
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       body: Column(
         children: [
           SafeArea(
@@ -205,7 +206,7 @@ class _RapporterenState extends State<Rapporteren> {
               useFixedText: true,
               onRightIconPressed: () {},
               // make title and arrow black and larger for this screen - more on smaller screens
-              iconColor: Colors.black,
+              iconColor: AppColors.darkCharcoal,
               textColor: Colors.black,
               fontScale: responsive.breakpointValue<double>(
                 small: 1.4,
@@ -229,31 +230,28 @@ class _RapporterenState extends State<Rapporteren> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child:
-                          _isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : _interactionTypes == null ||
-                                  _interactionTypes!.isEmpty
-                              ? Center(
-                                child: Text(
-                                  'Geen interactietypen beschikbaar',
-                                  style: TextStyle(
-                                    fontSize: responsive.fontSize(16),
-                                  ),
-                                ),
-                              )
-                              : SingleChildScrollView(
-                                child: Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: responsive.wp(5),
-                                      vertical: responsive.hp(2),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _interactionTypes == null ||
+                            _interactionTypes!.isEmpty
+                        ? Center(
+                          child: Text(
+                            'Geen interactietypen beschikbaar',
+                            style: TextStyle(
+                              fontSize: responsive.fontSize(16),
+                            ),
+                          ),
+                        )
+                        : SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: responsive.wp(5),
+                              vertical: responsive.hp(2),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children:
@@ -286,11 +284,11 @@ class _RapporterenState extends State<Rapporteren> {
 
                                           return Padding(
                                             padding: EdgeInsets.only(
-                                              bottom: responsive.hp(2),
+                                              bottom: responsive.hp(2.5),
                                             ),
                                             child: SizedBox(
                                               width: responsive.wp(90),
-                                              height: 160,
+                                              height: 140,
                                               child: GestureDetector(
                                                 onTap: () =>
                                                     _handleReportTypeSelection(
@@ -298,64 +296,104 @@ class _RapporterenState extends State<Rapporteren> {
                                                     ),
                                                 child: Card(
                                                   elevation: 0,
-                                                  color: Colors.white,
+                                                  //shadowColor: Colors.black12,
+                                                  color: AppColors.cardBackground,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(18),
                                                     side: BorderSide(
-                                                      color: Colors.grey[300]!,
-                                                      width: 1,
+                                                      color: AppColors.borderDefault,
+                                                      width: 1.5,
                                                     ),
                                                   ),
                                                   child: Container(
                                                     padding: EdgeInsets.symmetric(
                                                       horizontal: responsive.wp(6),
-                                                      vertical: responsive.hp(3),
+                                                      vertical: responsive.hp(2),
                                                     ),
-                                                    child: Row(                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
                                                       crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .center,                                                    children: [
-                                                        SvgPicture.asset(
-                                                          iconPath,
-                                                          width: 40,
-                                                          height: 40,
-                                                      ),
-                                                      SizedBox(
-                                                        width:
-                                                            responsive.wp(5),
-                                                      ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          type.name,
-                                                          style: TextStyle(
-                                                            fontSize:
-                                                                responsive
-                                                                    .fontSize(
-                                                              18,
+                                                          CrossAxisAlignment.center,
+                                                      children: [
+                                                        Container(
+                                                          width: 60,
+                                                          height: 60,
+                                                          decoration: BoxDecoration(
+                                                            color: AppColors.backgroundLight,
+                                                            borderRadius:
+                                                                BorderRadius.circular(14),
+                                                          ),
+                                                          child: Center(
+                                                            child: SvgPicture.asset(
+                                                              iconPath,
+                                                              width: 32,
+                                                              height: 32,
                                                             ),
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                Colors.black,
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                        SizedBox(
+                                                          width: responsive.wp(5),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment.center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment.start,
+                                                            children: [
+                                                              Text(
+                                                                type.name,
+                                                                style: TextStyle(
+                                                                  fontSize:
+                                                                      responsive
+                                                                          .fontSize(
+                                                                    16,
+                                                                  ),
+                                                                  fontWeight:
+                                                                      FontWeight.w600,
+                                                                  color:
+                                                                      AppColors.textPrimary,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(height: 4),
+                                                              Text(
+                                                                _getDescriptionForType(
+                                                                  type.name,
+                                                                ),
+                                                                style: TextStyle(
+                                                                  fontSize:
+                                                                      responsive
+                                                                          .fontSize(
+                                                                    12,
+                                                                  ),
+                                                                  color: Colors.grey
+                                                                      .shade600,
+                                                                ),
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow
+                                                                    .ellipsis,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Icon(
+                                                          Icons.arrow_forward_ios,
+                                                          size: 18,
+                                                          color: Colors.grey.shade400,
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
+                                          );
                                         }).toList(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                    ),
+                            ),
+                          ),
+                        ),
                   ],
                 ),
               ),
@@ -364,5 +402,17 @@ class _RapporterenState extends State<Rapporteren> {
         ],
       ),
     );
+  }
+
+  String _getDescriptionForType(String typeName) {
+    final name = typeName.toLowerCase();
+    if (name == 'waarneming' || name.contains('sighting')) {
+      return 'Dierenwaarneming melden';
+    } else if (name == 'schademelding' || name.contains('crop damage')) {
+      return 'Gewas, Vee of Eigendom melden';
+    } else if (name == 'dieraanrijding' || name.contains('animal collision')) {
+      return 'Verkeersongeval melden';
+    }
+    return 'Rapport indienen';
   }
 }

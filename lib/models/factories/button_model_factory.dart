@@ -12,7 +12,7 @@ class ButtonModelFactory {
       leftIconPath: leftIconPath,
       rightIconPath: rightIconPath,
       fontSize: 16,
-      backgroundColor: AppColors.darkGreen,
+      backgroundColor: AppColors.primaryGreen,
       elevation: 0,
     );
   }

@@ -325,6 +325,14 @@ class ResponseManager implements ResponseInterface {
     final results = await _connectivity.checkConnectivity();
     debugPrint(results.toString());
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
+    final hasInternet = await ConnectionChecker.hasInternetConnection();
+
+    if (!hasConnection || !hasInternet) {
+      debugPrint(
+        "$yellowLog [ResponseManager]: Offline detected, postponing response submission.",
+      );
+      return;
+    }
 
     if (hasConnection) {
       int totalResponses = 0;
@@ -339,6 +347,9 @@ class ResponseManager implements ResponseInterface {
         // For each questionnaire entry
         for (int j = 0; j < listObject.responses.length; j++) {
           Map<String, List<ResponseObject>> entry = listObject.responses[j];
+          if (entry.isEmpty) {
+            continue;
+          }
           String questionaireID = entry.keys.first;
           List<ResponseObject> responseObjects = entry[questionaireID]!;
 
@@ -409,6 +420,9 @@ class ResponseManager implements ResponseInterface {
             );
           }
         }
+
+        // Remove empty questionnaire maps left after successful submissions.
+        listObject.responses.removeWhere((entry) => entry.isEmpty);
       }
 
       debugPrint("$yellowLog [ResponseManager]: === Submit Summary ===");

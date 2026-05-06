@@ -7,6 +7,7 @@ import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/animals/animal_counting.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class AnimalCountingScreen extends StatefulWidget {
   const AnimalCountingScreen({super.key});
@@ -76,8 +77,8 @@ class _AnimalCountingScreenState extends State<AnimalCountingScreen> {
               showUserIcon: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               // Match the other screens: black icons/text and slightly larger font/icon scales
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.15,
               iconScale: 1.15,
               userIconScale: 1.15,

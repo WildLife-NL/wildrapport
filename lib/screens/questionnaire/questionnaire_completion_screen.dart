@@ -115,7 +115,7 @@ class _QuestionnaireCompletionScreenState
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Roboto',
-                        color: Colors.black,
+                        color: AppColors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -128,7 +128,7 @@ class _QuestionnaireCompletionScreenState
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Roboto',
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                         height: 1.5,
                       ),
                       textAlign: TextAlign.center,
@@ -141,7 +141,7 @@ class _QuestionnaireCompletionScreenState
                       style: TextStyle(
                         fontSize: 18,
                         fontFamily: 'Roboto',
-                        color: Colors.black54,
+                        color: AppColors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -166,9 +166,9 @@ class _QuestionnaireCompletionScreenState
                           ),
                           decoration: BoxDecoration(
                             color:
-                                isActive ? AppColors.darkGreen : Colors.white,
+                                isActive ? AppColors.primaryGreen : Colors.white,
                             border: Border.all(
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               width: 2,
                             ),
                             borderRadius: BorderRadius.circular(12),
@@ -180,7 +180,7 @@ class _QuestionnaireCompletionScreenState
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Roboto',
                               color:
-                                  isActive ? Colors.white : AppColors.darkGreen,
+                                  isActive ? Colors.white : AppColors.primaryGreen,
                             ),
                           ),
                         ),

@@ -405,7 +405,7 @@ void main() {
             'animalId': '1',
             'animalName': 'Wolf',
             'animalImagePath': 'assets/wolf.png',
-            'condition': 'AnimalCondition.levend',
+            'condition': 'AnimalCondition.gezond',
             'genderViewCounts': [
               {
                 'gender': 'AnimalGender.mannelijk',
@@ -458,7 +458,7 @@ void main() {
       expect(model.animals?.length, 1);
       expect(model.animals?[0].animalId, '1');
       expect(model.animals?[0].animalName, 'Wolf');
-      expect(model.animals?[0].condition, AnimalCondition.levend);
+      expect(model.animals?[0].condition, AnimalCondition.gezond);
       expect(model.animals?[0].genderViewCounts.length, 1);
       expect(
         model.animals?[0].genderViewCounts[0].gender,

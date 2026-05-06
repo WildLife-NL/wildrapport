@@ -74,9 +74,9 @@ class SelectionButtonGroup extends StatelessWidget {
       showShadow: false,
       // make the buttons slimmer: height based on computed circleSize
       height: circleSize * 0.9,
-      backgroundColor: AppColors.lightMintGreen,
-      borderColor: AppColors.darkGreen,
-      arrowColor: AppColors.darkGreen,
+      backgroundColor: AppColors.backgroundLight,
+      borderColor: AppColors.primaryGreen,
+      arrowColor: AppColors.primaryGreen,
       textStyle: const TextStyle(color: Colors.black),
       onPressed: () => onStatusSelected(text),
     );

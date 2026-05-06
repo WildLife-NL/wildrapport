@@ -29,6 +29,8 @@ void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
     ResponseHelpers.setupEnvironment();
+    // Reset static connectivity mock state between tests.
+    MockConnectionChecker.mockHasConnection = true;
 
     mockResponseApi = ResponseHelpers.getMockResponseApi();
     responseProvider = ResponseHelpers.getResponseProvider();

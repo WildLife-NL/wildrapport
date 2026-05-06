@@ -230,7 +230,7 @@ class _TimeSelectionRowState extends State<TimeSelectionRow> {
           child: InkWell(
             onTap: () => _handleSelection(label),
             borderRadius: BorderRadius.circular(15),
-            hoverColor: AppColors.darkGreen.withValues(alpha: 0.1),
+            hoverColor: AppColors.primaryGreen.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               child: Row(

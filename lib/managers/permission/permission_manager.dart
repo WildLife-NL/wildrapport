@@ -51,7 +51,7 @@ class PermissionManager implements PermissionInterface {
           context: context,
           builder:
               (context) => AlertDialog(
-                backgroundColor: AppColors.lightMintGreen,
+                backgroundColor: AppColors.backgroundLight,
                 title: Text(
                   'Locatie Toegang',
                   style: AppTextTheme.textTheme.titleMedium?.copyWith(
@@ -68,7 +68,7 @@ class PermissionManager implements PermissionInterface {
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.darkGreen,
+                      foregroundColor: AppColors.primaryGreen,
                       textStyle: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -79,7 +79,7 @@ class PermissionManager implements PermissionInterface {
                   TextButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.darkGreen,
+                      foregroundColor: AppColors.primaryGreen,
                       textStyle: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

@@ -81,8 +81,8 @@ class ActionButtons extends StatelessWidget {
     VoidCallback? onPressed,
     Key? key,
   }) {
-    Color background = AppColors.lightMintGreen;
-    Color? border = AppColors.darkGreen;
+    Color background = AppColors.backgroundLight;
+    Color? border = AppColors.primaryGreen;
     TextStyle textStyle = TextStyle(
       color: Colors.black,
       fontSize: buttonFontSize ?? 16,

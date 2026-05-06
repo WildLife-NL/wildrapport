@@ -95,14 +95,19 @@ class AnimalSightingModel {
                 },
               )
               .toList(),
-      'reportType': reportType,
-      'animalCount': animalCount,
-      'cropType': cropType,
-      'expectedLoss': expectedLoss,
-      'preventiveMeasures': preventiveMeasures,
-      'accidentSeverity': accidentSeverity,
-      'animalConditionDieraanrijding': animalConditionDieraanrijding,
-      'additionalInfo': additionalInfo,
+      'animalSelected':
+          animalSelected != null
+              ? {
+                'animalId': animalSelected!.animalId,
+                'animalImagePath': animalSelected!.animalImagePath,
+                'animalName': animalSelected!.animalName,
+                'condition': animalSelected!.condition?.toString(),
+                'genderViewCounts':
+                    animalSelected!.genderViewCounts
+                        .map((gvc) => gvc.toJson())
+                        .toList(),
+              }
+              : null,
       'category': category?.toString(),
       'description': description,
       'locations': locations?.map((loc) => loc.toJson()).toList(),
@@ -126,7 +131,7 @@ class AnimalSightingModel {
                       x['condition'] != null
                           ? AnimalCondition.values.firstWhere(
                             (e) => e.toString() == x['condition'],
-                            orElse: () => AnimalCondition.andere,
+                            orElse: () => AnimalCondition.onbekend,
                           )
                           : null,
                   genderViewCounts:
@@ -152,7 +157,7 @@ class AnimalSightingModel {
                       ? AnimalCondition.values.firstWhere(
                         (e) =>
                             e.toString() == json['animalSelected']['condition'],
-                        orElse: () => AnimalCondition.andere,
+                        orElse: () => AnimalCondition.onbekend,
                       )
                       : null,
               genderViewCounts:

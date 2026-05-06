@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/logbook/sighting_detail_screen.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
-class RecentSightingsScreen extends StatelessWidget {
+class RecentSightingsScreen extends StatefulWidget {
   const RecentSightingsScreen({super.key});
+
+  @override
+  State<RecentSightingsScreen> createState() => _RecentSightingsScreenState();
+}
+
+class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
+  final Map<String, String> _resolvedLocationCache = {};
 
   void _handleBackNavigation(BuildContext context) {
     Navigator.pop(context);
   }
 
-  String _getLocationDisplay(List? locations) {
+  String? _getImmediateLocationDisplay(List? locations) {
     if (locations?.isEmpty != false) {
       return 'Locatie nog niet ingesteld';
     }
@@ -23,10 +32,71 @@ class RecentSightingsScreen extends StatelessWidget {
     } else if (loc.cityName != null) {
       return loc.cityName!;
     }
-    if (loc.latitude != null && loc.longitude != null) {
-      return '${loc.latitude?.toStringAsFixed(2)}, ${loc.longitude?.toStringAsFixed(2)}';
+    return null;
+  }
+
+  Future<String> _resolveLocationDisplay(List? locations) async {
+    final immediate = _getImmediateLocationDisplay(locations);
+    if (immediate != null) {
+      return immediate;
     }
-    return 'Locatie nog niet ingesteld';
+
+    if (locations?.isEmpty != false) {
+      return 'Locatie nog niet ingesteld';
+    }
+
+    final loc = locations!.first;
+    if (loc.latitude == null || loc.longitude == null) {
+      return 'Locatie nog niet ingesteld';
+    }
+
+    final cacheKey = '${loc.latitude!.toStringAsFixed(5)},${loc.longitude!.toStringAsFixed(5)}';
+    final cached = _resolvedLocationCache[cacheKey];
+    if (cached != null) {
+      return cached;
+    }
+
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        loc.latitude!,
+        loc.longitude!,
+      );
+
+      final placemark = placemarks.isNotEmpty ? placemarks.first : null;
+      final placeName = _formatPlacemarkName(placemark);
+
+      final result = placeName.isNotEmpty
+          ? placeName
+          : '${loc.latitude!.toStringAsFixed(2)}, ${loc.longitude!.toStringAsFixed(2)}';
+      _resolvedLocationCache[cacheKey] = result;
+      return result;
+    } catch (e) {
+      debugPrint('[RecentSightings] Reverse geocoding failed: $e');
+      final fallback = '${loc.latitude!.toStringAsFixed(2)}, ${loc.longitude!.toStringAsFixed(2)}';
+      _resolvedLocationCache[cacheKey] = fallback;
+      return fallback;
+    }
+  }
+
+  String _formatPlacemarkName(Placemark? placemark) {
+    if (placemark == null) return '';
+
+    final candidates = <String?>[
+      placemark.subLocality,
+      placemark.locality,
+      placemark.subAdministrativeArea,
+      placemark.administrativeArea,
+      placemark.name,
+    ];
+
+    for (final candidate in candidates) {
+      final value = candidate?.trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return '';
   }
 
   String _getDateTimeDisplay(dynamic dateTimeModel) {
@@ -56,12 +126,12 @@ class RecentSightingsScreen extends StatelessWidget {
           children: [
             CustomAppBar(
               centerText: 'Logboek',
-              leftIcon: Icons.arrow_back_ios,
+              leftIcon: null,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
@@ -143,23 +213,19 @@ class RecentSightingsScreen extends StatelessWidget {
     debugPrint('[RecentSightings._buildImageSection] imagePath: $imagePath');
     
     return Container(
-      width: 170,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0D9C9),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
-        ),
-        border: Border.all(
-          color: Colors.grey[400] ?? Colors.grey,
-          width: 2,
+      width: 160,
+      decoration: const BoxDecoration(
+        color: Color(0xFFE0D9C9),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
         ),
       ),
       child: (imagePath != null && imagePath.isNotEmpty)
           ? ClipRRect(
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
               child: Image.asset(
                 imagePath,
@@ -192,7 +258,6 @@ class RecentSightingsScreen extends StatelessWidget {
         ? sighting.animals!.first.animalImagePath
         : null;
     final aantal = sighting.animals?.length ?? 0;
-    final location = _getLocationDisplay(sighting.locations);
     final dateTime = _getDateTimeDisplay(sighting.dateTime);
 
     debugPrint('[RecentSightings] ==== SIGHTING DETAILS ====');
@@ -231,7 +296,7 @@ class RecentSightingsScreen extends StatelessWidget {
               ('Tijd', dateTime.split('|').length > 1 ? dateTime.split('|')[1].trim() : ''),
             ]),
             const SizedBox(height: 6),
-            _buildInfoRow(Icons.location_on, location),
+            _buildLocationWidget(sighting.locations),
           ],
         ),
       ),
@@ -261,7 +326,7 @@ class RecentSightingsScreen extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -285,6 +350,21 @@ class RecentSightingsScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLocationWidget(List? locations) {
+    final immediate = _getImmediateLocationDisplay(locations);
+    if (immediate != null) {
+      return _buildInfoRow(Icons.location_on, immediate);
+    }
+
+    return FutureBuilder<String>(
+      future: _resolveLocationDisplay(locations),
+      builder: (context, snapshot) {
+        final text = snapshot.data ?? 'Locatie nog niet ingesteld';
+        return _buildInfoRow(Icons.location_on, text);
+      },
     );
   }
 }

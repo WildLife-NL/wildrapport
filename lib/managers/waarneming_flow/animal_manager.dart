@@ -5,7 +5,6 @@ import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/interfaces/filters/filter_interface.dart';
 import 'package:wildrapport/models/enums/filter_type.dart';
 import 'package:wildrapport/models/enums/animal_category.dart';
-import 'package:wildrapport/models/enums/animal_condition.dart';
 
 /// Get the image path for an animal by name
 String? getAnimalPhotoPath(String? name) {
@@ -24,15 +23,21 @@ String? getAnimalPhotoPath(String? name) {
     'konik paard': 'konikpaard',
     'wilde kat': 'wild kat',
     'wildkat': 'wild kat',
-    'shetlandpony': 'shetland pony',
-    'exmoorpony': 'exmoor pony',
+    'shetland pony': 'shetlandpony',
+    'shetlandpony': 'shetlandpony',
+    'exmoor pony': 'exmoorpony',
+    'exmoorpony': 'exmoorpony',
+    'wilde zwijn': 'wildezwijn',
+    'wild zwijn': 'wildzwijn',
+    'europese nerts': 'europese nerts',
+    'europesenerts': 'europesenerts',
   };
 
   final fileStem = aliases[nameLower] ??
       aliases[normalized] ??
       aliases[compact] ??
       normalized;
-  return 'assets/animals/$fileStem.png';
+  return 'assets/images/color-animals/$fileStem.png';
 }
 
 class AnimalManager
@@ -69,7 +74,7 @@ class AnimalManager
                 animalName: s.commonName,
                 category: s.category,
                 genderViewCounts: [],
-                condition: AnimalCondition.andere,
+                
               );
             },
           )

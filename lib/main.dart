@@ -163,7 +163,7 @@ void main() async {
     mapProvider: mapProvider,
     interactionManager: interactionManager,
   );
-  belongingManager.init();
+  await belongingManager.init();
 
   final questionnaireManager = QuestionnaireManager(questionnaireAPI);
 

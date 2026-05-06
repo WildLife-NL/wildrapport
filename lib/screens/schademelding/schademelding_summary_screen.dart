@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
+//import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
-import 'package:wildrapport/models/enums/location_source.dart';
-import 'package:wildrapport/models/beta_models/report_location_model.dart';
-import 'package:wildrapport/providers/belonging_damage_report_provider.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingSummaryScreen extends StatefulWidget {
   const SchademeldingSummaryScreen({
@@ -23,176 +21,31 @@ class SchademeldingSummaryScreen extends StatefulWidget {
 
 class _SchademeldingSummaryScreenState
     extends State<SchademeldingSummaryScreen> {
-  String _toApiEstimatedLossBucket(String? uiExpectedLoss) {
-    final raw = (uiExpectedLoss ?? '').trim().toLowerCase();
-    switch (raw) {
-      case 'onbekend':
-      case 'unknown':
-      case '':
-        return 'unknown';
-      case '€0 - €250':
-      case '0-250':
-      case '€0-€250':
-        return '0-250';
-      case '€250 - €500':
-      case '250-500':
-      case '€250-€500':
-        return '250-500';
-      case '€500 - €1000':
-      case '500-1000':
-      case '€500-€1000':
-        return '500-1000';
-      case '€1000 - €2000':
-      case '1000-2000':
-      case '€1000-€2000':
-        return '1000-2000';
-      case '€2000 - €5000':
-      case '2000-5000':
-      case '€2000-€5000':
-        return '2000-5000';
-      case '€5000 +':
-      case '5000+':
-      case '€5000+':
-        return '5000+';
-      default:
-        return 'unknown';
-    }
-  }
-
-  double _parseLossToAmount(String? expectedLoss) {
-    if (expectedLoss == null || expectedLoss.trim().isEmpty) return 0;
-    final normalized = expectedLoss.replaceAll('.', '').replaceAll(',', '.');
-    final matches = RegExp(r'\d+(\.\d+)?').allMatches(normalized).toList();
-    if (matches.isEmpty) return 0;
-    final last = matches.last.group(0);
-    return double.tryParse(last ?? '') ?? 0;
-  }
-
-  void _syncSightingToBelongingProvider({
-    required dynamic sighting,
-    required BelongingDamageReportProvider damageProvider,
-  }) {
-    final cropFromSighting = (sighting.cropType ?? '').toString().trim();
-    final existingCrop = damageProvider.impactedCrop.trim();
-    final fallbackCrop = (cropFromSighting.isNotEmpty)
-        ? cropFromSighting
-        : (existingCrop.isNotEmpty ? existingCrop : 'Onbekend');
-    if (cropFromSighting.isEmpty) {
-      debugPrint(
-        '[SchademeldingSubmit][WARN] sighting.cropType is empty; '
-        'using fallback impactedCrop="$fallbackCrop"',
-      );
-    }
-    damageProvider.setImpactedCrop(fallbackCrop);
-    damageProvider.setDescription((sighting.additionalInfo ?? '').toString());
-    damageProvider.setEstimatedLoss(_parseLossToAmount(sighting.expectedLoss));
-    damageProvider.setEstimatedLossBucket(
-      _toApiEstimatedLossBucket(sighting.expectedLoss),
-    );
-    damageProvider.setPreventiveMeasures(sighting.preventiveMeasures ?? false);
-    damageProvider.setPreventiveMeasuresDescription(
-      (sighting.additionalInfo ?? '').toString(),
-    );
-    // Keep current damage deterministic for backend if not collected explicitly.
-    damageProvider.setEstimatedDamage(0);
-    if (sighting.animalSelected?.animalId != null) {
-      damageProvider.setSuspectedAnimal(sighting.animalSelected!.animalId!);
-    }
-
-    // Ensure impact type/value exist so buildBelongingReport can pass validation.
-    final isLivestock = [
-      'rund',
-      'schaap',
-      'geit',
-      'paard',
-      'pluimvee',
-      'vark',
-      'ree',
-      'ander',
-    ].contains((sighting.cropType ?? '').toString().toLowerCase());
-    if (isLivestock) {
-      damageProvider.setDamageCategory('livestock');
-      damageProvider.setLivestockAmount(1);
-    } else {
-      damageProvider.setDamageCategory('crops');
-      if (damageProvider.impactedArea == null || damageProvider.impactedArea! <= 0) {
-        damageProvider.setImpactedAreaType('vierkante meters');
-        damageProvider.setImpactedArea(1);
-      }
-    }
-
-    final locations = sighting.locations ?? [];
-    for (final loc in locations) {
-      final reportLoc = ReportLocation(
-        latitude: loc.latitude,
-        longtitude: loc.longitude,
-      );
-      if (loc.source == LocationSource.system) {
-        damageProvider.setSystemLocation(reportLoc);
-      } else if (loc.source == LocationSource.manual) {
-        damageProvider.setUserLocation(reportLoc);
-      }
-    }
-  }
-
-  void _debugDumpBeforeSubmit({
-    required dynamic sighting,
-    required BelongingDamageReportProvider damageProvider,
-  }) {
-    debugPrint('[SchademeldingSubmit][DEBUG] ===== START SUBMIT DEBUG =====');
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] sighting null: ${sighting == null}',
-    );
-    if (sighting != null) {
-      try {
-        final sightingJson = sighting.toJson();
-        debugPrint(
-          '[SchademeldingSubmit][DEBUG] sighting payload:\n${const JsonEncoder.withIndent('  ').convert(sightingJson)}',
-        );
-      } catch (_) {
-        debugPrint(
-          '[SchademeldingSubmit][DEBUG] sighting.toJson() unavailable; '
-          'reportType=${sighting.reportType}, cropType=${sighting.cropType}, '
-          'animal=${sighting.animalSelected?.animalName}',
-        );
-      }
-    }
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] damageProvider state: '
-      'category=${damageProvider.damageCategory}, '
-      'impactedCrop="${damageProvider.impactedCrop}", '
-      'impactedArea=${damageProvider.impactedArea}, '
-      'impactedAreaType=${damageProvider.impactedAreaType}, '
-      'apiImpactType=${damageProvider.apiImpactType}, '
-      'apiImpactValue=${damageProvider.apiImpactValueOrNull}, '
-      'suspectedSpeciesID=${damageProvider.suspectedSpeciesID}',
-    );
-    debugPrint(
-      '[SchademeldingSubmit][DEBUG] NOTE: This screen posts via '
-      'BelongingDamageReportManager.postInteraction().',
-    );
-    debugPrint('[SchademeldingSubmit][DEBUG] ===== END SUBMIT DEBUG =====');
-  }
 
   void _onSubmitPressed() {
     final sightingManager = context.read<AnimalSightingReportingInterface>();
     final submittedProvider = context.read<SubmittedSightingsProvider>();
-    final damageProvider = context.read<BelongingDamageReportProvider>();
     final belongingManager = context.read<BelongingDamageReportInterface>();
 
     try {
       // Get the current sighting data from provider
       var sighting = sightingManager.getCurrentanimalSighting();
-
-      _debugDumpBeforeSubmit(
-        sighting: sighting,
-        damageProvider: damageProvider,
-      );
-
       if (sighting != null) {
-        _syncSightingToBelongingProvider(
-          sighting: sighting,
-          damageProvider: damageProvider,
+        // Save to submitted sightings
+        submittedProvider.addSighting(sighting);
+        debugPrint('[SchademeldingSummary] Schademelding: ${sighting.reportType}, Gewas: ${sighting.cropType}');
+        // Clear the current sighting
+        sightingManager.clearCurrentanimalSighting();
+        debugPrint('[SchademeldingSummary] Schademelding saved and navigating to logbook');
+        // Navigate to logbook with recent sightings shown directly
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const MainNavScreen(
+              initialTab: NavTab.logboek,
+              openRecentSightingsDirectly: true,
+            ),
+          ),
+          (route) => false,
         );
 
         debugPrint('[SchademeldingSubmit] Posting interaction to backend...');
@@ -259,7 +112,7 @@ class _SchademeldingSummaryScreenState
     );
   }
 
-  String _getCropImagePath(String cropType) {
+  String? _getCropImagePath(String cropType) {
     switch (cropType.toLowerCase()) {
       // Gewas types
       case 'maïs':
@@ -276,25 +129,67 @@ class _SchademeldingSummaryScreenState
       case 'tuin':
         return 'assets/images/gewas/tuin.jpg';
       // Vee types
-      case 'rund':
+      case 'runderen':
         return 'assets/images/vee/rund.png';
-      case 'schaap':
+      case 'schapen':
         return 'assets/images/vee/schaap.png';
-      case 'geit':
+      case 'geiten':
         return 'assets/images/vee/geit.png';
-      case 'paard':
+      case 'paarden':
         return 'assets/images/vee/paard.png';
       case 'pluimvee':
         return 'assets/images/vee/pluimvee.png';
-      case 'vark':
+      case 'varkens':
         return 'assets/images/vee/vark.png';
       case 'ree':
         return 'assets/images/vee/ree.png';
       case 'ander':
-        return 'assets/images/vee/rund.png'; // Default to rund for "ander"
+        return null;
+      //Eigendom
+      case 'eigendom':
+        return 'assets/images/property.jpg';
       default:
-        return 'assets/images/gewas/mais.jpg';
+        return null;
     }
+  }
+
+  Widget _buildCropTypeImage(String cropType) {
+    final imagePath = _getCropImagePath(cropType);
+
+    if (imagePath == null) {
+      return Container(
+        height: 120,
+        width: double.infinity,
+        color: const Color(0xFFECECEC),
+        child: const Center(
+          child: Icon(
+            Icons.pets,
+            size: 42,
+            color: Color(0xFF7A7A7A),
+          ),
+        ),
+      );
+    }
+
+    return Image.asset(
+      imagePath,
+      height: 120,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          height: 120,
+          color: const Color(0xFFECECEC),
+          child: const Center(
+            child: Icon(
+              Icons.pets,
+              size: 42,
+              color: Color(0xFF7A7A7A),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -316,7 +211,7 @@ class _SchademeldingSummaryScreenState
               showUserIcon: false,
               useFixedText: true,
               iconColor: Colors.grey,
-              textColor: Colors.black,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 0.85,
               userIconScale: 1.15,
@@ -396,21 +291,8 @@ class _SchademeldingSummaryScreenState
                                               topLeft: Radius.circular(12),
                                               topRight: Radius.circular(12),
                                             ),
-                                            child: Image.asset(
-                                              _getCropImagePath(currentSighting?.cropType ?? 'Onbekend'),
-                                              height: 120,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  height: 120,
-                                                  color: Colors.grey[200],
-                                                  child: const Center(
-                                                    child: Icon(Icons.image),
-                                                  ),
-                                                );
-                                              },
+                                            child: _buildCropTypeImage(
+                                              currentSighting?.cropType ?? 'Onbekend',
                                             ),
                                           ),
                                           Container(
@@ -436,7 +318,7 @@ class _SchademeldingSummaryScreenState
                                                   ?.copyWith(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Colors.black,
+                                                    color: AppColors.textPrimary
                                                   ),
                                             ),
                                           ),
@@ -655,47 +537,58 @@ class _SchademeldingSummaryScreenState
                                 color: const Color(0xFFF5F6F4),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Aanvullende informatie:',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: const Color(0xFF7A7A7A),
-                                        ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        width: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: 120),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF0F0F0),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(Icons.note, size: 18, color: Colors.grey[700]),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Aanvullende informatie',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  '"${currentSighting?.additionalInfo ?? ''}"',
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black87,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    child: Text(
-                                      '"${currentSighting?.additionalInfo ?? ''}"',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                    ?.copyWith(
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                                    ],
                                   ),
                                 ),
-                                ],
+                                ),
                               ),
-                            ),
                           ],
                         ],
                       ),
@@ -780,6 +673,11 @@ class _SchademeldingSummaryScreenState
       ),
     );
 
+    if (imagePath.isEmpty) {
+      // Fallback for missing image path
+      return placeholder;
+    }
+
     if (isNetworkUrl) {
       return Image.network(
         imagePath,
@@ -803,4 +701,5 @@ class _SchademeldingSummaryScreenState
         return placeholder;
       }
     }
-  }}
+  }
+}

@@ -126,7 +126,7 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -135,9 +135,7 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
               centerText: 'Zone deactiveren',
               rightIcon: null,
               showUserIcon: false,
-              onLeftIconPressed: () {
-                Navigator.of(context).pop();
-              },
+              onLeftIconPressed: () => Navigator.of(context).pop(),
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.15,
@@ -156,11 +154,22 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
                       style: TextStyle(fontSize: 14, height: 1.4),
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                      'Zone',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
                     if (_loading)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(color: AppColors.darkGreen),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.darkGreen,
+                          ),
                         ),
                       )
                     else if (_loadError != null)
@@ -168,7 +177,10 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Text(
                           _loadError!,
-                          style: TextStyle(color: Colors.red[700], fontSize: 13),
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontSize: 13,
+                          ),
                         ),
                       )
                     else if (_zones.isEmpty)
@@ -176,62 +188,86 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Text(
                           'Je hebt geen zones om te deactiveren.',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 13,
+                          ),
                         ),
                       )
                     else
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<Zone>(
-                              value: _selectedZone,
-                              isExpanded: true,
-                              hint: const Text('Kies een zone'),
-                              items: _zones.map((z) {
-                                return DropdownMenuItem<Zone>(
-                                  value: z,
-                                  child: Text('${z.name} – ${z.description}'),
-                                );
-                              }).toList(),
-                              onChanged: (z) => setState(() => _selectedZone = z),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.primaryGreen),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<Zone>(
+                            value: _selectedZone,
+                            isExpanded: true,
+                            hint: const Text(
+                              'Kies een zone',
+                              style: TextStyle(fontSize: 15),
                             ),
+                            borderRadius: BorderRadius.circular(16),
+                            items: _zones.map((z) {
+                              return DropdownMenuItem<Zone>(
+                                value: z,
+                                child: Text(
+                                  '${z.name} – ${z.description}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (z) => setState(() => _selectedZone = z),
                           ),
                         ),
                       ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: primaryButtonHeight(context),
-                      child: ElevatedButton(
-                        onPressed: (_isSubmitting || _zones.isEmpty || _selectedZone == null)
+                  ],
+                ),
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: primaryButtonHeight(context),
+                  child: ElevatedButton(
+                    onPressed:
+                        (_isSubmitting || _zones.isEmpty || _selectedZone == null)
                             ? null
                             : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade700,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Zone deactiveren'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      disabledBackgroundColor: const Color(0xFFEFEFEF),
+                      foregroundColor: Colors.white,
+                      disabledForegroundColor: const Color(0xFFACACAC),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                  ],
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Zone deactiveren',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
                 ),
               ),
             ),

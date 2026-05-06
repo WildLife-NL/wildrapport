@@ -371,7 +371,7 @@ class _LivingLabMapScreenState extends State<LivingLabMapScreen> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.darkGreen,
+                        color: AppColors.primaryGreen,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(

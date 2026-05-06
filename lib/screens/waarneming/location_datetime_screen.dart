@@ -7,6 +7,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
 import 'package:wildrapport/screens/waarneming/animals_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class LocationDateTimeScreen extends StatefulWidget {
   final LatLng selectedLocation;
@@ -26,15 +27,6 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     super.initState();
     _mapController = fm.MapController();
     _selectedDateTime = DateTime.now();
-  }
-
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    } else {
-      final navigationManager = context.read<NavigationStateInterface>();
-      navigationManager.resetToHome(context);
-    }
   }
 
   Future<void> _pickDate() async {
@@ -93,7 +85,7 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
               colorScheme: const ColorScheme.light(
                 primary: Color(0xFF37A904), // header background & selected
                 onPrimary: Colors.white, // header/selected text color
-                onSurface: Colors.black, // body text color
+                onSurface: AppColors.textPrimary, // body text color
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
@@ -137,6 +129,12 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     );
   }
 
+  void _handleBackNavigation() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
   String _formatDate(DateTime dateTime) {
     final String day = dateTime.day.toString().padLeft(1, '0');
     final String month = dateTime.month.toString().padLeft(1, '0');
@@ -152,6 +150,20 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = sightingManager.getCurrentanimalSighting();
+    
+    String appBarTitle = 'Waarneming'; // default
+    if (currentSighting?.reportType != null) {
+      if (currentSighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (currentSighting.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (currentSighting.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -161,13 +173,13 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
             // Same header as location selection
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Waarneming',
+              centerText: appBarTitle,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBackNavigation,
-              iconColor: Colors.black,
-              textColor: Colors.black,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
               fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,

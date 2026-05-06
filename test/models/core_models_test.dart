@@ -99,6 +99,103 @@ void main() {
       expect(roc.estimatedDamage, 10);
       expect(roc.toJson()['involvedAnimals'], isA<List>());
     });
+
+    test('ReportOfCollision falls back severity from urgency/intensity', () {
+      final fromUrgency = ReportOfCollision.fromJson({
+        'involvedAnimals': const [],
+        'estimatedDamage': 0,
+        'urgency': 'critical',
+      });
+      final fromIntensity = ReportOfCollision.fromJson({
+        'involvedAnimals': const [],
+        'estimatedDamage': 0,
+        'intensity': 'high',
+      });
+
+      expect(fromUrgency.severity, 'critical');
+      expect(fromIntensity.severity, 'high');
+    });
+
+    test('ReportOfCollision prefers severity when all fields exist', () {
+      final roc = ReportOfCollision.fromJson({
+        'involvedAnimals': const [],
+        'estimatedDamage': 0,
+        'severity': 'explicit',
+        'urgency': 'ignored',
+        'intensity': 'ignored',
+      });
+
+      expect(roc.severity, 'explicit');
+      expect(roc.intensity, 'explicit');
+      expect(roc.urgency, 'explicit');
+    });
+
+    test('ReportOfDamage parses numeric fields from string and num', () {
+      final rod = ReportOfDamage.fromJson({
+        'belonging': 'akker',
+        'estimatedLoss': '2500',
+        'preventiveMeasures': true,
+        'preventiveMeasuresDescription': 'hek geplaatst',
+        'impactType': 'hectare',
+        'impactValue': '12',
+        'estimatedDamage': 99.9,
+      });
+
+      expect(rod.impactValue, 12);
+      expect(rod.estimatedDamage, 99);
+      expect(rod.preventiveMeasures, isTrue);
+      expect(rod.toJson()['impactType'], 'hectare');
+    });
+
+    test('ReportOfDamage falls back to safe numeric defaults', () {
+      final rod = ReportOfDamage.fromJson({
+        'belonging': 'grasland',
+        'impactValue': 'not-a-number',
+        'estimatedDamage': null,
+      });
+
+      expect(rod.impactValue, 0);
+      expect(rod.estimatedDamage, 0);
+    });
+
+    test('MyInteractionLocation falls back to 0.0 coordinates', () {
+      final loc = MyInteractionLocation.fromJson(const {});
+      expect(loc.latitude, 0.0);
+      expect(loc.longitude, 0.0);
+      expect(loc.toJson(), {'latitude': 0.0, 'longitude': 0.0});
+    });
+
+    test('ReportOfSighting handles missing involvedAnimals', () {
+      final ros = ReportOfSighting.fromJson(const {});
+      expect(ros.involvedAnimals, isEmpty);
+      expect(ros.toJson()['involvedAnimals'], isA<List>());
+    });
+
+    test('InteractionTypeInfo defaults when fields are missing', () {
+      final info = InteractionTypeInfo.fromJson(const {});
+      expect(info.id, 0);
+      expect(info.name, isEmpty);
+      expect(info.description, isEmpty);
+    });
+
+    test('InteractionSpecies keeps optional text fields in toJson', () {
+      final species = InteractionSpecies.fromJson({
+        'ID': 'sp-1',
+        'name': 'Canis lupus',
+        'commonName': 'Wolf',
+        'category': 'Roofdieren',
+        'advice': 'afstand houden',
+        'roleInNature': 'predator',
+        'description': 'desc',
+        'behaviour': 'nachtactief',
+      });
+
+      final json = species.toJson();
+      expect(json['ID'], 'sp-1');
+      expect(json['advice'], 'afstand houden');
+      expect(json['roleInNature'], 'predator');
+      expect(json['behaviour'], 'nachtactief');
+    });
   });
 }
 

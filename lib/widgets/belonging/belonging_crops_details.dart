@@ -209,7 +209,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                   belongingDamageReportProvider
                                           .hasErrorImpactedCrop
                                       ? Colors.red
-                                      : AppColors.darkGreen,
+                                      : AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),
@@ -220,7 +220,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                   belongingDamageReportProvider
                                           .hasErrorImpactedCrop
                                       ? Colors.red
-                                      : AppColors.darkGreen,
+                                      : AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),
@@ -231,7 +231,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                   belongingDamageReportProvider
                                           .hasErrorImpactedCrop
                                       ? Colors.red
-                                      : AppColors.darkGreen,
+                                      : AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),
@@ -292,11 +292,11 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                       belongingDamageReportProvider
                                                   .damageCategory ==
                                               'crops'
-                                          ? AppColors.darkGreen
+                                          ? AppColors.primaryGreen
                                           : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 2,
                                   ),
                                 ),
@@ -309,7 +309,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                                       .damageCategory ==
                                                   'crops'
                                               ? Colors.white
-                                              : AppColors.darkGreen,
+                                              : AppColors.primaryGreen,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -335,11 +335,11 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                       belongingDamageReportProvider
                                                   .damageCategory ==
                                               'livestock'
-                                          ? AppColors.darkGreen
+                                          ? AppColors.primaryGreen
                                           : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: AppColors.darkGreen,
+                                    color: AppColors.primaryGreen,
                                     width: 2,
                                   ),
                                 ),
@@ -352,7 +352,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                                                       .damageCategory ==
                                                   'livestock'
                                               ? Colors.white
-                                              : AppColors.darkGreen,
+                                              : AppColors.primaryGreen,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -387,7 +387,7 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.darkGreen,
+                            color: AppColors.primaryGreen,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child:
@@ -497,21 +497,21 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                                 width: 2.0,
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                                 width: 2.0,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
-                                color: AppColors.darkGreen,
+                                color: AppColors.primaryGreen,
                                 width: 2.0,
                               ),
                             ),
@@ -573,21 +573,21 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
@@ -648,21 +648,21 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12.0),
                                 borderSide: const BorderSide(
-                                  color: AppColors.darkGreen,
+                                  color: AppColors.primaryGreen,
                                   width: 2.0,
                                 ),
                               ),
@@ -713,21 +713,21 @@ class _BelongingCropsDetailsState extends State<BelongingCropsDetails> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             borderSide: const BorderSide(
-                              color: AppColors.darkGreen,
+                              color: AppColors.primaryGreen,
                               width: 2.0,
                             ),
                           ),

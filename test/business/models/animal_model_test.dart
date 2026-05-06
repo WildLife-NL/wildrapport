@@ -159,7 +159,7 @@ void main() {
         animalName: 'Wolf',
         animalImagePath: 'assets/wolf.png',
         genderViewCounts: [genderViewCount],
-        condition: AnimalCondition.levend,
+        condition: AnimalCondition.gezond,
       );
 
       // Assert
@@ -167,7 +167,7 @@ void main() {
       expect(animalModel.animalName, 'Wolf');
       expect(animalModel.animalImagePath, 'assets/wolf.png');
       expect(animalModel.genderViewCounts.length, 1);
-      expect(animalModel.condition, AnimalCondition.levend);
+      expect(animalModel.condition, AnimalCondition.gezond);
     });
 
     test('should update gender correctly', () {
@@ -225,7 +225,7 @@ void main() {
         animalName: 'Wolf',
         animalImagePath: 'assets/wolf.png',
         genderViewCounts: [],
-        condition: AnimalCondition.ziek,
+        condition: AnimalCondition.gewond,
       );
 
       // Act
@@ -233,7 +233,7 @@ void main() {
 
       // Assert
       expect(updatedModel.gender, AnimalGender.mannelijk);
-      expect(updatedModel.condition, AnimalCondition.ziek);
+      expect(updatedModel.condition, AnimalCondition.gewond);
     });
 
     test('should calculate total count correctly', () {

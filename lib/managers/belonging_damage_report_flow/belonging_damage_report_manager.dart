@@ -34,7 +34,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
   final redLog = '\x1B[31m';
   final yellowLog = '\x1B[93m';
 
-  void init() async {
+  Future<void> init() async {
     debugPrint("[BelongingDamageReportManager]: Initializing!");
     final List<Map<String, String>> allBelongings = [
       {
@@ -73,23 +73,30 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         "category": "Gewassen",
       },
     ];
-    final response = await belongingAPI.getAllBelongings();
+    try {
+      final response = await belongingAPI.getAllBelongings();
 
-    if (response.isEmpty) {
-      debugPrint("$redLog EEEEEEEEEEEE");
-    }
-
-    //printing where the value came from
-    response.isEmpty
-        ? debugPrint(
+      // printing where the value came from
+      if (response.isEmpty) {
+        debugPrint(
           "$yellowLog [BelongingDamageReportManager]: Using fallback values!",
-        )
-        : debugPrint(
+        );
+      } else {
+        debugPrint(
           "$greenLog [BelongingDamageReportManager]: Using backend values!",
         );
+      }
 
-    belongings =
-        (response.isEmpty) ? allBelongings : _mapToMapString3x(response);
+      belongings =
+          (response.isEmpty) ? allBelongings : _mapToMapString3x(response);
+    } catch (e, stackTrace) {
+      debugPrint(
+        "$redLog [BelongingDamageReportManager]: Error loading belongings: $e",
+      );
+      debugPrint(stackTrace.toString());
+      // Fall back to static list so the app can still run
+      belongings = allBelongings;
+    }
   }
 
   // List<Belonging> _mapToListOfBelonging(List<Map<String, String>> maps) {

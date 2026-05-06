@@ -47,7 +47,7 @@ class _MyResponsesScreenState extends State<MyResponsesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -143,7 +143,7 @@ class _ResponseTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkGreen,
+                  color: AppColors.primaryGreen,
                 ),
               ),
             if (qIdent != null && qIdent.isNotEmpty)

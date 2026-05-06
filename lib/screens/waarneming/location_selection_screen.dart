@@ -10,6 +10,7 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/screens/waarneming/location_datetime_screen.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
@@ -103,6 +104,20 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = sightingManager.getCurrentanimalSighting();
+    
+    String appBarTitle = 'Waarneming'; // default
+    if (currentSighting?.reportType != null) {
+      if (currentSighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (currentSighting.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (currentSighting.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
@@ -111,13 +126,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
         children: [
           CustomAppBar(
             leftIcon: Icons.arrow_back_ios,
-            centerText: 'Waarneming',
+            centerText: appBarTitle,
             rightIcon: null,
             showUserIcon: false,
             useFixedText: true,
             onLeftIconPressed: _handleBackNavigation,
-            iconColor: Colors.black,
-            textColor: Colors.black,
+            iconColor: AppColors.textPrimary,
+            textColor: AppColors.textPrimary,
             fontScale: 1.4,
             iconScale: 1.15,
             userIconScale: 1.15,
@@ -137,17 +152,16 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
           ),
           // Card container with map + instructions
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.75, // 75% of screen
+          Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
               child: Card(
                 elevation: 0,
-                color: Colors.white,
+                color: AppColors.cardBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: const Color(0xFF999999),
+                    color: AppColors.borderDefault,
                     width: 1,
                   ),
                 ),
@@ -191,7 +205,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                         height: 30,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                            color: Color(0xFF0D53FF),
+                                            color: AppColors.liveLocation,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,
@@ -270,7 +284,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                               .bodyMedium
                               ?.copyWith(
                                 fontSize: 14,
-                                color: Colors.black87,
+                                color: AppColors.textPrimary,
                               ),
                         ),
                       ),
