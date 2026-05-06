@@ -325,6 +325,14 @@ class ResponseManager implements ResponseInterface {
     final results = await _connectivity.checkConnectivity();
     debugPrint(results.toString());
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
+    final hasInternet = await ConnectionChecker.hasInternetConnection();
+
+    if (!hasConnection || !hasInternet) {
+      debugPrint(
+        "$yellowLog [ResponseManager]: Offline detected, postponing response submission.",
+      );
+      return;
+    }
 
     if (hasConnection) {
       int totalResponses = 0;
