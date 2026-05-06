@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       elevation: 2,
                       shadowColor: Colors.black26,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(20),
                         side: BorderSide(
                           color: const Color.fromARGB(255, 197, 197, 197),
                           width: 1,
@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           // Profile Card
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -120,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            const SizedBox(height: 2),
+                                            const SizedBox(height: 1),
                                             Text(
                                               _userName,
                                               maxLines: 1,
@@ -157,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             const SizedBox(height: 4),
                                             Text(
                                               _loadingProfile ? '…' : email,
-                                              maxLines: 2,
+                                              maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontSize: fs(14),
@@ -170,13 +170,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 15),
                                   FilledButton(
                                     onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
                                     style: FilledButton.styleFrom(
                                       backgroundColor: Colors.white,
                                       foregroundColor: Colors.grey.shade900,
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      padding: const EdgeInsets.symmetric(vertical: 8),
                                       minimumSize: const Size.fromHeight(48),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(26),
@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 18),
                             child: Text(
@@ -277,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 18),
                             child: Card(
@@ -304,7 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
-                                    const SizedBox(height: 20),
+                                    const SizedBox(height: 10),
                                     FilledButton(
                                       onPressed: () => _confirmLogout(context),
                                       style: FilledButton.styleFrom(
@@ -330,7 +330,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 18),
                             child: Column(
@@ -356,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 1.25,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 10),
                                 FilledButton(
                                   onPressed: () => _confirmDelete(context),
                                   style: FilledButton.styleFrom(
