@@ -10,14 +10,11 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 
-/// Zelfde patroon als [AnimalsScreen]: app bar, categorie, zoeken, icoon-grid.
-/// Pop met `Navigator.pop(context, Species)` bij een keuze.
 class SpeciesGridPickerScreen extends StatefulWidget {
   const SpeciesGridPickerScreen({
     super.key,
-    this.title = 'Selecteer diersoort',
+    this.title = 'Diersoort kiezen',
   });
 
   final String title;
@@ -28,7 +25,14 @@ class SpeciesGridPickerScreen extends StatefulWidget {
 }
 
 AnimalModel _animalModelFromSpecies(Species s) {
-  final path = getSpeciesIconPath(s.commonName);
+  final fileName = s.commonName
+      .trim()
+      .toLowerCase()
+      .replaceAll(' ', '_')
+      .replaceAll('-', '_');
+
+  final path = 'assets/images/color-animals/$fileName.png';
+
   return AnimalModel(
     animalId: s.id,
     animalImagePath: path,
@@ -42,15 +46,13 @@ AnimalModel _animalModelFromSpecies(Species s) {
     ],
   );
 }
-
 class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
 
   List<Species> _allSpecies = [];
   final Map<String, Species> _speciesById = {};
   List<AnimalModel> _displayAnimals = [];
-  List<String> _categories = const [];
+  List<String> _categories = ['Alle'];
   String _selectedCategory = 'Alle';
 
   bool _loading = true;
@@ -59,14 +61,12 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_applyFilters);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadSpecies());
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -75,11 +75,15 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
       _loading = true;
       _error = null;
     });
+
     try {
       final speciesApi = context.read<SpeciesApiInterface>();
       final list = await speciesApi.getAllSpecies();
+
       if (!mounted) return;
+
       final cats = list.map((s) => s.category).toSet().toList()..sort();
+
       setState(() {
         _allSpecies = list;
         _speciesById
@@ -89,41 +93,42 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
         _selectedCategory = 'Alle';
         _loading = false;
       });
+
       _applyFilters();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _loading = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
     }
   }
 
   void _applyFilters() {
-    if (!mounted) return;
-    final q = _searchController.text.trim().toLowerCase();
     final filtered = _allSpecies.where((s) {
       if (_selectedCategory != 'Alle' && s.category != _selectedCategory) {
         return false;
       }
-      if (q.isEmpty) return true;
-      return s.commonName.toLowerCase().contains(q);
+      return true;
     }).toList();
+
     setState(() {
       _displayAnimals = filtered.map(_animalModelFromSpecies).toList();
     });
   }
 
-  void _onCategoryChanged(String? val) {
-    if (val == null) return;
-    setState(() => _selectedCategory = val);
+  void _onCategoryChanged(String? value) {
+    if (value == null) return;
+    setState(() {
+      _selectedCategory = value;
+    });
     _applyFilters();
   }
 
   void _onAnimalSelected(AnimalModel animal) {
     final id = animal.animalId;
     if (id == null) return;
+
     final species = _speciesById[id];
     if (species != null) {
       Navigator.of(context).pop(species);
@@ -137,161 +142,150 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: null,
+              leftIcon: Icons.arrow_back_ios,
               centerText: widget.title,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: _handleBack,
-              iconColor: Colors.black,
+              iconColor: AppColors.textPrimary,
               textColor: Colors.black,
-              fontScale: 1.15,
+              fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 12.0,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 44,
-                    constraints: const BoxConstraints(
-                      minWidth: 140,
-                      maxWidth: 220,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.darkGreen,
-                        width: 1.5,
+              padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Selecteer diersoort:',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black87,
                       ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isDense: true,
-                        iconSize: 18,
-                        value: _selectedCategory,
-                        items: _categories
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Tooltip(
-                                  message: c,
-                                  waitDuration: const Duration(
-                                    milliseconds: 500,
-                                  ),
-                                  child: Text(
-                                    c,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        selectedItemBuilder: (ctx) => _categories
-                            .map(
-                              (c) => Align(
-                                alignment: Alignment.centerLeft,
-                                child: Tooltip(
-                                  message: c,
-                                  waitDuration: const Duration(
-                                    milliseconds: 500,
-                                  ),
-                                  child: Text(
-                                    c,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: _loading ? null : _onCategoryChanged,
-                        isExpanded: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.lightMintGreen,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.darkGreen,
-                          width: 1.5,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: AppColors.darkGreen),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              style: const TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Zoeken',
-                                border: InputBorder.none,
-                                isCollapsed: true,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                suffixIcon: _searchController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(
-                                          Icons.clear,
-                                          color: AppColors.darkGreen,
-                                        ),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() {});
-                                        },
-                                      )
-                                    : null,
-                              ),
-                              onChanged: (_) => setState(() {}),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            ScrollableAnimalGrid(
-              animals: _displayAnimals,
-              isLoading: _loading,
-              error: _error,
-              scrollController: _scrollController,
-              onAnimalSelected: _onAnimalSelected,
-              onRetry: _loadSpecies,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(
+                      color: Color(0xFF999999),
+                      width: 1,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+                          child: Text(
+                            'Categorie',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black54,
+                                ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              highlightColor: const Color(0xFFE8ECE6),
+                              splashColor: const Color(0xFFE8ECE6),
+                            ),
+                            child: DropdownButton<String>(
+                              value: _selectedCategory,
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              borderRadius: BorderRadius.circular(12),
+                              elevation: 8,
+                              dropdownColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 5.0,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.black.withValues(alpha: 0.6),
+                                size: 24,
+                              ),
+                              items: _categories
+                                  .map(
+                                    (category) => DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0,
+                                          vertical: 8.0,
+                                        ),
+                                        child: Text(
+                                          category,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: _loading ? null : _onCategoryChanged,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ScrollableAnimalGrid(
+                            animals: _displayAnimals,
+                            isLoading: _loading,
+                            error: _error,
+                            scrollController: _scrollController,
+                            onAnimalSelected: _onAnimalSelected,
+                            onRetry: _loadSpecies,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomBottomAppBar(
-        onBackPressed: _handleBack,
-        onNextPressed: null,
-        showNextButton: false,
-        showBackButton: true,
       ),
     );
   }

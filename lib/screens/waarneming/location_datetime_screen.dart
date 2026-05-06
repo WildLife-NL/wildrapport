@@ -28,15 +28,6 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
     _selectedDateTime = DateTime.now();
   }
 
-  void _handleBackNavigation() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.pop(context);
-    } else {
-      final navigationManager = context.read<NavigationStateInterface>();
-      navigationManager.resetToHome(context);
-    }
-  }
-
   Future<void> _pickDate() async {
     final DateTime initialDate = _selectedDateTime;
     final DateTime firstDate = DateTime(initialDate.year - 5);
@@ -152,6 +143,20 @@ class _LocationDateTimeScreenState extends State<LocationDateTimeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sightingManager = context.read<AnimalSightingReportingInterface>();
+    final currentSighting = sightingManager.getCurrentanimalSighting();
+    
+    String appBarTitle = 'Waarneming'; // default
+    if (currentSighting?.reportType != null) {
+      if (currentSighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (currentSighting.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (currentSighting.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       body: SafeArea(

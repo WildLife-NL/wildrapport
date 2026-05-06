@@ -120,13 +120,14 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Dier toevoegen aan zone',
+              centerText: 'Dier toevoegen',
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () {
@@ -134,158 +135,227 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
               },
               iconColor: Colors.black,
               textColor: Colors.black,
-              fontScale: 1.15,
+              fontScale: 1.4,
               iconScale: 1.15,
               userIconScale: 1.15,
               useFixedText: true,
             ),
+            const SizedBox(height: 8),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Zone',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Card(
+                  elevation: 0,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(
+                      color: AppColors.borderDefault,
+                      width: 1,
                     ),
-                    const SizedBox(height: 8),
-                    if (_loading)
-                      const Center(child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: CircularProgressIndicator(color: AppColors.darkGreen),
-                      ))
-                    else if (_loadError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(_loadError!, style: TextStyle(color: Colors.red[700], fontSize: 13)),
-                      )
-                    else if (_zones.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          'Je hebt nog geen zones. Maak eerst een zone aan via "Zone toevoegen".',
-                          style: TextStyle(color: Colors.grey[700], fontSize: 13),
-                        ),
-                      )
-                    else
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Text(
+                            'Kies een zone en een diersoort',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<Zone>(
-                              value: _selectedZone,
-                              isExpanded: true,
-                              hint: const Text('Kies een zone'),
-                              items: _zones.map((z) {
-                                return DropdownMenuItem<Zone>(
-                                  value: z,
-                                  child: Text('${z.name} – ${z.description}'),
-                                );
-                              }).toList(),
-                              onChanged: _zones.isEmpty ? null : (z) => setState(() => _selectedZone = z),
+                        ),
+                        const SizedBox(height: 24),
+
+                        Text(
+                          'Zone',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textPrimary,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        if (_loading)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.darkGreen,
+                              ),
+                            ),
+                          )
+                        else if (_loadError != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              _loadError!,
+                              style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: 13,
+                              ),
+                            ),
+                          )
+                        else if (_zones.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              'Je hebt nog geen zones. Maak eerst een zone aan via "Zone toevoegen".',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 13,
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                width: 1,
+                              ),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<Zone>(
+                                value: _selectedZone,
+                                isExpanded: true,
+                                hint: const Text(
+                                  'Kies een zone',
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                items: _zones.map((z) {
+                                  return DropdownMenuItem<Zone>(
+                                    value: z,
+                                    child: Text(
+                                      '${z.name} – ${z.description}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: _zones.isEmpty
+                                    ? null
+                                    : (z) => setState(() => _selectedZone = z),
+                              ),
+                            ),
+                          ),
+
+                        const SizedBox(height: 24),
+
+                        Text(
+                          'Diersoort',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textPrimary,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _loading
+                                ? null
+                                : () async {
+                                    final species = await Navigator.of(context).push<Species>(
+                                      MaterialPageRoute(
+                                        builder: (_) => const SpeciesGridPickerScreen(),
+                                      ),
+                                    );
+                                    if (species != null && mounted) {
+                                      setState(() => _selectedSpecies = species);
+                                    }
+                                  },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _selectedSpecies?.commonName ??
+                                          'Tik om een diersoort te kiezen',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: _selectedSpecies != null
+                                            ? Colors.black
+                                            : const Color(0xFF7A7A7A),
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: Color(0xFF7A7A7A),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    const Text(
-                      'Diersoort',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: primaryButtonHeight(context),
+                  child: ElevatedButton(
+                    onPressed: (_isSubmitting || _zones.isEmpty) ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF37A904),
+                      disabledBackgroundColor: const Color(0xFFEFEFEF),
+                      foregroundColor: Colors.white,
+                      disabledForegroundColor: const Color(0xFFACACAC),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    if (_loadError != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          _loadError!,
-                          style: TextStyle(color: Colors.red[700], fontSize: 13),
-                        ),
-                      ),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _loading
-                            ? null
-                            : () async {
-                                final species = await Navigator.of(context)
-                                    .push<Species>(
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const SpeciesGridPickerScreen(),
-                                  ),
-                                );
-                                if (species != null && mounted) {
-                                  setState(() => _selectedSpecies = species);
-                                }
-                              },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 14,
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Dier toevoegen aan zone',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.darkGreen),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  _selectedSpecies?.commonName ??
-                                      'Tik om een diersoort te kiezen',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: _selectedSpecies != null
-                                        ? Colors.black
-                                        : Colors.grey[700],
-                                  ),
-                                ),
-                              ),
-                              Icon(
-                                Icons.chevron_right,
-                                color: Colors.grey[700],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: primaryButtonHeight(context),
-                      child: ElevatedButton(
-                        onPressed: (_isSubmitting || _zones.isEmpty) ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: _isSubmitting
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                              )
-                            : const Text('Dier toevoegen aan zone'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

@@ -6,6 +6,7 @@ packages:
     description:
       name: _fe_analyzer_shared
       sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
+      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
       url: "https://pub.dev"
     source: hosted
     version: "93.0.0"
@@ -14,8 +15,10 @@ packages:
     description:
       name: analyzer
       sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
+      sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
       url: "https://pub.dev"
     source: hosted
+    version: "10.0.1"
     version: "10.0.1"
   animated_stack_widget:
     dependency: transitive
@@ -70,16 +73,20 @@ packages:
     description:
       name: build
       sha256: aadd943f4f8cc946882c954c187e6115a84c98c81ad1d9c6cbf0895a8c85da9c
+      sha256: aadd943f4f8cc946882c954c187e6115a84c98c81ad1d9c6cbf0895a8c85da9c
       url: "https://pub.dev"
     source: hosted
+    version: "4.0.5"
     version: "4.0.5"
   build_config:
     dependency: transitive
     description:
       name: build_config
       sha256: "4070d2a59f8eec34c97c86ceb44403834899075f66e8a9d59706f8e7834f6f71"
+      sha256: "4070d2a59f8eec34c97c86ceb44403834899075f66e8a9d59706f8e7834f6f71"
       url: "https://pub.dev"
     source: hosted
+    version: "1.3.0"
     version: "1.3.0"
   build_daemon:
     dependency: transitive
@@ -94,8 +101,10 @@ packages:
     description:
       name: build_runner
       sha256: "4425a87d87d0d1303540f867994303f5b141ad2f6ecac7ac2cf8851f41c0cef1"
+      sha256: "4425a87d87d0d1303540f867994303f5b141ad2f6ecac7ac2cf8851f41c0cef1"
       url: "https://pub.dev"
     source: hosted
+    version: "2.14.0"
     version: "2.14.0"
   built_collection:
     dependency: transitive
@@ -118,8 +127,10 @@ packages:
     description:
       name: characters
       sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
+      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
       url: "https://pub.dev"
     source: hosted
+    version: "1.4.1"
     version: "1.4.1"
   checked_yaml:
     dependency: transitive
@@ -198,8 +209,10 @@ packages:
     description:
       name: coverage
       sha256: "5da775aa218eaf2151c721b16c01c7676fbfdd99cebba2bf64e8b807a28ff94d"
+      sha256: "5da775aa218eaf2151c721b16c01c7676fbfdd99cebba2bf64e8b807a28ff94d"
       url: "https://pub.dev"
     source: hosted
+    version: "1.15.0"
     version: "1.15.0"
   crypto:
     dependency: transitive
@@ -222,8 +235,10 @@ packages:
     description:
       name: dart_style
       sha256: "29f7ecc274a86d32920b1d9cfc7502fa87220da41ec60b55f329559d5732e2b2"
+      sha256: "29f7ecc274a86d32920b1d9cfc7502fa87220da41ec60b55f329559d5732e2b2"
       url: "https://pub.dev"
     source: hosted
+    version: "3.1.7"
     version: "3.1.7"
   dbus:
     dependency: transitive

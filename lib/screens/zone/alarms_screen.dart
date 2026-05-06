@@ -9,6 +9,8 @@ import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_alarms_components/wildlifenl_alarms_components.dart';
 
+import 'package:wildrapport/utils/responsive_utils.dart';
+
 class AlarmsScreen extends StatefulWidget {
   const AlarmsScreen({super.key});
 
@@ -72,22 +74,28 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Scaffold(
-      backgroundColor: AppColors.lightMintGreen,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: _showAllAlarms ? 'Alle alarmen' : "Mijn alarmen",
+              centerText: "Zone's",
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () {
                 Navigator.of(context).pop();
               },
-              iconColor: Colors.black,
-              textColor: Colors.black,
-              fontScale: 1.15,
+              iconColor: AppColors.textPrimary,
+              textColor: AppColors.textPrimary,
+              fontScale: responsive.breakpointValue<double>(
+                small: 1.4,
+                medium: 1.3,
+                large: 1.2,
+                extraLarge: 1.15,
+              ),
               iconScale: 1.15,
               userIconScale: 1.15,
               useFixedText: true,
@@ -129,7 +137,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(color: AppColors.darkGreen),
+            const CircularProgressIndicator(color: AppColors.primaryGreen),
             const SizedBox(height: 16),
             Text(
               _showAllAlarms ? 'Alle alarmen ophalen…' : 'Alarmen ophalen…',
@@ -158,7 +166,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                 onPressed: _load,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Opnieuw proberen'),
-                style: TextButton.styleFrom(foregroundColor: AppColors.darkGreen),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
               ),
             ],
           ),
@@ -234,7 +242,7 @@ class _SegmentChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.darkGreen : Colors.white,
+      color: selected ? AppColors.primaryGreen : Colors.white,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -248,7 +256,7 @@ class _SegmentChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : Colors.black87,
+              color: selected ? AppColors.textSecondary : AppColors.textPrimary,
             ),
           ),
         ),
@@ -306,21 +314,25 @@ class _AlarmTile extends StatelessWidget {
     final timestamp = alarm.timestamp;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.borderDefault, width: 1),
+      ),
       color: Colors.white,
+      elevation: 0,
       child: ListTile(
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: AppColors.darkGreen.withValues(alpha: 0.2),
-          child: const Icon(Icons.notifications_active, color: AppColors.darkGreen),
-        ),
+         leading: CircleAvatar(
+           backgroundColor: Color(0xFFF2F2F2),
+           child: const Icon(Icons.notifications_active, color: AppColors.darkCharcoal),
+         ),
         title: Text(
           zoneName,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 15,
-            color: Colors.black87,
+            color: AppColors.textPrimary,
           ),
         ),
         subtitle: Column(
@@ -332,14 +344,14 @@ class _AlarmTile extends StatelessWidget {
                 summary,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                style: TextStyle(fontSize: 13, color: AppColors.textLight),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 _formatTimestamp(timestamp),
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 12, color: AppColors.textLight),
               ),
             ),
           ],
@@ -428,7 +440,7 @@ class _AlarmDetailSheet extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
@@ -438,7 +450,7 @@ class _AlarmDetailSheet extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 15,
                 height: 1.4,
-                color: Colors.black87,
+                color: AppColors.textPrimary,
               ),
             ),
         ],
@@ -475,7 +487,7 @@ class _AlarmDetailSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -495,7 +507,7 @@ class _AlarmDetailSheet extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: AppColors.textPrimary,
                             height: 1.35,
                           ),
                         ),

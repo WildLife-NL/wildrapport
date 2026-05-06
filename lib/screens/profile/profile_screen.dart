@@ -76,6 +76,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final email = _profile?.email ?? '—';
 
+    final fs = responsive.fontSize;
+
     return Scaffold(
       backgroundColor: _pageBg,
       body: SafeArea(
@@ -96,43 +98,304 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       maxWidth: cardW,
                       maxHeight: maxBoxH,
                     ),
-                    child: WildLifeNLProfileCard(
-                      userName: _userName,
-                      email: email,
-                      isLoadingProfile: _loadingProfile,
-                      isLocationTrackingEnabled: app.isLocationTrackingEnabled,
-                      notificationsEnabled: app.notificationsEnabled,
-                      version: _version,
-                      primaryColor: AppColors.darkGreen,
-                      onEditProfile: () => _handleEditProfile(context),
-                      onLocationToggle: (enabled) async {
-                        await app.setLocationTrackingEnabled(enabled);
-                        if (!context.mounted) return;
-                        final map = context.read<MapProvider>();
-                        final state = context.read<AppStateProvider>();
-                        if (!enabled) {
-                          map.clearUserLocationAndStopTracking();
-                        }
-                        map.setVicinityNotificationsEnabled(
-                          state.isLocationTrackingEnabled &&
-                              state.notificationsEnabled,
-                        );
-                      },
-                      onNotificationsToggle: (enabled) async {
-                        await app.setNotificationsEnabled(enabled);
-                        if (!context.mounted) return;
-                        final state = context.read<AppStateProvider>();
-                        context.read<MapProvider>().setVicinityNotificationsEnabled(
-                              state.isLocationTrackingEnabled &&
-                                  state.notificationsEnabled,
-                            );
-                      },
-                      onLogout: () => _confirmLogout(context),
-                      onDeleteAccount: () => _confirmDelete(context),
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 2,
+                      shadowColor: Colors.black26,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: const Color.fromARGB(255, 197, 197, 197),
+                          width: 1,
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 16),
+                          // Profile Card
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Card(
+                              color: const Color(0xFFF5F6F4),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 36,
+                                        backgroundColor: Colors.grey.shade200,
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 40,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              _userName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: fs(18),
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey.shade900,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _loadingProfile ? '…' : email,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: fs(14),
+                                                color: Colors.grey.shade600,
+                                                height: 1.25,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  FilledButton(
+                                    onPressed: _loadingProfile ? null : () => _handleEditProfile(context),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.grey.shade900,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      minimumSize: const Size.fromHeight(48),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(26),
+                                        side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Profiel Bewerken',
+                                      style: TextStyle(fontSize: fs(15)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Text(
+                              'Voorkeuren',
+                              style: TextStyle(
+                                fontSize: fs(12),
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            child: Column(
+                                children: [
+                                  SwitchListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 4,
+                                    ),
+                                    title: Text(
+                                      'Locatie delen',
+                                      style: TextStyle(
+                                        fontSize: fs(15),
+                                        color: Colors.grey.shade900,
+                                      ),
+                                    ),
+                                    value: app.isLocationTrackingEnabled,
+                                    activeThumbColor: Colors.white,
+                                    activeTrackColor: const Color(0xFF37A904),
+                                    onChanged: (enabled) async {
+                                      await app.setLocationTrackingEnabled(enabled);
+                                      if (!context.mounted) return;
+                                      final map = context.read<MapProvider>();
+                                      final state = context.read<AppStateProvider>();
+                                      if (!enabled) {
+                                        map.clearUserLocationAndStopTracking();
+                                      }
+                                      map.setVicinityNotificationsEnabled(
+                                        state.isLocationTrackingEnabled &&
+                                            state.notificationsEnabled,
+                                      );
+                                    },
+                                  ),
+                                  Divider(height: 1, color: Colors.grey.shade300),
+                                  SwitchListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 4,
+                                    ),
+                                    title: Text(
+                                      'Meldingen',
+                                      style: TextStyle(
+                                        fontSize: fs(15),
+                                        color: Colors.grey.shade900,
+                                      ),
+                                    ),
+                                    value: app.notificationsEnabled,
+                                    activeThumbColor: Colors.white,
+                                    activeTrackColor: const Color(0xFF37A904),
+                                    onChanged: (enabled) async {
+                                      await app.setNotificationsEnabled(enabled);
+                                      if (!context.mounted) return;
+                                      final state = context.read<AppStateProvider>();
+                                      context.read<MapProvider>().setVicinityNotificationsEnabled(
+                                            state.isLocationTrackingEnabled &&
+                                                state.notificationsEnabled,
+                                          );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Card(
+                              color: const Color(0xFFF5F6F4),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      _version.isEmpty ? '' : 'App Version: V$_version',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: fs(11),
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    FilledButton(
+                                      onPressed: () => _confirmLogout(context),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: Colors.grey.shade900,
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        minimumSize: const Size.fromHeight(48),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(26),
+                                          side: BorderSide(
+                                            color: Colors.grey.shade400,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Uitloggen',
+                                        style: TextStyle(fontSize: fs(15)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Account verwijderen',
+                                  style: TextStyle(
+                                    fontSize: fs(16),
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Je gegevens gaan permanent verloren; dit kan niet ongedaan worden.',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: fs(12),
+                                    color: Colors.grey.shade600,
+                                    height: 1.25,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                FilledButton(
+                                  onPressed: () => _confirmDelete(context),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(136, 255, 230, 232),
+                                    foregroundColor: const Color.fromARGB(255, 209, 118, 118),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    minimumSize: const Size.fromHeight(44),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(26),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Account verwijderen',
+                                    style: TextStyle(
+                                      fontSize: fs(14),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
+            ),
             );
           },
         ),
@@ -179,29 +442,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final responsive = context.responsive;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          'Afmelden?',
-          style: TextStyle(fontSize: responsive.fontSize(18)),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
         ),
-        content: Text(
-          'Wilt u uitloggen?',
-          style: TextStyle(fontSize: responsive.fontSize(14)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.info_outline,
+                  color: Color(0xFFD4AF37),
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Weet je het zeker?',
+                style: TextStyle(
+                  fontSize: responsive.fontSize(18),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Je wordt uitgelogd en moet opnieuw inloggen.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: responsive.fontSize(13),
+                  color: Colors.grey.shade600,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text(
+                        'Annuleren',
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(ctx).pop();
+                        final appStateProvider = context.read<AppStateProvider>();
+                        await appStateProvider.logout();
+                      },
+                      child: Text(
+                        'Ja, Uitloggen',
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Annuleren', style: TextStyle(fontSize: responsive.fontSize(14))),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              final appStateProvider = context.read<AppStateProvider>();
-              await appStateProvider.logout();
-            },
-            child: Text('Afmelden', style: TextStyle(fontSize: responsive.fontSize(14))),
-          ),
-        ],
       ),
     );
   }
@@ -210,48 +553,128 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final responsive = context.responsive;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          'Account verwijderen?',
-          style: TextStyle(fontSize: responsive.fontSize(18)),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
         ),
-        content: Text(
-          'Dit zal uw account en alle bijbehorende gegevens permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt.',
-          style: TextStyle(fontSize: responsive.fontSize(14)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Annuleren', style: TextStyle(fontSize: responsive.fontSize(14))),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Account wordt verwijderd...'),
-                  duration: Duration(seconds: 2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  shape: BoxShape.circle,
                 ),
-              );
-              try {
-                final profileApi = context.read<ProfileApiInterface>();
-                final appStateProvider = context.read<AppStateProvider>();
-                await profileApi.deleteMyProfile();
-                await appStateProvider.deleteProfile();
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Fout bij verwijderen: $e'),
-                    backgroundColor: Colors.red,
+                child: Icon(
+                  Icons.error_outline,
+                  color: Colors.red.shade600,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Weet je het zeker?',
+                style: TextStyle(
+                  fontSize: responsive.fontSize(18),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Je gegevens gaan permanent verloren; dit kan niet ongedaan worden.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: responsive.fontSize(13),
+                  color: Colors.grey.shade600,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text(
+                        'Annuleren',
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              }
-            },
-            child: Text('Verwijderen', style: TextStyle(fontSize: responsive.fontSize(14), color: Colors.red)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Colors.red.shade300,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(ctx).pop();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Account wordt verwijderd...'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        try {
+                          final profileApi = context.read<ProfileApiInterface>();
+                          final appStateProvider = context.read<AppStateProvider>();
+                          await profileApi.deleteMyProfile();
+                          await appStateProvider.deleteProfile();
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Fout bij verwijderen: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Ja, Verwijderen',
+                        style: TextStyle(
+                          fontSize: responsive.fontSize(14),
+                          color: Colors.red.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

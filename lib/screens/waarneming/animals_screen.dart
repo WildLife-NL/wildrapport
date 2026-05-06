@@ -160,6 +160,21 @@ class _AnimalsScreenState extends State<AnimalsScreen>
   Widget build(BuildContext context) {
     // New waarneming-styled layout: grey background, Waarneming header,
     // and a card container with search + animal grid.
+    
+    // Watch the sighting manager so widget rebuilds when sighting state changes
+    final sightingManager = context.watch<AnimalSightingReportingInterface>();
+    final currentSighting = sightingManager.getCurrentanimalSighting();
+    
+    String appBarTitle = 'Waarneming'; // default
+    if (currentSighting?.reportType != null) {
+      if (currentSighting!.reportType == 'gewasschade') {
+        appBarTitle = 'Schademelding';
+      } else if (currentSighting.reportType == 'verkeersongeval') {
+        appBarTitle = 'Dieraanrijding';
+      } else if (currentSighting.reportType == 'waarneming') {
+        appBarTitle = 'Waarneming';
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),

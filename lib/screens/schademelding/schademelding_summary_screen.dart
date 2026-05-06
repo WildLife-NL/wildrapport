@@ -259,7 +259,7 @@ class _SchademeldingSummaryScreenState
     );
   }
 
-  String _getCropImagePath(String cropType) {
+  String? _getCropImagePath(String cropType) {
     switch (cropType.toLowerCase()) {
       // Gewas types
       case 'maïs':
@@ -291,10 +291,49 @@ class _SchademeldingSummaryScreenState
       case 'ree':
         return 'assets/images/vee/ree.png';
       case 'ander':
-        return 'assets/images/vee/rund.png'; // Default to rund for "ander"
+        return null;
       default:
-        return 'assets/images/gewas/mais.jpg';
+        return null;
     }
+  }
+
+  Widget _buildCropTypeImage(String cropType) {
+    final imagePath = _getCropImagePath(cropType);
+
+    if (imagePath == null) {
+      return Container(
+        height: 120,
+        width: double.infinity,
+        color: const Color(0xFFECECEC),
+        child: const Center(
+          child: Icon(
+            Icons.pets,
+            size: 42,
+            color: Color(0xFF7A7A7A),
+          ),
+        ),
+      );
+    }
+
+    return Image.asset(
+      imagePath,
+      height: 120,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          height: 120,
+          color: const Color(0xFFECECEC),
+          child: const Center(
+            child: Icon(
+              Icons.pets,
+              size: 42,
+              color: Color(0xFF7A7A7A),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -396,21 +435,8 @@ class _SchademeldingSummaryScreenState
                                               topLeft: Radius.circular(12),
                                               topRight: Radius.circular(12),
                                             ),
-                                            child: Image.asset(
-                                              _getCropImagePath(currentSighting?.cropType ?? 'Onbekend'),
-                                              height: 120,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  height: 120,
-                                                  color: Colors.grey[200],
-                                                  child: const Center(
-                                                    child: Icon(Icons.image),
-                                                  ),
-                                                );
-                                              },
+                                            child: _buildCropTypeImage(
+                                              currentSighting?.cropType ?? 'Onbekend',
                                             ),
                                           ),
                                           Container(
@@ -655,42 +681,54 @@ class _SchademeldingSummaryScreenState
                                 color: const Color(0xFFF5F6F4),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Aanvullende informatie:',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          color: const Color(0xFF7A7A7A),
-                                        ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.black.withValues(alpha: 0.1),
-                                        width: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14.0),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: 120),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 36,
+                                            height: 36,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF0F0F0),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(Icons.note, size: 18, color: Colors.grey[700]),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Aanvullende informatie',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  '"${currentSighting?.additionalInfo ?? ''}"',
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.black87,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                    child: Text(
-                                      '"${currentSighting?.additionalInfo ?? ''}"',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                    ?.copyWith(
-                                      fontSize: 14,
-                                      color: Colors.black,
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                                    ],
                                   ),
                                 ),
                                 ],

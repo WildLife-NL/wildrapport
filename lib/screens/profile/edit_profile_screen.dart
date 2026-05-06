@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
@@ -174,133 +173,192 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
+    final fs = responsive.fontSize;
 
     return Scaffold(
-      backgroundColor: AppColors.darkGreen,
+      backgroundColor: Color(0XFFF5F6F4),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: responsive.wp(4)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: EdgeInsets.only(top: responsive.hp(1)),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new),
-                      color: AppColors.offWhite,
-                      iconSize: responsive.sp(3),
-                      onPressed: () => Navigator.of(context).pop(),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Back button
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new),
+                    color: Colors.grey.shade900,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Card content
+                Card(
+                  color: Colors.white,
+                  elevation: 2,
+                  shadowColor: Colors.black26,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    side: BorderSide(
+                      color: Color(0xFFB2B2B2),
+                      width: 1,
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          'Profiel Bijwerken',
-                          style: TextStyle(
-                            color: AppColors.offWhite,
-                            fontSize: responsive.fontSize(24),
-                            fontWeight: FontWeight.w600,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Profile Picture Section
+                        Center(
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade200,
+                                ),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  child: Icon(
+                                    Icons.camera_alt_outlined,
+                                    size: 20,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(width: responsive.wp(12)),
-                  ],
-                ),
-              ),
+                        const SizedBox(height: 24),
 
-              SizedBox(height: responsive.spacing(24)),
+                        // Form Fields
+                        // Full Name
+                        Text(
+                          'Volledige naam',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          responsive,
+                          _nameController,
+                          'Mila Pulvirenti',
+                        ),
+                        const SizedBox(height: 16),
 
-              // Form fields
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Name field
-                      _buildLabel(responsive, 'Naam *'),
-                      SizedBox(height: responsive.spacing(8)),
-                      _buildTextField(
-                        responsive,
-                        _nameController,
-                        'Voer uw naam in',
-                        minLength: 2,
-                      ),
-
-                      SizedBox(height: responsive.spacing(20)),
-
-                      // Gender dropdown
-                      _buildLabel(responsive, 'Geslacht'),
-                      SizedBox(height: responsive.spacing(8)),
-                      _buildGenderDropdown(responsive),
-
-                      SizedBox(height: responsive.spacing(20)),
-
-                      // Date of birth field
-                      _buildLabel(responsive, 'Geboortedatum'),
-                      SizedBox(height: responsive.spacing(8)),
-                      _buildDateField(responsive),
-
-                      SizedBox(height: responsive.spacing(20)),
-
-                      // Postcode field
-                      _buildLabel(responsive, 'Postcode'),
-                      SizedBox(height: responsive.spacing(8)),
-                      _buildTextField(
-                        responsive,
-                        _postcodeController,
-                        'Voer uw postcode in',
-                      ),
-
-                      SizedBox(height: responsive.spacing(20)),
-
-                      // Description field
-                      _buildLabel(responsive, 'Beschrijving'),
-                      SizedBox(height: responsive.spacing(8)),
-                      _buildTextField(
-                        responsive,
-                        _descriptionController,
-                        'Voer een beschrijving in',
-                        maxLines: 4,
-                      ),
-
-                      SizedBox(height: responsive.spacing(32)),
-
-                      // Save button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-                              (states) {
-                                if (states.contains(WidgetState.hovered) ||
-                                    states.contains(WidgetState.pressed)) {
-                                  return AppColors.lightGreen;
-                                }
-                                return AppColors.lightMintGreen;
-                              },
+                        // Email
+                        Text(
+                          'Email adres',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Text(
+                            widget.initialProfile.email,
+                            style: TextStyle(
+                              fontSize: fs(15),
+                              color: Colors.grey.shade700,
                             ),
-                            foregroundColor: WidgetStateProperty.resolveWith<Color?>(
-                              (states) {
-                                if (states.contains(WidgetState.hovered) ||
-                                    states.contains(WidgetState.pressed)) {
-                                  return AppColors.offWhite;
-                                }
-                                return AppColors.black;
-                              },
-                            ),
-                            padding: WidgetStateProperty.all(
-                              EdgeInsets.symmetric(vertical: responsive.hp(1.75)),
-                            ),
-                            shape: WidgetStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(responsive.sp(3)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Role Dropdown
+                        Text(
+                          'Rol',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildGenderDropdown(responsive),
+                        const SizedBox(height: 16),
+
+                        // Postcode
+                        Text(
+                          'Postcode',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          responsive,
+                          _postcodeController,
+                          '1234AB',
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Birth Date
+                        Text(
+                          'Geboortedatum',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDateField(responsive),
+                        const SizedBox(height: 24),
+
+                        // Save Button
+                        FilledButton(
+                          onPressed: _isLoading ? null : _saveProfile,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.grey.shade900,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26),
+                              side: BorderSide(
+                                color: Colors.grey.shade400,
+                                width: 1.5,
                               ),
                             ),
                           ),
-                          onPressed: _isLoading ? null : _saveProfile,
                           child: _isLoading
                               ? const SizedBox(
                                   height: 20,
@@ -312,32 +370,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               : Text(
                                   'Opslaan',
                                   style: TextStyle(
-                                    fontSize: responsive.fontSize(16),
+                                    fontSize: fs(15),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                         ),
-                      ),
-
-                      SizedBox(height: responsive.spacing(20)),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(ResponsiveUtils responsive, String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        color: AppColors.offWhite,
-        fontSize: responsive.fontSize(14),
-        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -347,41 +392,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextEditingController controller,
     String hint, {
     int maxLines = 1,
-    int minLength = 0,
   }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
       minLines: maxLines == 1 ? 1 : maxLines,
       style: TextStyle(
-        color: AppColors.black,
-        fontSize: responsive.fontSize(14),
+        color: Colors.grey.shade900,
+        fontSize: responsive.fontSize(15),
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-          color: Colors.grey[600],
-          fontSize: responsive.fontSize(14),
+          color: Colors.grey.shade500,
+          fontSize: responsive.fontSize(15),
         ),
-        filled: true,
-        fillColor: AppColors.lightMintGreen,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: responsive.wp(3),
-          vertical: responsive.hp(1),
-        ),
+        filled: false,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(responsive.sp(2)),
-          borderSide: const BorderSide(color: AppColors.lightMintGreen),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(responsive.sp(2)),
-          borderSide: const BorderSide(color: AppColors.lightMintGreen),
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(responsive.sp(2)),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide(
-            color: AppColors.darkGreen,
-            width: 2,
+            color: const Color(0xFF37A904),
+            width: 1.5,
           ),
         ),
       ),
@@ -392,14 +432,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return GestureDetector(
       onTap: _selectDate,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: responsive.wp(3),
-          vertical: responsive.hp(1),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.lightMintGreen,
-          borderRadius: BorderRadius.circular(responsive.sp(2)),
-          border: Border.all(color: AppColors.lightMintGreen),
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade300),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -410,15 +447,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   : _dateOfBirthController.text,
               style: TextStyle(
                 color: _dateOfBirthController.text.isEmpty
-                    ? Colors.grey[600]
-                    : AppColors.black,
-                fontSize: responsive.fontSize(14),
+                    ? Colors.grey.shade500
+                    : Colors.grey.shade900,
+                fontSize: responsive.fontSize(15),
               ),
             ),
             Icon(
-              Icons.calendar_today,
-              color: AppColors.darkGreen,
-              size: responsive.sp(2),
+              Icons.expand_more,
+              color: Colors.grey.shade600,
+              size: 20,
             ),
           ],
         ),
@@ -428,19 +465,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildGenderDropdown(ResponsiveUtils responsive) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: responsive.wp(3)),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.lightMintGreen,
-        borderRadius: BorderRadius.circular(responsive.sp(2)),
-        border: Border.all(color: AppColors.lightMintGreen),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: DropdownButton<String>(
         value: _selectedGender,
         hint: Text(
           'Selecteer geslacht',
           style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: responsive.fontSize(14),
+            color: Colors.grey.shade500,
+            fontSize: responsive.fontSize(15),
           ),
         ),
         isExpanded: true,
@@ -456,8 +493,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Text(
               _genderLabelNl(value),
               style: TextStyle(
-                color: AppColors.black,
-                fontSize: responsive.fontSize(14),
+                color: Colors.grey.shade900,
+                fontSize: responsive.fontSize(15),
               ),
             ),
           );
