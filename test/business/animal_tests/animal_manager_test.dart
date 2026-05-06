@@ -8,6 +8,49 @@ import '../helpers/animal_helpers.dart';
 import '../mock_generator.mocks.dart';
 
 void main() {
+  group('getAnimalPhotoPath', () {
+    test('maps known aliases to existing asset names', () {
+      expect(getAnimalPhotoPath('konik'), 'assets/animals/konikpaard.png');
+      expect(getAnimalPhotoPath('konik paard'), 'assets/animals/konikpaard.png');
+      expect(getAnimalPhotoPath('wilde kat'), 'assets/animals/wild kat.png');
+      expect(getAnimalPhotoPath('wildkat'), 'assets/animals/wild kat.png');
+      expect(getAnimalPhotoPath('shetlandpony'), 'assets/animals/shetland pony.png');
+      expect(getAnimalPhotoPath('exmoorpony'), 'assets/animals/exmoor pony.png');
+    });
+
+    test('normalizes spacing/punctuation before building asset path', () {
+      expect(
+        getAnimalPhotoPath('  wilde   kat  '),
+        'assets/animals/wild kat.png',
+      );
+      expect(
+        getAnimalPhotoPath('Shetland-pony'),
+        'assets/animals/shetland pony.png',
+      );
+    });
+
+    test('returns null for null or empty names', () {
+      expect(getAnimalPhotoPath(null), isNull);
+      expect(getAnimalPhotoPath(''), isNull);
+      expect(getAnimalPhotoPath('   '), isNull);
+    });
+
+    test('falls back to normalized name for non-aliased species', () {
+      expect(
+        getAnimalPhotoPath('WILD   ZWIJN'),
+        'assets/animals/wild zwijn.png',
+      );
+      expect(
+        getAnimalPhotoPath('Europese-nerts'),
+        'assets/animals/europese nerts.png',
+      );
+      expect(
+        getAnimalPhotoPath('  EXMOOR__PONY  '),
+        'assets/animals/exmoor pony.png',
+      );
+    });
+  });
+
   late MockSpeciesApiInterface mockSpeciesApi;
   late MockFilterInterface mockFilterManager;
   late AnimalManagerInterface animalManager;

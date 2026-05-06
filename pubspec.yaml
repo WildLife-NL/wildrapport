@@ -83,6 +83,7 @@ dependencies:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
       ref: main
       path: wildlifenl_alarms_components
+  firebase_core: ^4.7.0
 
 dev_dependencies:
   flutter_test:
