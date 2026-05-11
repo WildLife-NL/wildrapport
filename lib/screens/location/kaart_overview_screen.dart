@@ -10,10 +10,6 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
-import 'package:wildrapport/data_managers/my_interaction_api.dart';
-import 'package:wildrapport/data_managers/interaction_query_api.dart';
-import 'package:wildrapport/models/api_models/interaction_query_result.dart';
-import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
@@ -21,7 +17,6 @@ import 'package:wildrapport/models/animal_waarneming_models/interaction_to_anima
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
-import 'package:wildrapport/managers/api_managers/interaction_query_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -31,8 +26,6 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart'
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
-import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
-
 class _IconStyle {
   final Color color;
   final double size;
@@ -173,7 +166,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           // Handle zoom changes only for user gestures
           if (!isProgrammatic && _lastZoom != currentZoom) {
             _lastZoom = currentZoom;
-            _queueFetch();
             final next = currentZoom < _clusterUntilZoom;
             if (next != _useClusters && mounted) {
               setState(() => _useClusters = next);
@@ -192,9 +184,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
             }
           }
 
-          // Only fetch after a user pan ends
           if (!isProgrammatic && evt is fm.MapEventMoveEnd) {
-            _queueFetch();
             _updateScaleBar();
           }
         },
@@ -493,11 +483,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       app.isLocationTrackingEnabled && app.notificationsEnabled,
     );
 
-    debugPrint('[Map] Fetching data from vicinity endpoint');
+    debugPrint('[Map] Fetching data from vicinity endpoint (no extra interaction APIs)');
 
     await map.loadAllPinsFromVicinity();
-    await _loadMyInteractionsFallback();
-    await _loadInteractionsByFilterFallback();
 
     debugPrint(
       '[Map] vicinity totals  animals=${map.animalPins.length} '
@@ -536,77 +524,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     debugPrint(
       '═══════════════════════════════════════════════════════════════',
     );
-  }
-
-  Future<void> _loadMyInteractionsFallback() async {
-    try {
-      final myApi = context.read<MyInteractionApi>();
-      final map = context.read<MapProvider>();
-      final mine = await myApi.getMyInteractions();
-      for (final itx in mine) {
-        final usePlace =
-            !(itx.place.latitude == 0.0 && itx.place.longitude == 0.0);
-        final lat = usePlace ? itx.place.latitude : itx.location.latitude;
-        final lon = usePlace ? itx.place.longitude : itx.location.longitude;
-        final animals =
-            itx.reportOfSighting?.involvedAnimals ??
-            itx.reportOfCollision?.involvedAnimals ??
-            const <InvolvedAnimal>[];
-        map.addOrUpdateInteraction(
-          InteractionQueryResult(
-            id: itx.id,
-            lat: lat,
-            lon: lon,
-            moment: itx.moment,
-            typeName: itx.type.name,
-            speciesName:
-                itx.species.commonName.isNotEmpty
-                    ? itx.species.commonName
-                    : itx.species.name,
-            description: itx.description,
-            userName: itx.user.name,
-            involvedAnimals:
-                animals
-                    .map(
-                      (a) => AnimalInfo(
-                        sex: a.sex,
-                        lifeStage: a.lifeStage,
-                        condition: a.condition,
-                      ),
-                    )
-                    .toList(),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('[Kaart] interactions/me fallback failed: $e');
-    }
-  }
-
-  Future<void> _loadInteractionsByFilterFallback() async {
-    try {
-      final readApi = context.read<InteractionReadApiInterface>();
-      final api = InteractionQueryApi(readApi);
-      final manager = InteractionQueryManager(api);
-      final map = context.read<MapProvider>();
-      final center = map.mapController.camera.center;
-      final zoom = map.mapController.camera.zoom;
-      final radius = manager.radiusFromZoom(
-        zoom: zoom,
-        lat: center.latitude,
-        widthPx: MediaQuery.of(context).size.width,
-      );
-      final nearby = await manager.loadNearby(
-        lat: center.latitude,
-        lon: center.longitude,
-        radiusMeters: radius,
-      );
-      for (final itx in nearby) {
-        map.addOrUpdateInteraction(itx);
-      }
-    } catch (e) {
-      debugPrint('[Kaart] interactions/ filter fallback failed: $e');
-    }
   }
 
   Future<void> _bootstrap() async {
@@ -722,9 +639,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           // Continue anyway - map will show without pins
         }
 
-        await _loadMyInteractionsFallback();
-        await _loadInteractionsByFilterFallback();
-
         debugPrint(
           '[Map] initial totals  '
           'animals=${map.animalPins.length} '
@@ -764,8 +678,6 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         debugPrint(
           '═══════════════════════════════════════════════════════════════',
         );
-
-        _queueFetch(); // keep in sync with pan/zoom
       } catch (_) {}
     });
 
@@ -1008,8 +920,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  bool _within31Days(DateTime timestamp) {
-    return DateTime.now().difference(timestamp) < const Duration(days: 31);
+  /// Same window as `vicinity/me` (and vicinity bundled with tracking): backend
+  /// only returns recent pins (~48h). Client filter must not suggest a longer range.
+  static const Duration _vicinityPinMaxAge = Duration(hours: 48);
+
+  bool _withinVicinityPinWindow(DateTime timestamp) {
+    return DateTime.now().difference(timestamp) < _vicinityPinMaxAge;
   }
 
   void _updateScaleBar() {
@@ -1154,7 +1070,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         map.animalPins
                                             .where(
                                               (pin) =>
-                                                  _within31Days(pin.seenAt),
+                                                  _withinVicinityPinWindow(pin.seenAt),
                                             )
                                             .map((pin) {
                                               final mapRotation =
@@ -1202,7 +1118,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   markers:
                                       map.animalPins
                                           .where(
-                                            (pin) => _within31Days(pin.seenAt),
+                                            (pin) => _withinVicinityPinWindow(pin.seenAt),
                                           )
                                           .map((pin) {
                                             final mapRotation =
@@ -1238,7 +1154,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         map.detectionPins
                                             .where(
                                               (pin) =>
-                                                  _within31Days(pin.detectedAt),
+                                                  _withinVicinityPinWindow(pin.detectedAt),
                                             )
                                             .map((pin) {
                                               final style =
@@ -1315,7 +1231,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                       map.detectionPins
                                           .where(
                                             (pin) =>
-                                                _within31Days(pin.detectedAt),
+                                                _withinVicinityPinWindow(pin.detectedAt),
                                           )
                                           .map((pin) {
                                             final style =
@@ -1458,7 +1374,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                         map.interactions
                                             .where(
                                               (itx) =>
-                                                  _within31Days(itx.moment),
+                                                  _withinVicinityPinWindow(itx.moment),
                                             )
                                             .map((itx) {
                                               final mapRotation =
@@ -1562,7 +1478,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 )
                                 : fm.MarkerLayer(
                                   markers: map.interactions
-                                      .where((itx) => _within31Days(itx.moment))
+                                      .where((itx) => _withinVicinityPinWindow(itx.moment))
                                       .map((itx) {
                                         final mapRotation =
                                             map.mapController.camera.rotation;
