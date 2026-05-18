@@ -524,6 +524,17 @@ class _SchademeldingSummaryScreenState
                                     ),
                                   ],
                                 ),
+                                if ((currentSighting?.preventiveMeasures ?? false) && (currentSighting?.preventiveMeasuresDescription?.isNotEmpty ?? false))
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 26, top: 8, bottom: 8),
+                                    child: Text(
+                                      '"${currentSighting!.preventiveMeasuresDescription!}"',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontSize: 13,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
