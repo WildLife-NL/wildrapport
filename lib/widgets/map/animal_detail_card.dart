@@ -1,42 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 
 class AnimalDetailCard extends StatelessWidget {
-  static const double _cardHeight = 200;
-  static const double _imageWidth = 120;
-  static const double _imageCornerRadius = 8;
-  static const double _contentSpacing = 12;
-  static const double _rowSpacing = 6;
-  static const double _columnSpacing = 8;
-
-  static const TextStyle _headerStyle = TextStyle(
-    fontSize: 12,
-    color: Colors.grey,
-  );
-
-  static const TextStyle _animalNameStyle = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
-
-  static const TextStyle _labelStyle = TextStyle(
-    fontSize: 11,
-    color: Color.fromARGB(255, 115, 115, 115),
-  );
-
-  static const TextStyle _valueStyle = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
+  static const double _cardHeight = 205;
+  static const double _imageWidth = 150;
 
   final AnimalPin? animal;
+  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
 
   const AnimalDetailCard({
     super.key,
     this.animal,
+    this.onDelete,
+    this.onTap,
   });
 
   @override
@@ -44,146 +23,160 @@ class AnimalDetailCard extends StatelessWidget {
     final displayName = animal?.speciesName ?? 'Onbekend dier';
     final formattedDate = _formatDate(animal?.seenAt);
     final formattedTime = _formatTime(animal?.seenAt);
-    final iconPath = animal?.speciesName != null
-        ? getSpeciesIconPath(animal!.speciesName!)
-        : null;
 
-    return Card(
-      color: Colors.white,
-      elevation: 4,
+    final iconPath = animal?.speciesName != null
+    ? getSpeciesCardImagePath(animal!.speciesName!)
+    : null;
+
+    final locationLabel = animal != null
+        ? '${animal!.lat.toStringAsFixed(5)}, ${animal!.lon.toStringAsFixed(5)}'
+        : 'Onbekende locatie';
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
       child: SizedBox(
         height: _cardHeight,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildImageSection(iconPath),
-            const SizedBox(width: _contentSpacing),
-            _buildDetailsSection(
-              context,
-              displayName,
-              formattedDate,
-              formattedTime,
-              animal,
+        child: Card(
+          margin: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 6,
+          ),
+          elevation: 0,
+          color: Colors.white,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(
+              color: Color(0xFF999999),
+              width: 1,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageSection(String? iconPath) {
-    final radius = BorderRadius.only(
-      topLeft: Radius.circular(_imageCornerRadius),
-      bottomLeft: Radius.circular(_imageCornerRadius),
-    );
-
-    return Container(
-      width: _imageWidth,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: radius,
-        border: Border.all(
-          color: Colors.grey[400] ?? Colors.grey,
-          width: 2,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Center(
-            child: iconPath != null
-                ? Image.asset(
-                    iconPath,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
-                    filterQuality: FilterQuality.medium,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.pets,
-                        size: 56,
-                        color: Colors.grey[500],
-                      );
-                    },
-                  )
-                : Icon(
-                    Icons.pets,
-                    size: 56,
-                    color: Colors.grey[500],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: _imageWidth,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE0D9C9),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
                   ),
+                ),
+                child: _buildImage(iconPath),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Waarneming',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      _buildDetailColumn('Aantal', '1'),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildDetailColumn('Datum', formattedDate),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildDetailColumn('Tijd', formattedTime),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              locationLabel,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 115, 115, 115),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDetailsSection(
-    BuildContext context,
-    String displayName,
-    String formattedDate,
-    String formattedTime,
-    AnimalPin? pin,
-  ) {
-    final locationLabel = pin != null
-        ? '${pin.lat.toStringAsFixed(5)}, ${pin.lon.toStringAsFixed(5)}'
-        : '—';
-
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(
-          right: _contentSpacing,
-          top: 8.0,
-          bottom: 8.0,
+  Widget _buildImage(String? iconPath) {
+    if (iconPath != null && iconPath.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(12),
+          bottomLeft: Radius.circular(12),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Waarneming', style: _headerStyle),
-            Text(displayName, style: _animalNameStyle),
-            const SizedBox(height: _rowSpacing),
-            _buildMetadataRow(
-              [
-                ('Datum', formattedDate),
-                ('Tijd', formattedTime),
-              ],
-            ),
-            const SizedBox(height: _rowSpacing),
-            Text(
-              'Geslacht, leeftijd en melder staan niet in de kaart-data.',
-              style: _labelStyle,
-            ),
-            const SizedBox(height: _rowSpacing),
-            _buildInfoRow(Icons.location_on, locationLabel),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMetadataRow(List<(String, String)> items) {
-    return Row(
-      children: [
-        for (int i = 0; i < items.length; i++) ...[
-          if (i > 0) const SizedBox(width: _columnSpacing),
-          Expanded(
-            child: _buildDetailColumn(items[i].$1, items[i].$2),
+        child: Image.asset(
+          iconPath,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Icon(
+            Icons.pets,
+            size: 38,
+            color: AppColors.primaryGreen,
           ),
-        ],
-      ],
+        ),
+      );
+    }
+
+    return const Icon(
+      Icons.pets,
+      size: 38,
+      color: AppColors.primaryGreen,
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
+  Widget _buildDetailColumn(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 14),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: _labelStyle,
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color.fromARGB(255, 115, 115, 115),
+          ),
+        ),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
           ),
         ),
       ],
@@ -192,31 +185,20 @@ class AnimalDetailCard extends StatelessWidget {
 
   String _formatDate(DateTime? dateTime) {
     if (dateTime == null) return '--';
-    final dateStr = dateTime.toString().split(' ')[0];
-    if (dateStr.length != 10) return dateStr;
-    return '${dateStr.substring(2, 4)}-${dateStr.substring(5, 7)}-${dateStr.substring(8, 10)}';
+
+    final day = dateTime.day.toString().padLeft(2, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final year = dateTime.year.toString();
+
+    return '$day-$month-$year';
   }
 
   String _formatTime(DateTime? dateTime) {
     if (dateTime == null) return '--';
+
     final hour = dateTime.hour.toString().padLeft(2, '0');
     final minute = dateTime.minute.toString().padLeft(2, '0');
+
     return '$hour:$minute';
   }
-
-  Widget _buildDetailColumn(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: _labelStyle),
-        Text(
-          value,
-          style: _valueStyle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
 }
-
