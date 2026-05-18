@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,6 +93,7 @@ class ApiClient {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString(_tokenKey);
       defaultHeaders[HttpHeaders.authorizationHeader] = 'Bearer $token';
+      debugPrint('[ApiClient] Authorization header: Bearer $token');
     }
     if (headers != null) {
       defaultHeaders.addAll(headers);
