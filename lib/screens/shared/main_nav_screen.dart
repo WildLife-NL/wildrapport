@@ -29,7 +29,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   void initState() {
     super.initState();
-    _currentTab = widget.initialTab ?? NavTab.kaart;
+    _currentTab = widget.initialTab ?? NavTab.rapporten;
   }
 
   int get _currentIndex => _tabToIndex(_currentTab);
