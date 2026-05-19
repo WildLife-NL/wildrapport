@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/utils/text_display_utils.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Profile initialProfile;
@@ -318,11 +319,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: Colors.grey.shade300),
                           ),
-                          child: Text(
-                            widget.initialProfile.email,
-                            style: TextStyle(
-                              fontSize: fs(15),
-                              color: Colors.grey.shade700,
+                          child: Tooltip(
+                            message: widget.initialProfile.email,
+                            waitDuration: const Duration(milliseconds: 400),
+                            child: Text(
+                              truncateEmail(
+                                widget.initialProfile.email,
+                                maxLength: 36,
+                              ),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: fs(15),
+                                color: Colors.grey.shade700,
+                              ),
                             ),
                           ),
                         ),

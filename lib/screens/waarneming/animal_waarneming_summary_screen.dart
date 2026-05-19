@@ -14,7 +14,6 @@ import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/constants/sighting_report_activities.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
@@ -42,7 +41,6 @@ class _AnimalWaarnemingSummaryScreenState
       final sightingManager =
           context.read<AnimalSightingReportingInterface>();
       final interactionManager = context.read<InteractionInterface>();
-      final submittedProvider = context.read<SubmittedSightingsProvider>();
       var sighting = sightingManager.getCurrentanimalSighting();
 
       if (sighting == null) return;
@@ -107,7 +105,6 @@ class _AnimalWaarnemingSummaryScreenState
         context.read<MapProvider>().addOrUpdateInteraction(mapPin);
       }
 
-      submittedProvider.addSighting(sighting);
       sightingManager.clearCurrentanimalSighting();
 
       if (!mounted) return;

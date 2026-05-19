@@ -12,6 +12,7 @@ import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/text_display_utils.dart';
 
 /// Profielscherm: witte kaart, voorkeuren (locatie + meldingen), uitloggen, account verwijderen.
 /// Geen aparte titelbalk bovenaan — alleen inhoud + eventueel systeem safe area.
@@ -157,14 +158,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 4),
-                                            Text(
-                                              _loadingProfile ? '…' : email,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: fs(11),
-                                                color: Colors.grey.shade600,
-                                                height: 1.25,
+                                            Tooltip(
+                                              message: email,
+                                              waitDuration:
+                                                  const Duration(milliseconds: 400),
+                                              child: Text(
+                                                _loadingProfile
+                                                    ? '…'
+                                                    : truncateEmail(email),
+                                                maxLines: 1,
+                                                softWrap: false,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: fs(11),
+                                                  color: Colors.grey.shade600,
+                                                  height: 1.25,
+                                                ),
                                               ),
                                             ),
                                           ],

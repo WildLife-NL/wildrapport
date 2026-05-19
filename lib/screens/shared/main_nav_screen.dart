@@ -10,6 +10,7 @@ import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
+import 'package:wildrapport/utils/snack_bar_utils.dart';
 
 class MainNavScreen extends StatefulWidget {
   final NavTab? initialTab;
@@ -98,7 +99,14 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final snackBarTheme = Theme.of(context).snackBarTheme.copyWith(
+      behavior: SnackBarBehavior.floating,
+      insetPadding: floatingSnackBarMargin(context),
+    );
+
+    return Theme(
+      data: Theme.of(context).copyWith(snackBarTheme: snackBarTheme),
+      child: Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -122,6 +130,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
           currentTab: _currentTab,
           onTabSelected: _onTabSelected,
         ),
+      ),
       ),
     );
   }
