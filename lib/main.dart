@@ -59,7 +59,6 @@ import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
 
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:wildrapport/firebase_options.dart';
@@ -234,9 +233,6 @@ void main() async {
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
-        ),
-        ChangeNotifierProvider<SubmittedSightingsProvider>(
-          create: (_) => SubmittedSightingsProvider(),
         ),
         Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),

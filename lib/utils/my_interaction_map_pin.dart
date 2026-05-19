@@ -1,5 +1,6 @@
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
+import 'package:wildrapport/utils/interaction_type_display.dart';
 
 /// Map pin from logbook `interactions/me` (logbook only, not used on kaart).
 InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
@@ -31,12 +32,20 @@ InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
       ? interaction.species.commonName
       : interaction.species.name;
 
+  final reportType = inferReportTypeKey(
+    typeName: interaction.type.name,
+    typeId: interaction.type.id,
+    hasReportOfSighting: interaction.reportOfSighting != null,
+    hasReportOfCollision: interaction.reportOfCollision != null,
+    hasReportOfDamage: interaction.reportOfDamage != null,
+  );
+
   return InteractionQueryResult(
     id: interaction.id,
     lat: lat,
     lon: lon,
     moment: interaction.moment.toUtc(),
-    typeName: interaction.type.name,
+    typeName: reportType ?? interaction.type.name,
     speciesName: speciesName.isNotEmpty ? speciesName : null,
     description: interaction.description.isNotEmpty ? interaction.description : null,
     userName: interaction.user.name.isNotEmpty ? interaction.user.name : null,

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:wildlifenl_assets/wildlifenl_assets.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
+import 'package:wildlifenl_assets/wildlifenl_assets.dart' hide getAnimalPhotoPath;
 
 /// ===============================
 /// MAP ICONS (silhouette icons)
@@ -66,16 +67,8 @@ String? getSpeciesCardImagePath(String? speciesName) {
   if (speciesName == null || speciesName.trim().isEmpty) {
     return null;
   }
-
-  final normalized = speciesName
-      .trim()
-      .toLowerCase()
-      .replaceAll(' ', '_');
-
-  final path = 'assets/images/color-animals/$normalized.png';
-
+  final path = getAnimalPhotoPath(speciesName);
   _logSpeciesIconResolution(speciesName, path);
-
   return path;
 }
 

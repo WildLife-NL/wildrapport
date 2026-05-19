@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
+import 'package:wildrapport/utils/interaction_type_display.dart';
+import 'package:wildrapport/utils/api_datetime.dart';
 
 class AnimalDetailCard extends StatelessWidget {
   static const double _cardHeight = 205;
@@ -21,8 +23,8 @@ class AnimalDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = animal?.speciesName ?? 'Onbekend dier';
-    final formattedDate = _formatDate(animal?.seenAt);
-    final formattedTime = _formatTime(animal?.seenAt);
+    final formattedDate = formatLocalDate(animal?.seenAt);
+    final formattedTime = formatLocalTime(animal?.seenAt);
 
     final iconPath = animal?.speciesName != null
     ? getSpeciesCardImagePath(animal!.speciesName!)
@@ -72,9 +74,9 @@ class AnimalDetailCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Waarneming',
-                        style: TextStyle(
+                      Text(
+                        reportTypeDisplayLabel(animal?.reportType),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),
@@ -183,22 +185,4 @@ class AnimalDetailCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime? dateTime) {
-    if (dateTime == null) return '--';
-
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final year = dateTime.year.toString();
-
-    return '$day-$month-$year';
-  }
-
-  String _formatTime(DateTime? dateTime) {
-    if (dateTime == null) return '--';
-
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-
-    return '$hour:$minute';
-  }
 }

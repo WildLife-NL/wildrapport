@@ -99,8 +99,9 @@ class _LogbookScreenState extends State<LogbookScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _ReportButton(
-                          label: 'Recente waarnemingen',
-                          subtitle: 'Overzicht van de meest recente meldingen',
+                          label: 'Recente meldingen',
+                          subtitle:
+                              'Waarnemingen, schademeldingen en dieraanrijdingen',
                           icon: Icons.visibility_outlined,
                           onTap: () => _openRecentSightings(context),
                         ),

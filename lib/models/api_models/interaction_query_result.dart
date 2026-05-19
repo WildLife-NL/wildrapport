@@ -1,4 +1,7 @@
-﻿class AnimalInfo {
+﻿import 'package:wildrapport/utils/interaction_type_display.dart';
+import 'package:wildrapport/utils/api_datetime.dart';
+
+class AnimalInfo {
   final String? sex;
   final String? lifeStage;
   final String? condition;
@@ -61,10 +64,7 @@ class InteractionQueryResult {
       );
     }
 
-    // moment (ISO8601). If missing/invalid, use now (UTC recommended).
     final rawMoment = json['moment']?.toString();
-    final parsedMoment =
-        rawMoment != null ? DateTime.tryParse(rawMoment) : null;
 
     // optional fields
     final typeNode =
@@ -108,12 +108,25 @@ class InteractionQueryResult {
               .toList();
     }
 
+    final typeId = _parseTypeId(
+      json['typeID'] ?? typeNode['ID'] ?? typeNode['id'],
+    );
+    final rawTypeName =
+        (typeNode['name'] ?? typeNode['displayName'])?.toString();
+    final resolvedTypeName = inferReportTypeKey(
+      typeName: rawTypeName,
+      typeId: typeId,
+      hasReportOfSighting: reportOfSighting != null,
+      hasReportOfCollision: reportOfCollision != null,
+      hasReportOfDamage: reportOfDamage != null,
+    );
+
     return InteractionQueryResult(
       id: rawId,
       lat: lat,
       lon: lon,
-      moment: (parsedMoment ?? DateTime.now()).toUtc(),
-      typeName: (typeNode['name'] ?? typeNode['displayName'])?.toString(),
+      moment: parseApiMomentToUtc(rawMoment),
+      typeName: resolvedTypeName ?? rawTypeName,
       speciesName:
           (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),
       description: json['description']?.toString(),
@@ -144,5 +157,12 @@ class InteractionQueryResult {
     if (v == null) return null;
     if (v is num) return v.toDouble();
     return double.tryParse(v.toString());
+  }
+
+  static int? _parseTypeId(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value.trim());
+    return null;
   }
 }

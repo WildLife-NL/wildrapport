@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
+import 'package:wildrapport/utils/sighting_display_utils.dart';
+import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -16,7 +18,10 @@ class SubmittedSightingsProvider extends ChangeNotifier {
 
 
   Future<void> addSighting(AnimalSightingModel sighting) async {
-    _submittedSightings.insert(0, sighting); // Add to front (most recent first)
+    _submittedSightings.insert(
+      0,
+      normalizeStoredSighting(sighting),
+    );
     await _saveSightings();
     notifyListeners();
   }
@@ -45,11 +50,23 @@ class SubmittedSightingsProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final jsonList = prefs.getStringList(_prefsKey) ?? [];
     _submittedSightings.clear();
+    var migrated = false;
     for (final jsonStr in jsonList) {
       try {
         final map = jsonDecode(jsonStr) as Map<String, dynamic>;
-        _submittedSightings.add(AnimalSightingModel.fromJson(map));
+        final raw = AnimalSightingModel.fromJson(map);
+        final normalized = normalizeStoredSighting(raw);
+        if (normalized.reportType != raw.reportType ||
+            effectiveReportTypeKey(raw) != normalizeReportTypeKey(raw.reportType) ||
+            normalized.animalSelected?.animalImagePath !=
+                raw.animalSelected?.animalImagePath) {
+          migrated = true;
+        }
+        _submittedSightings.add(normalized);
       } catch (_) {}
+    }
+    if (migrated) {
+      await _saveSightings();
     }
     notifyListeners();
   }

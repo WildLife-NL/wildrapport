@@ -14,7 +14,6 @@ import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/sighting_report_activities.dart';
 
@@ -121,7 +120,6 @@ class _AnimalWaarnemingSummaryScreenState
       final sightingManager =
           context.read<AnimalSightingReportingInterface>();
       final interactionManager = context.read<InteractionInterface>();
-      final submittedProvider = context.read<SubmittedSightingsProvider>();
       var sighting = sightingManager.getCurrentanimalSighting();
 
       debugPrint('[AnimalWaarnemingSummaryScreen] Submitting sighting: $sighting');
@@ -191,10 +189,6 @@ class _AnimalWaarnemingSummaryScreenState
         if (mapPin != null) {
           context.read<MapProvider>().addOrUpdateInteraction(mapPin);
         }
-
-        // Save the sighting to submitted sightings
-        submittedProvider.addSighting(sighting);
-        debugPrint('[AnimalWaarnemingSummaryScreen] Sighting saved to provider');
 
         // Clear the current sighting and navigate to logbook with recent sightings
         sightingManager.clearCurrentanimalSighting();
@@ -924,8 +918,9 @@ class _AnimalWaarnemingSummaryScreenState
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
+          key: ValueKey('$label-$value-${options.length}'),
           isExpanded: true,
-          value: options.any((o) => o.apiValue == value)
+          initialValue: options.any((o) => o.apiValue == value)
               ? value
               : (options.isNotEmpty
                   ? options.first.apiValue

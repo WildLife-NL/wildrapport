@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
-import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/logbook/sighting_detail_screen.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/data_managers/my_interaction_api.dart';
+import 'package:wildrapport/models/api_models/my_interaction.dart';
+import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/widgets/logbook/interaction_logbook_card.dart';
 
+/// Recent logbook entries from the backend (`GET interactions/me`).
 class RecentSightingsScreen extends StatefulWidget {
   const RecentSightingsScreen({super.key});
 
@@ -14,106 +15,32 @@ class RecentSightingsScreen extends StatefulWidget {
 }
 
 class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
-  final Map<String, String> _resolvedLocationCache = {};
+  late Future<List<MyInteraction>> _interactionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInteractions();
+  }
+
+  void _loadInteractions() {
+    final api = context.read<MyInteractionApi>();
+    _interactionsFuture = api.getMyInteractions().then(_sortNewestFirst);
+  }
+
+  Future<void> _refresh() async {
+    setState(_loadInteractions);
+    await _interactionsFuture;
+  }
+
+  static List<MyInteraction> _sortNewestFirst(List<MyInteraction> items) {
+    final sorted = List<MyInteraction>.from(items);
+    sorted.sort((a, b) => b.moment.compareTo(a.moment));
+    return sorted;
+  }
 
   void _handleBackNavigation(BuildContext context) {
     Navigator.pop(context);
-  }
-
-  String? _getImmediateLocationDisplay(List? locations) {
-    if (locations?.isEmpty != false) {
-      return 'Locatie nog niet ingesteld';
-    }
-    final loc = locations!.first;
-    if (loc.streetName != null && loc.houseNumber != null) {
-      return '${loc.streetName} ${loc.houseNumber}, ${loc.cityName ?? ""}';
-    } else if (loc.streetName != null) {
-      return '${loc.streetName}, ${loc.cityName ?? ""}';
-    } else if (loc.cityName != null) {
-      return loc.cityName!;
-    }
-    return null;
-  }
-
-  Future<String> _resolveLocationDisplay(List? locations) async {
-    final immediate = _getImmediateLocationDisplay(locations);
-    if (immediate != null) {
-      return immediate;
-    }
-
-    if (locations?.isEmpty != false) {
-      return 'Locatie nog niet ingesteld';
-    }
-
-    final loc = locations!.first;
-    if (loc.latitude == null || loc.longitude == null) {
-      return 'Locatie nog niet ingesteld';
-    }
-
-    final cacheKey = '${loc.latitude!.toStringAsFixed(5)},${loc.longitude!.toStringAsFixed(5)}';
-    final cached = _resolvedLocationCache[cacheKey];
-    if (cached != null) {
-      return cached;
-    }
-
-    try {
-      final placemarks = await placemarkFromCoordinates(
-        loc.latitude!,
-        loc.longitude!,
-      );
-
-      final placemark = placemarks.isNotEmpty ? placemarks.first : null;
-      final placeName = _formatPlacemarkName(placemark);
-
-      final result = placeName.isNotEmpty
-          ? placeName
-          : '${loc.latitude!.toStringAsFixed(2)}, ${loc.longitude!.toStringAsFixed(2)}';
-      _resolvedLocationCache[cacheKey] = result;
-      return result;
-    } catch (e) {
-      debugPrint('[RecentSightings] Reverse geocoding failed: $e');
-      final fallback = '${loc.latitude!.toStringAsFixed(2)}, ${loc.longitude!.toStringAsFixed(2)}';
-      _resolvedLocationCache[cacheKey] = fallback;
-      return fallback;
-    }
-  }
-
-  String _formatPlacemarkName(Placemark? placemark) {
-    if (placemark == null) return '';
-
-    final candidates = <String?>[
-      placemark.subLocality,
-      placemark.locality,
-      placemark.subAdministrativeArea,
-      placemark.administrativeArea,
-      placemark.name,
-    ];
-
-    for (final candidate in candidates) {
-      final value = candidate?.trim();
-      if (value != null && value.isNotEmpty) {
-        return value;
-      }
-    }
-
-    return '';
-  }
-
-  String _getDateTimeDisplay(dynamic dateTimeModel) {
-    if (dateTimeModel == null) {
-      return 'Datum en tijd nog niet ingesteld';
-    }
-    try {
-      final dt = dateTimeModel.dateTime as DateTime?;
-      if (dt == null) {
-        return 'Datum en tijd nog niet ingesteld';
-      }
-      final date = '${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}';
-      final time = '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-      return '$date | $time';
-    } catch (e) {
-      return 'Datum en tijd nog niet ingesteld';
-    }
   }
 
   @override
@@ -125,8 +52,8 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              centerText: 'Logboek',
-              leftIcon: null,
+              centerText: 'Recente meldingen',
+              leftIcon: Icons.arrow_back_ios,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
@@ -137,68 +64,43 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
               userIconScale: 1.15,
             ),
             Expanded(
-              child: Consumer<SubmittedSightingsProvider>(
-                builder: (context, provider, _) {
-                  if (provider.submittedSightings.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Geen waarnemingen ingediend',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
+              child: FutureBuilder<List<MyInteraction>>(
+                future: _interactionsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
                       ),
                     );
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: provider.submittedSightings.length,
-                    itemBuilder: (context, index) {
-                      final sighting = provider.submittedSightings[index];
+                  if (snapshot.hasError) {
+                    return _ErrorState(
+                      message: '${snapshot.error}',
+                      onRetry: _refresh,
+                    );
+                  }
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    SightingDetailScreen(sighting: sighting),
-                              ),
-                            );
-                          },
-                          child: SizedBox(
-                            height: 220,
-                            child: Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFF999999),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  // Image section
-                                  _buildImageSection(
-                                      sighting.animals?.isNotEmpty == true
-                                          ? sighting.animals!.first.animalImagePath
-                                          : null),
-                                  const SizedBox(width: 12),
-                                  // Details section
-                                  _buildDetailsSection(sighting),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                  final interactions = snapshot.data ?? const <MyInteraction>[];
+                  if (interactions.isEmpty) {
+                    return _EmptyState(onRetry: _refresh);
+                  }
+
+                  return RefreshIndicator(
+                    color: AppColors.primaryGreen,
+                    onRefresh: _refresh,
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: interactions.length,
+                      itemBuilder: (context, index) {
+                        return InteractionLogbookCard(
+                          interaction: interactions[index],
+                          height: 220,
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -208,163 +110,90 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildImageSection(String? imagePath) {
-    debugPrint('[RecentSightings._buildImageSection] imagePath: $imagePath');
-    
-    return Container(
-      width: 160,
-      decoration: const BoxDecoration(
-        color: Color(0xFFE0D9C9),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(18),
-          bottomLeft: Radius.circular(18),
-        ),
-      ),
-      child: (imagePath != null && imagePath.isNotEmpty)
-          ? ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                bottomLeft: Radius.circular(18),
-              ),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  debugPrint('[RecentSightings] Error loading image at $imagePath: $error');
-                  return Icon(
-                    Icons.pets,
-                    size: 40,
-                    color: Colors.grey[400],
-                  );
-                },
-              ),
-            )
-          : Center(
-              child: Icon(
-                Icons.pets,
-                size: 40,
-                color: Colors.grey[400],
-              ),
-            ),
-    );
-  }
+class _EmptyState extends StatelessWidget {
+  final Future<void> Function() onRetry;
 
-  Widget _buildDetailsSection(dynamic sighting) {
-    final animalName = sighting.animals?.isNotEmpty == true
-        ? sighting.animals!.first.animalName
-        : 'Dier';
-    final animalImagePath = sighting.animals?.isNotEmpty == true
-        ? sighting.animals!.first.animalImagePath
-        : null;
-    final aantal = sighting.animals?.length ?? 0;
-    final dateTime = _getDateTimeDisplay(sighting.dateTime);
+  const _EmptyState({required this.onRetry});
 
-    debugPrint('[RecentSightings] ==== SIGHTING DETAILS ====');
-    debugPrint('[RecentSightings] Animal name: $animalName');
-    debugPrint('[RecentSightings] Original image path: $animalImagePath');
-    debugPrint('[RecentSightings] Is path null: ${animalImagePath == null}');
-    debugPrint('[RecentSightings] Is path empty: ${animalImagePath?.isEmpty ?? "N/A"}');
-    debugPrint('[RecentSightings] ==== END SIGHTING ====');
-
-    return Expanded(
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Waarneming',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            const Icon(
+              Icons.inbox_outlined,
+              size: 48,
+              color: Colors.black45,
             ),
+            const SizedBox(height: 12),
             Text(
-              animalName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+              'Geen meldingen gevonden',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 6),
-            _buildMetadataRow([
-              ('Aantal', '$aantal'),
-            ]),
-            const SizedBox(height: 4),
-            _buildMetadataRow([
-              ('Datum', dateTime.split('|')[0].trim()),
-              ('Tijd', dateTime.split('|').length > 1 ? dateTime.split('|')[1].trim() : ''),
-            ]),
-            const SizedBox(height: 6),
-            _buildLocationWidget(sighting.locations),
+            const SizedBox(height: 8),
+            const Text(
+              'Na het indienen van een waarneming, schademelding of dieraanrijding verschijnen ze hier.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.black54),
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Opnieuw laden'),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildMetadataRow(List<(String, String)> items) {
-    return Row(
-      children: [
-        for (int i = 0; i < items.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Expanded(
-            child: _buildDetailColumn(items[i].$1, items[i].$2),
-          ),
-        ],
-      ],
-    );
-  }
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
 
-  Widget _buildDetailColumn(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 115, 115, 115)),
-        ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
+  const _ErrorState({required this.message, required this.onRetry});
 
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 14),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color.fromARGB(255, 115, 115, 115),
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.cloud_off, size: 48, color: Colors.red),
+            const SizedBox(height: 12),
+            const Text(
+              'Kon meldingen niet laden',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.black54, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onRetry,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+              ),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Opnieuw proberen'),
+            ),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildLocationWidget(List? locations) {
-    final immediate = _getImmediateLocationDisplay(locations);
-    if (immediate != null) {
-      return _buildInfoRow(Icons.location_on, immediate);
-    }
-
-    return FutureBuilder<String>(
-      future: _resolveLocationDisplay(locations),
-      builder: (context, snapshot) {
-        final text = snapshot.data ?? 'Locatie nog niet ingesteld';
-        return _buildInfoRow(Icons.location_on, text);
-      },
+      ),
     );
   }
 }

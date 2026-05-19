@@ -1,3 +1,5 @@
+import 'package:wildrapport/utils/api_datetime.dart';
+
 class AnimalPin {
   final String id;
   final String? speciesName;
@@ -5,6 +7,8 @@ class AnimalPin {
   final double lon;
   final DateTime seenAt;
   final String? imageUrl;
+  /// `waarneming`, `gewasschade`, or `verkeersongeval` (interaction pins).
+  final String? reportType;
 
   AnimalPin({
     required this.id,
@@ -13,6 +17,7 @@ class AnimalPin {
     required this.seenAt,
     this.speciesName,
     this.imageUrl,
+    this.reportType,
   });
 
   factory AnimalPin.fromJson(Map<String, dynamic> j) {
@@ -40,7 +45,7 @@ class AnimalPin {
       id: id,
       lat: lat,
       lon: lon,
-      seenAt: DateTime.tryParse(ts ?? '')?.toUtc() ?? DateTime.now().toUtc(),
+      seenAt: parseApiMomentToUtc(ts),
       speciesName:
           (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
       imageUrl: j['imageUrl'] as String?,

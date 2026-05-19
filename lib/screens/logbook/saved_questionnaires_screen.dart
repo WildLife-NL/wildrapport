@@ -20,7 +20,7 @@ class SavedQuestionnairesScreen extends StatelessWidget {
               leftIcon: Icons.arrow_back_ios,
               centerText: 'Vragenlijsten opgeslagen voor later',
               rightIcon: null,
-              showUserIcon: true,
+              showUserIcon: false,
               onLeftIconPressed: () => Navigator.of(context).pop(),
               iconColor: Colors.black,
               textColor: Colors.black,

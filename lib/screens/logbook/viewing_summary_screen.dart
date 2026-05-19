@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/utils/sighting_display_utils.dart';
 
 class ViewingSummaryScreen extends StatefulWidget {
   final AnimalSightingModel sighting;
@@ -22,15 +24,7 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
   }
 
   String _getReportTypeTitle() {
-    switch (widget.sighting.reportType) {
-      case 'verkeersongeval':
-        return 'Dieraanrijding';
-      case 'gewasschade':
-        return 'Schademelding';
-      case 'waarneming':
-      default:
-        return 'Waarneming';
-    }
+    return sightingTypeDisplayLabel(widget.sighting);
   }
 
   String _getLocationDisplay(List? locations) {
@@ -81,6 +75,30 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
     return 'Onbekend';
   }
 
+  Widget _buildAnimalImage(AnimalModel animal) {
+    final path = primaryDisplayAnimalImagePath(widget.sighting);
+    if (path != null && path.isNotEmpty) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Center(
+          child: Icon(
+            Icons.pets,
+            size: 50,
+            color: Colors.grey[400],
+          ),
+        ),
+      );
+    }
+    return Center(
+      child: Icon(
+        Icons.image_not_supported_outlined,
+        size: 50,
+        color: Colors.grey[400],
+      ),
+    );
+  }
+
   String _getAgeDisplay(dynamic viewCount) {
     if (viewCount == null) {
       return 'Onbekend';
@@ -103,7 +121,7 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedAnimal = widget.sighting.animalSelected;
+    final selectedAnimal = primaryDisplayAnimal(widget.sighting);
 
     if (selectedAnimal == null) {
       return Scaffold(
@@ -221,25 +239,9 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                                                 topRight: Radius.circular(14),
                                               ),
                                               child: SizedBox.expand(
-                                                child: selectedAnimal
-                                                            .animalImagePath !=
-                                                        null
-                                                    ? Image(
-                                                        image: AssetImage(
-                                                          selectedAnimal
-                                                              .animalImagePath!,
-                                                        ),
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                    : Center(
-                                                        child: Icon(
-                                                          Icons
-                                                              .image_not_supported_outlined,
-                                                          size: 50,
-                                                          color:
-                                                              Colors.grey[400],
-                                                        ),
-                                                      ),
+                                                child: _buildAnimalImage(
+                                                  selectedAnimal,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -283,7 +285,9 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                           ),
                           const SizedBox(height: 16),
                           // Total aantal (if applicable)
-                          if (widget.sighting.animalCount != null || widget.sighting.reportType == 'waarneming')
+                          if (widget.sighting.animalCount != null ||
+                              effectiveReportTypeKey(widget.sighting) ==
+                                  'waarneming')
                             Text(
                               'Aantal: ${widget.sighting.animalCount ?? (widget.sighting.animals?.length ?? 0)}',
                               style: const TextStyle(
@@ -292,7 +296,9 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                                 color: Colors.black87,
                               ),
                             ),
-                          if (widget.sighting.animalCount != null || widget.sighting.reportType == 'waarneming')
+                          if (widget.sighting.animalCount != null ||
+                              effectiveReportTypeKey(widget.sighting) ==
+                                  'waarneming')
                             const SizedBox(height: 16),
                           // Location and DateTime info
                           Card(
@@ -400,7 +406,8 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                             ),
                           ),
                           // Waarneming specific details
-                          if (widget.sighting.reportType == 'waarneming') ...[
+                          if (effectiveReportTypeKey(widget.sighting) ==
+                              'waarneming') ...[
                             const SizedBox(height: 16),
                             Card(
                               elevation: 0,
@@ -508,7 +515,8 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                             ),
                           ],
                           // Dieraanrijding specific details
-                          if (widget.sighting.reportType == 'verkeersongeval') ...[
+                          if (effectiveReportTypeKey(widget.sighting) ==
+                              'verkeersongeval') ...[
                             const SizedBox(height: 16),
                             Card(
                               elevation: 0,
@@ -662,7 +670,8 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                             ),
                           ],
                           // Schademelding specific details
-                          if (widget.sighting.reportType == 'gewasschade') ...[
+                          if (effectiveReportTypeKey(widget.sighting) ==
+                              'gewasschade') ...[
                             const SizedBox(height: 16),
                             Card(
                               elevation: 0,
@@ -770,7 +779,8 @@ class _ViewingSummaryScreenState extends State<ViewingSummaryScreen> {
                             ),
                           ],
                           // Additional info for Schademelding (separate container)
-                          if (widget.sighting.reportType == 'gewasschade' &&
+                          if (effectiveReportTypeKey(widget.sighting) ==
+                                  'gewasschade' &&
                               widget.sighting.additionalInfo != null &&
                               widget.sighting.additionalInfo!.isNotEmpty) ...[
                             const SizedBox(height: 16),

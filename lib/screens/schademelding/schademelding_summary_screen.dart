@@ -4,9 +4,10 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/utils/schademelding_submit.dart';
+import 'package:wildrapport/utils/interaction_pin_factory.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 
 class SchademeldingSummaryScreen extends StatefulWidget {
   const SchademeldingSummaryScreen({
@@ -26,8 +27,6 @@ class _SchademeldingSummaryScreenState
     if (_isSubmitting) return;
 
     final sightingManager = context.read<AnimalSightingReportingInterface>();
-    final submittedProvider = context.read<SubmittedSightingsProvider>();
-
     final sighting = sightingManager.getCurrentanimalSighting();
     if (sighting == null) {
       _showSnackBar('Geen schademelding om te versturen.');
@@ -53,7 +52,14 @@ class _SchademeldingSummaryScreenState
         '[SchademeldingSubmit] Success interactionID=${response.interactionID}',
       );
 
-      submittedProvider.addSighting(sighting);
+      final mapPin = interactionPinFromSighting(
+        sighting,
+        response.interactionID,
+      );
+      if (mapPin != null) {
+        context.read<MapProvider>().addOrUpdateInteraction(mapPin);
+      }
+
       sightingManager.clearCurrentanimalSighting();
 
       Navigator.of(context).pushAndRemoveUntil(

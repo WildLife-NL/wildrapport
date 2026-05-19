@@ -240,9 +240,9 @@ class InteractionTypeInfo {
 
   factory InteractionTypeInfo.fromJson(Map<String, dynamic> json) {
     return InteractionTypeInfo(
-      id: json['ID'] ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
+      id: _asInt(json['ID'] ?? json['id']),
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
     );
   }
 
