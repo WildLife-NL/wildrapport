@@ -1,4 +1,6 @@
-/// API values for `reportOfSighting.humanActivity` and `perceivedAnimalActivity`.
+import 'package:wildrapport/data_managers/api_client.dart';
+import 'package:wildrapport/data_managers/sighting_report_schema_loader.dart';
+
 class SightingReportActivityOption {
   final String apiValue;
   final String labelNl;
@@ -6,33 +8,135 @@ class SightingReportActivityOption {
   const SightingReportActivityOption(this.apiValue, this.labelNl);
 }
 
-class SightingReportActivities {
-  SightingReportActivities._();
+class SightingReportActivityCatalog {
+  SightingReportActivityCatalog._({
+    required List<String> humanActivityValues,
+    required List<String> perceivedAnimalActivityValues,
+  })  : _humanActivityValues = List.unmodifiable(humanActivityValues),
+        _perceivedAnimalActivityValues =
+            List.unmodifiable(perceivedAnimalActivityValues);
 
+  static SightingReportActivityCatalog? _cached;
+
+  static const String otherApiValue = 'other...';
   static const String defaultHumanActivity = 'unknown';
   static const String defaultPerceivedAnimalActivity = 'unknown';
 
-  static const List<SightingReportActivityOption> humanActivities = [
-    SightingReportActivityOption('walking', 'Wandelen'),
-    SightingReportActivityOption('running', 'Hardlopen'),
-    SightingReportActivityOption('cycling', 'Fietsen'),
-    SightingReportActivityOption('driving', 'Auto / motor'),
-    SightingReportActivityOption('horsebackRiding', 'Paardrijden'),
-    SightingReportActivityOption('boating', 'Varen'),
-    SightingReportActivityOption('stationary', 'Stilstaan / zitten'),
-    SightingReportActivityOption('other', 'Anders'),
-    SightingReportActivityOption('unknown', 'Onbekend'),
-  ];
+  static const Map<String, String> _perceivedAnimalLabelsNl = {
+    'unknown': 'Onbekend',
+    'walking': 'Lopen',
+    'eating': 'Eten of drinken',
+    'looking around': 'Rondkijken / omgeving scannen',
+    'fleeing': '(Weg)rennen',
+    'resting': 'Rusten',
+    'other...': 'Anders, namelijk ...',
+  };
 
-  static const List<SightingReportActivityOption> perceivedAnimalActivities = [
-    SightingReportActivityOption('resting', 'Rusten'),
-    SightingReportActivityOption('moving', 'Bewegen'),
-    SightingReportActivityOption('feeding', 'Voeden'),
-    SightingReportActivityOption('grooming', 'Verzorgen'),
-    SightingReportActivityOption('playing', 'Spelen'),
-    SightingReportActivityOption('fighting', 'Vechten'),
-    SightingReportActivityOption('fleeing', 'Vluchten'),
-    SightingReportActivityOption('other', 'Anders'),
-    SightingReportActivityOption('unknown', 'Onbekend'),
-  ];
+  static const Map<String, String> _humanActivityLabelsNl = {
+    'unknown': 'Onbekend',
+    'walking': 'Lopen',
+    'cycling': 'Fietsen',
+    'mountain biking': 'Mountainbiken',
+    'walking the dog': 'Hond uitlaten',
+    'horse riding': 'Paardrijden',
+    'photography': 'Fotograferen',
+    'relaxing': 'Ontspannen',
+    'other...': 'Anders, namelijk ...',
+  };
+
+  final List<String> _humanActivityValues;
+  final List<String> _perceivedAnimalActivityValues;
+
+  static SightingReportActivityCatalog get instance {
+    final cached = _cached;
+    if (cached == null) {
+      throw StateError(
+        'SightingReportActivityCatalog not loaded. Call load() first.',
+      );
+    }
+    return cached;
+  }
+
+  static bool get isLoaded => _cached != null;
+
+  static Future<SightingReportActivityCatalog> load(ApiClient apiClient) async {
+    if (_cached != null) return _cached!;
+    final schema = await SightingReportSchemaLoader(apiClient).fetch();
+    _cached = SightingReportActivityCatalog._(
+      humanActivityValues: schema.humanActivityValues,
+      perceivedAnimalActivityValues: schema.perceivedAnimalActivityValues,
+    );
+    return _cached!;
+  }
+
+  static Future<void> preload(ApiClient apiClient) async {
+    await load(apiClient);
+  }
+
+  static void loadFromSchemaForTest(SightingReportSchema schema) {
+    _cached = SightingReportActivityCatalog._(
+      humanActivityValues: schema.humanActivityValues,
+      perceivedAnimalActivityValues: schema.perceivedAnimalActivityValues,
+    );
+  }
+
+  List<SightingReportActivityOption> get humanActivities =>
+      _humanActivityValues
+          .map(
+            (value) => SightingReportActivityOption(
+              value,
+              labelNlForHuman(value),
+            ),
+          )
+          .toList();
+
+  List<SightingReportActivityOption> get perceivedAnimalActivities =>
+      _perceivedAnimalActivityValues
+          .map(
+            (value) => SightingReportActivityOption(
+              value,
+              labelNlForPerceivedAnimal(value),
+            ),
+          )
+          .toList();
+
+  static String labelNlForHuman(String apiValue) =>
+      _humanActivityLabelsNl[apiValue] ?? _titleCase(apiValue);
+
+  static String labelNlForPerceivedAnimal(String apiValue) =>
+      _perceivedAnimalLabelsNl[apiValue] ?? _titleCase(apiValue);
+
+  static bool isOtherHuman(String apiValue) => apiValue == otherApiValue;
+
+  static bool isOtherPerceivedAnimal(String apiValue) => apiValue == otherApiValue;
+
+  static String normalizeHuman(String? value) {
+    final catalog = _cached;
+    if (catalog == null || value == null || value.isEmpty) {
+      return defaultHumanActivity;
+    }
+    if (catalog._humanActivityValues.contains(value)) return value;
+    if (catalog._humanActivityValues.contains(defaultHumanActivity)) {
+      return defaultHumanActivity;
+    }
+    return catalog._humanActivityValues.first;
+  }
+
+  static String normalizePerceivedAnimal(String? value) {
+    final catalog = _cached;
+    if (catalog == null || value == null || value.isEmpty) {
+      return defaultPerceivedAnimalActivity;
+    }
+    if (catalog._perceivedAnimalActivityValues.contains(value)) return value;
+    if (catalog._perceivedAnimalActivityValues
+        .contains(defaultPerceivedAnimalActivity)) {
+      return defaultPerceivedAnimalActivity;
+    }
+    return catalog._perceivedAnimalActivityValues.first;
+  }
+
+  static String _titleCase(String value) {
+    if (value.isEmpty) return value;
+    return value[0].toUpperCase() + value.substring(1);
+  }
 }

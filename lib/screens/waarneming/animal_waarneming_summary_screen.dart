@@ -15,6 +15,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/sighting_report_activities.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
@@ -34,18 +35,60 @@ class _AnimalWaarnemingSummaryScreenState
     extends State<AnimalWaarnemingSummaryScreen> {
   bool _isSubmitting = false;
   bool _activitiesHydrated = false;
-  String _humanActivity = SightingReportActivities.defaultHumanActivity;
+  bool _schemaLoading = true;
+  String? _schemaError;
+  String _humanActivity = SightingReportActivityCatalog.defaultHumanActivity;
   String _perceivedAnimalActivity =
-      SightingReportActivities.defaultPerceivedAnimalActivity;
+      SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
+  final TextEditingController _humanActivityOtherController =
+      TextEditingController();
+  final TextEditingController _perceivedAnimalActivityOtherController =
+      TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadActivitySchema();
+  }
+
+  @override
+  void dispose() {
+    _humanActivityOtherController.dispose();
+    _perceivedAnimalActivityOtherController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadActivitySchema() async {
+    try {
+      await SightingReportActivityCatalog.load(AppConfig.shared.apiClient);
+      if (!mounted) return;
+      setState(() {
+        _schemaLoading = false;
+        _schemaError = null;
+      });
+      _hydrateActivitiesFromSighting();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _schemaLoading = false;
+        _schemaError = e.toString();
+      });
+    }
+  }
 
   void _hydrateActivitiesFromSighting() {
-    if (_activitiesHydrated) return;
+    if (_activitiesHydrated || !SightingReportActivityCatalog.isLoaded) return;
     final sighting =
         context.read<AnimalSightingReportingInterface>().getCurrentanimalSighting();
-    _humanActivity =
-        sighting?.humanActivity ?? SightingReportActivities.defaultHumanActivity;
-    _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
-        SightingReportActivities.defaultPerceivedAnimalActivity;
+    _humanActivity = SightingReportActivityCatalog.normalizeHuman(
+      sighting?.humanActivity,
+    );
+    _perceivedAnimalActivity = SightingReportActivityCatalog.normalizePerceivedAnimal(
+      sighting?.perceivedAnimalActivity,
+    );
+    _humanActivityOtherController.text = sighting?.humanActivityOther ?? '';
+    _perceivedAnimalActivityOtherController.text =
+        sighting?.perceivedAnimalActivityOther ?? '';
     _activitiesHydrated = true;
   }
 
@@ -53,6 +96,21 @@ class _AnimalWaarnemingSummaryScreenState
   void didChangeDependencies() {
     super.didChangeDependencies();
     _hydrateActivitiesFromSighting();
+  }
+
+  void _validateActivityFields() {
+    if (SightingReportActivityCatalog.isOtherHuman(_humanActivity) &&
+        _humanActivityOtherController.text.trim().isEmpty) {
+      throw Exception('Vul je activiteit in bij "Anders, namelijk ..."');
+    }
+    if (SightingReportActivityCatalog.isOtherPerceivedAnimal(
+          _perceivedAnimalActivity,
+        ) &&
+        _perceivedAnimalActivityOtherController.text.trim().isEmpty) {
+      throw Exception(
+        'Vul de activiteit van het dier in bij "Anders, namelijk ..."',
+      );
+    }
   }
 
   Future<void> _handleSubmit() async {
@@ -103,9 +161,14 @@ class _AnimalWaarnemingSummaryScreenState
         // Make sure grouped/edited animal entries are synced before sending.
         sightingManager.syncObservedAnimalsToSighting();
 
+        _validateActivityFields();
+
         sighting = sighting.copyWith(
           humanActivity: _humanActivity,
+          humanActivityOther: _humanActivityOtherController.text.trim(),
           perceivedAnimalActivity: _perceivedAnimalActivity,
+          perceivedAnimalActivityOther:
+              _perceivedAnimalActivityOtherController.text.trim(),
         );
         sightingManager.updateCurrentanimalSighting(sighting);
 
@@ -661,26 +724,90 @@ class _AnimalWaarnemingSummaryScreenState
                                         color: Colors.black87,
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
-                                    _activityDropdown(
-                                      label: 'Jouw activiteit',
-                                      value: _humanActivity,
-                                      options:
-                                          SightingReportActivities.humanActivities,
-                                      onChanged: (v) => setState(
-                                        () => _humanActivity = v,
+                                    if (_schemaLoading)
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 8,
+                                        ),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      )
+                                    else if (_schemaError != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Text(
+                                              'Activiteiten laden mislukt: $_schemaError',
+                                              style: TextStyle(
+                                                color: Colors.red[700],
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _schemaLoading = true;
+                                                  _schemaError = null;
+                                                  _activitiesHydrated = false;
+                                                });
+                                                _loadActivitySchema();
+                                              },
+                                              child: const Text('Opnieuw proberen'),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    else ...[
+                                      const SizedBox(height: 12),
+                                      _activityDropdown(
+                                        label: 'Jouw activiteit',
+                                        value: _humanActivity,
+                                        options: SightingReportActivityCatalog
+                                            .instance
+                                            .humanActivities,
+                                        onChanged: (v) => setState(
+                                          () => _humanActivity = v,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    _activityDropdown(
-                                      label: 'Activiteit van het dier',
-                                      value: _perceivedAnimalActivity,
-                                      options: SightingReportActivities
-                                          .perceivedAnimalActivities,
-                                      onChanged: (v) => setState(
-                                        () => _perceivedAnimalActivity = v,
+                                      if (SightingReportActivityCatalog
+                                          .isOtherHuman(_humanActivity)) ...[
+                                        const SizedBox(height: 8),
+                                        _activityOtherField(
+                                          controller:
+                                              _humanActivityOtherController,
+                                          hint: 'Jouw activiteit (anders)',
+                                        ),
+                                      ],
+                                      const SizedBox(height: 12),
+                                      _activityDropdown(
+                                        label: 'Activiteit van het dier',
+                                        value: _perceivedAnimalActivity,
+                                        options: SightingReportActivityCatalog
+                                            .instance
+                                            .perceivedAnimalActivities,
+                                        onChanged: (v) => setState(
+                                          () => _perceivedAnimalActivity = v,
+                                        ),
                                       ),
-                                    ),
+                                      if (SightingReportActivityCatalog
+                                          .isOtherPerceivedAnimal(
+                                        _perceivedAnimalActivity,
+                                      )) ...[
+                                        const SizedBox(height: 8),
+                                        _activityOtherField(
+                                          controller:
+                                              _perceivedAnimalActivityOtherController,
+                                          hint:
+                                              'Activiteit van het dier (anders)',
+                                        ),
+                                      ],
+                                    ],
                                   ],
                                 ),
                               ),
@@ -758,6 +885,26 @@ class _AnimalWaarnemingSummaryScreenState
     );
   }
 
+  Widget _activityOtherField({
+    required TextEditingController controller,
+    required String hint,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hint,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF999999)),
+        ),
+      ),
+    );
+  }
+
   Widget _activityDropdown({
     required String label,
     required String value,
@@ -779,7 +926,9 @@ class _AnimalWaarnemingSummaryScreenState
         DropdownButtonFormField<String>(
           value: options.any((o) => o.apiValue == value)
               ? value
-              : options.last.apiValue,
+              : (options.isNotEmpty
+                  ? options.first.apiValue
+                  : value),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,

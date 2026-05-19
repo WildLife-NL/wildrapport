@@ -40,6 +40,7 @@ import 'package:wildrapport/managers/permission/permission_manager.dart';
 import 'package:wildrapport/managers/belonging_damage_report_flow/belonging_damage_report_manager.dart';
 import 'package:wildrapport/managers/other/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/sighting_report_activities.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/filtering_system/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
@@ -124,6 +125,11 @@ void main() async {
 
   final apiClient = ApiClient(baseUrl);
   final appConfig = AppConfig(apiClient);
+  try {
+    await SightingReportActivityCatalog.preload(apiClient);
+  } catch (e) {
+    debugPrint('[main] SightingReport schema preload failed: $e');
+  }
 
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);

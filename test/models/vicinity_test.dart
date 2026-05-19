@@ -89,7 +89,7 @@ void main() {
       expect(vicinity.interactions.length, 0);
     });
 
-    test('TrackingVicinityParser unwraps nested vicinity key', () {
+    test('unwraps nested vicinity key via TrackingVicinityParser', () {
       final inner = {
         'animals': [
           {
