@@ -68,7 +68,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: Icons.arrow_back_ios,
+              //leftIcon: Icons.arrow_back_ios,
               centerText: 'Logboek',
               rightIcon: null,
               showUserIcon: false,
@@ -154,10 +154,15 @@ class _ReportButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 0,
+      shadowColor: Colors.transparent,
       color: Colors.white,
-      elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1.5,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
