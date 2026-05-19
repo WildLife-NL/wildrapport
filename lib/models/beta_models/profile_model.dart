@@ -7,9 +7,8 @@ class Profile {
   bool? reportAppTerms;
   bool? recreationAppTerms;
   String? dateOfBirth;
-  String? description;
   String? notes;
-  int? natureVisitAvgWeeklyFrequency;
+  int? natureVisitFrequency;
   String? firebaseCloudMessagingToken;
   Map<String, dynamic>? location;
   String? locationTimestamp;
@@ -23,9 +22,8 @@ class Profile {
     this.reportAppTerms,
     this.recreationAppTerms,
     this.dateOfBirth,
-    this.description,
     this.notes,
-    this.natureVisitAvgWeeklyFrequency,
+    this.natureVisitFrequency,
     this.firebaseCloudMessagingToken,
     this.location,
     this.locationTimestamp,
@@ -47,7 +45,7 @@ class Profile {
     return {
       'name': userName,
       'firebaseCloudMessagingToken': firebaseCloudMessagingToken,
-      'natureVisitAvgWeeklyFrequency': natureVisitAvgWeeklyFrequency ?? 0,
+      'natureVisitFrequency': natureVisitFrequency ?? 0,
       'reportAppTerms': reportAppTerms ?? false,
       'recreationAppTerms': recreationAppTerms ?? false,
       if (gender != null) 'gender': gender,
@@ -66,10 +64,8 @@ class Profile {
     'reportAppTerms': reportAppTerms,
     'recreationAppTerms': recreationAppTerms,
     if (dateOfBirth != null) 'dateOfBirth': dateOfBirth,
-    if (description != null) 'description': description,
     if (notes != null) 'notes': notes,
-    if (natureVisitAvgWeeklyFrequency != null)
-      'natureVisitAvgWeeklyFrequency': natureVisitAvgWeeklyFrequency,
+    if (natureVisitFrequency != null) 'natureVisitFrequency': natureVisitFrequency,
     'firebaseCloudMessagingToken': firebaseCloudMessagingToken,
     if (location != null) 'location': location,
     if (locationTimestamp != null) 'locationTimestamp': locationTimestamp,
@@ -84,13 +80,17 @@ class Profile {
     reportAppTerms: json['reportAppTerms'] as bool?,
     recreationAppTerms: json['recreationAppTerms'] as bool?,
     dateOfBirth: toApiDateOfBirth(json['dateOfBirth'] as String?),
-    description: json['description'] as String?,
-    notes: json['notes'] as String?,
-    natureVisitAvgWeeklyFrequency:
-        (json['natureVisitAvgWeeklyFrequency'] as num?)?.toInt(),
+    notes: (json['notes'] ?? json['description']) as String?,
+    natureVisitFrequency: _parseNatureVisitFrequency(json),
     firebaseCloudMessagingToken:
         json['firebaseCloudMessagingToken'] as String?,
     location: json['location'] as Map<String, dynamic>?,
     locationTimestamp: json['locationTimestamp'] as String?,
   );
+
+  static int? _parseNatureVisitFrequency(Map<String, dynamic> json) {
+    final raw = json['natureVisitFrequency'] ?? json['natureVisitAvgWeeklyFrequency'];
+    if (raw == null) return null;
+    return (raw as num).toInt();
+  }
 }

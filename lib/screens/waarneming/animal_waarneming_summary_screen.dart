@@ -924,6 +924,7 @@ class _AnimalWaarnemingSummaryScreenState
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
+          isExpanded: true,
           value: options.any((o) => o.apiValue == value)
               ? value
               : (options.isNotEmpty
@@ -939,11 +940,27 @@ class _AnimalWaarnemingSummaryScreenState
               borderSide: const BorderSide(color: Color(0xFF999999)),
             ),
           ),
+          selectedItemBuilder: (context) => options
+              .map(
+                (o) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    o.labelNl,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                ),
+              )
+              .toList(),
           items: options
               .map(
                 (o) => DropdownMenuItem(
                   value: o.apiValue,
-                  child: Text(o.labelNl),
+                  child: Text(
+                    o.labelNl,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                  ),
                 ),
               )
               .toList(),

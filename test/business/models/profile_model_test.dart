@@ -119,6 +119,54 @@ void main() {
       expect(profileModel.postcode, null);
     });
 
+    test('should parse notes and natureVisitFrequency from API JSON', () {
+      final profileModel = Profile.fromJson({
+        'ID': '123',
+        'name': 'John Doe',
+        'email': 'john.doe@example.com',
+        'notes': 'Loves hiking',
+        'natureVisitFrequency': 3,
+      });
+
+      expect(profileModel.notes, 'Loves hiking');
+      expect(profileModel.natureVisitFrequency, 3);
+    });
+
+    test('should map legacy description and natureVisitAvgWeeklyFrequency', () {
+      final profileModel = Profile.fromJson({
+        'ID': '123',
+        'name': 'John Doe',
+        'email': 'john.doe@example.com',
+        'description': 'Legacy bio',
+        'natureVisitAvgWeeklyFrequency': 2,
+      });
+
+      expect(profileModel.notes, 'Legacy bio');
+      expect(profileModel.natureVisitFrequency, 2);
+    });
+
+    test('toUpdateJson uses notes and natureVisitFrequency', () {
+      final profileModel = Profile(
+        userID: '123',
+        email: 'john.doe@example.com',
+        userName: 'John Doe',
+        notes: 'Weekend walks',
+        natureVisitFrequency: 4,
+        reportAppTerms: true,
+        recreationAppTerms: false,
+        firebaseCloudMessagingToken: 'token',
+      );
+
+      final json = profileModel.toUpdateJson(
+        firebaseCloudMessagingToken: 'token',
+      );
+
+      expect(json['notes'], 'Weekend walks');
+      expect(json['natureVisitFrequency'], 4);
+      expect(json.containsKey('description'), isFalse);
+      expect(json.containsKey('natureVisitAvgWeeklyFrequency'), isFalse);
+    });
+
     test('should handle empty string values in JSON', () {
       // Arrange
       final Map<String, dynamic> json = {

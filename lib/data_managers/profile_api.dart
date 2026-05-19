@@ -186,10 +186,6 @@ class ProfileApi implements ProfileApiInterface {
     final body = updatedProfile.toUpdateJson(
       firebaseCloudMessagingToken: updatedProfile.firebaseCloudMessagingToken,
     );
-    if (updatedProfile.description != null &&
-        updatedProfile.description!.isNotEmpty) {
-      body['notes'] = updatedProfile.description;
-    }
 
     return _putProfile(body);
   }
