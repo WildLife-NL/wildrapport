@@ -48,9 +48,24 @@ class _RapporterenState extends State<Rapporteren> {
       for (final type in types) {
         debugPrint('[Rapporteren]   - ${type.name} (ID: ${type.id})');
       }
+      // Sort: schademelding first, waarneming second, dieraanrijding last, others after
+      final sortedTypes = List<InteractionType>.from(types);
+      sortedTypes.sort((a, b) {
+        int rank(InteractionType t) {
+          final name = t.name.toLowerCase();
+          if (name == 'schademelding' || name.contains('crop damage')) return 0;
+          if (name == 'waarneming' || name.contains('sighting')) return 1;
+          if (name == 'dieraanrijding' || name.contains('animal collision')) return 2;
+          return 3;
+        }
+        final rA = rank(a);
+        final rB = rank(b);
+        if (rA != rB) return rA.compareTo(rB);
+        return a.name.compareTo(b.name);
+      });
       if (mounted) {
         setState(() {
-          _interactionTypes = types;
+          _interactionTypes = sortedTypes;
           _isLoading = false;
         });
       }
