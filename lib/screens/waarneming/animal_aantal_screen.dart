@@ -5,7 +5,8 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_details_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
-import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
+//import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
+import 'package:wildrapport/screens/waarneming/animal_activity_screen.dart';
 
 class AnimalAantalScreen extends StatefulWidget {
   const AnimalAantalScreen({super.key});
@@ -437,15 +438,14 @@ class _AnimalAantalScreenState extends State<AnimalAantalScreen> {
                               );
                             } else {
                               debugPrint('[AnimalAantal] Navigating to AnimalWaarnemingSummaryScreen');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AnimalWaarnemingSummaryScreen(
-                                    totalCount: currentCount,
-                                  ),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AnimalActivityScreen(
+                                  totalCount: currentCount,
                                 ),
-                              );
+                              ),
+                            );
                             }
                           }
                         },
