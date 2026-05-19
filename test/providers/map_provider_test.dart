@@ -85,6 +85,10 @@ class FakeTrackingApi implements TrackingApiInterface {
 
   @override
   Future<List<TrackingReadingResponse>> getMyTrackingReadings() async => [];
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async =>
+      Vicinity(animals: [], detections: [], interactions: []);
 }
 
 class FakeVicinityApi implements VicinityApiInterface {

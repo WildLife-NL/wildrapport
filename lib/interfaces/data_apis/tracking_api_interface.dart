@@ -16,24 +16,38 @@ class TrackingReadingResponse {
   final double latitude;
   final double longitude;
 
+  /// Animals, detections and interactions in the vicinity of this reading (OpenAPI).
+  final Vicinity? vicinity;
+
   TrackingReadingResponse({
     required this.userId,
     required this.timestamp,
     required this.latitude,
     required this.longitude,
+    this.vicinity,
   });
 
   factory TrackingReadingResponse.fromJson(Map<String, dynamic> json) {
     final location = json['location'] as Map<String, dynamic>;
-    
-    String timestampStr = json['timestamp'] as String;
-    DateTime parsedTime = DateTime.parse(timestampStr);
-    
+
+    final timestampStr = json['timestamp'] as String;
+    final parsedTime = DateTime.parse(timestampStr);
+
+    Vicinity? vicinity;
+    if (json['vicinity'] is Map<String, dynamic>) {
+      vicinity = Vicinity.fromJson(json['vicinity'] as Map<String, dynamic>);
+    } else if (json['animals'] != null ||
+        json['detections'] != null ||
+        json['interactions'] != null) {
+      vicinity = Vicinity.fromJson(json);
+    }
+
     return TrackingReadingResponse(
       userId: json['userID'] as String,
       timestamp: parsedTime,
       latitude: (location['latitude'] as num).toDouble(),
       longitude: (location['longitude'] as num).toDouble(),
+      vicinity: vicinity,
     );
   }
 }
@@ -46,4 +60,7 @@ abstract class TrackingApiInterface {
   });
 
   Future<List<TrackingReadingResponse>> getMyTrackingReadings();
+
+  /// Merges `animals`, `detections` and `interactions` from all readings (OpenAPI).
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings();
 }

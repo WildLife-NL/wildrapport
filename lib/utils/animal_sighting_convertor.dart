@@ -1,3 +1,4 @@
+import 'package:wildrapport/constants/sighting_report_activities.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 
 class AnimalSightingConvertor {
@@ -30,7 +31,13 @@ class AnimalSightingConvertor {
         "latitude": userLocation.latitude,
         "longitude": userLocation.longitude,
       },
-      "reportOfSighting": {"involvedAnimals": allInvolvedAnimals},
+      "reportOfSighting": {
+        "involvedAnimals": allInvolvedAnimals,
+        "humanActivity":
+            report.humanActivity ?? SightingReportActivities.defaultHumanActivity,
+        "perceivedAnimalActivity": report.perceivedAnimalActivity ??
+            SightingReportActivities.defaultPerceivedAnimalActivity,
+      },
       "speciesID":
           report
               .animalSelected

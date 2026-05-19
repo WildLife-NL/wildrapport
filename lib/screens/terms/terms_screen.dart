@@ -82,6 +82,9 @@ class _TermsScreenState extends State<TermsScreen> {
         recreationAppTerms: base?.recreationAppTerms,
         dateOfBirth: base?.dateOfBirth,
         description: base?.description,
+        natureVisitAvgWeeklyFrequency: base?.natureVisitAvgWeeklyFrequency,
+        firebaseCloudMessagingToken: base?.firebaseCloudMessagingToken,
+        notes: base?.notes,
         location: base?.location,
         locationTimestamp: base?.locationTimestamp,
       );

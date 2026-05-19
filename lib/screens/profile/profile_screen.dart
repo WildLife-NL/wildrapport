@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
@@ -267,8 +268,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     onChanged: (enabled) async {
                                       await app.setNotificationsEnabled(enabled);
                                       if (!context.mounted) return;
-                                      final state = context.read<AppStateProvider>();
-                                      context.read<MapProvider>().setVicinityNotificationsEnabled(
+                                      final profileApi =
+                                          context.read<ProfileApiInterface>();
+                                      if (enabled) {
+                                        await PushNotificationCoordinator
+                                            .instance
+                                            .syncAfterLogin(
+                                          profileApi: profileApi,
+                                          requestPermission: true,
+                                        );
+                                      } else {
+                                        await PushNotificationCoordinator
+                                            .instance
+                                            .clearTokenOnServer(profileApi);
+                                      }
+                                      if (!context.mounted) return;
+                                      await _loadUserData();
+                                      if (!context.mounted) return;
+                                      final state =
+                                          context.read<AppStateProvider>();
+                                      context
+                                          .read<MapProvider>()
+                                          .setVicinityNotificationsEnabled(
                                             state.isLocationTrackingEnabled &&
                                                 state.notificationsEnabled,
                                           );
@@ -669,4 +690,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
 }

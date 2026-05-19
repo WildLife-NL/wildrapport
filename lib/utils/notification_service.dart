@@ -2,6 +2,11 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:wildrapport/constants/app_colors.dart';
+
+/// Android channel for FCM + in-app notifications. Matches AndroidManifest meta-data.
+const String kPushNotificationChannelId = 'wildrapport_push';
 
 class NotificationService {
   NotificationService._internal();
@@ -18,10 +23,12 @@ class NotificationService {
     const AndroidInitializationSettings androidInit =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    // Do not request iOS permission here — only after login via
+    // [PushNotificationCoordinator] (FCM + profile update).
     const DarwinInitializationSettings iosInit = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const InitializationSettings settings = InitializationSettings(
@@ -30,24 +37,61 @@ class NotificationService {
     );
 
     await _plugin.initialize(settings);
+    await ensureAndroidChannel();
 
-    // Android 13+ runtime permission
+    _initialized = true;
+  }
+
+  /// System permission prompt (Android 13+: POST_NOTIFICATIONS; iOS: no-op here).
+  /// On iOS, use [FirebaseMessaging.requestPermission] from the push coordinator.
+  Future<bool> requestAndroidNotificationPermission() async {
+    if (kIsWeb || !Platform.isAndroid) return true;
+    if (!_initialized) await init();
+
+    // Primary: permission_handler (reliable POST_NOTIFICATIONS dialog on Android 13+).
+    final status = await Permission.notification.request();
+    debugPrint(
+      '[NotificationService] Permission.notification: $status',
+    );
+    if (status.isGranted || status.isLimited) {
+      return true;
+    }
+    if (status.isPermanentlyDenied) {
+      return false;
+    }
+
+    // Fallback: flutter_local_notifications.
+    final androidImpl = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    final granted = await androidImpl?.requestNotificationsPermission();
+    debugPrint(
+      '[NotificationService] flutter_local_notifications permission: $granted',
+    );
+    return granted ?? status.isGranted;
+  }
+
+  /// Android notification channel only (no runtime permission prompt).
+  Future<void> ensureAndroidChannel() async {
     if (!kIsWeb && Platform.isAndroid) {
       final androidImpl = _plugin.resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>();
-      await androidImpl?.requestNotificationsPermission();
-
-      // Ensure a default channel exists
       const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        kPushNotificationChannelId,
+        'Meldingen',
+        description: 'Alarmen en pushmeldingen van Wild Rapport',
+        importance: Importance.high,
+      );
+      await androidImpl?.createNotificationChannel(channel);
+
+      // Legacy channel (older builds / default FCM meta-data).
+      const AndroidNotificationChannel legacyChannel = AndroidNotificationChannel(
         'default_channel',
         'General',
         description: 'General notifications',
-        importance: Importance.defaultImportance,
+        importance: Importance.high,
       );
-      await androidImpl?.createNotificationChannel(channel);
+      await androidImpl?.createNotificationChannel(legacyChannel);
     }
-
-    _initialized = true;
   }
 
   Future<void> show({
@@ -55,18 +99,41 @@ class NotificationService {
     required String body,
     Importance importance = Importance.defaultImportance,
     Priority priority = Priority.defaultPriority,
+    String channelId = kPushNotificationChannelId,
   }) async {
     if (!_initialized) await init();
 
-    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'default_channel',
-      'General',
-      channelDescription: 'General notifications',
+    if (!kIsWeb && Platform.isAndroid) {
+      final status = await Permission.notification.status;
+      if (!status.isGranted) {
+        debugPrint(
+          '[NotificationService] Skip show — notification permission not granted',
+        );
+        return;
+      }
+    }
+
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      channelId == kPushNotificationChannelId ? 'Meldingen' : 'General',
+      channelDescription: 'Alarmen en meldingen',
       importance: importance,
       priority: priority,
+      color: AppColors.primaryGreen,
+      colorized: true,
+      icon: '@mipmap/ic_launcher',
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: title,
+      ),
     );
 
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
 
     final NotificationDetails details = NotificationDetails(
       android: androidDetails,

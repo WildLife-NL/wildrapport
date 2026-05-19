@@ -17,6 +17,10 @@ class AnimalSightingModel {
   final String? accidentSeverity;
   final String? animalConditionDieraanrijding;
   final String? additionalInfo;
+  /// API: `reportOfSighting.humanActivity`
+  final String? humanActivity;
+  /// API: `reportOfSighting.perceivedAnimalActivity`
+  final String? perceivedAnimalActivity;
   final AnimalCategory? category;
   final String? description;
   final List<LocationModel>? locations; 
@@ -33,6 +37,8 @@ class AnimalSightingModel {
     this.accidentSeverity,
     this.animalConditionDieraanrijding,
     this.additionalInfo,
+    this.humanActivity,
+    this.perceivedAnimalActivity,
     this.category,
     this.description,
     this.locations, 
@@ -52,6 +58,8 @@ class AnimalSightingModel {
     String? accidentSeverity,
     String? animalConditionDieraanrijding,
     String? additionalInfo,
+    String? humanActivity,
+    String? perceivedAnimalActivity,
     AnimalCategory? category,
     String? description,
     List<LocationModel>? locations,
@@ -70,6 +78,9 @@ class AnimalSightingModel {
       animalConditionDieraanrijding:
           animalConditionDieraanrijding ?? this.animalConditionDieraanrijding,
       additionalInfo: additionalInfo ?? this.additionalInfo,
+      humanActivity: humanActivity ?? this.humanActivity,
+      perceivedAnimalActivity:
+          perceivedAnimalActivity ?? this.perceivedAnimalActivity,
       category: category ?? this.category,
       description: description ?? this.description,
       locations: locations ?? this.locations,

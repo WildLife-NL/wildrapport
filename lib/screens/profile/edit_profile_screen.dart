@@ -126,6 +126,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         description: _descriptionController.text.isNotEmpty ? _descriptionController.text : null,
         reportAppTerms: widget.initialProfile.reportAppTerms,
         recreationAppTerms: widget.initialProfile.recreationAppTerms,
+        natureVisitAvgWeeklyFrequency:
+            widget.initialProfile.natureVisitAvgWeeklyFrequency,
+        firebaseCloudMessagingToken:
+            widget.initialProfile.firebaseCloudMessagingToken,
+        notes: widget.initialProfile.notes,
         location: widget.initialProfile.location,
         locationTimestamp: widget.initialProfile.locationTimestamp,
       );

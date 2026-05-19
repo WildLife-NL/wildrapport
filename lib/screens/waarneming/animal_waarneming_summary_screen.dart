@@ -8,11 +8,14 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
+import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/utils/interaction_pin_factory.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:wildrapport/constants/sighting_report_activities.dart';
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;
@@ -30,7 +33,27 @@ class AnimalWaarnemingSummaryScreen extends StatefulWidget {
 class _AnimalWaarnemingSummaryScreenState
     extends State<AnimalWaarnemingSummaryScreen> {
   bool _isSubmitting = false;
+  bool _activitiesHydrated = false;
+  String _humanActivity = SightingReportActivities.defaultHumanActivity;
+  String _perceivedAnimalActivity =
+      SightingReportActivities.defaultPerceivedAnimalActivity;
 
+  void _hydrateActivitiesFromSighting() {
+    if (_activitiesHydrated) return;
+    final sighting =
+        context.read<AnimalSightingReportingInterface>().getCurrentanimalSighting();
+    _humanActivity =
+        sighting?.humanActivity ?? SightingReportActivities.defaultHumanActivity;
+    _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
+        SightingReportActivities.defaultPerceivedAnimalActivity;
+    _activitiesHydrated = true;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _hydrateActivitiesFromSighting();
+  }
 
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
@@ -80,6 +103,12 @@ class _AnimalWaarnemingSummaryScreenState
         // Make sure grouped/edited animal entries are synced before sending.
         sightingManager.syncObservedAnimalsToSighting();
 
+        sighting = sighting.copyWith(
+          humanActivity: _humanActivity,
+          perceivedAnimalActivity: _perceivedAnimalActivity,
+        );
+        sightingManager.updateCurrentanimalSighting(sighting);
+
         // Real submit to backend via the same interaction pipeline.
         final response = await submitReport(
           sightingManager,
@@ -91,6 +120,15 @@ class _AnimalWaarnemingSummaryScreenState
             'Geen verbinding of verzenden mislukt. Controleer internet en probeer opnieuw.',
           );
         }
+
+        final mapPin = interactionPinFromSighting(
+          sighting,
+          response.interactionID,
+        );
+        if (mapPin != null) {
+          context.read<MapProvider>().addOrUpdateInteraction(mapPin);
+        }
+
         // Save the sighting to submitted sightings
         submittedProvider.addSighting(sighting);
         debugPrint('[AnimalWaarnemingSummaryScreen] Sighting saved to provider');
@@ -598,6 +636,56 @@ class _AnimalWaarnemingSummaryScreenState
                               ),
                             ),
                           ],
+                          if (sighting?.reportType != 'verkeersongeval') ...[
+                            const SizedBox(height: 16),
+                            Card(
+                              elevation: 0,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: const BorderSide(
+                                  color: Color(0xFFE8E8E8),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const Text(
+                                      'Activiteit',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _activityDropdown(
+                                      label: 'Jouw activiteit',
+                                      value: _humanActivity,
+                                      options:
+                                          SightingReportActivities.humanActivities,
+                                      onChanged: (v) => setState(
+                                        () => _humanActivity = v,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _activityDropdown(
+                                      label: 'Activiteit van het dier',
+                                      value: _perceivedAnimalActivity,
+                                      options: SightingReportActivities
+                                          .perceivedAnimalActivities,
+                                      onChanged: (v) => setState(
+                                        () => _perceivedAnimalActivity = v,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -667,6 +755,54 @@ class _AnimalWaarnemingSummaryScreenState
         ),
       ),
       bottomNavigationBar: const SizedBox.shrink(),
+    );
+  }
+
+  Widget _activityDropdown({
+    required String label,
+    required String value,
+    required List<SightingReportActivityOption> options,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: options.any((o) => o.apiValue == value)
+              ? value
+              : options.last.apiValue,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF999999)),
+            ),
+          ),
+          items: options
+              .map(
+                (o) => DropdownMenuItem(
+                  value: o.apiValue,
+                  child: Text(o.labelNl),
+                ),
+              )
+              .toList(),
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ],
     );
   }
 

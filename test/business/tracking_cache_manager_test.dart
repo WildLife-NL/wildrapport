@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/models/beta_models/tracking_reading_model.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+import 'package:wildrapport/models/api_models/vicinity.dart';
 import 'package:wildrapport/utils/connection_checker.dart';
 
 /// Mock implementation of TrackingApiInterface for testing
@@ -33,6 +34,10 @@ class MockTrackingApi implements TrackingApiInterface {
     }
     return []; // Return empty list for testing
   }
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async =>
+      Vicinity(animals: [], detections: [], interactions: []);
 }
 
 void main() {

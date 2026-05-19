@@ -10,4 +10,7 @@ abstract class ProfileApiInterface {
   Future<void> deleteMyProfile();
 
   Future<Profile> updateMyProfile(Profile updatedProfile);
+
+  /// Sends [token] (or `null` when push is disabled) via `PUT /profile/me/`.
+  Future<Profile> updateFirebaseCloudMessagingToken(String? token);
 }

@@ -12,8 +12,10 @@ import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
+import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
+import 'package:wildrapport/utils/my_interaction_map_pin.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
@@ -254,9 +256,14 @@ class MapProvider extends ChangeNotifier {
   String? _detectionPinsError;
 
   VicinityApiInterface? _vicinityApi;
+  MyInteractionApi? _myInteractionApi;
 
   void setVicinityApi(VicinityApiInterface api) {
     _vicinityApi = api;
+  }
+
+  void setMyInteractionApi(MyInteractionApi api) {
+    _myInteractionApi = api;
   }
 
   List<AnimalPin> get animalPins => List.unmodifiable(_animalPins);
@@ -400,57 +407,96 @@ class MapProvider extends ChangeNotifier {
   }
 
   Future<void> loadAllPinsFromVicinity() async {
-    if (_vicinityApi == null) {
-      debugPrint(
-        '[MapProvider] ⚠️ VicinityApi not set - waiting for tracking ping vicinity payload',
-      );
-      return;
+    debugPrint(
+      '[MapProvider] 📍 Loading map pins (tracking-readings/me, then fallbacks)',
+    );
+
+    _animalPinsLoading = true;
+    _detectionPinsLoading = true;
+    _interactionsLoading = true;
+    _animalPinsError = null;
+    _detectionPinsError = null;
+    _interactionsError = null;
+    notifyListeners();
+
+    Vicinity? vicinity;
+    String? loadSource;
+
+    if (_trackingApi != null) {
+      try {
+        vicinity = await _trackingApi!.getMergedVicinityFromMyTrackingReadings();
+        loadSource = 'GET /tracking-readings/me/';
+      } catch (e) {
+        debugPrint('[MapProvider] tracking-readings/me failed: $e');
+      }
     }
 
-    debugPrint('[MapProvider] 📍 Loading all pins from vicinity endpoint');
+    if (vicinity == null && _vicinityApi != null) {
+      try {
+        vicinity = await _vicinityApi!.getMyVicinity();
+        loadSource = 'GET vicinity/me';
+      } catch (e) {
+        debugPrint('[MapProvider] vicinity/me failed: $e');
+      }
+    }
 
-    try {
-      _animalPinsLoading = true;
-      _detectionPinsLoading = true;
-      _interactionsLoading = true;
-      _animalPinsError = null;
-      _detectionPinsError = null;
-      _interactionsError = null;
-      notifyListeners();
-
-      final vicinity = await _vicinityApi!.getMyVicinity();
-
-      _animalPins
-        ..clear()
-        ..addAll(vicinity.animals);
-      _detectionPins
-        ..clear()
-        ..addAll(vicinity.detections);
-      _interactions
-        ..clear()
-        ..addAll(vicinity.interactions);
-
+    if (vicinity != null) {
+      _applyVicinity(vicinity);
       _animalPinsLoading = false;
       _detectionPinsLoading = false;
       _interactionsLoading = false;
-
       debugPrint(
-        '[MapProvider] ✓ Vicinity loaded: '
+        '[MapProvider] ✓ Pins from $loadSource: '
         '${_animalPins.length} animals, '
         '${_detectionPins.length} detections, '
         '${_interactions.length} interactions',
       );
+      notifyListeners();
+      return;
+    }
 
-      notifyListeners();
-    } catch (e) {
+    final fallbackOk = await _loadMyInteractionsFallback();
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
+
+    if (!fallbackOk) {
+      const message = 'Geen kaartdata (tracking-readings en fallbacks mislukt)';
+      _animalPinsError = message;
+      _detectionPinsError = message;
+      _interactionsError = message;
+    } else {
+      _interactionsError = null;
+      debugPrint('[MapProvider] Using interactions/me as fallback');
+    }
+
+    notifyListeners();
+  }
+
+  /// When `GET vicinity/me` is missing on the server, show at least the user's own reports.
+  Future<bool> _loadMyInteractionsFallback() async {
+    final api = _myInteractionApi;
+    if (api == null) return false;
+
+    try {
+      debugPrint('[MapProvider] Fallback: GET interactions/me for map pins');
+      final mine = await api.getMyInteractions();
+      var added = 0;
+      for (final item in mine) {
+        final pin = mapPinFromMyInteraction(item);
+        if (pin != null) {
+          addOrUpdateInteraction(pin);
+          added++;
+        }
+      }
       debugPrint(
-        '[MapProvider] ⚠️ Vicinity endpoint unavailable, '
-        'keeping existing map data and relying on tracking ping payload: $e',
+        '[MapProvider] interactions/me fallback: $added pins '
+        '(from ${mine.length} interactions)',
       );
-      _animalPinsLoading = false;
-      _detectionPinsLoading = false;
-      _interactionsLoading = false;
-      notifyListeners();
+      return added > 0;
+    } catch (e) {
+      debugPrint('[MapProvider] interactions/me fallback failed: $e');
+      return false;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
 
 void main() {
@@ -85,6 +86,25 @@ void main() {
       expect(vicinity.animals.length, 0);
       expect(vicinity.detections.length, 0);
       expect(vicinity.interactions.length, 0);
+    });
+
+    test('VicinityApi unwraps nested vicinity key', () {
+      final inner = {
+        'animals': [
+          {
+            'ID': 'a1',
+            'location': {'latitude': 52.0, 'longitude': 5.0},
+            'locationTimestamp': '2025-11-26T14:15:22Z',
+            'species': {'commonName': 'Ree'},
+          },
+        ],
+        'detections': <dynamic>[],
+        'interactions': <dynamic>[],
+      };
+      final unwrapped = VicinityApi.unwrapVicinityPayload({
+        'vicinity': inner,
+      });
+      expect(Vicinity.fromJson(unwrapped).animals.length, 1);
     });
 
     test('should skip malformed items and continue parsing others', () {

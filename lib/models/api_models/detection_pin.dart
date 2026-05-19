@@ -22,15 +22,19 @@ class DetectionPin {
     final id = (j['id'] ?? j['ID']).toString();
     final lat = (loc['latitude'] ?? loc['lat']) as num;
     final lon = (loc['longitude'] ?? loc['lon']) as num;
-    final ts = (j['moment'] ?? j['timestamp'])?.toString();
+    final species = j['species'] as Map<String, dynamic>?;
+    final ts =
+        (j['moment'] ?? j['timestamp'] ?? j['start'])?.toString();
     return DetectionPin(
       id: id,
       lat: lat.toDouble(),
       lon: lon.toDouble(),
       detectedAt:
           DateTime.tryParse(ts ?? '')?.toUtc() ?? DateTime.now().toUtc(),
-      deviceType: j['deviceType']?.toString(),
-      label: j['label']?.toString(),
+      deviceType: (j['deviceType'] ?? j['sensorType'])?.toString(),
+      label: j['label']?.toString() ??
+          species?['commonName']?.toString() ??
+          species?['name']?.toString(),
       confidence: (j['confidence'] as num?)?.toDouble(),
     );
   }

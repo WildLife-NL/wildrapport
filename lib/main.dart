@@ -59,6 +59,10 @@ import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
 
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:wildrapport/firebase_options.dart';
+import 'package:wildrapport/services/fcm_message_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
@@ -96,6 +100,16 @@ void main() async {
     throw Exception(
       'DEV_BASE_URL ontbreekt in .env. Voeg toe: DEV_BASE_URL=https://jouw-api-url',
     );
+  }
+
+  // Firebase + FCM background handler (must be registered before runApp).
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  } catch (e) {
+    debugPrint('[main] Firebase init skipped: $e');
   }
 
   // Initialize local notifications
@@ -137,6 +151,7 @@ void main() async {
   );
 
   mapProvider.setVicinityApi(vicinityApi);
+  mapProvider.setMyInteractionApi(myInteractionApi);
 
   // Interaction types: fetch/display names for UI
   final interactionTypesApi = InteractionTypesApi(apiClient);
@@ -271,11 +286,16 @@ class MyApp extends StatelessWidget {
           ),
           textTheme: AppTextTheme.textTheme,
           fontFamily: 'Roboto',
-          snackBarTheme: const SnackBarThemeData(
-            backgroundColor: AppColors.brown300,
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: AppColors.offWhite,
             behavior: SnackBarBehavior.floating,
-            contentTextStyle: TextStyle(
-              color: Colors.black,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: AppColors.mediumGrey),
+            ),
+            contentTextStyle: const TextStyle(
+              color: AppColors.textPrimary,
               fontFamily: 'Roboto',
             ),
           ),
