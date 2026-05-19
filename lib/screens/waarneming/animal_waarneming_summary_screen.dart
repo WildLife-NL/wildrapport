@@ -15,12 +15,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
 import 'package:wildrapport/providers/submitted_sightings_provider.dart';
-<<<<<<< HEAD
-import 'package:wildrapport/config/app_config.dart';
 import 'package:wildrapport/constants/sighting_report_activities.dart';
-=======
-//import 'package:wildrapport/screens/waarneming/animal_activity_screen.dart';
->>>>>>> f1e6c1c (feat: add animal activity input page)
 
 class AnimalWaarnemingSummaryScreen extends StatefulWidget {
   final int totalCount;
@@ -38,87 +33,6 @@ class AnimalWaarnemingSummaryScreen extends StatefulWidget {
 class _AnimalWaarnemingSummaryScreenState
     extends State<AnimalWaarnemingSummaryScreen> {
   bool _isSubmitting = false;
-<<<<<<< HEAD
-  bool _activitiesHydrated = false;
-  bool _schemaLoading = true;
-  String? _schemaError;
-  String _humanActivity = SightingReportActivityCatalog.defaultHumanActivity;
-  String _perceivedAnimalActivity =
-      SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
-  final TextEditingController _humanActivityOtherController =
-      TextEditingController();
-  final TextEditingController _perceivedAnimalActivityOtherController =
-      TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadActivitySchema();
-  }
-
-  @override
-  void dispose() {
-    _humanActivityOtherController.dispose();
-    _perceivedAnimalActivityOtherController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadActivitySchema() async {
-    try {
-      await SightingReportActivityCatalog.load(AppConfig.shared.apiClient);
-      if (!mounted) return;
-      setState(() {
-        _schemaLoading = false;
-        _schemaError = null;
-      });
-      _hydrateActivitiesFromSighting();
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _schemaLoading = false;
-        _schemaError = e.toString();
-      });
-    }
-  }
-
-  void _hydrateActivitiesFromSighting() {
-    if (_activitiesHydrated || !SightingReportActivityCatalog.isLoaded) return;
-    final sighting =
-        context.read<AnimalSightingReportingInterface>().getCurrentanimalSighting();
-    _humanActivity = SightingReportActivityCatalog.normalizeHuman(
-      sighting?.humanActivity,
-    );
-    _perceivedAnimalActivity = SightingReportActivityCatalog.normalizePerceivedAnimal(
-      sighting?.perceivedAnimalActivity,
-    );
-    _humanActivityOtherController.text = sighting?.humanActivityOther ?? '';
-    _perceivedAnimalActivityOtherController.text =
-        sighting?.perceivedAnimalActivityOther ?? '';
-    _activitiesHydrated = true;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _hydrateActivitiesFromSighting();
-  }
-=======
->>>>>>> f1e6c1c (feat: add animal activity input page)
-
-  void _validateActivityFields() {
-    if (SightingReportActivityCatalog.isOtherHuman(_humanActivity) &&
-        _humanActivityOtherController.text.trim().isEmpty) {
-      throw Exception('Vul je activiteit in bij "Anders, namelijk ..."');
-    }
-    if (SightingReportActivityCatalog.isOtherPerceivedAnimal(
-          _perceivedAnimalActivity,
-        ) &&
-        _perceivedAnimalActivityOtherController.text.trim().isEmpty) {
-      throw Exception(
-        'Vul de activiteit van het dier in bij "Anders, namelijk ..."',
-      );
-    }
-  }
 
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
@@ -162,39 +76,7 @@ class _AnimalWaarnemingSummaryScreenState
                 ),
               ],
               condition: AnimalCondition.onbekend,
-<<<<<<< HEAD
-            ));
-          }
-          sighting = sighting.copyWith(animals: animalsToAdd);
-          sightingManager.updateCurrentanimalSighting(sighting);
-        }
-
-        // Make sure grouped/edited animal entries are synced before sending.
-        sightingManager.syncObservedAnimalsToSighting();
-
-        _validateActivityFields();
-
-        sighting = sighting.copyWith(
-          humanActivity: _humanActivity,
-          humanActivityOther: _humanActivityOtherController.text.trim(),
-          perceivedAnimalActivity: _perceivedAnimalActivity,
-          perceivedAnimalActivityOther:
-              _perceivedAnimalActivityOtherController.text.trim(),
-        );
-        sightingManager.updateCurrentanimalSighting(sighting);
-
-        // Real submit to backend via the same interaction pipeline.
-        final response = await submitReport(
-          sightingManager,
-          interactionManager,
-          context,
-        );
-        if (response == null) {
-          throw Exception(
-            'Geen verbinding of verzenden mislukt. Controleer internet en probeer opnieuw.',
-=======
             ),
->>>>>>> f1e6c1c (feat: add animal activity input page)
           );
         }
 
@@ -331,7 +213,6 @@ class _AnimalWaarnemingSummaryScreenState
                             ),
                           ),
                           const SizedBox(height: 20),
-
                           Center(
                             child: SizedBox(
                               width: 140,
@@ -382,14 +263,14 @@ class _AnimalWaarnemingSummaryScreenState
                                       width: 140,
                                     ),
                                     Container(
-                                      decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(14),
-                                        bottomRight: Radius.circular(14),
-                                      ),
-                                    ),            
                                       width: 140,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(14),
+                                          bottomRight: Radius.circular(14),
+                                        ),
+                                      ),
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 8,
                                         horizontal: 12,
@@ -430,9 +311,7 @@ class _AnimalWaarnemingSummaryScreenState
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 16),
-
                           Text(
                             'Aantal: ${widget.totalCount}',
                             style: const TextStyle(
@@ -441,9 +320,7 @@ class _AnimalWaarnemingSummaryScreenState
                               color: Colors.black87,
                             ),
                           ),
-
                           const SizedBox(height: 16),
-
                           Card(
                             elevation: 0,
                             color: Colors.white,
@@ -468,9 +345,7 @@ class _AnimalWaarnemingSummaryScreenState
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 16),
-
                           Card(
                             elevation: 0,
                             color: Colors.white,
@@ -509,158 +384,6 @@ class _AnimalWaarnemingSummaryScreenState
                               ),
                             ),
                           ),
-<<<<<<< HEAD
-                          // Dieraanrijding specific details
-                          if (sighting?.reportType == 'verkeersongeval') ...[
-                            const SizedBox(height: 16),
-                            Card(
-                              elevation: 0,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Color(0xFFE8E8E8),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.trending_down, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Verwacht verlies',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.expectedLoss ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.warning_amber, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Ernst van het ongeluk',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.accidentSeverity ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Divider(
-                                      color: Colors.grey.withValues(alpha: 0.15),
-                                      height: 1,
-                                      thickness: 1,
-                                    ),
-                                    const SizedBox(height: 14),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F0F0),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Icon(Icons.pets, size: 18, color: Colors.grey[700]),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Toestand dier',
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.grey[600],
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Text(
-                                                sighting?.animalConditionDieraanrijding ?? 'Onbekend',
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
                           if (sighting?.reportType != 'verkeersongeval') ...[
                             const SizedBox(height: 16),
                             Card(
@@ -676,145 +399,86 @@ class _AnimalWaarnemingSummaryScreenState
                               child: Padding(
                                 padding: const EdgeInsets.all(14),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    const Text(
-                                      'Activiteit',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
+                                    _infoRow(
+                                      icon: Icons.person,
+                                      title: 'Jouw activiteit',
+                                      value: _getHumanActivityDisplay(sighting),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Divider(
+                                      color: Colors.grey
+                                          .withValues(alpha: 0.15),
+                                      height: 1,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _infoRow(
+                                      icon: Icons.pets,
+                                      title: 'Activiteit van het dier',
+                                      value:
+                                          _getPerceivedAnimalActivityDisplay(
+                                        sighting,
                                       ),
                                     ),
-                                    if (_schemaLoading)
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 8,
-                                        ),
-                                        child: Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      )
-                                    else if (_schemaError != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 8,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            Text(
-                                              'Activiteiten laden mislukt: $_schemaError',
-                                              style: TextStyle(
-                                                color: Colors.red[700],
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  _schemaLoading = true;
-                                                  _schemaError = null;
-                                                  _activitiesHydrated = false;
-                                                });
-                                                _loadActivitySchema();
-                                              },
-                                              child: const Text('Opnieuw proberen'),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    else ...[
-                                      const SizedBox(height: 12),
-                                      _activityDropdown(
-                                        label: 'Jouw activiteit',
-                                        value: _humanActivity,
-                                        options: SightingReportActivityCatalog
-                                            .instance
-                                            .humanActivities,
-                                        onChanged: (v) => setState(
-                                          () => _humanActivity = v,
-                                        ),
-                                      ),
-                                      if (SightingReportActivityCatalog
-                                          .isOtherHuman(_humanActivity)) ...[
-                                        const SizedBox(height: 8),
-                                        _activityOtherField(
-                                          controller:
-                                              _humanActivityOtherController,
-                                          hint: 'Jouw activiteit (anders)',
-                                        ),
-                                      ],
-                                      const SizedBox(height: 12),
-                                      _activityDropdown(
-                                        label: 'Activiteit van het dier',
-                                        value: _perceivedAnimalActivity,
-                                        options: SightingReportActivityCatalog
-                                            .instance
-                                            .perceivedAnimalActivities,
-                                        onChanged: (v) => setState(
-                                          () => _perceivedAnimalActivity = v,
-                                        ),
-                                      ),
-                                      if (SightingReportActivityCatalog
-                                          .isOtherPerceivedAnimal(
-                                        _perceivedAnimalActivity,
-                                      )) ...[
-                                        const SizedBox(height: 8),
-                                        _activityOtherField(
-                                          controller:
-                                              _perceivedAnimalActivityOtherController,
-                                          hint:
-                                              'Activiteit van het dier (anders)',
-                                        ),
-                                      ],
-                                    ],
                                   ],
                                 ),
                               ),
                             ),
                           ],
-=======
-
-                        if (sighting?.reportType != 'verkeersongeval') ...[
-  const SizedBox(height: 16),
-  Card(
-    elevation: 0,
-    color: Colors.white,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-      side: const BorderSide(
-        color: Color(0xFFE8E8E8),
-        width: 1,
-      ),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        children: [
-          _infoRow(
-            icon: Icons.person,
-            title: 'Jouw activiteit',
-            value: sighting?.humanActivity ?? 'Onbekend',
-          ),
-          const SizedBox(height: 14),
-          Divider(
-            color: Colors.grey.withValues(alpha: 0.15),
-            height: 1,
-          ),
-          const SizedBox(height: 14),
-          _infoRow(
-            icon: Icons.pets,
-            title: 'Activiteit van het dier',
-            value: sighting?.perceivedAnimalActivity ?? 'Onbekend',
-          ),
-        ],
-      ),
-    ),
-  ),
-], 
->>>>>>> f1e6c1c (feat: add animal activity input page)
+                          if (sighting?.reportType == 'verkeersongeval') ...[
+                            const SizedBox(height: 16),
+                            Card(
+                              elevation: 0,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: const BorderSide(
+                                  color: Color(0xFFE8E8E8),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  children: [
+                                    _infoRow(
+                                      icon: Icons.trending_down,
+                                      title: 'Verwacht verlies',
+                                      value: sighting?.expectedLoss ??
+                                          'Onbekend',
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Divider(
+                                      color: Colors.grey
+                                          .withValues(alpha: 0.15),
+                                      height: 1,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _infoRow(
+                                      icon: Icons.warning_amber,
+                                      title: 'Ernst van het ongeluk',
+                                      value: sighting?.accidentSeverity ??
+                                          'Onbekend',
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Divider(
+                                      color: Colors.grey
+                                          .withValues(alpha: 0.15),
+                                      height: 1,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    _infoRow(
+                                      icon: Icons.pets,
+                                      title: 'Toestand dier',
+                                      value: sighting
+                                              ?.animalConditionDieraanrijding ??
+                                          'Onbekend',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -822,7 +486,6 @@ class _AnimalWaarnemingSummaryScreenState
                 ),
               ),
             ),
-
             SafeArea(
               top: false,
               child: Padding(
@@ -859,7 +522,7 @@ class _AnimalWaarnemingSummaryScreenState
                         onPressed: _isSubmitting ? null : _handleSubmit,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: Color(0xFF37A904),
+                          backgroundColor: const Color(0xFF37A904),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
@@ -887,34 +550,9 @@ class _AnimalWaarnemingSummaryScreenState
     );
   }
 
-<<<<<<< HEAD
-  Widget _activityOtherField({
-    required TextEditingController controller,
-    required String hint,
-  }) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hint,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF999999)),
-        ),
-      ),
-    );
-  }
-
-  Widget _activityDropdown({
-    required String label,
-=======
   Widget _infoRow({
     required IconData icon,
     required String title,
->>>>>>> f1e6c1c (feat: add animal activity input page)
     required String value,
   }) {
     return Row(
@@ -928,47 +566,6 @@ class _AnimalWaarnemingSummaryScreenState
           ),
           child: Icon(icon, size: 18, color: Colors.grey[700]),
         ),
-<<<<<<< HEAD
-        const SizedBox(height: 6),
-        DropdownButtonFormField<String>(
-          isExpanded: true,
-          value: options.any((o) => o.apiValue == value)
-              ? value
-              : (options.isNotEmpty
-                  ? options.first.apiValue
-                  : value),
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF999999)),
-            ),
-          ),
-          selectedItemBuilder: (context) => options
-              .map(
-                (o) => Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    o.labelNl,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ),
-              )
-              .toList(),
-          items: options
-              .map(
-                (o) => DropdownMenuItem(
-                  value: o.apiValue,
-                  child: Text(
-                    o.labelNl,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
-                  ),
-=======
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -980,7 +577,6 @@ class _AnimalWaarnemingSummaryScreenState
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[600],
->>>>>>> f1e6c1c (feat: add animal activity input page)
                 ),
               ),
               const SizedBox(height: 3),
@@ -997,6 +593,54 @@ class _AnimalWaarnemingSummaryScreenState
         ),
       ],
     );
+  }
+
+  String _getHumanActivityDisplay(dynamic sighting) {
+    final value = sighting?.humanActivity;
+    final other = sighting?.humanActivityOther;
+
+    if (value == null || value.toString().isEmpty) return 'Onbekend';
+
+    if (SightingReportActivityCatalog.isLoaded) {
+      final match = SightingReportActivityCatalog.instance.humanActivities
+          .where((o) => o.apiValue == value)
+          .firstOrNull;
+
+      if (match != null) {
+        if (SightingReportActivityCatalog.isOtherHuman(value) &&
+            other != null &&
+            other.toString().trim().isNotEmpty) {
+          return '${match.labelNl}: $other';
+        }
+        return match.labelNl;
+      }
+    }
+
+    return value.toString();
+  }
+
+  String _getPerceivedAnimalActivityDisplay(dynamic sighting) {
+    final value = sighting?.perceivedAnimalActivity;
+    final other = sighting?.perceivedAnimalActivityOther;
+
+    if (value == null || value.toString().isEmpty) return 'Onbekend';
+
+    if (SightingReportActivityCatalog.isLoaded) {
+      final match = SightingReportActivityCatalog.instance.perceivedAnimalActivities
+          .where((o) => o.apiValue == value)
+          .firstOrNull;
+
+      if (match != null) {
+        if (SightingReportActivityCatalog.isOtherPerceivedAnimal(value) &&
+            other != null &&
+            other.toString().trim().isNotEmpty) {
+          return '${match.labelNl}: $other';
+        }
+        return match.labelNl;
+      }
+    }
+
+    return value.toString();
   }
 
   List<Widget> _buildAnimalDetailsList(
