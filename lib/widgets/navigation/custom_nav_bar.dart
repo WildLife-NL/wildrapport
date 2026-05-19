@@ -46,7 +46,7 @@ class CustomNavBar extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: Colors.black.withOpacity(0.08),
                   blurRadius: 10,
                   spreadRadius: 0,
                 ),
@@ -77,9 +77,9 @@ class CustomNavBar extends StatelessWidget {
                         label: "Zone's",
                       ),
                       _buildNavItem(
-                        tab: NavTab.rapporten,
-                        icon: Icons.assignment,
-                        label: 'Rapporten',
+                        tab: NavTab.kaart,
+                        icon: Icons.map,
+                        label: 'Kaart',
                       ),
                       const SizedBox(width: 60),
                       _buildNavItem(
@@ -153,11 +153,11 @@ class CustomNavBar extends StatelessWidget {
   }
 
   Widget _buildCenterButton() {
-    final isSelected = currentTab == NavTab.kaart;
+    final isSelected = currentTab == NavTab.rapporten;
     final color = isSelected ? _activeColor : _inactiveColor;
 
     return GestureDetector(
-      onTap: () => onTabSelected(NavTab.kaart),
+      onTap: () => onTabSelected(NavTab.rapporten),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -173,7 +173,7 @@ class CustomNavBar extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: Colors.black.withOpacity(0.15),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -181,14 +181,14 @@ class CustomNavBar extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Icon(
-              Icons.map,
+              Icons.assignment,
               size: 28,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Kaart',
+            'Rapporten',
             style: TextStyle(
               fontSize: _fontSize,
               color: color,
