@@ -15,7 +15,7 @@ import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
-//import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
+import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/config/app_config.dart';
@@ -1116,7 +1116,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   markers:
                                       map.animalPins
                                           .where(
-                                            (pin) => _within31Days(pin.seenAt),
+                                            (pin) =>
+                                                _withinVicinityPinWindow(
+                                                  pin.seenAt,
+                                                ),
                                           )
                                           .map((pin) {
                                             final mapRotation =
@@ -1149,12 +1152,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 ? cl.MarkerClusterLayerWidget(
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
-                                        map.detectionPins
-                                            .where(
-                                              (pin) =>
-                                                  _within31Days(pin.detectedAt),
-                                            )
-                                            .map((pin) {
+                                        map.detectionPins.map((pin) {
                                               final style =
                                                   _iconStyleForTimestamp(
                                                     pin.detectedAt,
@@ -1176,31 +1174,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   44.0,
                                                 ),
                                                 rotate: false,
-                                                child: Transform.rotate(
-                                                  angle:
-                                                      -mapRotation *
-                                                      math.pi /
-                                                      180,
-                                                  child: GestureDetector(
-                                                    behavior:
-                                                        HitTestBehavior.opaque,
-                                                    onTap: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) =>
-                                                                DetectionDetailDialog(
-                                                                  detection:
-                                                                      pin,
-                                                                ),
-                                                      );
-                                                    },
-                                                    child: Icon(
-                                                      Icons.sensors,
-                                                      size: style.size,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
+                                                child: _detectionPinMarker(
+                                                  pin: pin,
+                                                  mapRotation: mapRotation,
+                                                  style: style,
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (_) =>
+                                                          DetectionDetailDialog(
+                                                            detection: pin,
+                                                          ),
+                                                    );
+                                                  },
                                                 ),
                                               );
                                             })
@@ -1226,12 +1212,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 )
                                 : fm.MarkerLayer(
                                   markers:
-                                      map.detectionPins
-                                          .where(
-                                            (pin) =>
-                                                _within31Days(pin.detectedAt),
-                                          )
-                                          .map((pin) {
+                                      map.detectionPins.map((pin) {
                                             final style =
                                                 _iconStyleForTimestamp(
                                                   pin.detectedAt,
@@ -1253,30 +1234,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 44.0,
                                               ),
                                               rotate: false,
-                                              child: Transform.rotate(
-                                                angle:
-                                                    -mapRotation *
-                                                    math.pi /
-                                                    180,
-                                                child: GestureDetector(
-                                                  behavior:
-                                                      HitTestBehavior.opaque,
-                                                  onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (_) =>
-                                                              DetectionDetailDialog(
-                                                                detection: pin,
-                                                              ),
-                                                    );
-                                                  },
-                                                  child: Icon(
-                                                    Icons.sensors,
-                                                    size: style.size,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
+                                              child: _detectionPinMarker(
+                                                pin: pin,
+                                                mapRotation: mapRotation,
+                                                style: style,
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (_) =>
+                                                        DetectionDetailDialog(
+                                                          detection: pin,
+                                                        ),
+                                                  );
+                                                },
                                               ),
                                             );
                                           })
@@ -1369,8 +1339,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                     markers:
                                         map.interactions
                                             .where(
-                                              (itx) =>
-                                                  _within31Days(itx.moment),
+                                              (itx) => _withinVicinityPinWindow(
+                                                itx.moment,
+                                              ),
                                             )
                                             .map((itx) {
                                               final mapRotation =
@@ -1474,7 +1445,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 )
                                 : fm.MarkerLayer(
                                   markers: map.interactions
-                                      .where((itx) => _within31Days(itx.moment))
+                                      .where(
+                                        (itx) =>
+                                            _withinVicinityPinWindow(itx.moment),
+                                      )
                                       .map((itx) {
                                         final mapRotation =
                                             map.mapController.camera.rotation;
