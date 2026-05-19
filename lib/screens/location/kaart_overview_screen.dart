@@ -13,6 +13,7 @@ import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
+import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
@@ -483,7 +484,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       app.isLocationTrackingEnabled && app.notificationsEnabled,
     );
 
-    debugPrint('[Map] Fetching data from vicinity endpoint (no extra interaction APIs)');
+    debugPrint('[Map] Fetching pins from latest tracking-reading');
 
     await map.loadAllPinsFromVicinity();
 
@@ -920,8 +921,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  /// Same window as `vicinity/me` (and vicinity bundled with tracking): backend
-  /// only returns recent pins (~48h). Client filter must not suggest a longer range.
+  /// Vicinity on tracking readings: backend returns recent pins (~48h).
+  /// Client filter must not suggest a longer range.
   static const Duration _vicinityPinMaxAge = Duration(hours: 48);
 
   bool _withinVicinityPinWindow(DateTime timestamp) {
@@ -1178,31 +1179,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                   44.0,
                                                 ),
                                                 rotate: false,
-                                                child: Transform.rotate(
-                                                  angle:
-                                                      -mapRotation *
-                                                      math.pi /
-                                                      180,
-                                                  child: GestureDetector(
-                                                    behavior:
-                                                        HitTestBehavior.opaque,
-                                                    onTap: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (_) =>
-                                                                DetectionDetailDialog(
-                                                                  detection:
-                                                                      pin,
-                                                                ),
-                                                      );
-                                                    },
-                                                    child: Icon(
-                                                      Icons.sensors,
-                                                      size: style.size,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
+                                                child: _detectionPinMarker(
+                                                  pin: pin,
+                                                  mapRotation: mapRotation,
+                                                  style: style,
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (_) =>
+                                                          DetectionDetailDialog(
+                                                            detection: pin,
+                                                          ),
+                                                    );
+                                                  },
                                                 ),
                                               );
                                             })
@@ -1255,30 +1244,19 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 44.0,
                                               ),
                                               rotate: false,
-                                              child: Transform.rotate(
-                                                angle:
-                                                    -mapRotation *
-                                                    math.pi /
-                                                    180,
-                                                child: GestureDetector(
-                                                  behavior:
-                                                      HitTestBehavior.opaque,
-                                                  onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder:
-                                                          (_) =>
-                                                              DetectionDetailDialog(
-                                                                detection: pin,
-                                                              ),
-                                                    );
-                                                  },
-                                                  child: Icon(
-                                                    Icons.sensors,
-                                                    size: style.size,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
+                                              child: _detectionPinMarker(
+                                                pin: pin,
+                                                mapRotation: mapRotation,
+                                                style: style,
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (_) =>
+                                                        DetectionDetailDialog(
+                                                          detection: pin,
+                                                        ),
+                                                  );
+                                                },
                                               ),
                                             );
                                           })
@@ -1724,7 +1702,37 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       );
     }
 
-    return child;
+    return Tooltip(
+      message: pin.speciesName != null && pin.speciesName!.isNotEmpty
+          ? 'Dier: ${pin.speciesName}'
+          : 'Dier',
+      child: child,
+    );
+  }
+
+  Widget _detectionPinMarker({
+    required DetectionPin pin,
+    required double mapRotation,
+    required VoidCallback onTap,
+    required _IconStyle style,
+  }) {
+    return Tooltip(
+      message: pin.label != null && pin.label!.isNotEmpty
+          ? 'Detectie: ${pin.label}'
+          : 'Detectie',
+      child: Transform.rotate(
+        angle: -mapRotation * math.pi / 180,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Icon(
+            Icons.sensors,
+            size: style.size,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 
   Color _animalPinBorderForSeenAt(DateTime seenAt) {

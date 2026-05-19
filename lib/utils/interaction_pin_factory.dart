@@ -1,7 +1,7 @@
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 
-/// Builds a map pin from a just-submitted sighting (until vicinity/me includes it).
+/// Builds a map pin from a just-submitted sighting (until next tracking-reading refresh).
 InteractionQueryResult? interactionPinFromSighting(
   AnimalSightingModel sighting,
   String interactionId,

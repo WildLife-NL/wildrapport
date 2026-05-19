@@ -45,10 +45,12 @@ class InteractionQueryResult {
       throw const FormatException('InteractionQueryResult: missing id');
     }
 
-    // location / place node
-    final locNode =
-        (json['location'] ?? json['place'] ?? const <String, dynamic>{})
-            as Map<String, dynamic>;
+    final locNode = _locationMap(json['location'] ?? json['place']);
+    if (locNode == null) {
+      throw const FormatException(
+        'InteractionQueryResult: missing location',
+      );
+    }
 
     final lat = _asDouble(locNode['latitude'] ?? locNode['lat']);
     final lon = _asDouble(locNode['longitude'] ?? locNode['lon']);
@@ -131,6 +133,12 @@ class InteractionQueryResult {
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},
   };
+
+  static Map<String, dynamic>? _locationMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
 
   static double? _asDouble(Object? v) {
     if (v == null) return null;

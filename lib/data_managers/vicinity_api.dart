@@ -1,122 +1,148 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:ntp_dart/ntp_dart.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
+import 'package:wildrapport/utils/tracking_vicinity_parser.dart';
 
 class VicinityApi implements VicinityApiInterface {
-  final ApiClient apiClient;
   VicinityApi(this.apiClient);
 
-  /// Candidate paths (server/OpenAPI variants). First match wins.
-  static const List<String> _vicinityPaths = [
-    'vicinity/me',
-    '/vicinity/me',
-    'vicinity/me/',
-    '/vicinity/me/',
-  ];
+  final ApiClient apiClient;
 
-  /// Unwraps `{ animals, ... }` or `{ vicinity: { animals, ... } }`.
-  static Map<String, dynamic> unwrapVicinityPayload(Map<String, dynamic> data) {
-    final nested = data['vicinity'];
-    if (nested is Map<String, dynamic>) {
-      debugPrint('[VicinityApi] Using nested "vicinity" object from response');
-      return nested;
-    }
-    return data;
-  }
+  static const String _tag = 'VicinityApi';
+  static const String _getMyReadingsPath = '/tracking-readings/me/';
+  static const String _postReadingPath = '/tracking-reading/';
 
-  static bool _looksLikeHtml(String body) {
-    final trimmed = body.trimLeft().toLowerCase();
-    return trimmed.startsWith('<!doctype') ||
-        trimmed.startsWith('<html') ||
-        trimmed.startsWith('<!');
-  }
-
-  static Vicinity _parseVicinityBody(String body) {
-    if (body.isEmpty) {
-      return Vicinity(animals: [], detections: [], interactions: []);
-    }
-    if (_looksLikeHtml(body)) {
-      throw FormatException(
-        'Server returned HTML instead of JSON (wrong URL or gateway page). '
-        'Check DEV_BASE_URL and vicinity path with backend.',
+  Future<DateTime> _nowUtc() async {
+    try {
+      return await AccurateTime.now(isUtc: true).timeout(
+        const Duration(seconds: 3),
+        onTimeout: () => DateTime.now().toUtc(),
       );
+    } catch (_) {
+      return DateTime.now().toUtc();
     }
-
-    final decoded = json.decode(body);
-    if (decoded is! Map<String, dynamic>) {
-      throw FormatException(
-        'Vicinity GET: expected JSON object, got ${decoded.runtimeType}',
-      );
-    }
-
-    final data = unwrapVicinityPayload(decoded);
-    debugPrint(
-      '[VicinityApi] Parsed JSON - animals: ${(data['animals'] as List?)?.length ?? 0}, '
-      'detections: ${(data['detections'] as List?)?.length ?? 0}, '
-      'interactions: ${(data['interactions'] as List?)?.length ?? 0}',
-    );
-
-    return Vicinity.fromJson(data);
   }
 
   @override
   Future<Vicinity> getMyVicinity() async {
-    Object? lastError;
+    final res = await apiClient.get(_getMyReadingsPath, authenticated: true);
+    TrackingVicinityParser.logHttpResponse(
+      tag: _tag,
+      endpoint: 'GET $_getMyReadingsPath',
+      statusCode: res.statusCode,
+      body: res.body,
+    );
 
-    for (final path in _vicinityPaths) {
-      try {
-        final res = await apiClient.get(path, authenticated: true);
-        debugPrint('[VicinityApi] GET $path => ${res.statusCode}');
+    if (res.statusCode == 204) {
+      return TrackingVicinityParser.empty();
+    }
 
-        if (res.statusCode == 204) {
-          debugPrint('[VicinityApi] 204 No Content, returning empty vicinity');
-          return Vicinity(animals: [], detections: [], interactions: []);
-        }
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception(
+        '[$_tag] GET $_getMyReadingsPath failed (${res.statusCode}): ${res.body}',
+      );
+    }
 
-        if (res.statusCode == 200) {
-          final body = res.body.trim();
-          debugPrint('[VicinityApi] Response body length: ${body.length}');
-          if (_looksLikeHtml(body)) {
-            debugPrint(
-              '[VicinityApi] $path returned HTML (not JSON) — endpoint likely missing on server',
-            );
-            lastError = 'HTML response on $path';
-            continue;
-          }
-          if (body.isNotEmpty) {
-            debugPrint(
-              '[VicinityApi] Raw response: '
-              '${body.substring(0, body.length > 500 ? 500 : body.length)}...',
-            );
-          }
-          final vicinity = _parseVicinityBody(body);
-          debugPrint(
-            '[VicinityApi] OK via $path — '
-            'animals: ${vicinity.animals.length}, '
-            'detections: ${vicinity.detections.length}, '
-            'interactions: ${vicinity.interactions.length}',
+    final decoded = _decodeBody(res.body);
+    final vicinity = TrackingVicinityParser.parseResponseBody(
+      res.body,
+      tag: _tag,
+      endpoint: 'GET $_getMyReadingsPath',
+    );
+
+    if (decoded is List) {
+      final latest = TrackingVicinityParser.latestReadingMap(decoded);
+      if (latest != null) {
+        final loc = TrackingVicinityParser.readingLocation(latest);
+        if (loc != null) {
+          return TrackingVicinityParser.filterNearReading(
+            vicinity,
+            loc.latitude,
+            loc.longitude,
+            tag: _tag,
           );
-          return vicinity;
         }
-
-        if (res.statusCode == 404) {
-          debugPrint('[VicinityApi] 404 on $path, trying next path');
-          lastError = '404 on $path';
-          continue;
-        }
-
-        lastError = 'HTTP ${res.statusCode} on $path: ${res.body}';
-        debugPrint('[VicinityApi] $lastError');
-      } catch (e) {
-        lastError = e;
-        debugPrint('[VicinityApi] Failed $path: $e');
       }
     }
 
-    throw Exception(
-      'Vicinity GET failed on all paths ($_vicinityPaths). Last error: $lastError',
+    return vicinity;
+  }
+
+  @override
+  Future<Vicinity> getVicinityForCurrentLocation({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) =>
+      submitTrackingReading(
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: timestamp,
+      );
+
+  @override
+  Future<Vicinity> submitTrackingReading({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async {
+    var ts = (timestamp ?? DateTime.now()).toUtc();
+    final nowUtc = await _nowUtc();
+    if (!ts.isBefore(nowUtc)) {
+      ts = nowUtc.subtract(const Duration(seconds: 30));
+      debugPrint(
+        '[$_tag] clamped timestamp to ${ts.toIso8601String()}',
+      );
+    }
+
+    final body = {
+      'location': {'latitude': latitude, 'longitude': longitude},
+      'timestamp': ts.toIso8601String(),
+    };
+
+    final res = await apiClient.post(
+      _postReadingPath,
+      body,
+      authenticated: true,
     );
+
+    TrackingVicinityParser.logHttpResponse(
+      tag: _tag,
+      endpoint: 'POST $_postReadingPath',
+      statusCode: res.statusCode,
+      body: res.body,
+    );
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception(
+        '[$_tag] POST $_postReadingPath failed (${res.statusCode}): ${res.body}',
+      );
+    }
+
+    final vicinity = TrackingVicinityParser.parseResponseBody(
+      res.body,
+      tag: _tag,
+      endpoint: 'POST $_postReadingPath',
+    );
+
+    return TrackingVicinityParser.filterNearReading(
+      vicinity,
+      latitude,
+      longitude,
+      tag: _tag,
+    );
+  }
+
+  Object? _decodeBody(String body) {
+    if (body.trim().isEmpty) return null;
+    try {
+      return jsonDecode(body);
+    } catch (_) {
+      return null;
+    }
   }
 }

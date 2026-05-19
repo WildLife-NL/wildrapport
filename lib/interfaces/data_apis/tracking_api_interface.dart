@@ -61,6 +61,6 @@ abstract class TrackingApiInterface {
 
   Future<List<TrackingReadingResponse>> getMyTrackingReadings();
 
-  /// Merges `animals`, `detections` and `interactions` from all readings (OpenAPI).
+  /// Vicinity for the map: latest tracking reading only (OpenAPI: per-reading vicinity).
   Future<Vicinity> getMergedVicinityFromMyTrackingReadings();
 }

@@ -4,9 +4,11 @@ import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
+import 'package:wildrapport/screens/zone/alarms_screen.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
@@ -17,11 +19,13 @@ import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 class MainNavScreen extends StatefulWidget {
   final NavTab? initialTab;
   final bool openRecentSightingsDirectly;
-  
+  final bool openAlarmsDirectly;
+
   const MainNavScreen({
-    super.key, 
+    super.key,
     this.initialTab,
     this.openRecentSightingsDirectly = false,
+    this.openAlarmsDirectly = false,
   });
 
   @override
@@ -31,6 +35,7 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
   bool _pushSetupStarted = false;
+  bool _alarmsNavigationHandled = false;
 
   @override
   void initState() {
@@ -38,7 +43,19 @@ class _MainNavScreenState extends State<MainNavScreen> {
     _currentTab = widget.initialTab ?? NavTab.kaart;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupPushNotificationsIfLoggedIn();
+      _openAlarmsIfRequested();
+      NotificationNavigationHandler.consumePendingAfterLogin();
     });
+  }
+
+  void _openAlarmsIfRequested() {
+    if (!widget.openAlarmsDirectly || _alarmsNavigationHandled || !mounted) {
+      return;
+    }
+    _alarmsNavigationHandled = true;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AlarmsScreen()),
+    );
   }
 
   Future<void> _setupPushNotificationsIfLoggedIn() async {

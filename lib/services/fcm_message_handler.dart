@@ -2,7 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wildrapport/firebase_options.dart';
+import 'package:wildrapport/services/alarm_notification_resolver.dart';
+import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 
 /// Background FCM (app terminated / background). Must be top-level.
@@ -11,6 +14,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    debugPrint('[FCM] dotenv load in background failed: $e');
+  }
   await NotificationService.instance.init();
   await _showRemoteMessageAsNotification(message);
 }
@@ -72,7 +80,21 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> _showRemoteMessageAsNotification(RemoteMessage message) async {
-  final parsed = _parseRemoteMessage(message);
+  var parsed = _parseRemoteMessage(message);
+
+  final alarmResolved = await AlarmNotificationResolver.resolve(
+    data: message.data,
+    fallbackTitle: parsed.title,
+    fallbackBody: parsed.body,
+  );
+  if (alarmResolved != null) {
+    parsed = alarmResolved;
+  } else if (AlarmNotificationResolver.looksLikeAlarmIdOnly(parsed.body)) {
+    parsed = (
+      title: 'Wild Rapport',
+      body: 'Nieuw alarm — open de app voor details.',
+    );
+  }
 
   if (parsed.body.isEmpty && parsed.title == 'Wild Rapport') {
     debugPrint(
@@ -87,12 +109,21 @@ Future<void> _showRemoteMessageAsNotification(RemoteMessage message) async {
     'data=${message.data}',
   );
 
+  final payload = NotificationNavigationHandler.payloadForRemoteMessage(message) ??
+      (alarmResolved != null
+          ? NotificationNavigationHandler.payloadForAlarmData(
+              message.data,
+              fallbackBody: parsed.body,
+            )
+          : null);
+
   await NotificationService.instance.show(
     title: parsed.title,
     body: parsed.body.isEmpty ? 'Nieuwe melding' : parsed.body,
     importance: Importance.high,
     priority: Priority.high,
     channelId: kPushNotificationChannelId,
+    payload: payload,
   );
 }
 
@@ -107,13 +138,6 @@ void attachFirebaseMessageListeners() {
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     debugPrint('[FCM] Opened from notification: ${message.data}');
-  });
-
-  FirebaseMessaging.instance.getInitialMessage().then((message) {
-    if (message != null) {
-      debugPrint(
-        '[FCM] App opened from terminated via notification: ${message.data}',
-      );
-    }
+    NotificationNavigationHandler.handleRemoteMessage(message);
   });
 }

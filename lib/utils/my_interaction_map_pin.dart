@@ -1,7 +1,7 @@
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 
-/// Map pin from logbook `interactions/me` when `vicinity/me` is unavailable.
+/// Map pin from logbook `interactions/me` (logbook only, not used on kaart).
 InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
   if (interaction.id.isEmpty) return null;
 

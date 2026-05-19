@@ -12,6 +12,9 @@ class NotificationService {
   NotificationService._internal();
   static final NotificationService instance = NotificationService._internal();
 
+  /// Set from [main] before [init]; invoked when user taps a local notification.
+  static void Function(String? payload)? onNotificationTap;
+
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
@@ -36,10 +39,26 @@ class NotificationService {
       iOS: iosInit,
     );
 
-    await _plugin.initialize(settings);
+    await _plugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final payload = response.payload;
+        if (payload != null && payload.isNotEmpty) {
+          onNotificationTap?.call(payload);
+        }
+      },
+    );
     await ensureAndroidChannel();
 
     _initialized = true;
+  }
+
+  /// Payload when the app was launched by tapping a notification (cold start).
+  Future<String?> getLaunchNotificationPayload() async {
+    if (!_initialized) await init();
+    final details = await _plugin.getNotificationAppLaunchDetails();
+    if (details?.didNotificationLaunchApp != true) return null;
+    return details?.notificationResponse?.payload;
   }
 
   /// System permission prompt (Android 13+: POST_NOTIFICATIONS; iOS: no-op here).
@@ -100,6 +119,7 @@ class NotificationService {
     Importance importance = Importance.defaultImportance,
     Priority priority = Priority.defaultPriority,
     String channelId = kPushNotificationChannelId,
+    String? payload,
   }) async {
     if (!_initialized) await init();
 
@@ -145,6 +165,7 @@ class NotificationService {
       title,
       body,
       details,
+      payload: payload,
     );
   }
 

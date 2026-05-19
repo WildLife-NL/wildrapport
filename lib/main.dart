@@ -9,8 +9,8 @@ import 'package:wildrapport/data_managers/interaction_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
-import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
+import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
@@ -63,6 +63,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:wildrapport/firebase_options.dart';
 import 'package:wildrapport/services/fcm_message_handler.dart';
+import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
@@ -112,8 +113,14 @@ void main() async {
     debugPrint('[main] Firebase init skipped: $e');
   }
 
-  // Initialize local notifications
+  // Initialize local notifications + alarm tap → AlarmsScreen
+  NotificationNavigationHandler.bind(
+    navigatorKey: appStateProvider.navigatorKey,
+    authenticator: authenticator,
+  );
+  NotificationNavigationHandler.installTapHandler();
   await NotificationService.instance.init();
+  await NotificationNavigationHandler.processColdStart();
 
   final apiClient = ApiClient(baseUrl);
   final appConfig = AppConfig(apiClient);
@@ -150,14 +157,13 @@ void main() async {
     },
   );
 
-  mapProvider.setVicinityApi(vicinityApi);
-  mapProvider.setMyInteractionApi(myInteractionApi);
-
   // Interaction types: fetch/display names for UI
   final interactionTypesApi = InteractionTypesApi(apiClient);
   final interactionTypesManager = InteractionTypesManager(interactionTypesApi);
 
   final trackingApi = TrackingApi(apiClient);
+  mapProvider.setTrackingApi(trackingApi);
+  mapProvider.setVicinityApi(vicinityApi);
   final trackingCacheManager = TrackingCacheManager(trackingApi: trackingApi);
   trackingCacheManager.init();
   mapProvider.setTrackingCacheManager(trackingCacheManager);

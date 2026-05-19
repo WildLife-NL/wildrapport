@@ -11,11 +11,9 @@ import 'package:wildrapport/models/api_models/detection_pin.dart';
 
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
-import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
-import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
-import 'package:wildrapport/utils/my_interaction_map_pin.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
@@ -25,6 +23,7 @@ class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
 
   TrackingApiInterface? _trackingApi;
+  VicinityApiInterface? _vicinityApi;
   TrackingCacheManager? _trackingCacheManager;
   AppStateProvider? _appStateProvider;
   // ===== Location state =====
@@ -64,6 +63,10 @@ class MapProvider extends ChangeNotifier {
 
   void setTrackingApi(TrackingApiInterface api) {
     _trackingApi = api;
+  }
+
+  void setVicinityApi(VicinityApiInterface api) {
+    _vicinityApi = api;
   }
 
   void setTrackingCacheManager(TrackingCacheManager manager) {
@@ -255,17 +258,6 @@ class MapProvider extends ChangeNotifier {
   String? _animalPinsError;
   String? _detectionPinsError;
 
-  VicinityApiInterface? _vicinityApi;
-  MyInteractionApi? _myInteractionApi;
-
-  void setVicinityApi(VicinityApiInterface api) {
-    _vicinityApi = api;
-  }
-
-  void setMyInteractionApi(MyInteractionApi api) {
-    _myInteractionApi = api;
-  }
-
   List<AnimalPin> get animalPins => List.unmodifiable(_animalPins);
   List<DetectionPin> get detectionPins => List.unmodifiable(_detectionPins);
 
@@ -407,9 +399,7 @@ class MapProvider extends ChangeNotifier {
   }
 
   Future<void> loadAllPinsFromVicinity() async {
-    debugPrint(
-      '[MapProvider] 📍 Loading map pins (tracking-readings/me, then fallbacks)',
-    );
+    debugPrint('[MapProvider] 📍 Loading map pins via VicinityApi');
 
     _animalPinsLoading = true;
     _detectionPinsLoading = true;
@@ -419,85 +409,60 @@ class MapProvider extends ChangeNotifier {
     _interactionsError = null;
     notifyListeners();
 
-    Vicinity? vicinity;
-    String? loadSource;
-
-    if (_trackingApi != null) {
-      try {
-        vicinity = await _trackingApi!.getMergedVicinityFromMyTrackingReadings();
-        loadSource = 'GET /tracking-readings/me/';
-      } catch (e) {
-        debugPrint('[MapProvider] tracking-readings/me failed: $e');
-      }
-    }
-
-    if (vicinity == null && _vicinityApi != null) {
-      try {
-        vicinity = await _vicinityApi!.getMyVicinity();
-        loadSource = 'GET vicinity/me';
-      } catch (e) {
-        debugPrint('[MapProvider] vicinity/me failed: $e');
-      }
-    }
-
-    if (vicinity != null) {
-      _applyVicinity(vicinity);
+    final vicinityApi = _vicinityApi;
+    if (vicinityApi == null) {
+      const message = 'Geen kaartdata (VicinityApi niet beschikbaar)';
+      _animalPinsError = message;
+      _detectionPinsError = message;
+      _interactionsError = message;
       _animalPinsLoading = false;
       _detectionPinsLoading = false;
       _interactionsLoading = false;
-      debugPrint(
-        '[MapProvider] ✓ Pins from $loadSource: '
-        '${_animalPins.length} animals, '
-        '${_detectionPins.length} detections, '
-        '${_interactions.length} interactions',
-      );
       notifyListeners();
       return;
     }
 
-    final fallbackOk = await _loadMyInteractionsFallback();
-    _animalPinsLoading = false;
-    _detectionPinsLoading = false;
-    _interactionsLoading = false;
+    try {
+      Vicinity vicinity;
+      String source;
 
-    if (!fallbackOk) {
-      const message = 'Geen kaartdata (tracking-readings en fallbacks mislukt)';
+      final pos = currentPosition;
+      if (pos != null) {
+        try {
+          vicinity = await vicinityApi.getVicinityForCurrentLocation(
+            latitude: pos.latitude,
+            longitude: pos.longitude,
+          );
+          source = 'POST /tracking-reading/';
+        } catch (e) {
+          debugPrint('[MapProvider] POST /tracking-reading/ failed: $e');
+          vicinity = await vicinityApi.getMyVicinity();
+          source = 'GET /tracking-readings/me/';
+        }
+      } else {
+        vicinity = await vicinityApi.getMyVicinity();
+        source = 'GET /tracking-readings/me/';
+      }
+
+      _applyVicinity(vicinity);
+      debugPrint(
+        '[MapProvider] ✓ Pins from $source: '
+        '${_animalPins.length} animals, '
+        '${_detectionPins.length} detections, '
+        '${_interactions.length} interactions',
+      );
+    } catch (e) {
+      debugPrint('[MapProvider] VicinityApi load failed: $e');
+      const message = 'Geen kaartdata (tracking-readings mislukt)';
       _animalPinsError = message;
       _detectionPinsError = message;
       _interactionsError = message;
-    } else {
-      _interactionsError = null;
-      debugPrint('[MapProvider] Using interactions/me as fallback');
     }
 
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
     notifyListeners();
-  }
-
-  /// When `GET vicinity/me` is missing on the server, show at least the user's own reports.
-  Future<bool> _loadMyInteractionsFallback() async {
-    final api = _myInteractionApi;
-    if (api == null) return false;
-
-    try {
-      debugPrint('[MapProvider] Fallback: GET interactions/me for map pins');
-      final mine = await api.getMyInteractions();
-      var added = 0;
-      for (final item in mine) {
-        final pin = mapPinFromMyInteraction(item);
-        if (pin != null) {
-          addOrUpdateInteraction(pin);
-          added++;
-        }
-      }
-      debugPrint(
-        '[MapProvider] interactions/me fallback: $added pins '
-        '(from ${mine.length} interactions)',
-      );
-      return added > 0;
-    } catch (e) {
-      debugPrint('[MapProvider] interactions/me fallback failed: $e');
-      return false;
-    }
   }
 
   void setMockVicinity({
