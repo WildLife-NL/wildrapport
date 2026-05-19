@@ -134,10 +134,11 @@ class InteractionManager implements InteractionInterface {
     InteractionType type,
   ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userID = prefs.getString("userID");
-
-    if (userID == null) {
-      throw Exception("User Profile Wasn't Loaded!");
+    final String userID = prefs.getString("userID") ?? '';
+    if (userID.isEmpty) {
+      debugPrint(
+        '$yellowLog [InteractionManager]: userID not cached; POST uses bearer token',
+      );
     }
 
     final results = await _connectivity.checkConnectivity();

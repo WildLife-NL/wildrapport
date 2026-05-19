@@ -151,7 +151,7 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         '[BelongingDamageReportManager] Error posting interaction: $e',
       );
       debugPrint(stackTrace.toString());
-      interactionResponseModel = null;
+      rethrow;
     }
 
     if (interactionResponseModel != null) {
@@ -273,8 +273,8 @@ class BelongingDamageReportManager implements BelongingDamageReportInterface {
         estimatedLossBucket: formProvider.estimatedLossBucket,
         description: formProvider.description,
         suspectedSpeciesID: formProvider.suspectedSpeciesID,
-        userSelectedDateTime: DateTime.now(),
-        systemDateTime: DateTime.now(),
+        userSelectedDateTime: formProvider.reportMoment ?? DateTime.now(),
+        systemDateTime: formProvider.reportMoment ?? DateTime.now(),
         systemLocation: systemReportLocation,
         userSelectedLocation: userReportLocation,
         polygonArea: formProvider.polygonArea,

@@ -140,6 +140,14 @@ class _SchademeldingDierenScreenState extends State<SchademeldingDierenScreen>
       }
     }
 
+    final afterSelection = _animalSightingManager.getCurrentanimalSighting();
+    if (afterSelection != null &&
+        (afterSelection.cropType == null || afterSelection.cropType!.isEmpty)) {
+      _animalSightingManager.updateCurrentanimalSighting(
+        afterSelection.copyWith(cropType: widget.gewasType),
+      );
+    }
+
     debugPrint(
       '[SchademeldingDieren] Selected animal: ${selectedAnimal.animalName} for gewas type: ${widget.gewasType}',
     );
