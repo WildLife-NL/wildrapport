@@ -18,8 +18,8 @@ class _SchademeldingDetailsScreenState
   late AnimalSightingReportingInterface _sightingManager;
   String _selectedExpectedLoss = '€0-€250';
   bool _preventiveMeasures = false;
-  final TextEditingController _additionalInfoController =
-      TextEditingController();
+  final TextEditingController _additionalInfoController = TextEditingController();
+  final TextEditingController _preventiveMeasuresDescriptionController = TextEditingController();
 
   final List<String> _expectedLossOptions = <String>[
     '€0-€250',
@@ -40,12 +40,14 @@ class _SchademeldingDetailsScreenState
       _selectedExpectedLoss = currentSighting.expectedLoss ?? '€0-€250';
       _preventiveMeasures = currentSighting.preventiveMeasures ?? false;
       _additionalInfoController.text = currentSighting.additionalInfo ?? '';
+      _preventiveMeasuresDescriptionController.text = currentSighting.preventiveMeasuresDescription ?? '';
     }
   }
 
   @override
   void dispose() {
     _additionalInfoController.dispose();
+    _preventiveMeasuresDescriptionController.dispose();
     super.dispose();
   }
 
@@ -55,6 +57,7 @@ class _SchademeldingDetailsScreenState
       final updated = currentSighting.copyWith(
         expectedLoss: _selectedExpectedLoss,
         preventiveMeasures: _preventiveMeasures,
+        preventiveMeasuresDescription: _preventiveMeasures ? _preventiveMeasuresDescriptionController.text : null,
         additionalInfo: _additionalInfoController.text,
       );
       _sightingManager.updateCurrentanimalSighting(updated);
@@ -230,7 +233,9 @@ class _SchademeldingDetailsScreenState
                                         final updated =
                                             currentSighting.copyWith(
                                           preventiveMeasures: false,
+                                          preventiveMeasuresDescription: null,
                                         );
+                                        _preventiveMeasuresDescriptionController.clear();
                                         _sightingManager
                                             .updateCurrentanimalSighting(
                                           updated,
@@ -265,6 +270,60 @@ class _SchademeldingDetailsScreenState
                                 ),
                               ],
                             ),
+                            if (_preventiveMeasures) ...[
+                              const SizedBox(height: 20),
+                              Text(
+                                'Beschrijf de genomen preventieve maatregelen:',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
+                                    ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _preventiveMeasuresDescriptionController,
+                                maxLines: 3,
+                                decoration: InputDecoration(
+                                  hintText: 'Bijvoorbeeld: afrastering, vogelverschrikkers, netten, etc.',
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFFCCCCCC),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFFCCCCCC),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF4CAF50),
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (String value) {
+                                  final currentSighting = _sightingManager.getCurrentanimalSighting();
+                                  if (currentSighting != null) {
+                                    final updated = currentSighting.copyWith(
+                                      preventiveMeasuresDescription: value,
+                                    );
+                                    _sightingManager.updateCurrentanimalSighting(updated);
+                                  }
+                                },
+                              ),
+                            ],
                             const SizedBox(height: 32),
                             Text(
                               'Meer informatie (optioneel):',

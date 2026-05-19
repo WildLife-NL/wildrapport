@@ -13,7 +13,8 @@ class AnimalSightingModel {
   final int? animalCount;
   final String? cropType;
   final String? expectedLoss;
-  final bool? preventiveMeasures;
+    final bool? preventiveMeasures;
+    final String? preventiveMeasuresDescription;
   final String? accidentSeverity;
   final String? animalConditionDieraanrijding;
   final String? additionalInfo;
@@ -33,7 +34,8 @@ class AnimalSightingModel {
     this.animalCount,
     this.cropType,
     this.expectedLoss,
-    this.preventiveMeasures,
+      this.preventiveMeasures,
+      this.preventiveMeasuresDescription,
     this.accidentSeverity,
     this.animalConditionDieraanrijding,
     this.additionalInfo,
@@ -56,7 +58,8 @@ class AnimalSightingModel {
     int? animalCount,
     String? cropType,
     String? expectedLoss,
-    bool? preventiveMeasures,
+      bool? preventiveMeasures,
+      String? preventiveMeasuresDescription,
     String? accidentSeverity,
     String? animalConditionDieraanrijding,
     String? additionalInfo,
@@ -78,6 +81,7 @@ class AnimalSightingModel {
       cropType: cropType ?? this.cropType,
       expectedLoss: expectedLoss ?? this.expectedLoss,
       preventiveMeasures: preventiveMeasures ?? this.preventiveMeasures,
+        preventiveMeasuresDescription: preventiveMeasuresDescription ?? this.preventiveMeasuresDescription,
       accidentSeverity: accidentSeverity ?? this.accidentSeverity,
       animalConditionDieraanrijding:
           animalConditionDieraanrijding ?? this.animalConditionDieraanrijding,
@@ -132,6 +136,7 @@ class AnimalSightingModel {
       'perceivedAnimalActivity': perceivedAnimalActivity,
       'perceivedAnimalActivityOther': perceivedAnimalActivityOther,
       'description': description,
+        'preventiveMeasuresDescription': preventiveMeasuresDescription,
       'locations': locations?.map((loc) => loc.toJson()).toList(),
       'dateTime': dateTime?.toJson(),
       'images': images?.toJson(),
@@ -197,6 +202,7 @@ class AnimalSightingModel {
     cropType: json['cropType'],
     expectedLoss: json['expectedLoss'],
     preventiveMeasures: json['preventiveMeasures'],
+      preventiveMeasuresDescription: json['preventiveMeasuresDescription'],
     accidentSeverity: json['accidentSeverity'],
     animalConditionDieraanrijding: json['animalConditionDieraanrijding'],
     additionalInfo: json['additionalInfo'],
