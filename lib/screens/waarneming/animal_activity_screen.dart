@@ -19,9 +19,9 @@ class AnimalActivityScreen extends StatefulWidget {
 }
 
 class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
-  String _humanActivity = SightingReportActivities.defaultHumanActivity;
+  String _humanActivity = SightingReportActivityCatalog.defaultHumanActivity;
   String _perceivedAnimalActivity =
-      SightingReportActivities.defaultPerceivedAnimalActivity;
+      SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
 
   @override
   void initState() {
@@ -31,10 +31,10 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
         context.read<AnimalSightingReportingInterface>().getCurrentanimalSighting();
 
     _humanActivity =
-        sighting?.humanActivity ?? SightingReportActivities.defaultHumanActivity;
+        sighting?.humanActivity ?? SightingReportActivityCatalog.defaultHumanActivity;
 
     _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
-        SightingReportActivities.defaultPerceivedAnimalActivity;
+        SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
   }
 
   void _handleNext() {
@@ -116,7 +116,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                         _activityDropdown(
                           label: 'Wat deed je toen je het dier zag?',
                           value: _humanActivity,
-                          options: SightingReportActivities.humanActivities,
+                          options: SightingReportActivityCatalog.instance.humanActivities,
                           onChanged: (v) {
                             setState(() => _humanActivity = v);
                           },
@@ -126,7 +126,8 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                           label: 'Wat deed het dier?',
                           value: _perceivedAnimalActivity,
                           options:
-                              SightingReportActivities.perceivedAnimalActivities,
+                              
+                          SightingReportActivityCatalog.instance.perceivedAnimalActivities,
                           onChanged: (v) {
                             setState(() => _perceivedAnimalActivity = v);
                           },
