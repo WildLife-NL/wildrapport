@@ -228,11 +228,6 @@ class _ReportButton extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.black.withValues(alpha: 0.35),
-              ),
             ],
           ),
         ),

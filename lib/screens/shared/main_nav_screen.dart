@@ -78,14 +78,24 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   void _requestLocationPermissionIfKaartTab(BuildContext context) {
     final permissionManager = context.read<PermissionInterface>();
+    final appState = context.read<AppStateProvider>();
     permissionManager.isPermissionGranted(PermissionType.location).then((granted) {
-      if (granted) return;
+      if (granted) {
+        if (!appState.isLocationTrackingEnabled) {
+          appState.setLocationTrackingEnabled(true);
+        }
+        return;
+      }
       if (!mounted) return;
       permissionManager.requestPermission(
         context,
         PermissionType.location,
         showRationale: false,
-      );
+      ).then((approved) {
+        if (approved && !appState.isLocationTrackingEnabled) {
+          appState.setLocationTrackingEnabled(true);
+        }
+      });
     });
   }
 
