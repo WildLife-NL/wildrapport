@@ -9,7 +9,10 @@ import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
+import 'package:wildrapport/screens/profile/bluetooth_contact_settings_screen.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
+import 'package:wildrapport/services/contact_tracing_coordinator.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/utils/text_display_utils.dart';
@@ -74,6 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final responsive = context.responsive;
     final app = context.watch<AppStateProvider>();
+    final contactTracing = context.watch<ContactTracingCoordinator>();
 
     final email = _profile?.email ?? '—';
 
@@ -304,6 +308,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           );
                                     },
                                   ),
+                                  Divider(height: 1, color: Colors.grey.shade300),
+                                  SwitchListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 4,
+                                    ),
+                                    secondary: Icon(
+                                      Icons.bluetooth_rounded,
+                                      color: AppColors.primaryGreen,
+                                    ),
+                                    title: Text(
+                                      'Bluetooth contacttracing',
+                                      style: TextStyle(
+                                        fontSize: fs(15),
+                                        color: Colors.grey.shade900,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      contactTracing.backgroundEnabled
+                                          ? 'Achtergrond elke '
+                                              '${contactTracing.backgroundIntervalSeconds} s · melding bij dier'
+                                          : 'Scant collars en start contact automatisch',
+                                      style: TextStyle(
+                                        fontSize: fs(12),
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                    value: contactTracing.backgroundEnabled,
+                                    activeThumbColor: Colors.white,
+                                    activeTrackColor: AppColors.primaryGreen,
+                                    onChanged: (enabled) async {
+                                      if (enabled) {
+                                        await NotificationService.instance
+                                            .requestAndroidNotificationPermission();
+                                      }
+                                      if (!context.mounted) return;
+                                      final contactEnded =
+                                          await contactTracing.setBackgroundEnabled(
+                                        enabled,
+                                      );
+                                      if (!context.mounted) return;
+                                      if (!enabled && contactEnded) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Bluetooth uit — contact beëindigd',
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                  if (contactTracing.backgroundEnabled)
+                                    ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 0,
+                                      ),
+                                      title: Text(
+                                        'Interval & status',
+                                        style: TextStyle(
+                                          fontSize: fs(14),
+                                          color: Colors.grey.shade800,
+                                        ),
+                                      ),
+                                      trailing: Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const BluetoothContactSettingsScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                 ],
                               ),
                             ),

@@ -4,6 +4,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
 import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
+import 'package:wildrapport/screens/logbook/my_contacts_screen.dart';
 import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 
 class LogbookScreen extends StatefulWidget {
@@ -44,6 +45,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const RecentSightingsScreen()),
+    );
+  }
+
+  void _openContactMoments(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyContactsScreen()),
     );
   }
 
@@ -104,6 +112,14 @@ class _LogbookScreenState extends State<LogbookScreen> {
                               'Waarnemingen, schademeldingen en dieraanrijdingen',
                           icon: Icons.visibility_outlined,
                           onTap: () => _openRecentSightings(context),
+                        ),
+                        const SizedBox(height: 12),
+                        _ReportButton(
+                          label: 'Contactmomenten',
+                          subtitle:
+                              'Bluetooth-contacten met collars (Smart Parks)',
+                          icon: Icons.bluetooth_connected,
+                          onTap: () => _openContactMoments(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(

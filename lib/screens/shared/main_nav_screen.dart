@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
@@ -11,6 +13,7 @@ import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
+import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
 class MainNavScreen extends StatefulWidget {
   final NavTab? initialTab;
@@ -36,6 +39,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
   void initState() {
     super.initState();
     _currentTab = widget.initialTab ?? NavTab.rapporten;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(context.read<ContactTracingCoordinator>().initialize());
+    });
   }
 
   void _openAlarmsIfRequested() {

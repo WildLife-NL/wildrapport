@@ -219,6 +219,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
+          key: ValueKey(value),
           menuMaxHeight: 600,
           icon: const Icon(
             Icons.keyboard_arrow_down_rounded,
@@ -230,7 +231,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
           fontWeight: FontWeight.w500,
           color: AppColors.textPrimary,
         ),
-          value: options.any((o) => o.apiValue == value)
+          initialValue: options.any((o) => o.apiValue == value)
               ? value
               : options.last.apiValue,
           decoration: InputDecoration(

@@ -58,6 +58,9 @@ import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart
 
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
+import 'package:wildrapport/data_managers/contact_api.dart';
+import 'package:wildrapport/services/contact_tracing_monitor.dart';
+import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -154,6 +157,12 @@ void main() async {
 
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
+  final contactApi = ContactApi(apiClient);
+  final contactTracingMonitor = ContactTracingMonitor(contactApi);
+  final contactTracingCoordinator = ContactTracingCoordinator(
+    contactApi: contactApi,
+    monitor: contactTracingMonitor,
+  );
   final zoneApi = ZoneApi(
     baseUrl: baseUrl,
     getToken: () async {
@@ -233,6 +242,13 @@ void main() async {
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
+        ),
+        Provider<ContactApi>.value(value: contactApi),
+        ChangeNotifierProvider<ContactTracingMonitor>.value(
+          value: contactTracingMonitor,
+        ),
+        ChangeNotifierProvider<ContactTracingCoordinator>.value(
+          value: contactTracingCoordinator,
         ),
         Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),
