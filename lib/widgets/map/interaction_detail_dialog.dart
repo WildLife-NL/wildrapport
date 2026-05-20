@@ -3,6 +3,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/utils/translation_utils.dart';
+import 'package:wildrapport/utils/interaction_type_display.dart';
 
 class InteractionDetailDialog extends StatelessWidget {
   final InteractionQueryResult interaction;
@@ -48,7 +49,7 @@ class InteractionDetailDialog extends StatelessWidget {
                         ),
                         if (interaction.typeName != null)
                           Text(
-                            Translator.toDutch(interaction.typeName!),
+                            reportTypeDisplayLabel(interaction.typeName),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 14,

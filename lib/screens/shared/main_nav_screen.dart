@@ -1,23 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/other/permission_interface.dart';
+import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
+import 'package:wildrapport/screens/zone/alarms_screen.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/utils/snack_bar_utils.dart';
+import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
 class MainNavScreen extends StatefulWidget {
   final NavTab? initialTab;
   final bool openRecentSightingsDirectly;
-  
+  final bool openAlarmsDirectly;
+
   const MainNavScreen({
-    super.key, 
+    super.key,
     this.initialTab,
     this.openRecentSightingsDirectly = false,
+    this.openAlarmsDirectly = false,
   });
 
   @override
@@ -26,11 +33,26 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
-  
+  bool _alarmsNavigationDone = false;
+
   @override
   void initState() {
     super.initState();
-    _currentTab = widget.initialTab ?? NavTab.kaart;
+    _currentTab = widget.initialTab ?? NavTab.rapporten;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(context.read<ContactTracingCoordinator>().initialize());
+    });
+  }
+
+  void _openAlarmsIfRequested() {
+    if (!widget.openAlarmsDirectly || _alarmsNavigationDone) return;
+    if (_currentTab != NavTab.zones) return;
+    _alarmsNavigationDone = true;
+    context.read<NavigationStateInterface>().pushForward(
+          context,
+          const AlarmsScreen(),
+        );
   }
 
   int get _currentIndex => _tabToIndex(_currentTab);
@@ -88,12 +110,20 @@ class _MainNavScreenState extends State<MainNavScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_currentTab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
+      _openAlarmsIfRequested();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final snackBarTheme = Theme.of(context).snackBarTheme.copyWith(
+      behavior: SnackBarBehavior.floating,
+      insetPadding: floatingSnackBarMargin(context),
+    );
+
+    return Theme(
+      data: Theme.of(context).copyWith(snackBarTheme: snackBarTheme),
+      child: Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -117,6 +147,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
           currentTab: _currentTab,
           onTabSelected: _onTabSelected,
         ),
+      ),
       ),
     );
   }

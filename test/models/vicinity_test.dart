@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
+import 'package:wildrapport/utils/tracking_vicinity_parser.dart';
 
 void main() {
   group('Vicinity Model Tests', () {
@@ -21,6 +22,7 @@ void main() {
         ],
         "detections": [
           {
+            "ID": "detection-001",
             "location": {"latitude": 51.6978, "longitude": 5.3037},
             "sensorID": "camera-001",
             "species": {
@@ -85,6 +87,65 @@ void main() {
       expect(vicinity.animals.length, 0);
       expect(vicinity.detections.length, 0);
       expect(vicinity.interactions.length, 0);
+    });
+
+    test('unwraps nested vicinity key via TrackingVicinityParser', () {
+      final inner = {
+        'animals': [
+          {
+            'ID': 'a1',
+            'location': {'latitude': 52.0, 'longitude': 5.0},
+            'locationTimestamp': '2025-11-26T14:15:22Z',
+            'species': {'commonName': 'Ree'},
+          },
+        ],
+        'detections': <dynamic>[],
+        'interactions': <dynamic>[],
+      };
+      final unwrapped = TrackingVicinityParser.unwrapVicinityPayload({
+        'vicinity': inner,
+      });
+      expect(Vicinity.fromJson(unwrapped).animals.length, 1);
+    });
+
+    test('TrackingVicinityParser picks latest reading from array', () {
+      final body = '''
+[
+  {
+    "userID": "u1",
+    "timestamp": "2025-01-01T10:00:00Z",
+    "location": {"latitude": 51.0, "longitude": 5.0},
+    "interactions": [
+      {
+        "ID": "old",
+        "location": {"latitude": 51.0, "longitude": 5.0},
+        "moment": "2025-01-01T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "userID": "u1",
+    "timestamp": "2025-01-02T10:00:00Z",
+    "location": {"latitude": 52.0, "longitude": 5.0},
+    "interactions": [
+      {
+        "ID": "new",
+        "location": {"latitude": 52.0, "longitude": 5.0},
+        "moment": "2025-01-02T09:00:00Z",
+        "type": {"name": "waarneming"},
+        "species": {"commonName": "Ree"}
+      }
+    ]
+  }
+]
+''';
+      final vicinity = TrackingVicinityParser.parseResponseBody(
+        body,
+        tag: 'test',
+        endpoint: 'GET /tracking-readings/me/',
+      );
+      expect(vicinity.interactions.length, 1);
+      expect(vicinity.interactions.first.id, 'new');
     });
 
     test('should skip malformed items and continue parsing others', () {

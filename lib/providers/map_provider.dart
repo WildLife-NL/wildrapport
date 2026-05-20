@@ -11,8 +11,8 @@ import 'package:wildrapport/models/api_models/detection_pin.dart';
 
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     show TrackingApiInterface, TrackingNotice;
-import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
+import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
@@ -23,6 +23,7 @@ class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
 
   TrackingApiInterface? _trackingApi;
+  VicinityApiInterface? _vicinityApi;
   TrackingCacheManager? _trackingCacheManager;
   AppStateProvider? _appStateProvider;
   // ===== Location state =====
@@ -62,6 +63,10 @@ class MapProvider extends ChangeNotifier {
 
   void setTrackingApi(TrackingApiInterface api) {
     _trackingApi = api;
+  }
+
+  void setVicinityApi(VicinityApiInterface api) {
+    _vicinityApi = api;
   }
 
   void setTrackingCacheManager(TrackingCacheManager manager) {
@@ -253,12 +258,6 @@ class MapProvider extends ChangeNotifier {
   String? _animalPinsError;
   String? _detectionPinsError;
 
-  VicinityApiInterface? _vicinityApi;
-
-  void setVicinityApi(VicinityApiInterface api) {
-    _vicinityApi = api;
-  }
-
   List<AnimalPin> get animalPins => List.unmodifiable(_animalPins);
   List<DetectionPin> get detectionPins => List.unmodifiable(_detectionPins);
 
@@ -400,58 +399,70 @@ class MapProvider extends ChangeNotifier {
   }
 
   Future<void> loadAllPinsFromVicinity() async {
-    if (_vicinityApi == null) {
-      debugPrint(
-        '[MapProvider] ⚠️ VicinityApi not set - waiting for tracking ping vicinity payload',
-      );
-      return;
-    }
+    debugPrint('[MapProvider] 📍 Loading map pins via VicinityApi');
 
-    debugPrint('[MapProvider] 📍 Loading all pins from vicinity endpoint');
+    _animalPinsLoading = true;
+    _detectionPinsLoading = true;
+    _interactionsLoading = true;
+    _animalPinsError = null;
+    _detectionPinsError = null;
+    _interactionsError = null;
+    notifyListeners();
 
-    try {
-      _animalPinsLoading = true;
-      _detectionPinsLoading = true;
-      _interactionsLoading = true;
-      _animalPinsError = null;
-      _detectionPinsError = null;
-      _interactionsError = null;
-      notifyListeners();
-
-      final vicinity = await _vicinityApi!.getMyVicinity();
-
-      _animalPins
-        ..clear()
-        ..addAll(vicinity.animals);
-      _detectionPins
-        ..clear()
-        ..addAll(vicinity.detections);
-      _interactions
-        ..clear()
-        ..addAll(vicinity.interactions);
-
+    final vicinityApi = _vicinityApi;
+    if (vicinityApi == null) {
+      const message = 'Geen kaartdata (VicinityApi niet beschikbaar)';
+      _animalPinsError = message;
+      _detectionPinsError = message;
+      _interactionsError = message;
       _animalPinsLoading = false;
       _detectionPinsLoading = false;
       _interactionsLoading = false;
+      notifyListeners();
+      return;
+    }
 
+    try {
+      Vicinity vicinity;
+      String source;
+
+      final pos = currentPosition;
+      if (pos != null) {
+        try {
+          vicinity = await vicinityApi.getVicinityForCurrentLocation(
+            latitude: pos.latitude,
+            longitude: pos.longitude,
+          );
+          source = 'POST /tracking-reading/';
+        } catch (e) {
+          debugPrint('[MapProvider] POST /tracking-reading/ failed: $e');
+          vicinity = await vicinityApi.getMyVicinity();
+          source = 'GET /tracking-readings/me/';
+        }
+      } else {
+        vicinity = await vicinityApi.getMyVicinity();
+        source = 'GET /tracking-readings/me/';
+      }
+
+      _applyVicinity(vicinity);
       debugPrint(
-        '[MapProvider] ✓ Vicinity loaded: '
+        '[MapProvider] ✓ Pins from $source: '
         '${_animalPins.length} animals, '
         '${_detectionPins.length} detections, '
         '${_interactions.length} interactions',
       );
-
-      notifyListeners();
     } catch (e) {
-      debugPrint(
-        '[MapProvider] ⚠️ Vicinity endpoint unavailable, '
-        'keeping existing map data and relying on tracking ping payload: $e',
-      );
-      _animalPinsLoading = false;
-      _detectionPinsLoading = false;
-      _interactionsLoading = false;
-      notifyListeners();
+      debugPrint('[MapProvider] VicinityApi load failed: $e');
+      const message = 'Geen kaartdata (tracking-readings mislukt)';
+      _animalPinsError = message;
+      _detectionPinsError = message;
+      _interactionsError = message;
     }
+
+    _animalPinsLoading = false;
+    _detectionPinsLoading = false;
+    _interactionsLoading = false;
+    notifyListeners();
   }
 
   void setMockVicinity({

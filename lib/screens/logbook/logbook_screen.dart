@@ -4,6 +4,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
 import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
+import 'package:wildrapport/screens/logbook/my_contacts_screen.dart';
 import 'package:wildrapport/screens/logbook/recent_sightings_screen.dart';
 
 class LogbookScreen extends StatefulWidget {
@@ -47,6 +48,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
+  void _openContactMoments(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyContactsScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // If openRecentSightings is true and we haven't navigated yet, navigate to RecentSightingsScreen
@@ -68,7 +76,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
         child: Column(
           children: [
             CustomAppBar(
-              leftIcon: null,
+              //leftIcon: Icons.arrow_back_ios,
               centerText: 'Logboek',
               rightIcon: null,
               showUserIcon: false,
@@ -99,10 +107,19 @@ class _LogbookScreenState extends State<LogbookScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _ReportButton(
-                          label: 'Recente waarnemingen',
-                          subtitle: 'Overzicht van de meest recente meldingen',
+                          label: 'Recente meldingen',
+                          subtitle:
+                              'Waarnemingen, schademeldingen en dieraanrijdingen',
                           icon: Icons.visibility_outlined,
                           onTap: () => _openRecentSightings(context),
+                        ),
+                        const SizedBox(height: 12),
+                        _ReportButton(
+                          label: 'Contactmomenten',
+                          subtitle:
+                              'Bluetooth-contacten met collars (Smart Parks)',
+                          icon: Icons.bluetooth_connected,
+                          onTap: () => _openContactMoments(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(
@@ -154,10 +171,15 @@ class _ReportButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 0,
+      shadowColor: Colors.transparent,
       color: Colors.white,
-      elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1.5,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),

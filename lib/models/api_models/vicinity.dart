@@ -24,10 +24,16 @@ class Vicinity {
     final interactions = <InteractionQueryResult>[];
 
     // Parse animals with error handling
-    for (var item in animalsList) {
-      if (item is Map<String, dynamic>) {
+    for (final item in animalsList) {
+      if (item is Map) {
         try {
-          animals.add(AnimalPin.fromJson(item));
+          animals.add(
+            AnimalPin.fromJson(
+              item is Map<String, dynamic>
+                  ? item
+                  : Map<String, dynamic>.from(item),
+            ),
+          );
         } catch (e) {
           debugPrint('[Vicinity] Failed to parse animal: $e');
           debugPrint('[Vicinity] Animal JSON: $item');
@@ -35,11 +41,16 @@ class Vicinity {
       }
     }
 
-    // Parse detections with error handling
-    for (var item in detectionsList) {
-      if (item is Map<String, dynamic>) {
+    for (final item in detectionsList) {
+      if (item is Map) {
         try {
-          detections.add(DetectionPin.fromJson(item));
+          detections.add(
+            DetectionPin.fromJson(
+              item is Map<String, dynamic>
+                  ? item
+                  : Map<String, dynamic>.from(item),
+            ),
+          );
         } catch (e) {
           debugPrint('[Vicinity] Failed to parse detection: $e');
           debugPrint('[Vicinity] Detection JSON: $item');
@@ -47,11 +58,16 @@ class Vicinity {
       }
     }
 
-    // Parse interactions with error handling
-    for (var item in interactionsList) {
-      if (item is Map<String, dynamic>) {
+    for (final item in interactionsList) {
+      if (item is Map) {
         try {
-          interactions.add(InteractionQueryResult.fromJson(item));
+          interactions.add(
+            InteractionQueryResult.fromJson(
+              item is Map<String, dynamic>
+                  ? item
+                  : Map<String, dynamic>.from(item),
+            ),
+          );
         } catch (e) {
           debugPrint('[Vicinity] Failed to parse interaction: $e');
           debugPrint('[Vicinity] Interaction JSON: $item');

@@ -1,13 +1,18 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:ntp_dart/ntp_dart.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
+import 'package:wildrapport/utils/tracking_vicinity_parser.dart';
 
 class TrackingApi implements TrackingApiInterface {
-  final ApiClient client;
   TrackingApi(this.client);
+
+  final ApiClient client;
+
+  static const Duration _mapVicinityMaxReadingAge = Duration(hours: 48);
 
   Future<DateTime> _nowUtc() async {
     try {
@@ -37,36 +42,42 @@ class TrackingApi implements TrackingApiInterface {
     }
 
     final body = {
-      "location": {"latitude": lat, "longitude": lon},
-      "timestamp": ts.toIso8601String(),
+      'location': {'latitude': lat, 'longitude': lon},
+      'timestamp': ts.toIso8601String(),
     };
 
-    // Your ApiClient.post works like ApiClient.put in ProfileApi:
-    // path, bodyMap, authenticated: true
     final res = await client.post(
       '/tracking-reading/',
       body,
       authenticated: true,
     );
 
-    // Only log non-success responses
+    TrackingVicinityParser.logHttpResponse(
+      tag: 'TrackingApi',
+      endpoint: 'POST /tracking-reading/',
+      statusCode: res.statusCode,
+      body: res.body,
+    );
+
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      debugPrint('[TrackingApi] Response status: ${res.statusCode}');
       debugPrint('[TrackingApi] ERROR - Status ${res.statusCode}: ${res.body}');
       throw Exception('[TrackingApi] Failed (${res.statusCode}): ${res.body}');
     }
 
-    // Parse optional conveyance message and optional vicinity payload.
     try {
       final Map<String, dynamic> decoded = jsonDecode(res.body);
-      Vicinity? vicinity;
-      if (decoded['vicinity'] is Map<String, dynamic>) {
-        vicinity = Vicinity.fromJson(decoded['vicinity'] as Map<String, dynamic>);
-      }
+      final rawVicinity = TrackingVicinityParser.vicinityFromReadingJson(decoded);
+      final vicinity = rawVicinity == null
+          ? null
+          : TrackingVicinityParser.filterNearReading(
+              rawVicinity,
+              lat,
+              lon,
+              tag: 'TrackingApi',
+            );
 
-      // Supported shape: { conveyance: { message: { text, severity? } } }
       final conv = decoded['conveyance'];
-      final msgObj = conv?['message'];
+      final msgObj = conv is Map ? conv['message'] : null;
 
       final msgText1 = (msgObj is Map ? msgObj['text'] : null)?.toString();
       final sev1 =
@@ -83,29 +94,86 @@ class TrackingApi implements TrackingApiInterface {
         );
       }
     } catch (e) {
-      debugPrint('[TrackingApi] Error parsing message: $e');
-      // Non-JSON or unexpected shape → no notice
+      debugPrint('[TrackingApi] Error parsing POST response: $e');
     }
 
-    return null; // success, but no message to show
+    return null;
   }
 
   @override
   Future<List<TrackingReadingResponse>> getMyTrackingReadings() async {
-    final res = await client.get('/tracking-readings/me', authenticated: true);
-    
+    final res = await client.get('/tracking-readings/me/', authenticated: true);
+
+    TrackingVicinityParser.logHttpResponse(
+      tag: 'TrackingApi',
+      endpoint: 'GET /tracking-readings/me/',
+      statusCode: res.statusCode,
+      body: res.body,
+    );
+
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw Exception('[TrackingApi] Failed (${res.statusCode}): ${res.body}');
     }
-    
-    try {
-      final List<dynamic> jsonList = jsonDecode(res.body);
-      final result = jsonList
-          .map((json) => TrackingReadingResponse.fromJson(json as Map<String, dynamic>))
-          .toList();
-      return result;
-    } catch (e) {
-      rethrow;
+
+    final decoded = jsonDecode(res.body);
+    if (decoded is! List) {
+      throw FormatException(
+        'Expected JSON array from /tracking-readings/me/, got ${decoded.runtimeType}',
+      );
     }
+
+    return decoded
+        .whereType<Map>()
+        .map((e) => TrackingReadingResponse.fromJson(
+              Map<String, dynamic>.from(e),
+            ))
+        .toList();
+  }
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async {
+    final readings = await getMyTrackingReadings();
+    if (readings.isEmpty) {
+      return TrackingVicinityParser.empty();
+    }
+
+    final sorted = [...readings]
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    final cutoff = DateTime.now().toUtc().subtract(_mapVicinityMaxReadingAge);
+
+    for (final reading in sorted) {
+      if (reading.timestamp.isBefore(cutoff)) continue;
+      final raw = reading.vicinity;
+      if (raw == null) continue;
+
+      final filtered = TrackingVicinityParser.filterNearReading(
+        raw,
+        reading.latitude,
+        reading.longitude,
+        tag: 'TrackingApi',
+      );
+
+      final hasPins = filtered.animals.isNotEmpty ||
+          filtered.detections.isNotEmpty ||
+          filtered.interactions.isNotEmpty;
+
+      if (!hasPins && sorted.first != reading) {
+        continue;
+      }
+
+      debugPrint(
+        '[TrackingApi] Map vicinity from latest reading @ '
+        '${reading.latitude.toStringAsFixed(5)},'
+        '${reading.longitude.toStringAsFixed(5)} '
+        '(${reading.timestamp.toIso8601String()}): '
+        '${filtered.animals.length} animals, '
+        '${filtered.detections.length} detections, '
+        '${filtered.interactions.length} interactions',
+      );
+      return filtered;
+    }
+
+    return TrackingVicinityParser.empty();
   }
 }

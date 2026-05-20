@@ -7,6 +7,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/api_models/species.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
+import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/widgets/animals/scrollable_animal_grid.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
@@ -24,13 +25,7 @@ class SpeciesGridPickerScreen extends StatefulWidget {
 }
 
 AnimalModel _animalModelFromSpecies(Species s) {
-  final fileName = s.commonName
-      .trim()
-      .toLowerCase()
-      .replaceAll(' ', '_')
-      .replaceAll('-', '_');
-
-  final path = 'assets/images/color-animals/$fileName.png';
+  final path = getAnimalPhotoPath(s.commonName);
 
   return AnimalModel(
     animalId: s.id,

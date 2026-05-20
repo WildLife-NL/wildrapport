@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_dieren_screen.dart';
@@ -52,10 +53,18 @@ class _SchademeldingGewasTypesScreenState
     // Save selected gewas type to provider
     final currentSighting = _sightingManager.getCurrentanimalSighting();
     if (currentSighting != null) {
-      final updated = currentSighting.copyWith(
-        cropType: gewasType,
+      _sightingManager.updateCurrentanimalSighting(
+        currentSighting.copyWith(cropType: gewasType),
       );
-      _sightingManager.updateCurrentanimalSighting(updated);
+    } else {
+      _sightingManager.updateCurrentanimalSighting(
+        AnimalSightingModel(
+          reportType: 'gewasschade',
+          cropType: gewasType,
+          locations: [],
+          animals: [],
+        ),
+      );
     }
     
     setState(() {

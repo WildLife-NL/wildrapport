@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/reporting/belonging_damage_report_interface.dart';
-//import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/utils/schademelding_submit.dart';
+import 'package:wildrapport/utils/interaction_pin_factory.dart';
+import 'package:wildrapport/providers/map_provider.dart';
 
 class SchademeldingSummaryScreen extends StatefulWidget {
   const SchademeldingSummaryScreen({
@@ -21,73 +21,69 @@ class SchademeldingSummaryScreen extends StatefulWidget {
 
 class _SchademeldingSummaryScreenState
     extends State<SchademeldingSummaryScreen> {
+  bool _isSubmitting = false;
 
-  void _onSubmitPressed() {
+  Future<void> _onSubmitPressed() async {
+    if (_isSubmitting) return;
+
     final sightingManager = context.read<AnimalSightingReportingInterface>();
-    final submittedProvider = context.read<SubmittedSightingsProvider>();
-    final belongingManager = context.read<BelongingDamageReportInterface>();
+    final sighting = sightingManager.getCurrentanimalSighting();
+    if (sighting == null) {
+      _showSnackBar('Geen schademelding om te versturen.');
+      return;
+    }
+
+    if (sighting.animalSelected == null) {
+      _showSnackBar('Selecteer een verdacht dier voordat je verstuurt.');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
 
     try {
-      // Get the current sighting data from provider
-      var sighting = sightingManager.getCurrentanimalSighting();
-      if (sighting != null) {
-        // Save to submitted sightings
-        submittedProvider.addSighting(sighting);
-        debugPrint('[SchademeldingSummary] Schademelding: ${sighting.reportType}, Gewas: ${sighting.cropType}');
-        // Clear the current sighting
-        sightingManager.clearCurrentanimalSighting();
-        debugPrint('[SchademeldingSummary] Schademelding saved and navigating to logbook');
-        // Navigate to logbook with recent sightings shown directly
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const MainNavScreen(
-              initialTab: NavTab.logboek,
-              openRecentSightingsDirectly: true,
-            ),
-          ),
-          (route) => false,
-        );
+      final response = await SchademeldingSubmit.submit(
+        context: context,
+        sighting: sighting,
+      );
 
-        debugPrint('[SchademeldingSubmit] Posting interaction to backend...');
-        belongingManager.postInteraction().then((response) {
-          if (!mounted) return;
-          if (response == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Schademelding kon niet worden verstuurd. Probeer opnieuw.'),
-              ),
-            );
-            return;
-          }
+      if (!mounted) return;
 
-          // Save to submitted sightings as local history mirror.
-          submittedProvider.addSighting(sighting);
+      debugPrint(
+        '[SchademeldingSubmit] Success interactionID=${response.interactionID}',
+      );
 
-          debugPrint('[SchademeldingSubmit] Backend submit successful. interactionID=${response.interactionID}');
-          sightingManager.clearCurrentanimalSighting();
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const MainNavScreen(
-                initialTab: NavTab.logboek,
-                openRecentSightingsDirectly: true,
-              ),
-            ),
-            (route) => false,
-          );
-        }).catchError((e, stackTrace) {
-          debugPrint('[SchademeldingSubmit] Backend submit failed: $e');
-          debugPrint('[SchademeldingSubmit] Stack trace: $stackTrace');
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Fout bij versturen: $e')),
-          );
-        });
-        return;
+      final mapPin = interactionPinFromSighting(
+        sighting,
+        response.interactionID,
+      );
+      if (mapPin != null) {
+        context.read<MapProvider>().addOrUpdateInteraction(mapPin);
       }
+
+      sightingManager.clearCurrentanimalSighting();
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const MainNavScreen(
+            initialTab: NavTab.logboek,
+            openRecentSightingsDirectly: true,
+          ),
+        ),
+        (route) => false,
+      );
     } catch (e, stackTrace) {
-      debugPrint('[SchademeldingSummary] Error submitting: $e');
-      debugPrint('[SchademeldingSummary] Stack trace: $stackTrace');
+      debugPrint('[SchademeldingSubmit] Failed: $e\n$stackTrace');
+      if (!mounted) return;
+      _showSnackBar('Fout bij versturen: $e');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   void _onEditPressed() {
@@ -524,6 +520,17 @@ class _SchademeldingSummaryScreenState
                                     ),
                                   ],
                                 ),
+                                if ((currentSighting?.preventiveMeasures ?? false) && (currentSighting?.preventiveMeasuresDescription?.isNotEmpty ?? false))
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 26, top: 8, bottom: 8),
+                                    child: Text(
+                                      '"${currentSighting!.preventiveMeasuresDescription!}"',
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontSize: 13,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -632,7 +639,7 @@ class _SchademeldingSummaryScreenState
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _onSubmitPressed,
+                        onPressed: _isSubmitting ? null : _onSubmitPressed,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color(0xFF37A904),
@@ -641,9 +648,9 @@ class _SchademeldingSummaryScreenState
                           ),
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text(
-                          'Versturen',
-                          style: TextStyle(
+                        child: Text(
+                          _isSubmitting ? 'Bezig met versturen...' : 'Versturen',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),

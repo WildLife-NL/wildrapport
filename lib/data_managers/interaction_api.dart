@@ -57,7 +57,12 @@ class InteractionApi implements InteractionApiInterface {
             final placeLat = report.userSelectedLocation?.latitude ?? 0.0;
             final placeLon = report.userSelectedLocation?.longtitude ?? 0.0;
             final moment = report.userSelectedDateTime ?? report.systemDateTime;
-            final speciesID = report.suspectedSpeciesID ?? '';
+            final speciesID = (report.suspectedSpeciesID ?? '').trim();
+            if (speciesID.isEmpty) {
+              throw Exception(
+                'speciesID is required for schademelding (select a suspect species)',
+              );
+            }
             // NOTE:
             // Backend schema for reportOfDamage changed:
             // - estimatedLoss must be string

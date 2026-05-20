@@ -85,21 +85,74 @@ class FakeTrackingApi implements TrackingApiInterface {
 
   @override
   Future<List<TrackingReadingResponse>> getMyTrackingReadings() async => [];
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async =>
+      Vicinity(animals: [], detections: [], interactions: []);
 }
 
 class FakeVicinityApi implements VicinityApiInterface {
-  final Vicinity vicinity;
   FakeVicinityApi(this.vicinity);
+
+  final Vicinity vicinity;
 
   @override
   Future<Vicinity> getMyVicinity() async => vicinity;
+
+  @override
+  Future<Vicinity> getVicinityForCurrentLocation({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      vicinity;
+
+  @override
+  Future<Vicinity> submitTrackingReading({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      vicinity;
 }
 
 class ThrowingVicinityApi implements VicinityApiInterface {
   @override
-  Future<Vicinity> getMyVicinity() async {
-    throw Exception('vicinity failed');
-  }
+  Future<Vicinity> getMyVicinity() async => throw Exception('vicinity failed');
+
+  @override
+  Future<Vicinity> getVicinityForCurrentLocation({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      throw Exception('vicinity failed');
+
+  @override
+  Future<Vicinity> submitTrackingReading({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      throw Exception('vicinity failed');
+}
+
+class ThrowingTrackingApi implements TrackingApiInterface {
+  @override
+  Future<TrackingNotice?> addTrackingReading({
+    required double lat,
+    required double lon,
+    required DateTime timestampUtc,
+  }) async =>
+      null;
+
+  @override
+  Future<List<TrackingReadingResponse>> getMyTrackingReadings() async =>
+      throw Exception('tracking failed');
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async =>
+      throw Exception('tracking failed');
 }
 
 void main() {
@@ -367,7 +420,6 @@ void main() {
         ],
       );
       mapProvider.setVicinityApi(FakeVicinityApi(vicinity));
-      mapProvider.setVicinityNotificationsEnabled(false);
 
       await mapProvider.loadAllPinsFromVicinity();
 
@@ -379,14 +431,14 @@ void main() {
       expect(mapProvider.interactionsError, isNull);
     });
 
-    test('should keep existing vicinity data when api fails', () async {
+    test('should set error when VicinityApi fails', () async {
       mapProvider.setVicinityApi(ThrowingVicinityApi());
 
       await mapProvider.loadAllPinsFromVicinity();
 
-      expect(mapProvider.animalPinsError, isNull);
-      expect(mapProvider.detectionPinsError, isNull);
-      expect(mapProvider.interactionsError, isNull);
+      expect(mapProvider.animalPinsError, isNotNull);
+      expect(mapProvider.detectionPinsError, isNotNull);
+      expect(mapProvider.interactionsError, isNotNull);
       expect(mapProvider.animalPinsLoading, isFalse);
       expect(mapProvider.detectionPinsLoading, isFalse);
       expect(mapProvider.interactionsLoading, isFalse);

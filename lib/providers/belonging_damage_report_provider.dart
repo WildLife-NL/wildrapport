@@ -27,6 +27,7 @@ class BelongingDamageReportProvider extends ChangeNotifier {
   bool preventiveMeasures = false;
   String preventiveMeasuresDescription = '';
   String estimatedLossBucket = 'unknown';
+  DateTime? reportMoment;
 
   // ── Backend-aligned aliases (safe, incremental) ────────────────────────────
   // Use these names everywhere new code touches the provider.
@@ -178,6 +179,11 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setReportMoment(DateTime value) {
+    reportMoment = value;
+    notifyListeners();
+  }
+
   void clearPolygonArea() {
     polygonArea = null;
     notifyListeners();
@@ -212,6 +218,7 @@ class BelongingDamageReportProvider extends ChangeNotifier {
     preventiveMeasures = false;
     preventiveMeasuresDescription = '';
     estimatedLossBucket = 'unknown';
+    reportMoment = null;
     resetInputErrorImpactArea();
     notifyListeners();
   }

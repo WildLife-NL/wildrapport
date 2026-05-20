@@ -9,6 +9,8 @@ import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/screens/login/login_overlay.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 import 'package:wildrapport/constants/app_icon_paths.dart';
@@ -52,6 +54,14 @@ Future<void> _routeAfterLogin(BuildContext context) async {
     
     // Token is valid, now check if we should show terms or go to main screen
     if (profile.reportAppTerms == true) {
+      if (context.read<AppStateProvider>().notificationsEnabled) {
+        await PushNotificationCoordinator.instance.syncAfterLogin(
+          profileApi: profileApi,
+          requestPermission: true,
+          forceResync: true,
+        );
+      }
+      if (!context.mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainNavScreen()),
         (_) => false,

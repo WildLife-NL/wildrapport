@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/utils/interaction_type_display.dart';
 
 class SightingDetailScreen extends StatelessWidget {
   final AnimalSightingModel sighting;
@@ -76,7 +77,7 @@ class SightingDetailScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar(
-              centerText: 'Waarneming',
+              centerText: reportTypeDisplayLabel(sighting.reportType),
               leftIcon: Icons.arrow_back_ios,
               rightIcon: null,
               showUserIcon: false,

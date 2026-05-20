@@ -1,4 +1,5 @@
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
+import 'package:wildrapport/utils/sighting_report_payload.dart';
 
 class AnimalSightingConvertor {
   static Map<String, dynamic> toApiFormat(AnimalSightingModel report) {
@@ -19,23 +20,25 @@ class AnimalSightingConvertor {
       (loc) => loc.source.toString().split('.').last == 'manual',
     );
 
+    final reportOfSighting = <String, dynamic>{
+      'involvedAnimals': allInvolvedAnimals,
+    };
+    SightingReportPayload.applyToReportOfSighting(reportOfSighting, report);
+
     return {
-      "description": report.description,
-      "location": {
-        "latitude": systemLocation.latitude,
-        "longitude": systemLocation.longitude,
+      'description': report.description,
+      'location': {
+        'latitude': systemLocation.latitude,
+        'longitude': systemLocation.longitude,
       },
-      "moment": report.dateTime?.dateTime?.toUtc().toIso8601String(),
-      "place": {
-        "latitude": userLocation.latitude,
-        "longitude": userLocation.longitude,
+      'moment': report.dateTime?.dateTime?.toUtc().toIso8601String(),
+      'place': {
+        'latitude': userLocation.latitude,
+        'longitude': userLocation.longitude,
       },
-      "reportOfSighting": {"involvedAnimals": allInvolvedAnimals},
-      "speciesID":
-          report
-              .animalSelected
-              ?.animalId, // Make sure this is not null when sending
-      "typeID": 1,
+      'reportOfSighting': reportOfSighting,
+      'speciesID': report.animalSelected?.animalId,
+      'typeID': 1,
     };
   }
 

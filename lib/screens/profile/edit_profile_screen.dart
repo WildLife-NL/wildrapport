@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/utils/text_display_utils.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Profile initialProfile;
@@ -33,7 +34,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _postcodeController;
   late TextEditingController _dateOfBirthController;
-  late TextEditingController _descriptionController;
+  late TextEditingController _notesController;
+  late TextEditingController _natureVisitFrequencyController;
   String? _selectedGender;
   bool _isLoading = false;
 
@@ -55,7 +57,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     _dateOfBirthController = TextEditingController(text: dateOfBirthStr);
     
-    _descriptionController = TextEditingController(text: widget.initialProfile.description ?? '');
+    _notesController = TextEditingController(text: widget.initialProfile.notes ?? '');
+    _natureVisitFrequencyController = TextEditingController(
+      text: widget.initialProfile.natureVisitFrequency?.toString() ?? '',
+    );
     _selectedGender = widget.initialProfile.gender;
   }
 
@@ -64,7 +69,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController.dispose();
     _postcodeController.dispose();
     _dateOfBirthController.dispose();
-    _descriptionController.dispose();
+    _notesController.dispose();
+    _natureVisitFrequencyController.dispose();
     super.dispose();
   }
 
@@ -103,9 +109,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  int? _parseNatureVisitFrequencyInput() {
+    final text = _natureVisitFrequencyController.text.trim();
+    if (text.isEmpty) {
+      return widget.initialProfile.natureVisitFrequency;
+    }
+    final parsed = int.tryParse(text);
+    if (parsed == null || parsed < 0) {
+      return null;
+    }
+    return parsed;
+  }
+
   Future<void> _saveProfile() async {
     if (_nameController.text.isEmpty || _nameController.text.length < 2) {
       _showErrorSnackBar('Naam moet minstens 2 karakters lang zijn');
+      return;
+    }
+
+    final natureVisitFrequency = _parseNatureVisitFrequencyInput();
+    if (_natureVisitFrequencyController.text.trim().isNotEmpty &&
+        natureVisitFrequency == null) {
+      _showErrorSnackBar('Natuurbezoekfrequentie moet een geheel getal ≥ 0 zijn');
       return;
     }
 
@@ -123,9 +148,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         postcode: _postcodeController.text.isNotEmpty ? _postcodeController.text : null,
         gender: _selectedGender,
         dateOfBirth: _dateOfBirthController.text.isNotEmpty ? _dateOfBirthController.text : null,
-        description: _descriptionController.text.isNotEmpty ? _descriptionController.text : null,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        natureVisitFrequency: _parseNatureVisitFrequencyInput(),
         reportAppTerms: widget.initialProfile.reportAppTerms,
         recreationAppTerms: widget.initialProfile.recreationAppTerms,
+        firebaseCloudMessagingToken:
+            widget.initialProfile.firebaseCloudMessagingToken,
         location: widget.initialProfile.location,
         locationTimestamp: widget.initialProfile.locationTimestamp,
       );
@@ -291,11 +319,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: Colors.grey.shade300),
                           ),
-                          child: Text(
-                            widget.initialProfile.email,
-                            style: TextStyle(
-                              fontSize: fs(15),
-                              color: Colors.grey.shade700,
+                          child: Tooltip(
+                            message: widget.initialProfile.email,
+                            waitDuration: const Duration(milliseconds: 400),
+                            child: Text(
+                              truncateEmail(
+                                widget.initialProfile.email,
+                                maxLength: 36,
+                              ),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: fs(15),
+                                color: Colors.grey.shade700,
+                              ),
                             ),
                           ),
                         ),
@@ -342,6 +380,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         const SizedBox(height: 8),
                         _buildDateField(responsive),
+                        const SizedBox(height: 16),
+
+                        Text(
+                          'Natuurbezoek per week',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          responsive,
+                          _natureVisitFrequencyController,
+                          '0',
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 16),
+
+                        Text(
+                          'Notities',
+                          style: TextStyle(
+                            fontSize: fs(13),
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTextField(
+                          responsive,
+                          _notesController,
+                          'Optionele notities',
+                          maxLines: 4,
+                        ),
                         const SizedBox(height: 24),
 
                         // Save Button
@@ -392,9 +464,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextEditingController controller,
     String hint, {
     int maxLines = 1,
+    TextInputType? keyboardType,
   }) {
     return TextField(
       controller: controller,
+      keyboardType: keyboardType,
       maxLines: maxLines,
       minLines: maxLines == 1 ? 1 : maxLines,
       style: TextStyle(

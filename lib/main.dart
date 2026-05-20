@@ -9,8 +9,8 @@ import 'package:wildrapport/data_managers/interaction_api.dart';
 import 'package:wildrapport/data_managers/profile_api.dart';
 import 'package:wildrapport/data_managers/questionaire_api.dart';
 import 'package:wildrapport/data_managers/species_api.dart';
-import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
+import 'package:wildrapport/data_managers/vicinity_api.dart';
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
@@ -40,6 +40,7 @@ import 'package:wildrapport/managers/permission/permission_manager.dart';
 import 'package:wildrapport/managers/belonging_damage_report_flow/belonging_damage_report_manager.dart';
 import 'package:wildrapport/managers/other/questionnaire_manager.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/sighting_report_activities.dart';
 import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/managers/filtering_system/filter_manager.dart';
 import 'package:wildrapport/config/app_config.dart';
@@ -57,8 +58,15 @@ import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart
 
 import 'package:wildrapport/providers/conveyance_provider.dart';
 import 'package:wildrapport/data_managers/conveyance_api.dart';
+import 'package:wildrapport/data_managers/contact_api.dart';
+import 'package:wildrapport/services/contact_tracing_monitor.dart';
+import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
-import 'package:wildrapport/providers/submitted_sightings_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:wildrapport/firebase_options.dart';
+import 'package:wildrapport/services/fcm_message_handler.dart';
+import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
@@ -98,11 +106,32 @@ void main() async {
     );
   }
 
-  // Initialize local notifications
+  // Firebase + FCM background handler (must be registered before runApp).
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  } catch (e) {
+    debugPrint('[main] Firebase init skipped: $e');
+  }
+
+  // Initialize local notifications + alarm tap → AlarmsScreen
+  NotificationNavigationHandler.bind(
+    navigatorKey: appStateProvider.navigatorKey,
+    authenticator: authenticator,
+  );
+  NotificationNavigationHandler.installTapHandler();
   await NotificationService.instance.init();
+  await NotificationNavigationHandler.processColdStart();
 
   final apiClient = ApiClient(baseUrl);
   final appConfig = AppConfig(apiClient);
+  try {
+    await SightingReportActivityCatalog.preload(apiClient);
+  } catch (e) {
+    debugPrint('[main] SightingReport schema preload failed: $e');
+  }
 
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
@@ -128,6 +157,12 @@ void main() async {
 
   final conveyanceApi = ConveyanceApi(apiClient);
   final conveyanceProvider = ConveyanceProvider(conveyanceApi);
+  final contactApi = ContactApi(apiClient);
+  final contactTracingMonitor = ContactTracingMonitor(contactApi);
+  final contactTracingCoordinator = ContactTracingCoordinator(
+    contactApi: contactApi,
+    monitor: contactTracingMonitor,
+  );
   final zoneApi = ZoneApi(
     baseUrl: baseUrl,
     getToken: () async {
@@ -136,13 +171,13 @@ void main() async {
     },
   );
 
-  mapProvider.setVicinityApi(vicinityApi);
-
   // Interaction types: fetch/display names for UI
   final interactionTypesApi = InteractionTypesApi(apiClient);
   final interactionTypesManager = InteractionTypesManager(interactionTypesApi);
 
   final trackingApi = TrackingApi(apiClient);
+  mapProvider.setTrackingApi(trackingApi);
+  mapProvider.setVicinityApi(vicinityApi);
   final trackingCacheManager = TrackingCacheManager(trackingApi: trackingApi);
   trackingCacheManager.init();
   mapProvider.setTrackingCacheManager(trackingCacheManager);
@@ -208,8 +243,12 @@ void main() async {
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
         ),
-        ChangeNotifierProvider<SubmittedSightingsProvider>(
-          create: (_) => SubmittedSightingsProvider(),
+        Provider<ContactApi>.value(value: contactApi),
+        ChangeNotifierProvider<ContactTracingMonitor>.value(
+          value: contactTracingMonitor,
+        ),
+        ChangeNotifierProvider<ContactTracingCoordinator>.value(
+          value: contactTracingCoordinator,
         ),
         Provider<ZoneApi>.value(value: zoneApi),
         Provider<AppConfig>.value(value: appConfig),
@@ -271,11 +310,16 @@ class MyApp extends StatelessWidget {
           ),
           textTheme: AppTextTheme.textTheme,
           fontFamily: 'Roboto',
-          snackBarTheme: const SnackBarThemeData(
-            backgroundColor: AppColors.brown300,
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: AppColors.offWhite,
             behavior: SnackBarBehavior.floating,
-            contentTextStyle: TextStyle(
-              color: Colors.black,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: AppColors.mediumGrey),
+            ),
+            contentTextStyle: const TextStyle(
+              color: AppColors.textPrimary,
               fontFamily: 'Roboto',
             ),
           ),

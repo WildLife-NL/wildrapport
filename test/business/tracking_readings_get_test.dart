@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
+import 'package:wildrapport/models/api_models/vicinity.dart';
 
 // Mock TrackingApi for testing
 class MockTrackingApi implements TrackingApiInterface {
@@ -23,6 +24,10 @@ class MockTrackingApi implements TrackingApiInterface {
         .map((json) => TrackingReadingResponse.fromJson(json))
         .toList();
   }
+
+  @override
+  Future<Vicinity> getMergedVicinityFromMyTrackingReadings() async =>
+      Vicinity(animals: [], detections: [], interactions: []);
 }
 
 void main() {

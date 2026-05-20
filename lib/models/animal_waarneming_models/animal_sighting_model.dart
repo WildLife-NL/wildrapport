@@ -13,10 +13,15 @@ class AnimalSightingModel {
   final int? animalCount;
   final String? cropType;
   final String? expectedLoss;
-  final bool? preventiveMeasures;
+    final bool? preventiveMeasures;
+    final String? preventiveMeasuresDescription;
   final String? accidentSeverity;
   final String? animalConditionDieraanrijding;
   final String? additionalInfo;
+  final String? humanActivity;
+  final String? humanActivityOther;
+  final String? perceivedAnimalActivity;
+  final String? perceivedAnimalActivityOther;
   final AnimalCategory? category;
   final String? description;
   final List<LocationModel>? locations; 
@@ -29,10 +34,15 @@ class AnimalSightingModel {
     this.animalCount,
     this.cropType,
     this.expectedLoss,
-    this.preventiveMeasures,
+      this.preventiveMeasures,
+      this.preventiveMeasuresDescription,
     this.accidentSeverity,
     this.animalConditionDieraanrijding,
     this.additionalInfo,
+    this.humanActivity,
+    this.humanActivityOther,
+    this.perceivedAnimalActivity,
+    this.perceivedAnimalActivityOther,
     this.category,
     this.description,
     this.locations, 
@@ -48,10 +58,15 @@ class AnimalSightingModel {
     int? animalCount,
     String? cropType,
     String? expectedLoss,
-    bool? preventiveMeasures,
+      bool? preventiveMeasures,
+      String? preventiveMeasuresDescription,
     String? accidentSeverity,
     String? animalConditionDieraanrijding,
     String? additionalInfo,
+    String? humanActivity,
+    String? humanActivityOther,
+    String? perceivedAnimalActivity,
+    String? perceivedAnimalActivityOther,
     AnimalCategory? category,
     String? description,
     List<LocationModel>? locations,
@@ -66,10 +81,17 @@ class AnimalSightingModel {
       cropType: cropType ?? this.cropType,
       expectedLoss: expectedLoss ?? this.expectedLoss,
       preventiveMeasures: preventiveMeasures ?? this.preventiveMeasures,
+        preventiveMeasuresDescription: preventiveMeasuresDescription ?? this.preventiveMeasuresDescription,
       accidentSeverity: accidentSeverity ?? this.accidentSeverity,
       animalConditionDieraanrijding:
           animalConditionDieraanrijding ?? this.animalConditionDieraanrijding,
       additionalInfo: additionalInfo ?? this.additionalInfo,
+      humanActivity: humanActivity ?? this.humanActivity,
+      humanActivityOther: humanActivityOther ?? this.humanActivityOther,
+      perceivedAnimalActivity:
+          perceivedAnimalActivity ?? this.perceivedAnimalActivity,
+      perceivedAnimalActivityOther: perceivedAnimalActivityOther ??
+          this.perceivedAnimalActivityOther,
       category: category ?? this.category,
       description: description ?? this.description,
       locations: locations ?? this.locations,
@@ -108,7 +130,20 @@ class AnimalSightingModel {
                         .toList(),
               }
               : null,
+      'reportType': reportType,
+      'animalCount': animalCount,
+      'cropType': cropType,
+      'expectedLoss': expectedLoss,
+      'preventiveMeasures': preventiveMeasures,
+      'preventiveMeasuresDescription': preventiveMeasuresDescription,
+      'accidentSeverity': accidentSeverity,
+      'animalConditionDieraanrijding': animalConditionDieraanrijding,
+      'additionalInfo': additionalInfo,
       'category': category?.toString(),
+      'humanActivity': humanActivity,
+      'humanActivityOther': humanActivityOther,
+      'perceivedAnimalActivity': perceivedAnimalActivity,
+      'perceivedAnimalActivityOther': perceivedAnimalActivityOther,
       'description': description,
       'locations': locations?.map((loc) => loc.toJson()).toList(),
       'dateTime': dateTime?.toJson(),
@@ -175,9 +210,15 @@ class AnimalSightingModel {
     cropType: json['cropType'],
     expectedLoss: json['expectedLoss'],
     preventiveMeasures: json['preventiveMeasures'],
+      preventiveMeasuresDescription: json['preventiveMeasuresDescription'],
     accidentSeverity: json['accidentSeverity'],
     animalConditionDieraanrijding: json['animalConditionDieraanrijding'],
     additionalInfo: json['additionalInfo'],
+    humanActivity: json['humanActivity']?.toString(),
+    humanActivityOther: json['humanActivityOther']?.toString(),
+    perceivedAnimalActivity: json['perceivedAnimalActivity']?.toString(),
+    perceivedAnimalActivityOther:
+        json['perceivedAnimalActivityOther']?.toString(),
     category:
         json['category'] != null
             ? AnimalCategory.values.firstWhere(

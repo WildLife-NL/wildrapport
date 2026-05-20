@@ -7,8 +7,9 @@ import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart';
+import 'package:wildrapport/screens/waarneming/animal_activity_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
+//import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 import 'package:wildrapport/screens/waarneming/dieraanrijding_details_screen.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_details_screen.dart';
 import 'package:wildrapport/constants/design_system.dart';
@@ -244,7 +245,7 @@ class _AnimalWaarnemingDetailsScreenState
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
+          builder: (context) => AnimalActivityScreen(totalCount: widget.totalCount),
         ),
       );
     }

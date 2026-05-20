@@ -3,13 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
-import 'package:wildrapport/utils/location_label.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:intl/intl.dart';
-import 'package:wildrapport/screens/shared/interaction_detail_screen.dart';
 import 'package:wildrapport/managers/api_managers/interaction_types_manager.dart';
 import 'package:wildrapport/models/api_models/interaction_type.dart';
-import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
+import 'package:wildrapport/widgets/logbook/interaction_logbook_card.dart';
 
 class MyInteractionHistoryScreen extends StatefulWidget {
   const MyInteractionHistoryScreen({super.key});
@@ -199,7 +196,7 @@ class _MyInteractionHistoryScreenState
                       padding: const EdgeInsets.all(16.0),
                       itemCount: interactions.length,
                       itemBuilder: (context, index) {
-                        return _InteractionCard(
+                        return InteractionLogbookCard(
                           interaction: interactions[index],
                         );
                       },
@@ -221,206 +218,5 @@ class _MyInteractionHistoryScreenState
             : items.where((i) => i.type.id == _selectedTypeId).toList();
     filtered.sort((a, b) => b.moment.compareTo(a.moment));
     return filtered;
-  }
-}
-
-class _InteractionCard extends StatelessWidget {
-  final MyInteraction interaction;
-
-  const _InteractionCard({required this.interaction});
-
-  String _dateOnly(DateTime dateTime) {
-    return DateFormat('dd-MM-yyyy').format(dateTime);
-  }
-
-  String _timeOnly(DateTime dateTime) {
-    return DateFormat('HH:mm').format(dateTime);
-  }
-
-  String _speciesName() {
-    return interaction.species.commonName.isNotEmpty
-        ? interaction.species.commonName
-        : interaction.species.name;
-  }
-
-  String _locationWithoutCoordinates(String locationText) {
-    final withoutCoords = locationText.replaceAll(
-      RegExp(r'\s*-?\d+(?:\.\d+)?\s*/\s*-?\d+(?:\.\d+)?'),
-      '',
-    );
-    return withoutCoords.trim();
-  }
-
-  String? _animalImagePath() {
-    return getAnimalPhotoPath(_speciesName());
-  }
-
-  (String, String) _titleAndPrimaryValue() {
-    if (interaction.reportOfCollision != null) {
-      final report = interaction.reportOfCollision!;
-      return ('Dieraanrijding', '${report.involvedAnimals.length} dieren');
-    } else if (interaction.reportOfDamage != null) {
-      final report = interaction.reportOfDamage!;
-      return ('Schademelding', report.belonging.isNotEmpty ? report.belonging : 'Onbekend');
-    } else if (interaction.reportOfSighting != null) {
-      final report = interaction.reportOfSighting!;
-      return ('Waarneming', '${report.involvedAnimals.length} dieren');
-    }
-    return ('Interactie', '-');
-  }
-
-  int _animalCount() {
-    if (interaction.reportOfCollision != null) {
-      return interaction.reportOfCollision!.involvedAnimals.length;
-    }
-    if (interaction.reportOfSighting != null) {
-      return interaction.reportOfSighting!.involvedAnimals.length;
-    }
-    return 1;
-  }
-
-  Widget _buildDetailColumn(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 115, 115, 115)),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final typeAndValue = _titleAndPrimaryValue();
-    final locationText = formatFriendlyLocation(
-      interaction.place.latitude,
-      interaction.place.longitude,
-    );
-
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => InteractionDetailScreen(interaction: interaction),
-          ),
-        );
-      },
-      child: SizedBox(
-        height: 205,
-        child: Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFF999999), width: 1),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                width: 150,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE0D9C9),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    bottomLeft: Radius.circular(12),
-                  ),
-                ),
-                child: () {
-                  final imagePath = _animalImagePath();
-                  if (imagePath != null && imagePath.isNotEmpty) {
-                    return ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomLeft: Radius.circular(12),
-                      ),
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.pets,
-                          size: 38,
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                    );
-                  }
-                  return const Icon(
-                    Icons.pets,
-                    size: 38,
-                    color: AppColors.primaryGreen,
-                  );
-                }(),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        typeAndValue.$1,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                      Text(
-                        _speciesName(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      _buildDetailColumn('Aantal', '${_animalCount()}'),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(child: _buildDetailColumn('Datum', _dateOnly(interaction.moment))),
-                          const SizedBox(width: 8),
-                          Expanded(child: _buildDetailColumn('Tijd', _timeOnly(interaction.moment))),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 14),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              _locationWithoutCoordinates(locationText),
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 115, 115, 115),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
