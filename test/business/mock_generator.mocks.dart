@@ -40,7 +40,7 @@ import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart'
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart'
     as _i70;
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart'
-    as _i72;
+    as _i71;
 import 'package:wildrapport/interfaces/filters/dropdown_interface.dart' as _i47;
 import 'package:wildrapport/interfaces/filters/filter_interface.dart' as _i50;
 import 'package:wildrapport/interfaces/location/living_lab_interface.dart'
@@ -75,7 +75,7 @@ import 'package:wildrapport/interfaces/waarneming_flow/animal_interface.dart'
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart'
     as _i35;
 import 'package:wildrapport/managers/api_managers/tracking_cache_manager.dart'
-    as _i71;
+    as _i72;
 import 'package:wildrapport/models/animal_waarneming_models/animal_gender_view_count_model.dart'
     as _i76;
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart'
@@ -88,14 +88,14 @@ import 'package:wildrapport/models/animal_waarneming_models/observed_animal_entr
     as _i43;
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart'
     as _i38;
-import 'package:wildrapport/models/api_models/answer.dart' as _i79;
+import 'package:wildrapport/models/api_models/answer.dart' as _i80;
 import 'package:wildrapport/models/api_models/detection_pin.dart' as _i68;
 import 'package:wildrapport/models/api_models/experiment.dart' as _i14;
 import 'package:wildrapport/models/api_models/interaction_query_result.dart'
     as _i69;
 import 'package:wildrapport/models/api_models/interaction_type.dart' as _i15;
-import 'package:wildrapport/models/api_models/living_labs.dart' as _i80;
-import 'package:wildrapport/models/api_models/question.dart' as _i78;
+import 'package:wildrapport/models/api_models/living_labs.dart' as _i81;
+import 'package:wildrapport/models/api_models/question.dart' as _i79;
 import 'package:wildrapport/models/api_models/questionaire.dart' as _i4;
 import 'package:wildrapport/models/api_models/species.dart' as _i6;
 import 'package:wildrapport/models/api_models/user.dart' as _i18;
@@ -111,14 +111,15 @@ import 'package:wildrapport/models/beta_models/report_location_model.dart'
 import 'package:wildrapport/models/beta_models/response_model.dart' as _i17;
 import 'package:wildrapport/models/enums/animal_age.dart' as _i37;
 import 'package:wildrapport/models/enums/animal_category.dart' as _i39;
+import 'package:wildrapport/models/enums/animal_condition.dart' as _i77;
 import 'package:wildrapport/models/enums/animal_gender.dart' as _i36;
 import 'package:wildrapport/models/enums/dropdown_type.dart' as _i48;
 import 'package:wildrapport/models/enums/interaction_type.dart' as _i53;
-import 'package:wildrapport/models/enums/location_source.dart' as _i81;
+import 'package:wildrapport/models/enums/location_source.dart' as _i82;
 import 'package:wildrapport/models/enums/report_type.dart' as _i65;
 import 'package:wildrapport/models/ui_models/brown_button_model.dart' as _i51;
 import 'package:wildrapport/models/ui_models/date_time_model.dart' as _i42;
-import 'package:wildrapport/models/ui_models/image_list_model.dart' as _i77;
+import 'package:wildrapport/models/ui_models/image_list_model.dart' as _i78;
 import 'package:wildrapport/models/ui_models/living_lab_area.dart' as _i55;
 import 'package:wildrapport/providers/app_state_provider.dart' as _i64;
 import 'package:wildrapport/providers/map_provider.dart' as _i66;
@@ -371,6 +372,19 @@ class MockProfileApiInterface extends _i1.Mock
               _FakeProfile_1(
                 this,
                 Invocation.method(#updateMyProfile, [updatedProfile]),
+              ),
+            ),
+          )
+          as _i20.Future<_i3.Profile>);
+
+  @override
+  _i20.Future<_i3.Profile> updateFirebaseCloudMessagingToken(String? token) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateFirebaseCloudMessagingToken, [token]),
+            returnValue: _i20.Future<_i3.Profile>.value(
+              _FakeProfile_1(
+                this,
+                Invocation.method(#updateFirebaseCloudMessagingToken, [token]),
               ),
             ),
           )
@@ -2119,7 +2133,13 @@ class MockMapProvider extends _i1.Mock implements _i66.MapProvider {
   );
 
   @override
-  void setTrackingCacheManager(_i71.TrackingCacheManager? manager) =>
+  void setVicinityApi(_i71.VicinityApiInterface? api) => super.noSuchMethod(
+    Invocation.method(#setVicinityApi, [api]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setTrackingCacheManager(_i72.TrackingCacheManager? manager) =>
       super.noSuchMethod(
         Invocation.method(#setTrackingCacheManager, [manager]),
         returnValueForMissingStub: null,
@@ -2158,12 +2178,6 @@ class MockMapProvider extends _i1.Mock implements _i66.MapProvider {
         ),
         returnValueForMissingStub: null,
       );
-
-  @override
-  void setVicinityApi(_i72.VicinityApiInterface? api) => super.noSuchMethod(
-    Invocation.method(#setVicinityApi, [api]),
-    returnValueForMissingStub: null,
-  );
 
   @override
   void addOrUpdateInteraction(_i69.InteractionQueryResult? interaction) =>
@@ -2721,6 +2735,38 @@ class MockAnimalModel extends _i1.Mock implements _i12.AnimalModel {
           as List<_i76.AnimalGenderViewCount>);
 
   @override
+  _i12.AnimalModel copyWith({
+    String? animalId,
+    String? animalImagePath,
+    String? animalName,
+    String? category,
+    List<_i76.AnimalGenderViewCount>? genderViewCounts,
+    _i77.AnimalCondition? condition,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#copyWith, [], {
+              #animalId: animalId,
+              #animalImagePath: animalImagePath,
+              #animalName: animalName,
+              #category: category,
+              #genderViewCounts: genderViewCounts,
+              #condition: condition,
+            }),
+            returnValue: _FakeAnimalModel_13(
+              this,
+              Invocation.method(#copyWith, [], {
+                #animalId: animalId,
+                #animalImagePath: animalImagePath,
+                #animalName: animalName,
+                #category: category,
+                #genderViewCounts: genderViewCounts,
+                #condition: condition,
+              }),
+            ),
+          )
+          as _i12.AnimalModel);
+
+  @override
   _i12.AnimalModel updateGender(_i36.AnimalGender? newGender) =>
       (super.noSuchMethod(
             Invocation.method(#updateGender, [newGender]),
@@ -2761,14 +2807,19 @@ class MockAnimalSightingModel extends _i1.Mock
     String? cropType,
     String? expectedLoss,
     bool? preventiveMeasures,
+    String? preventiveMeasuresDescription,
     String? accidentSeverity,
     String? animalConditionDieraanrijding,
     String? additionalInfo,
+    String? humanActivity,
+    String? humanActivityOther,
+    String? perceivedAnimalActivity,
+    String? perceivedAnimalActivityOther,
     _i39.AnimalCategory? category,
     String? description,
     List<_i41.LocationModel>? locations,
     _i42.DateTimeModel? dateTime,
-    _i77.ImageListModel? images,
+    _i78.ImageListModel? images,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#copyWith, [], {
@@ -2779,9 +2830,14 @@ class MockAnimalSightingModel extends _i1.Mock
               #cropType: cropType,
               #expectedLoss: expectedLoss,
               #preventiveMeasures: preventiveMeasures,
+              #preventiveMeasuresDescription: preventiveMeasuresDescription,
               #accidentSeverity: accidentSeverity,
               #animalConditionDieraanrijding: animalConditionDieraanrijding,
               #additionalInfo: additionalInfo,
+              #humanActivity: humanActivity,
+              #humanActivityOther: humanActivityOther,
+              #perceivedAnimalActivity: perceivedAnimalActivity,
+              #perceivedAnimalActivityOther: perceivedAnimalActivityOther,
               #category: category,
               #description: description,
               #locations: locations,
@@ -2798,9 +2854,14 @@ class MockAnimalSightingModel extends _i1.Mock
                 #cropType: cropType,
                 #expectedLoss: expectedLoss,
                 #preventiveMeasures: preventiveMeasures,
+                #preventiveMeasuresDescription: preventiveMeasuresDescription,
                 #accidentSeverity: accidentSeverity,
                 #animalConditionDieraanrijding: animalConditionDieraanrijding,
                 #additionalInfo: additionalInfo,
+                #humanActivity: humanActivity,
+                #humanActivityOther: humanActivityOther,
+                #perceivedAnimalActivity: perceivedAnimalActivity,
+                #perceivedAnimalActivityOther: perceivedAnimalActivityOther,
                 #category: category,
                 #description: description,
                 #locations: locations,
@@ -2900,7 +2961,7 @@ class MockQuestionnaire extends _i1.Mock implements _i4.Questionnaire {
   );
 
   @override
-  set questions(List<_i78.Question>? value) => super.noSuchMethod(
+  set questions(List<_i79.Question>? value) => super.noSuchMethod(
     Invocation.setter(#questions, value),
     returnValueForMissingStub: null,
   );
@@ -3270,7 +3331,7 @@ class MockInteractionType extends _i1.Mock implements _i15.InteractionType {
 /// A class which mocks [Question].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockQuestion extends _i1.Mock implements _i78.Question {
+class MockQuestion extends _i1.Mock implements _i79.Question {
   MockQuestion() {
     _i1.throwOnMissingStub(this);
   }
@@ -3344,7 +3405,7 @@ class MockQuestion extends _i1.Mock implements _i78.Question {
   );
 
   @override
-  set answers(List<_i79.Answer>? value) => super.noSuchMethod(
+  set answers(List<_i80.Answer>? value) => super.noSuchMethod(
     Invocation.setter(#answers, value),
     returnValueForMissingStub: null,
   );
@@ -3455,7 +3516,7 @@ class MockExperiment extends _i1.Mock implements _i14.Experiment {
   );
 
   @override
-  set livingLab(_i80.LivingLabs? value) => super.noSuchMethod(
+  set livingLab(_i81.LivingLabs? value) => super.noSuchMethod(
     Invocation.setter(#livingLab, value),
     returnValueForMissingStub: null,
   );
@@ -3589,12 +3650,12 @@ class MockLocationModel extends _i1.Mock implements _i41.LocationModel {
   }
 
   @override
-  _i81.LocationSource get source =>
+  _i82.LocationSource get source =>
       (super.noSuchMethod(
             Invocation.getter(#source),
-            returnValue: _i81.LocationSource.manual,
+            returnValue: _i82.LocationSource.manual,
           )
-          as _i81.LocationSource);
+          as _i82.LocationSource);
 
   @override
   Map<String, dynamic> toJson() =>

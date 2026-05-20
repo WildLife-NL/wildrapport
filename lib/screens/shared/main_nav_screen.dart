@@ -13,6 +13,7 @@ import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
+import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
 class MainNavScreen extends StatefulWidget {

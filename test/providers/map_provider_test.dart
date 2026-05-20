@@ -539,7 +539,10 @@ void main() {
       expect(mapProvider.animalPins, isEmpty);
       expect(mapProvider.detectionPins, isEmpty);
       expect(mapProvider.interactions, isEmpty);
-      expect(mapProvider.animalPinsError, isNull);
+      expect(
+        mapProvider.animalPinsError,
+        'Geen kaartdata (VicinityApi niet beschikbaar)',
+      );
     });
 
     test('should clear pins and positions on resetMapState', () async {

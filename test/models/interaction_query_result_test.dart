@@ -20,7 +20,7 @@ void main() {
       expect(result.id, 'itx-1');
       expect(result.lat, 52.1);
       expect(result.lon, 5.1);
-      expect(result.typeName, 'Sighting');
+      expect(result.typeName, 'waarneming');
       expect(result.speciesName, 'Vos');
       expect(result.description, 'Seen near forest');
       expect(result.userName, 'Guus');

@@ -53,27 +53,21 @@ void main() {
       verify(mockInteractionApi.sendInteraction(any)).called(1);
     });
 
-    test('should throw exception when user is not logged in', () async {
+    test('should send interaction when userID is not cached but online', () async {
       // Arrange
       SharedPreferences.setMockInitialValues({});
+      InteractionHelpers.setupSuccessfulInteractionResponse(mockInteractionApi);
       InteractionHelpers.setupOnlineConnectivity(mockConnectivity);
 
-      // Act & Assert
-      expect(
-        () => interactionManager.postInteraction(
-          mockReport,
-          InteractionType.waarneming,
-        ),
-        throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
-            'message',
-            contains("User Profile Wasn't Loaded"),
-          ),
-        ),
+      // Act
+      final result = await interactionManager.postInteraction(
+        mockReport,
+        InteractionType.waarneming,
       );
 
-      verifyNever(mockInteractionApi.sendInteraction(any));
+      // Assert — POST uses bearer token when userID is not in prefs
+      expect(result, isNotNull);
+      verify(mockInteractionApi.sendInteraction(any)).called(1);
     });
 
     test('should cache interaction when offline', () async {
