@@ -101,16 +101,16 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
-  image_path: "assets/app_logo.png"
+  image_path: "assets/wildrapport-icon.png"
   web:
     generate: true
-    image_path: "assets/app_logo.png"
+    image_path: "assets/wildrapport-icon.png"
   windows:
     generate: true
-    image_path: "assets/app_logo.png"
+    image_path: "assets/wildrapport-icon.png"
   macos:
     generate: true
-    image_path: "assets/app_logo.png"
+    image_path: "assets/wildrapport-icon.png"
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -119,7 +119,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/app_logo.png
+    - assets/wildrapport-icon.png
     - assets/LogoWildlifeNL.png
     - assets/loaders/loading_paw.json
     - assets/gifs/login.gif
