@@ -20,7 +20,7 @@ class _MyInteractionHistoryScreenState
     extends State<MyInteractionHistoryScreen> {
   late Future<List<MyInteraction>> _interactionsFuture;
   String _selectedFilterLabel = 'Alle';
-  int? _selectedTypeId; // null => All
+  int? _selectedTypeId;
   List<InteractionType> _types = const [];
 
   @override
@@ -28,8 +28,6 @@ class _MyInteractionHistoryScreenState
     super.initState();
     final myInteractionApi = context.read<MyInteractionApi>();
     _interactionsFuture = myInteractionApi.getMyInteractions();
-
-    // Fetch interaction types for dynamic filter options
     _fetchTypes();
   }
 
@@ -41,9 +39,7 @@ class _MyInteractionHistoryScreenState
       setState(() {
         _types = fetched;
       });
-    } catch (_) {
-      // Keep empty list on failure
-    }
+    } catch (_) {}
   }
 
   @override
@@ -67,23 +63,46 @@ class _MyInteractionHistoryScreenState
               userIconScale: 1.15,
               useFixedText: true,
             ),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  const Icon(Icons.filter_list, size: 20, color: AppColors.textPrimary),
+                  const Icon(
+                    Icons.filter_list,
+                    size: 20,
+                    color: AppColors.textPrimary,
+                  ),
                   const SizedBox(width: 8),
+
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      height: 58,
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primaryGreen, width: 1.5),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedFilterLabel,
+                          isExpanded: true,
+                          dropdownColor: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 30,
+                            color: AppColors.textPrimary,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
+                          ),
                           items: [
                             const DropdownMenuItem(
                               value: 'Alle',
@@ -98,8 +117,10 @@ class _MyInteractionHistoryScreenState
                           ],
                           onChanged: (val) {
                             if (val == null) return;
+
                             setState(() {
                               _selectedFilterLabel = val;
+
                               if (val == 'Alle') {
                                 _selectedTypeId = null;
                               } else {
@@ -111,11 +132,12 @@ class _MyInteractionHistoryScreenState
                                     description: '',
                                   ),
                                 );
-                                _selectedTypeId = match.id >= 0 ? match.id : null;
+
+                                _selectedTypeId =
+                                    match.id >= 0 ? match.id : null;
                               }
                             });
                           },
-                          isExpanded: true,
                         ),
                       ),
                     ),
@@ -123,6 +145,7 @@ class _MyInteractionHistoryScreenState
                 ],
               ),
             ),
+
             Expanded(
               child: FutureBuilder<List<MyInteraction>>(
                 future: _interactionsFuture,
@@ -192,6 +215,7 @@ class _MyInteractionHistoryScreenState
                   } else {
                     final all = snapshot.data!;
                     final interactions = _applyFilter(all);
+
                     return ListView.builder(
                       padding: const EdgeInsets.all(16.0),
                       itemCount: interactions.length,
@@ -212,10 +236,10 @@ class _MyInteractionHistoryScreenState
   }
 
   List<MyInteraction> _applyFilter(List<MyInteraction> items) {
-    final filtered =
-        _selectedTypeId == null
-            ? List<MyInteraction>.from(items)
-            : items.where((i) => i.type.id == _selectedTypeId).toList();
+    final filtered = _selectedTypeId == null
+        ? List<MyInteraction>.from(items)
+        : items.where((i) => i.type.id == _selectedTypeId).toList();
+
     filtered.sort((a, b) => b.moment.compareTo(a.moment));
     return filtered;
   }
