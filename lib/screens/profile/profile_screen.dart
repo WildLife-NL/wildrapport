@@ -1,5 +1,8 @@
 import 'dart:math' as math;
 
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -11,6 +14,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/screens/profile/bluetooth_contact_settings_screen.dart';
+import 'package:wildrapport/widgets/contact_tracing/contact_tracing_info_panel.dart';
 import 'package:wildrapport/screens/profile/edit_profile_screen.dart';
 import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 import 'package:wildrapport/utils/notification_service.dart';
@@ -364,8 +368,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     activeTrackColor: AppColors.primaryGreen,
                                     onChanged: (enabled) async {
                                       if (enabled) {
-                                        await NotificationService.instance
-                                            .requestAndroidNotificationPermission();
+                                        if (!kIsWeb && Platform.isAndroid) {
+                                          await NotificationService.instance
+                                              .requestAndroidNotificationPermission();
+                                        } else if (!kIsWeb && Platform.isIOS) {
+                                          await NotificationService.instance
+                                              .requestIosNotificationPermission();
+                                        }
                                       }
                                       if (!context.mounted) return;
                                       final contactEnded =
@@ -386,6 +395,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       }
                                     },
                                   ),
+                                  if (contactTracing.monitor.hasActiveSession &&
+                                      contactTracing.monitor.activeContact !=
+                                          null &&
+                                      (contactTracing.monitor.activeContact!
+                                              .hasAnimalInfo ||
+                                          contactTracing
+                                              .monitor
+                                              .activeContact!
+                                              .conveyancesWithMessages
+                                              .isNotEmpty))
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        10,
+                                        0,
+                                        10,
+                                        8,
+                                      ),
+                                      child: ContactTracingInfoPanel(
+                                        contact: contactTracing
+                                            .monitor.activeContact!,
+                                        compact: true,
+                                      ),
+                                    ),
                                   if (contactTracing.backgroundEnabled)
                                     ListTile(
                                       contentPadding: const EdgeInsets.symmetric(

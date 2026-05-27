@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:wildrapport/data_managers/contact_api.dart';
 import 'package:wildrapport/models/api_models/contact_model.dart';
 import 'package:wildrapport/services/contact_tracing_ble.dart';
 import 'package:wildrapport/utils/ble_mac_format.dart';
+import 'package:wildrapport/utils/ble_permissions.dart';
 
 /// Volgt een actief contact via BLE-advertenties (geen GATT-verbinding).
 class ContactTracingMonitor extends ChangeNotifier {
@@ -180,8 +180,8 @@ class ContactTracingMonitor extends ChangeNotifier {
 
     for (final result in results) {
       if (!ContactTracingBle.isSmartParksAdvertisement(result)) continue;
-      final mac = formatBleHardwareAddress(result.device.remoteId.str);
-      if (mac != targetMac) continue;
+      final mac = ContactTracingBle.resolveHardwareAddress(result);
+      if (mac == null || mac != targetMac) continue;
       _markSeen(result.rssi);
       return;
     }
@@ -194,14 +194,7 @@ class ContactTracingMonitor extends ChangeNotifier {
   }
 
   Future<bool> _ensureBleReady() async {
-    final statuses = await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-    ].request();
-    if (statuses.values.any((s) => !s.isGranted)) return false;
-
-    final state = await FlutterBluePlus.adapterState.first;
-    return state == BluetoothAdapterState.on;
+    return BlePermissions.ensureReady();
   }
 
   Future<void> _runScan() async {
@@ -210,7 +203,7 @@ class ContactTracingMonitor extends ChangeNotifier {
     if (!await _ensureBleReady()) return;
 
     try {
-      await FlutterBluePlus.startScan(timeout: scanDuration);
+      await ContactTracingBle.startCollarScan(timeout: scanDuration);
     } catch (e) {
       debugPrint('[ContactTracingMonitor] scan failed: $e');
     }

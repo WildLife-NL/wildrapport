@@ -4,6 +4,7 @@ import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/data_managers/contact_api.dart';
 import 'package:wildrapport/models/api_models/contact_model.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/widgets/contact_tracing/contact_tracing_info_panel.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
 class MyContactsScreen extends StatefulWidget {
@@ -176,32 +177,17 @@ class _ContactCard extends StatelessWidget {
                   ),
               ],
             ),
-            if (contact.contactHardwareAddress != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                contact.contactHardwareAddress!,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontFamily: 'monospace',
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ],
-            if (contact.sensorId != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Sensor: ${contact.sensorId}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-              ),
-            ],
+            const SizedBox(height: 10),
+            ContactTracingInfoPanel(
+              contact: contact,
+              compact: true,
+              showHardwareAddress: false,
+            ),
             const SizedBox(height: 10),
             _row('Start', startLabel),
             _row('Einde', endLabel),
-            if (contact.conveyances.isNotEmpty)
-              _row(
-                'Berichten',
-                '${contact.conveyances.length} conveyance(s)',
-              ),
+            if (contact.contactHardwareAddress != null)
+              _row('Collar', contact.contactHardwareAddress!),
           ],
         ),
       ),
