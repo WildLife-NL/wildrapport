@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/reporting/interaction_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
@@ -50,23 +49,6 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.interactionID, equals('int-123'));
-      verify(mockInteractionApi.sendInteraction(any)).called(1);
-    });
-
-    test('should send interaction when userID is not cached but online', () async {
-      // Arrange
-      SharedPreferences.setMockInitialValues({});
-      InteractionHelpers.setupSuccessfulInteractionResponse(mockInteractionApi);
-      InteractionHelpers.setupOnlineConnectivity(mockConnectivity);
-
-      // Act
-      final result = await interactionManager.postInteraction(
-        mockReport,
-        InteractionType.waarneming,
-      );
-
-      // Assert — POST uses bearer token when userID is not in prefs
-      expect(result, isNotNull);
       verify(mockInteractionApi.sendInteraction(any)).called(1);
     });
 

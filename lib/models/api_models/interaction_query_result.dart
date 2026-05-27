@@ -1,5 +1,6 @@
 ﻿import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/preferred_report_location.dart';
 
 class AnimalInfo {
   final String? sex;
@@ -48,7 +49,7 @@ class InteractionQueryResult {
       throw const FormatException('InteractionQueryResult: missing id');
     }
 
-    final locNode = _locationMap(json['location'] ?? json['place']);
+    final locNode = PreferredReportLocation.mapForDisplay(json);
     if (locNode == null) {
       throw const FormatException(
         'InteractionQueryResult: missing location',
@@ -146,12 +147,6 @@ class InteractionQueryResult {
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},
   };
-
-  static Map<String, dynamic>? _locationMap(Object? value) {
-    if (value is Map<String, dynamic>) return value;
-    if (value is Map) return Map<String, dynamic>.from(value);
-    return null;
-  }
 
   static double? _asDouble(Object? v) {
     if (v == null) return null;

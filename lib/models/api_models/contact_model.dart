@@ -15,36 +15,107 @@ DateTime _parseContactDate(String? value) {
   return parsed.isUtc ? parsed.toLocal() : parsed;
 }
 
+String? _readNestedString(Map<dynamic, dynamic> map, List<String> keys) {
+  for (final key in keys) {
+    final value = map[key];
+    if (value == null) continue;
+    final text = value.toString().trim();
+    if (text.isNotEmpty) return text;
+  }
+  return null;
+}
+
+int? _parseSeverity(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  return int.tryParse(value.toString());
+}
+
 class ContactConveyance {
   final String id;
   final DateTime timestamp;
   final String? messageName;
+  final String? messageText;
+  final int? messageSeverity;
   final String? animalName;
+  final String? animalSpecies;
 
   ContactConveyance({
     required this.id,
     required this.timestamp,
     this.messageName,
+    this.messageText,
+    this.messageSeverity,
     this.animalName,
+    this.animalSpecies,
   });
 
+  bool get hasMessageContent {
+    final name = messageName?.trim();
+    final text = messageText?.trim();
+    return (name != null && name.isNotEmpty) || (text != null && text.isNotEmpty);
+  }
+
+  String get displayTitle {
+    final name = messageName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    final animal = animalName?.trim();
+    if (animal != null && animal.isNotEmpty) return animal;
+    return 'Bericht';
+  }
+
+  String get severityLabel {
+    return switch (messageSeverity) {
+      1 => 'Hoog',
+      2 => 'Midden',
+      3 => 'Laag',
+      _ => 'Info',
+    };
+  }
+
   factory ContactConveyance.fromJson(Map<String, dynamic> json) {
-    final message = json['message'];
     String? messageName;
+    String? messageText;
+    int? messageSeverity;
+    final message = json['message'];
     if (message is Map) {
-      messageName = message['name']?.toString();
+      final msg = message is Map<String, dynamic>
+          ? message
+          : Map<String, dynamic>.from(message);
+      messageName = _readNestedString(msg, ['name', 'title']);
+      messageText = _readNestedString(msg, ['text', 'body', 'message']);
+      messageSeverity = _parseSeverity(msg['severity']);
     }
-    final animal = json['animal'];
+
     String? animalName;
+    String? animalSpecies;
+    final animal = json['animal'];
     if (animal is Map) {
+      final a = animal is Map<String, dynamic>
+          ? animal
+          : Map<String, dynamic>.from(animal);
       animalName =
-          animal['commonName']?.toString() ?? animal['name']?.toString();
+          _readNestedString(a, ['commonName', 'name']) ??
+          _readNestedString(a, ['species', 'commonName']);
+      final species = a['species'];
+      if (species is Map) {
+        final s = species is Map<String, dynamic>
+            ? species
+            : Map<String, dynamic>.from(species);
+        animalSpecies = _readNestedString(s, ['commonName', 'name', 'species']);
+      } else {
+        animalSpecies = a['species']?.toString();
+      }
     }
+
     return ContactConveyance(
       id: (json['ID'] ?? json['id'] ?? '').toString(),
       timestamp: _parseContactDate(json['timestamp']?.toString()),
       messageName: messageName,
+      messageText: messageText,
+      messageSeverity: messageSeverity,
       animalName: animalName,
+      animalSpecies: animalSpecies,
     );
   }
 }
@@ -77,6 +148,39 @@ class Contact {
     return end == null;
   }
 
+  bool get hasAnimalInfo {
+    final name = collarAnimalName?.trim();
+    final species = collarAnimalSpecies?.trim();
+    return (name != null && name.isNotEmpty) ||
+        (species != null && species.isNotEmpty) ||
+        (sensorId != null && sensorId!.isNotEmpty);
+  }
+
+  String get displayAnimalTitle {
+    final name = collarAnimalName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    return 'Collar / dier onbekend';
+  }
+
+  String? get displayAnimalSubtitle {
+    final species = collarAnimalSpecies?.trim();
+    if (species == null || species.isEmpty) return null;
+    return species;
+  }
+
+  List<ContactConveyance> get conveyancesWithMessages =>
+      conveyances.where((c) => c.hasMessageContent).toList();
+
+  String? get primaryResearcherMessage {
+    for (final c in conveyancesWithMessages) {
+      final text = c.messageText?.trim();
+      if (text != null && text.isNotEmpty) return text;
+      final name = c.messageName?.trim();
+      if (name != null && name.isNotEmpty) return name;
+    }
+    return null;
+  }
+
   factory Contact.fromJson(Map<String, dynamic> json) {
     final deployment = json['borneSensorDeployment'];
     String? animalName;
@@ -90,6 +194,11 @@ class Contact {
         animalName =
             animal['commonName']?.toString() ?? animal['name']?.toString();
         animalSpecies = animal['species']?.toString();
+        if (animalSpecies == null && animal['species'] is Map) {
+          final speciesMap = animal['species'] as Map;
+          animalSpecies = speciesMap['commonName']?.toString() ??
+              speciesMap['name']?.toString();
+        }
         animalId = (animal['ID'] ?? animal['id'])?.toString();
       }
     }

@@ -6,12 +6,12 @@ import 'package:wildrapport/utils/interaction_type_display.dart';
 InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
   if (interaction.id.isEmpty) return null;
 
-  var lat = interaction.location.latitude;
-  var lon = interaction.location.longitude;
-  if (lat == 0.0 && lon == 0.0) {
-    lat = interaction.place.latitude;
-    lon = interaction.place.longitude;
-  }
+  final place = interaction.place;
+  final device = interaction.location;
+  final placeValid =
+      (place.latitude != 0.0 || place.longitude != 0.0);
+  final lat = placeValid ? place.latitude : device.latitude;
+  final lon = placeValid ? place.longitude : device.longitude;
   if (lat == 0.0 && lon == 0.0) return null;
 
   List<AnimalInfo>? involvedAnimals;

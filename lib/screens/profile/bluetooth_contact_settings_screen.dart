@@ -7,8 +7,10 @@ import 'package:wildrapport/services/contact_tracing_ble.dart';
 import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 import 'package:wildrapport/services/contact_tracing_monitor.dart';
 import 'package:wildrapport/services/contact_tracing_preferences.dart';
+import 'package:wildrapport/models/api_models/contact_model.dart';
 import 'package:wildrapport/utils/ble_mac_format.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
+import 'package:wildrapport/widgets/contact_tracing/contact_tracing_info_panel.dart';
 
 /// Interval, status en instellingen voor Bluetooth-contacttracing.
 class BluetoothContactSettingsScreen extends StatefulWidget {
@@ -21,6 +23,8 @@ class BluetoothContactSettingsScreen extends StatefulWidget {
 
 class _BluetoothContactSettingsScreenState
     extends State<BluetoothContactSettingsScreen> {
+  String? _detailsSheetShownForContactId;
+
   ContactTracingCoordinator get _coordinator =>
       context.read<ContactTracingCoordinator>();
 
@@ -44,8 +48,26 @@ class _BluetoothContactSettingsScreenState
     if (msg != null) {
       _showSnack(msg);
       _monitor.clearAutoEndMessage();
+      _detailsSheetShownForContactId = null;
     }
+    _maybeShowContactDetailsSheet();
     setState(() {});
+  }
+
+  bool _contactHasDetails(Contact contact) {
+    return contact.hasAnimalInfo || contact.conveyancesWithMessages.isNotEmpty;
+  }
+
+  void _maybeShowContactDetailsSheet() {
+    final contact = _monitor.activeContact;
+    if (contact == null || !_contactHasDetails(contact)) return;
+    if (_detailsSheetShownForContactId == contact.id) return;
+    _detailsSheetShownForContactId = contact.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_monitor.activeContact?.id != contact.id) return;
+      showContactTracingDetailsSheet(context, contact);
+    });
   }
 
   String _buildActiveStatus() {
@@ -189,29 +211,12 @@ class _BluetoothContactSettingsScreenState
                       ),
                     ),
                   ],
-                  if (hasActive) ...[
-                    if (monitor.activeAnimalLabel != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        monitor.activeAnimalLabel!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryGreen,
-                        ),
-                      ),
-                    ],
-                    if (monitor.activeContactMac != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        monitor.activeContactMac!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
+                  if (hasActive && monitor.activeContact != null) ...[
+                    const SizedBox(height: 14),
+                    ContactTracingInfoPanel(
+                      contact: monitor.activeContact!,
+                      compact: true,
+                    ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
                       onPressed: monitor.busyEnding ? null : _endContact,

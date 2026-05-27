@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:wildrapport/data_managers/contact_api.dart';
 import 'package:wildrapport/models/api_models/contact_model.dart';
 import 'package:wildrapport/services/contact_tracing_ble.dart';
 import 'package:wildrapport/services/contact_tracing_monitor.dart';
 import 'package:wildrapport/services/contact_tracing_preferences.dart';
 import 'package:wildrapport/utils/ble_mac_format.dart';
+import 'package:wildrapport/utils/ble_permissions.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 
 /// Achtergrond-BLE: periodiek scannen, contact starten, melding bij dier.
@@ -270,22 +270,13 @@ class ContactTracingCoordinator extends ChangeNotifier {
   }
 
   Future<bool> _ensureBleReady() async {
-    final statuses = await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-    ].request();
-    if (statuses.values.any((s) => !s.isGranted)) {
-      _statusMessage = 'Bluetooth-permissies nodig';
-      notifyListeners();
-      return false;
-    }
-    final state = await FlutterBluePlus.adapterState.first;
-    if (state != BluetoothAdapterState.on) {
-      _statusMessage = 'Zet Bluetooth aan';
-      notifyListeners();
-      return false;
-    }
-    return true;
+    final ready = await BlePermissions.ensureReady(
+      onStatus: (message) {
+        _statusMessage = message;
+        notifyListeners();
+      },
+    );
+    return ready;
   }
 
   Future<void> _runBackgroundDiscoveryScan() async {
@@ -322,7 +313,7 @@ class ContactTracingCoordinator extends ChangeNotifier {
     });
 
     try {
-      await FlutterBluePlus.startScan(
+      await ContactTracingBle.startCollarScan(
         timeout: ContactTracingMonitor.scanDuration,
       );
     } catch (e) {
@@ -347,8 +338,13 @@ class ContactTracingCoordinator extends ChangeNotifier {
   Future<void> _registerStrongest(ScanResult result) async {
     if (_registerInFlight || _monitor.hasActiveSession) return;
 
-    final mac = formatBleHardwareAddress(result.device.remoteId.str);
-    if (!isValidBleHardwareAddress(mac)) return;
+    final mac = ContactTracingBle.resolveHardwareAddress(result);
+    if (mac == null || !isValidBleHardwareAddress(mac)) {
+      debugPrint(
+        '[ContactTracingCoordinator] Geen MAC voor ${ContactTracingBle.deviceLabel(result)}',
+      );
+      return;
+    }
 
     _registerInFlight = true;
     _statusMessage = 'Collar gevonden — contact registreren…';
@@ -382,15 +378,15 @@ class ContactTracingCoordinator extends ChangeNotifier {
   }
 
   Future<void> _notifyAnimalFound(Contact contact) async {
-    final name = contact.collarAnimalName;
-    final species = contact.collarAnimalSpecies;
-    final label = name != null && species != null
-        ? '$name ($species)'
-        : (name ?? species ?? 'Collar');
+    final label = contact.displayAnimalTitle;
+    final researcherMsg = contact.primaryResearcherMessage;
+    final body = researcherMsg != null && researcherMsg.isNotEmpty
+        ? '$label — $researcherMsg'
+        : '$label gedetecteerd via Bluetooth.';
 
     await NotificationService.instance.show(
       title: 'Dier in de buurt',
-      body: '$label gedetecteerd via Bluetooth.',
+      body: body,
       importance: Importance.high,
       priority: Priority.high,
       payload: 'contact_tracing',

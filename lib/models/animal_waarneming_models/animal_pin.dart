@@ -1,4 +1,5 @@
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/preferred_report_location.dart';
 
 class AnimalPin {
   final String id;
@@ -21,7 +22,7 @@ class AnimalPin {
   });
 
   factory AnimalPin.fromJson(Map<String, dynamic> j) {
-    final loc = _locationMap(j['location'] ?? j['place']);
+    final loc = PreferredReportLocation.mapForDisplay(j);
     if (loc == null) {
       throw const FormatException('AnimalPin: missing location');
     }
@@ -50,12 +51,6 @@ class AnimalPin {
           (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
       imageUrl: j['imageUrl'] as String?,
     );
-  }
-
-  static Map<String, dynamic>? _locationMap(Object? value) {
-    if (value is Map<String, dynamic>) return value;
-    if (value is Map) return Map<String, dynamic>.from(value);
-    return null;
   }
 
   static double? _asDouble(Object? value) {

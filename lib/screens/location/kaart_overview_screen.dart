@@ -88,12 +88,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _loadingTrackingHistory = false;
   int _trackingHistoryMinutes = 10; // Default: show last 10 minutes
 
+  /// Break the trail when points are farther apart (avoids a line to an old start).
+  static const double _trackingGapBreakMeters = 150;
+
   // Scale bar state
   double _scaleBarWidth = 80;
   String _scaleBarLabel = '100 m';
 
   // Selected animal for detail card
   AnimalPin? _selectedAnimal;
+  bool _showLegend = false;
 
   @override
   void didChangeDependencies() {
@@ -246,8 +250,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       return;
     }
 
-    _bootstrap();
-    _startFollowingMe();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _bootstrap();
+      _startFollowingMe();
+    });
   }
 
   @override
@@ -486,17 +493,62 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
-  List<LatLng> _visibleTrackingPoints() {
+  List<({DateTime timestamp, LatLng point})> _trackingSamplesInWindow() {
     final threshold = DateTime.now().subtract(
       Duration(minutes: _trackingHistoryMinutes),
     );
-    final localPoints = _localTrackingHistory
-        .where((p) => p.timestamp.isAfter(threshold))
-        .map((p) => p.point);
-    final remotePoints = _trackingHistory
-        .where((r) => r.timestamp.isAfter(threshold))
-        .map((r) => LatLng(r.latitude, r.longitude));
-    return [...localPoints, ...remotePoints];
+    final samples = <({DateTime timestamp, LatLng point})>[];
+
+    for (final entry in _localTrackingHistory) {
+      if (entry.timestamp.isAfter(threshold)) {
+        samples.add((timestamp: entry.timestamp, point: entry.point));
+      }
+    }
+    for (final reading in _trackingHistory) {
+      if (reading.timestamp.isAfter(threshold)) {
+        samples.add((
+          timestamp: reading.timestamp,
+          point: LatLng(reading.latitude, reading.longitude),
+        ));
+      }
+    }
+
+    samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    return samples;
+  }
+
+  List<LatLng> _visibleTrackingPoints() {
+    return _trackingSamplesInWindow().map((s) => s.point).toList();
+  }
+
+  /// Chronological segments; large GPS jumps start a new piece (no line to old start).
+  List<List<LatLng>> _trackingPathSegments() {
+    final samples = _trackingSamplesInWindow();
+    if (samples.isEmpty) return const [];
+    if (samples.length == 1) return const [];
+
+    final segments = <List<LatLng>>[];
+    var current = <LatLng>[samples.first.point];
+    const distance = Distance();
+
+    for (var i = 1; i < samples.length; i++) {
+      final prev = samples[i - 1].point;
+      final next = samples[i].point;
+      final gapMeters = distance(prev, next);
+      if (gapMeters > _trackingGapBreakMeters) {
+        if (current.length >= 2) {
+          segments.add(List<LatLng>.from(current));
+        }
+        current = <LatLng>[next];
+      } else {
+        current.add(next);
+      }
+    }
+
+    if (current.length >= 2) {
+      segments.add(current);
+    }
+    return segments;
   }
 
   Future<void> _fetchAllForView() async {
@@ -783,6 +835,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           debugPrint(
             '[TRACKING] No data in 5min window, but found ${recentOnlyReadings.length} readings from last 24h',
           );
+          recentOnlyReadings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
           setState(() {
             _trackingHistory = recentOnlyReadings;
             _showTrackingHistory = true;
@@ -802,6 +855,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         }
       }
 
+      filteredReadings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       setState(() {
         _trackingHistory = filteredReadings;
         _showTrackingHistory = true;
@@ -1051,6 +1105,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final pos = map.selectedPosition ?? map.currentPosition;
     const locationSharingOn = true;
     final visibleTrackingPoints = _visibleTrackingPoints();
+    final trackingPathSegments = _trackingPathSegments();
 
     return PopScope(
       canPop: false,
@@ -1100,8 +1155,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                       .rotation;
                                               return fm.Marker(
                                                 point: LatLng(pin.lat, pin.lon),
-                                                width: 52,
-                                                height: 52,
+                                                width: 64,
+                                                height: 64,
                                                 rotate: false,
                                                 child: _animalPinMarkerContent(
                                                   pin,
@@ -1151,8 +1206,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                     .rotation;
                                             return fm.Marker(
                                               point: LatLng(pin.lat, pin.lon),
-                                              width: 52,
-                                              height: 52,
+                                              width: 64,
+                                              height: 64,
                                               rotate: false,
                                               child: _animalPinMarkerContent(
                                                 pin,
@@ -1328,15 +1383,17 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               ),
 
                           if (_showTrackingHistory &&
-                              visibleTrackingPoints.isNotEmpty)
+                              trackingPathSegments.isNotEmpty)
                             fm.PolylineLayer(
-                              polylines: [
-                                fm.Polyline(
-                                  points: visibleTrackingPoints,
-                                  color: Colors.blue.withValues(alpha: 0.6),
-                                  strokeWidth: 2.0,
-                                ),
-                              ],
+                              polylines: trackingPathSegments
+                                  .map(
+                                    (segment) => fm.Polyline(
+                                      points: segment,
+                                      color: Colors.blue.withValues(alpha: 0.6),
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                  .toList(),
                             ),
 
                           if (_showTrackingHistory &&
@@ -1373,8 +1430,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                       .rotation;
                                               return fm.Marker(
                                                 point: LatLng(itx.lat, itx.lon),
-                                                width: 44, // easier tap target
-                                                height: 44,
+                                                width: 56,
+                                                height: 56,
                                                 rotate: false,
                                                 child: Transform.rotate(
                                                   angle:
@@ -1396,58 +1453,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                             _iconStyleForTimestamp(
                                                               itx.moment,
                                                             );
-                                                        final Color interactionColor = Colors.black;
-                                                        final iconPath = getSpeciesIconPath(
+                                                        return _buildStyledAnimalPin(
                                                           itx.speciesName,
+                                                          itx.typeName,
+                                                          style,
                                                         );
-                                                        return iconPath != null
-                                                            ? SizedBox(
-                                                              width: style.size,
-                                                              height:
-                                                                  style.size,
-                                                              child: ColorFiltered(
-                                                                colorFilter:
-                                                                    ColorFilter.mode(
-                                                                      interactionColor,
-                                                                      BlendMode
-                                                                          .srcIn,
-                                                                    ),
-                                                                child: Image.asset(
-                                                                  iconPath,
-                                                                  width:
-                                                                      style
-                                                                          .size,
-                                                                  height:
-                                                                      style
-                                                                          .size,
-                                                                  fit:
-                                                                      BoxFit
-                                                                          .contain,
-                                                                  errorBuilder: (
-                                                                    context,
-                                                                    error,
-                                                                    stackTrace,
-                                                                  ) {
-                                                                    return Icon(
-                                                                      Icons
-                                                                          .place,
-                                                                      size:
-                                                                          style
-                                                                              .size *
-                                                                          0.9,
-                                                                      color:
-                                                                          interactionColor,
-                                                                    );
-                                                                  },
-                                                                ),
-                                                              ),
-                                                            )
-                                                            : Icon(
-                                                              Icons.place,
-                                                              size: style.size,
-                                                              color:
-                                                                  interactionColor,
-                                                            );
                                                       },
                                                     ),
                                                   ),
@@ -1476,8 +1486,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                             map.mapController.camera.rotation;
                                         return fm.Marker(
                                           point: LatLng(itx.lat, itx.lon),
-                                          width: 44,
-                                          height: 44,
+                                          width: 56,
+                                          height: 56,
                                           rotate: false,
                                           child: Transform.rotate(
                                             angle: -mapRotation * math.pi / 180,
@@ -1492,38 +1502,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                                 builder: (ctx) {
                                                   final style =
                                                       _iconStyleForTimestamp(itx.moment);
-                                                  final Color interactionColor = Colors.black;
-                                                  final iconPath = getSpeciesIconPath(
+                                                  return _buildStyledAnimalPin(
                                                     itx.speciesName,
+                                                    itx.typeName,
+                                                    style,
                                                   );
-                                                  return iconPath != null
-                                                      ? SizedBox(
-                                                          width: style.size,
-                                                          height: style.size,
-                                                          child: ColorFiltered(
-                                                            colorFilter: ColorFilter.mode(
-                                                              interactionColor,
-                                                              BlendMode.srcIn,
-                                                            ),
-                                                            child: Image.asset(
-                                                              iconPath,
-                                                              width: style.size,
-                                                              height: style.size,
-                                                              fit: BoxFit.contain,
-                                                              errorBuilder:
-                                                                  (context, error, stackTrace) => Icon(
-                                                                    Icons.place,
-                                                                    size: style.size * 0.9,
-                                                                    color: interactionColor,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : Icon(
-                                                          Icons.place,
-                                                          size: style.size,
-                                                          color: interactionColor,
-                                                        );
                                                 },
                                               ),
                                             ),
@@ -1585,6 +1568,121 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                         ),
                       ),
 
+                      Positioned(
+                        right: 14,
+                        bottom: 44,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showLegend = !_showLegend;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF222222),
+                              borderRadius: BorderRadius.circular(26),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.22),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _showLegend ? Icons.close : Icons.help_outline,
+                                  size: 19,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Legenda',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      if (_showLegend)
+                        Positioned.fill(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {
+                              setState(() => _showLegend = false);
+                            },
+                            child: const SizedBox.expand(),
+                          ),
+                        ),
+
+                      if (_showLegend)
+                        Positioned(
+                          left: 16,
+                          right: 16,
+                          bottom: 110,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.15),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _legendRow(
+                                    const Color(0xFF8613A8),
+                                    'Waarneming',
+                                  ),
+                                  _legendRow(
+                                    const Color(0xFF00BFD8),
+                                    'Camera',
+                                    icon: Icons.camera_alt,
+                                  ),
+                                  _legendRow(
+                                    const Color(0xFFFF9100),
+                                    'Acoustic',
+                                    icon: Icons.graphic_eq,
+                                  ),
+                                  _legendRow(
+                                    const Color(0xFFFE008E),
+                                    'Collar',
+                                    badgeIcon: Icons.settings_remote,
+                                  ),
+                                  _legendRow(
+                                    const Color(0xFF0078DA),
+                                    'Aanrijding',
+                                  ),
+                                  _legendRow(
+                                    const Color(0xFF008C7B),
+                                    'Schademelding',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
                       if (_selectedAnimal == null)
                         Positioned(
                           top: MediaQuery.paddingOf(context).top + 8,
@@ -1642,56 +1740,269 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
+
+  Color _getBorderColorForDetectionType(String? detectionType) {
+    if (detectionType == null) return Colors.white;
+
+    final type = detectionType.toLowerCase();
+
+    if (type.contains('camera') || type.contains('foto')) {
+      return const Color(0xFF00BFD8); // Aqua
+    } else if (type.contains('acoustic') || type.contains('geluid')) {
+      return const Color(0xFFFF9100); // Orange
+    } else if (type.contains('waarneming') || type.contains('sighting')) {
+      return const Color(0xFF8613A8); // Purple
+    } else if (type.contains('collision') || type.contains('botsing')) {
+      return const Color(0xFF0078DA); // Blue
+    } else if (type.contains('schadamelding') || type.contains('damage')) {
+      return const Color(0xFF008C7B); // Teal
+    } else if (type.contains('collar')) {
+      return const Color(0xFFFE008E); // Pink
+    }
+
+    return Colors.white;
+  }
+
+  int? _eventCountForPin(AnimalPin pin) {
+    final type = pin.reportType?.toLowerCase();
+    final isFixedPin =
+        type?.contains('camera') == true ||
+        type?.contains('foto') == true ||
+        type?.contains('acoustic') == true ||
+        type?.contains('geluid') == true;
+
+    return isFixedPin ? 3 : null;
+  }
+
+  Widget _buildStyledAnimalPin(
+    String? speciesName,
+    String? detectionType,
+    _IconStyle style, {
+    int? eventCount,
+  }) {
+    final borderColor = _getBorderColorForDetectionType(detectionType);
+    final type = detectionType?.toLowerCase();
+
+    final bool isCamera =
+        type?.contains('camera') == true || type?.contains('foto') == true;
+
+    final bool isAcoustic =
+        type?.contains('acoustic') == true || type?.contains('geluid') == true;
+
+    final bool isCollar = type?.contains('collar') == true;
+    final iconPath = getSpeciesIconPath(speciesName);
+
+    return SizedBox(
+      width: style.size + 28,
+      height: style.size + 28,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: style.size + 16,
+            height: style.size + 16,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(
+                color: borderColor,
+                width: 3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (isCamera)
+                  Icon(
+                    Icons.camera_alt,
+                    size: style.size * 0.9,
+                    color: style.color,
+                  )
+                else if (isAcoustic)
+                  Icon(
+                    Icons.graphic_eq,
+                    size: style.size * 0.9,
+                    color: style.color,
+                  )
+                else if (iconPath != null)
+                  SizedBox(
+                    width: style.size,
+                    height: style.size,
+                    child: ColorFiltered(
+                      colorFilter: ColorFilter.mode(
+                        style.color,
+                        BlendMode.srcIn,
+                      ),
+                      child: Image.asset(
+                        iconPath,
+                        width: style.size,
+                        height: style.size,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.pets,
+                            size: style.size * 0.9,
+                            color: style.color,
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.pets,
+                    size: style.size,
+                    color: style.color,
+                  ),
+                if (eventCount != null && eventCount > 0)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: borderColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '$eventCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (isCollar)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: borderColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.settings_remote,
+                        size: 11,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _legendRow(
+    Color color,
+    String label, {
+    IconData? icon,
+    IconData? badgeIcon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(
+                    color: color,
+                    width: 3,
+                  ),
+                ),
+                child: icon != null
+                    ? Icon(
+                        icon,
+                        size: 16,
+                        color: Colors.black,
+                      )
+                    : null,
+              ),
+              if (badgeIcon != null)
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      badgeIcon,
+                      size: 8,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _animalPinMarkerContent(
     AnimalPin pin,
     double mapRotation, {
     VoidCallback? onTap,
   }) {
     final style = _iconStyleForTimestamp(pin.seenAt);
-    final iconSize = style.size.clamp(22.0, 30.0);
-    final path = getSpeciesIconPath(pin.speciesName);
-
-    final Widget iconChild = path != null
-        ? Image.asset(
-            path,
-            width: iconSize,
-            height: iconSize,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Icon(
-              Icons.pets,
-              size: iconSize * 0.92,
-              color: AppColors.primaryGreen,
-            ),
-          )
-        : Icon(
-            Icons.pets,
-            size: iconSize * 0.92,
-            color: AppColors.primaryGreen,
-          );
-
-    final badge = Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: _animalPinBorderForSeenAt(pin.seenAt),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: iconChild,
-    );
 
     Widget child = Transform.rotate(
       angle: -mapRotation * math.pi / 180,
-      child: badge,
+      child: _buildStyledAnimalPin(
+        pin.speciesName,
+        pin.reportType,
+        style,
+        eventCount: _eventCountForPin(pin),
+      ),
     );
 
     if (onTap != null) {
@@ -1725,25 +2036,16 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          child: Icon(
-            Icons.sensors,
-            size: style.size,
-            color: Colors.white,
+          child: _buildStyledAnimalPin(
+            pin.label,
+            pin.label,
+            style,
           ),
         ),
       ),
     );
   }
 
-  Color _animalPinBorderForSeenAt(DateTime seenAt) {
-    final age = DateTime.now().difference(seenAt);
-
-    if (age.inMinutes < 60) return AppColors.primaryGreen;
-    if (age.inHours < 24) return const Color(0xFF1565C0);
-    if (age.inDays < 7) return Colors.grey.shade700;
-
-    return Colors.grey.shade500;
-  }
 
   _IconStyle _iconStyleForTimestamp(DateTime timestamp) {
     final now = DateTime.now();

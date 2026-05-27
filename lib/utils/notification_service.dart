@@ -89,6 +89,22 @@ class NotificationService {
     return granted ?? status.isGranted;
   }
 
+  /// iOS alert/badge/sound for [flutter_local_notifications] (foreground banners).
+  Future<bool> requestIosNotificationPermission() async {
+    if (kIsWeb || !Platform.isIOS) return true;
+    if (!_initialized) await init();
+
+    final iosImpl = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
+    final granted = await iosImpl?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    debugPrint('[NotificationService] iOS local notification permission: $granted');
+    return granted ?? false;
+  }
+
   /// Android notification channel only (no runtime permission prompt).
   Future<void> ensureAndroidChannel() async {
     if (!kIsWeb && Platform.isAndroid) {
@@ -120,10 +136,12 @@ class NotificationService {
     Priority priority = Priority.defaultPriority,
     String channelId = kPushNotificationChannelId,
     String? payload,
+    /// Background FCM isolate: [permission_handler] may report denied incorrectly.
+    bool skipPermissionCheck = false,
   }) async {
     if (!_initialized) await init();
 
-    if (!kIsWeb && Platform.isAndroid) {
+    if (!skipPermissionCheck && !kIsWeb && Platform.isAndroid) {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
         debugPrint(

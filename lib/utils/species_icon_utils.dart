@@ -32,10 +32,21 @@ String? getSpeciesIconPath(String? speciesName) {
     }
   }
 
+  // wildlifenl_assets: getAnimalIconPath('boommarten') wijst naar een onbestaand
+  // bestand; het silhouet heet boommarter.png.
+  if (normalized.contains('boommarter')) {
+    const packageIcon =
+        'packages/wildlifenl_assets/assets/icons/animals/boommarter.png';
+    _logSpeciesIconResolution(speciesName, packageIcon);
+    return packageIcon;
+  }
+
   final aliases = <String, List<String>>{
     'taurus': ['tauros', 'bos taurus', 'koe', 'rund', 'rundvee'],
     'tauros': ['taurus', 'bos taurus', 'koe', 'rund', 'rundvee'],
     'bos taurus': ['tauros', 'taurus', 'koe', 'rund', 'rundvee'],
+    'steenmarter': ['steenmarter', 'steenmarten'],
+    'steenmarten': ['steenmarter', 'steenmarten'],
   };
 
   final candidates = <String>[raw];
@@ -53,6 +64,13 @@ String? getSpeciesIconPath(String? speciesName) {
       _logSpeciesIconResolution(speciesName, path);
       return path;
     }
+  }
+
+  // Fallback: lokale kleuren-dierafbeelding (o.a. boommarter) i.p.v. poot-icoon
+  final localPath = getAnimalPhotoPath(speciesName);
+  if (localPath != null) {
+    _logSpeciesIconResolution(speciesName, localPath);
+    return localPath;
   }
 
   _logSpeciesIconResolution(speciesName, null);
