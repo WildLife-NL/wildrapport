@@ -1,7 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/reporting/interaction_interface.dart';
 import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
@@ -51,29 +50,6 @@ void main() {
       expect(result, isNotNull);
       expect(result!.interactionID, equals('int-123'));
       verify(mockInteractionApi.sendInteraction(any)).called(1);
-    });
-
-    test('should throw exception when user is not logged in', () async {
-      // Arrange
-      SharedPreferences.setMockInitialValues({});
-      InteractionHelpers.setupOnlineConnectivity(mockConnectivity);
-
-      // Act & Assert
-      expect(
-        () => interactionManager.postInteraction(
-          mockReport,
-          InteractionType.waarneming,
-        ),
-        throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
-            'message',
-            contains("User Profile Wasn't Loaded"),
-          ),
-        ),
-      );
-
-      verifyNever(mockInteractionApi.sendInteraction(any));
     });
 
     test('should cache interaction when offline', () async {

@@ -455,15 +455,10 @@ void main() {
       expect(fakeApi.calls, 1);
     });
 
-    test('should handle dispose correctly', () {
-      // Arrange
-      mapProvider.initialize();
-
-      // Act
+    test('should handle dispose correctly', () async {
+      await mapProvider.initialize();
+      await Future<void>.delayed(Duration.zero);
       mapProvider.dispose();
-
-      // Assert - no exceptions should be thrown
-      expect(true, isTrue);
     });
 
     test('should skip sending duplicate tracking location', () async {
@@ -539,7 +534,18 @@ void main() {
       expect(mapProvider.animalPins, isEmpty);
       expect(mapProvider.detectionPins, isEmpty);
       expect(mapProvider.interactions, isEmpty);
-      expect(mapProvider.animalPinsError, isNull);
+      expect(
+        mapProvider.animalPinsError,
+        'Geen kaartdata (VicinityApi niet beschikbaar)',
+      );
+      expect(
+        mapProvider.detectionPinsError,
+        'Geen kaartdata (VicinityApi niet beschikbaar)',
+      );
+      expect(
+        mapProvider.interactionsError,
+        'Geen kaartdata (VicinityApi niet beschikbaar)',
+      );
     });
 
     test('should clear pins and positions on resetMapState', () async {
