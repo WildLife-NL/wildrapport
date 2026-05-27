@@ -88,6 +88,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _loadingTrackingHistory = false;
   int _trackingHistoryMinutes = 10; // Default: show last 10 minutes
 
+  /// Break the trail when points are farther apart (avoids a line to an old start).
+  static const double _trackingGapBreakMeters = 150;
+
   // Scale bar state
   double _scaleBarWidth = 80;
   String _scaleBarLabel = '100 m';
@@ -246,8 +249,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       return;
     }
 
-    _bootstrap();
-    _startFollowingMe();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _bootstrap();
+      _startFollowingMe();
+    });
   }
 
   @override
@@ -486,17 +492,62 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
-  List<LatLng> _visibleTrackingPoints() {
+  List<({DateTime timestamp, LatLng point})> _trackingSamplesInWindow() {
     final threshold = DateTime.now().subtract(
       Duration(minutes: _trackingHistoryMinutes),
     );
-    final localPoints = _localTrackingHistory
-        .where((p) => p.timestamp.isAfter(threshold))
-        .map((p) => p.point);
-    final remotePoints = _trackingHistory
-        .where((r) => r.timestamp.isAfter(threshold))
-        .map((r) => LatLng(r.latitude, r.longitude));
-    return [...localPoints, ...remotePoints];
+    final samples = <({DateTime timestamp, LatLng point})>[];
+
+    for (final entry in _localTrackingHistory) {
+      if (entry.timestamp.isAfter(threshold)) {
+        samples.add((timestamp: entry.timestamp, point: entry.point));
+      }
+    }
+    for (final reading in _trackingHistory) {
+      if (reading.timestamp.isAfter(threshold)) {
+        samples.add((
+          timestamp: reading.timestamp,
+          point: LatLng(reading.latitude, reading.longitude),
+        ));
+      }
+    }
+
+    samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    return samples;
+  }
+
+  List<LatLng> _visibleTrackingPoints() {
+    return _trackingSamplesInWindow().map((s) => s.point).toList();
+  }
+
+  /// Chronological segments; large GPS jumps start a new piece (no line to old start).
+  List<List<LatLng>> _trackingPathSegments() {
+    final samples = _trackingSamplesInWindow();
+    if (samples.isEmpty) return const [];
+    if (samples.length == 1) return const [];
+
+    final segments = <List<LatLng>>[];
+    var current = <LatLng>[samples.first.point];
+    const distance = Distance();
+
+    for (var i = 1; i < samples.length; i++) {
+      final prev = samples[i - 1].point;
+      final next = samples[i].point;
+      final gapMeters = distance(prev, next);
+      if (gapMeters > _trackingGapBreakMeters) {
+        if (current.length >= 2) {
+          segments.add(List<LatLng>.from(current));
+        }
+        current = <LatLng>[next];
+      } else {
+        current.add(next);
+      }
+    }
+
+    if (current.length >= 2) {
+      segments.add(current);
+    }
+    return segments;
   }
 
   Future<void> _fetchAllForView() async {
@@ -783,6 +834,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           debugPrint(
             '[TRACKING] No data in 5min window, but found ${recentOnlyReadings.length} readings from last 24h',
           );
+          recentOnlyReadings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
           setState(() {
             _trackingHistory = recentOnlyReadings;
             _showTrackingHistory = true;
@@ -802,6 +854,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
         }
       }
 
+      filteredReadings.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       setState(() {
         _trackingHistory = filteredReadings;
         _showTrackingHistory = true;
@@ -1051,6 +1104,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final pos = map.selectedPosition ?? map.currentPosition;
     const locationSharingOn = true;
     final visibleTrackingPoints = _visibleTrackingPoints();
+    final trackingPathSegments = _trackingPathSegments();
 
     return PopScope(
       canPop: false,
@@ -1328,15 +1382,17 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                               ),
 
                           if (_showTrackingHistory &&
-                              visibleTrackingPoints.isNotEmpty)
+                              trackingPathSegments.isNotEmpty)
                             fm.PolylineLayer(
-                              polylines: [
-                                fm.Polyline(
-                                  points: visibleTrackingPoints,
-                                  color: Colors.blue.withValues(alpha: 0.6),
-                                  strokeWidth: 2.0,
-                                ),
-                              ],
+                              polylines: trackingPathSegments
+                                  .map(
+                                    (segment) => fm.Polyline(
+                                      points: segment,
+                                      color: Colors.blue.withValues(alpha: 0.6),
+                                      strokeWidth: 2.0,
+                                    ),
+                                  )
+                                  .toList(),
                             ),
 
                           if (_showTrackingHistory &&

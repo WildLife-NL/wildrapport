@@ -20,6 +20,20 @@ void main() {
       expect(pin.speciesName, 'Ree');
     });
 
+    test('prefers place over location for map display', () {
+      final json = {
+        'ID': 'a-3',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'place': {'latitude': 52.7, 'longitude': 5.7},
+        'moment': '2026-03-25T12:00:00Z',
+      };
+
+      final pin = AnimalPin.fromJson(json);
+
+      expect(pin.lat, 52.7);
+      expect(pin.lon, 5.7);
+    });
+
     test('falls back to now when timestamp invalid', () {
       final json = {
         'ID': 'a-2',

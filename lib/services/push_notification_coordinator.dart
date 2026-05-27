@@ -62,6 +62,9 @@ class PushNotificationCoordinator {
     if (!_firebaseReady) return;
 
     await NotificationService.instance.ensureAndroidChannel();
+    if (!kIsWeb && Platform.isIOS) {
+      await _configureIosMessaging();
+    }
     _attachTokenRefreshListener(profileApi);
     _attachMessageListeners();
 
@@ -95,6 +98,8 @@ class PushNotificationCoordinator {
             '[PushCoordinator] iOS notification permission denied '
             '(FCM token will still be synced to profile)',
           );
+        } else {
+          await NotificationService.instance.requestIosNotificationPermission();
         }
       }
     }
@@ -112,7 +117,44 @@ class PushNotificationCoordinator {
     );
   }
 
+  Future<void> _configureIosMessaging() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
+  Future<void> _waitForApnsToken({int maxAttempts = 12}) async {
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (attempt > 1) {
+        await Future<void>.delayed(Duration(milliseconds: 250 * attempt));
+      }
+      try {
+        final apns = await FirebaseMessaging.instance.getAPNSToken();
+        if (apns != null && apns.isNotEmpty) {
+          debugPrint(
+            '[PushCoordinator] APNs token ready (attempt $attempt, '
+            'len=${apns.length})',
+          );
+          return;
+        }
+      } catch (e) {
+        debugPrint('[PushCoordinator] getAPNSToken attempt $attempt failed: $e');
+      }
+    }
+    debugPrint(
+      '[PushCoordinator] APNs token not available — FCM may fail on iOS. '
+      'Check Push capability, GoogleService-Info.plist, and Firebase APNs key.',
+    );
+  }
+
   Future<String?> _obtainFcmToken({int maxAttempts = 6}) async {
+    if (!kIsWeb && Platform.isIOS) {
+      await _waitForApnsToken();
+    }
+
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       if (attempt > 1) {
         await Future<void>.delayed(Duration(milliseconds: 350 * attempt));

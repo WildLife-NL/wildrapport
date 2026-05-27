@@ -45,7 +45,7 @@ class Profile {
     return {
       'name': userName,
       'firebaseCloudMessagingToken': firebaseCloudMessagingToken,
-      'natureVisitFrequency': natureVisitFrequency ?? 0,
+      'natureVisitAvgWeeklyFrequency': natureVisitFrequency ?? 0,
       'reportAppTerms': reportAppTerms ?? false,
       'recreationAppTerms': recreationAppTerms ?? false,
       if (gender != null) 'gender': gender,

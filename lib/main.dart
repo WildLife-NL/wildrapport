@@ -66,6 +66,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:wildrapport/firebase_options.dart';
 import 'package:wildrapport/services/fcm_message_handler.dart';
+import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
@@ -112,6 +113,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    attachFirebaseMessageListeners();
   } catch (e) {
     debugPrint('[main] Firebase init skipped: $e');
   }
@@ -228,6 +230,20 @@ void main() async {
             ? const MainNavScreen()
             : const AccessDeniedScreen())
         : const LoginScreen();
+
+      if (hasValidToken &&
+          hasAccess &&
+          hasScopeAccess &&
+          appStateProvider.notificationsEnabled) {
+        try {
+          await PushNotificationCoordinator.instance.syncAfterLogin(
+            profileApi: profileApi,
+            requestPermission: false,
+          );
+        } catch (e) {
+          debugPrint('[main] FCM sync on cold start failed: $e');
+        }
+      }
     }
 
   runApp(

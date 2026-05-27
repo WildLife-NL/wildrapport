@@ -1,3 +1,5 @@
+import 'package:wildrapport/utils/preferred_report_location.dart';
+
 class DetectionPin {
   final String id;
   final String? deviceType;
@@ -18,7 +20,7 @@ class DetectionPin {
   });
 
   factory DetectionPin.fromJson(Map<String, dynamic> j) {
-    final loc = _locationMap(j['location'] ?? j['place']);
+    final loc = PreferredReportLocation.mapForDisplay(j);
     if (loc == null) {
       throw const FormatException('DetectionPin: missing location');
     }
@@ -60,12 +62,6 @@ class DetectionPin {
           speciesMap?['name']?.toString(),
       confidence: (j['confidence'] as num?)?.toDouble(),
     );
-  }
-
-  static Map<String, dynamic>? _locationMap(Object? value) {
-    if (value is Map<String, dynamic>) return value;
-    if (value is Map) return Map<String, dynamic>.from(value);
-    return null;
   }
 
   static double? _asDouble(Object? value) {

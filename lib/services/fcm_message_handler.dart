@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +23,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     debugPrint('[FCM] dotenv load in background failed: $e');
   }
   await NotificationService.instance.init();
-  await _showRemoteMessageAsNotification(message);
+  await _showRemoteMessageAsNotification(message, skipPermissionCheck: true);
 }
 
 /// Parses FCM notification + data payloads (backend may send either).
@@ -79,7 +82,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   return (title: title, body: '');
 }
 
-Future<void> _showRemoteMessageAsNotification(RemoteMessage message) async {
+Future<void> _showRemoteMessageAsNotification(
+  RemoteMessage message, {
+  bool skipPermissionCheck = false,
+}) async {
   var parsed = _parseRemoteMessage(message);
 
   final alarmResolved = await AlarmNotificationResolver.resolve(
@@ -124,12 +130,26 @@ Future<void> _showRemoteMessageAsNotification(RemoteMessage message) async {
     priority: Priority.high,
     channelId: kPushNotificationChannelId,
     payload: payload,
+    skipPermissionCheck: skipPermissionCheck,
   );
 }
 
-/// Foreground + tap handlers. Call once after Firebase is ready (logged-in session).
+bool _firebaseMessageListenersAttached = false;
+
+/// Foreground + tap handlers. Safe to call from [main] and after login.
 void attachFirebaseMessageListeners() {
-  if (kIsWeb) return;
+  if (kIsWeb || _firebaseMessageListenersAttached) return;
+  _firebaseMessageListenersAttached = true;
+
+  if (!kIsWeb && Platform.isIOS) {
+    unawaited(
+      FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      ),
+    );
+  }
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     debugPrint('[FCM] onMessage (foreground): ${message.messageId}');

@@ -20,11 +20,25 @@ void main() {
       expect(result.id, 'itx-1');
       expect(result.lat, 52.1);
       expect(result.lon, 5.1);
-      expect(result.typeName, 'Sighting');
+      expect(result.typeName, 'waarneming');
       expect(result.speciesName, 'Vos');
       expect(result.description, 'Seen near forest');
       expect(result.userName, 'Guus');
       expect(result.placeName, 'Utrecht');
+    });
+
+    test('prefers place coordinates over location when both present', () {
+      final json = {
+        'ID': 'itx-place',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'place': {'latitude': 52.8, 'longitude': 5.8},
+        'moment': '2026-03-25T10:30:00Z',
+      };
+
+      final result = InteractionQueryResult.fromJson(json);
+
+      expect(result.lat, 52.8);
+      expect(result.lon, 5.8);
     });
 
     test('throws FormatException when id is missing', () {

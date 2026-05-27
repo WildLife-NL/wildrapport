@@ -145,7 +145,7 @@ void main() {
       expect(profileModel.natureVisitFrequency, 2);
     });
 
-    test('toUpdateJson uses notes and natureVisitFrequency', () {
+    test('toUpdateJson uses notes and natureVisitAvgWeeklyFrequency', () {
       final profileModel = Profile(
         userID: '123',
         email: 'john.doe@example.com',
@@ -162,9 +162,9 @@ void main() {
       );
 
       expect(json['notes'], 'Weekend walks');
-      expect(json['natureVisitFrequency'], 4);
+      expect(json['natureVisitAvgWeeklyFrequency'], 4);
       expect(json.containsKey('description'), isFalse);
-      expect(json.containsKey('natureVisitAvgWeeklyFrequency'), isFalse);
+      expect(json.containsKey('natureVisitFrequency'), isFalse);
     });
 
     test('should handle empty string values in JSON', () {
