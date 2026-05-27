@@ -31,6 +31,10 @@ String? getAnimalPhotoPath(String? name) {
     'wild zwijn': 'wildzwijn',
     'europese nerts': 'europese nerts',
     'europesenerts': 'europesenerts',
+    'boommarter': 'boommarter',
+    'boommarten': 'boommarter',
+    'steenmarter': 'steenmarter',
+    'steenmarten': 'steenmarter',
   };
 
   final fileStem = aliases[nameLower] ??
