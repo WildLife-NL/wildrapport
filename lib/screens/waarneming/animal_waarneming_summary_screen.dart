@@ -7,6 +7,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_condition.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
+import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/utils/interaction_pin_factory.dart';
@@ -109,13 +110,19 @@ class _AnimalWaarnemingSummaryScreenState
 
       if (!mounted) return;
 
+      final questionCount = response.questionnaire.questions?.length ?? 0;
+      final Widget targetScreen = questionCount > 0
+          ? QuestionnaireScreen(
+              questionnaire: response.questionnaire,
+              interactionID: response.interactionID,
+            )
+          : const MainNavScreen(
+              initialTab: NavTab.logboek,
+              openRecentSightingsDirectly: true,
+            );
+
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const MainNavScreen(
-            initialTab: NavTab.logboek,
-            openRecentSightingsDirectly: true,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => targetScreen),
         (route) => false,
       );
     } catch (e) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -62,13 +63,19 @@ class _SchademeldingSummaryScreenState
 
       sightingManager.clearCurrentanimalSighting();
 
+      final questionCount = response.questionnaire.questions?.length ?? 0;
+      final Widget targetScreen = questionCount > 0
+          ? QuestionnaireScreen(
+              questionnaire: response.questionnaire,
+              interactionID: response.interactionID,
+            )
+          : const MainNavScreen(
+              initialTab: NavTab.logboek,
+              openRecentSightingsDirectly: true,
+            );
+
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const MainNavScreen(
-            initialTab: NavTab.logboek,
-            openRecentSightingsDirectly: true,
-          ),
-        ),
+        MaterialPageRoute(builder: (context) => targetScreen),
         (route) => false,
       );
     } catch (e, stackTrace) {
