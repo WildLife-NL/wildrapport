@@ -11,6 +11,7 @@ import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
+import 'package:wildrapport/utils/access_scope_utils.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 import 'package:wildrapport/constants/app_icon_paths.dart';
@@ -38,13 +39,31 @@ Future<void> _routeAfterLogin(BuildContext context) async {
     // Check access with fresh authenticator state
     final authenticator = context.read<WildLifeNLAuthenticator>();
     final hasValidToken = await authenticator.hasValidToken();
+    final hasAccess = await authenticator.hasAccess();
+    var hasScopeAccess = false;
+    if (hasValidToken && hasAccess) {
+      final scopeAccess = await AccessScopeUtils.checkAuthorizeScopes(
+        AppConfig.shared.apiClient,
+      );
+      hasScopeAccess = scopeAccess.checked
+          ? scopeAccess.hasRequiredScope
+          : hasAccess;
+      debugPrint(
+        '[LoginScreen] Scope checked=${scopeAccess.checked}, '
+        'hasRequiredScope=${scopeAccess.hasRequiredScope}, '
+        'scopes=${scopeAccess.scopes.toList()}',
+      );
+    }
     
     debugPrint('[LoginScreen] Token valid: $hasValidToken');
     
     // If we have a valid token AND we successfully fetched the profile,
     // the user should have access
-    if (!hasValidToken) {
-      debugPrint('[LoginScreen] No valid token, denying access');
+    if (!hasValidToken || !hasAccess || !hasScopeAccess) {
+      debugPrint(
+        '[LoginScreen] Access denied '
+        '(token=$hasValidToken, hasAccess=$hasAccess, scope=$hasScopeAccess)',
+      );
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AccessDeniedScreen()),
         (_) => false,
