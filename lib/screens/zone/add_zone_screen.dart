@@ -26,13 +26,23 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _mapController = fm.MapController();
-  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+  /// Fallback only when GPS is unavailable (centre of NL).
+  static const LatLng _fallbackCenter = LatLng(52.15, 5.38);
+  LatLng _mapCenter = _fallbackCenter;
   List<LatLng> _polygonPoints = [];
   LatLng? _currentLocation;
   bool _isSubmitting = false;
   bool _isLoadingLocation = false;
   DateTime _lastMapTapTime = DateTime(0);
   static const _mapTapDebounceMs = 400;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialMapCenter();
+    });
+  }
 
   @override
   void dispose() {
@@ -50,6 +60,27 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     setState(() => _polygonPoints.add(point));
   }
 
+  Future<void> _loadInitialMapCenter() async {
+    setState(() => _isLoadingLocation = true);
+    var point = await _resolveDeviceLocation(
+      preferCached: true,
+      requestPermissionIfDenied: true,
+    );
+    point ??= await _resolveDeviceLocation(
+      preferCached: false,
+      requestPermissionIfDenied: false,
+    );
+    if (!mounted) return;
+    setState(() => _isLoadingLocation = false);
+    final center = point;
+    if (center == null) return;
+    setState(() {
+      _currentLocation = center;
+      _mapCenter = center;
+    });
+    _mapController.move(center, 16);
+  }
+
   Future<void> _goToMyLocation() async {
     if (_isLoadingLocation) return;
     final appState = context.read<AppStateProvider>();
@@ -62,10 +93,33 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
 
     setState(() => _isLoadingLocation = true);
     try {
+      final point = await _resolveDeviceLocation(
+        preferCached: true,
+        requestPermissionIfDenied: true,
+        showErrors: true,
+      );
+      if (!mounted || point == null) return;
+      setState(() {
+        _currentLocation = point;
+        _mapCenter = point;
+      });
+      _mapController.move(point, 16);
+    } finally {
+      if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
+  /// Returns device GPS position for map centre; null if unavailable.
+  Future<LatLng?> _resolveDeviceLocation({
+    bool preferCached = false,
+    bool requestPermissionIfDenied = false,
+    bool showErrors = false,
+  }) async {
+    try {
       if (!MockLocationConfig.kForceMockLocation) {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          if (mounted) {
+          if (showErrors && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -74,15 +128,16 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               ),
             );
           }
-          return;
+          return null;
         }
         var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
+        if (permission == LocationPermission.denied &&
+            requestPermissionIfDenied) {
           permission = await Geolocator.requestPermission();
         }
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          if (mounted) {
+          if (showErrors && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -91,79 +146,40 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               ),
             );
           }
-          return;
+          return null;
         }
       }
 
-      Position pos;
       if (MockLocationConfig.kForceMockLocation) {
-        pos = Position(
-          latitude: MockLocationConfig.kMockLat,
-          longitude: MockLocationConfig.kMockLon,
-          timestamp: DateTime.now(),
-          accuracy: 3.0,
-          altitude: 0.0,
-          heading: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
-          altitudeAccuracy: 0.0,
-          headingAccuracy: 0.0,
+        return const LatLng(
+          MockLocationConfig.kMockLat,
+          MockLocationConfig.kMockLon,
         );
-      } else {
-        // Eerst cache: vaak direct beschikbaar, dan direct iets tonen
+      }
+
+      if (preferCached) {
         final cached = await Geolocator.getLastKnownPosition();
-        if (cached != null && mounted) {
-          final point = LatLng(cached.latitude, cached.longitude);
-          setState(() {
-            _currentLocation = point;
-            _isLoadingLocation = false;
-          });
-          _mapController.move(point, 16);
-          // Op achtergrond verse positie ophalen (lagere nauwkeurigheid = sneller)
-          Geolocator.getCurrentPosition(
-                locationSettings: const LocationSettings(
-                  accuracy: LocationAccuracy.low,
-                  timeLimit: Duration(seconds: 8),
-                ),
-              )
-              .then((fresh) {
-                if (!mounted) return;
-                setState(
-                  () =>
-                      _currentLocation = LatLng(
-                        fresh.latitude,
-                        fresh.longitude,
-                      ),
-                );
-                _mapController.move(
-                  LatLng(fresh.latitude, fresh.longitude),
-                  16,
-                );
-              })
-              .catchError((_) {});
-          return;
+        if (cached != null) {
+          return LatLng(cached.latitude, cached.longitude);
         }
-        // Geen cache: verse positie (low = sneller, max 8 sec)
-        pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.low,
-            timeLimit: Duration(seconds: 8),
+      }
+
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+      return LatLng(pos.latitude, pos.longitude);
+    } catch (e) {
+      if (showErrors && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Huidige locatie kon niet worden opgehaald.'),
           ),
         );
       }
-      final point = LatLng(pos.latitude, pos.longitude);
-      if (!mounted) return;
-      setState(() => _currentLocation = point);
-      _mapController.move(point, 16);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Huidge locatie kon niet worden opgehaald.'),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoadingLocation = false);
+      return null;
     }
   }
 
@@ -277,20 +293,6 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               userIconScale: 1.15,
               useFixedText: true,
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Klik op de kaart om punten te\nmarkeren en zo je zone af te bakenen:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -313,12 +315,19 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                             children: [
                               const Text(
                                 'Teken je zone op de kaart',
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
                               const SizedBox(height: 6),
                               const Text(
-                                'Tik op de kaart om punten te zetten (min. 3). Gebruik "Huidige locatie" om naar je positie te gaan.',
-                                style: TextStyle(fontSize: 12, color: AppColors.darkGrey),
+                                'Tik op de kaart om punten te zetten (minimaal 3). '
+                                'Rechtsonder: terug naar je huidige locatie.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.darkGrey,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               ClipRRect(
@@ -330,8 +339,8 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                       WildLifeNLMap(
                                 mapController: _mapController,
                                 options: fm.MapOptions(
-                                  initialCenter: _defaultCenter,
-                                  initialZoom: 10,
+                                  initialCenter: _mapCenter,
+                                  initialZoom: 14,
                                   minZoom: 4,
                                   maxZoom: 17,
                                   onTap: (_, point) => _onMapTap(point),
