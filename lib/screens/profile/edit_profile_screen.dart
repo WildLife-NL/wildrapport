@@ -145,6 +145,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         userID: widget.initialProfile.userID,
         email: widget.initialProfile.email,
         userName: _nameController.text,
+        roles: widget.initialProfile.roles,
         postcode: _postcodeController.text.isNotEmpty ? _postcodeController.text : null,
         gender: _selectedGender,
         dateOfBirth: _dateOfBirthController.text.isNotEmpty ? _dateOfBirthController.text : null,
@@ -341,16 +342,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         // Role Dropdown
                         Text(
-                          'Rol',
+                          'Geslacht',
                           style: TextStyle(
                             fontSize: fs(13),
                             color: Colors.grey.shade700,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        
                         const SizedBox(height: 8),
                         _buildGenderDropdown(responsive),
                         const SizedBox(height: 16),
+                        // Role
+Text(
+  'Rol',
+  style: TextStyle(
+    fontSize: fs(13),
+    color: Colors.grey.shade700,
+    fontWeight: FontWeight.w500,
+  ),
+),
+const SizedBox(height: 8),
+Container(
+  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(color: Colors.grey.shade300),
+  ),
+  child: Text(
+    widget.initialProfile.roles?.join(', ') ?? 'Geen rol',
+    style: TextStyle(
+      fontSize: fs(15),
+      color: Colors.grey.shade700,
+    ),
+  ),
+),
+const SizedBox(height: 16),
 
                         // Postcode
                         Text(

@@ -3,6 +3,7 @@ class Profile {
   String email;
   String? gender;
   String userName;
+  List<String>? roles;
   String? postcode;
   bool? reportAppTerms;
   bool? recreationAppTerms;
@@ -18,6 +19,7 @@ class Profile {
     required this.email,
     this.gender,
     required this.userName,
+    this.roles,
     this.postcode,
     this.reportAppTerms,
     this.recreationAppTerms,
@@ -60,6 +62,7 @@ class Profile {
     'email': email,
     'gender': gender,
     'name': userName,
+    if (roles != null) 'roles': roles,
     'postcode': postcode,
     'reportAppTerms': reportAppTerms,
     'recreationAppTerms': recreationAppTerms,
@@ -76,6 +79,9 @@ class Profile {
     email: json['email'] as String,
     gender: json['gender'] as String?,
     userName: json['name'] as String,
+    roles: (json['roles'] as List?)
+    ?.map((role) => role['name'] as String)
+    .toList(),
     postcode: json['postcode'] as String?,
     reportAppTerms: json['reportAppTerms'] as bool?,
     recreationAppTerms: json['recreationAppTerms'] as bool?,
