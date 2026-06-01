@@ -56,7 +56,7 @@ abstract final class DeviceLocationResolver {
       }
     }
 
-    if (position != null && _reject(position, rejectLegacyMockCoordinates)) {
+    if (_reject(position, rejectLegacyMockCoordinates)) {
       return null;
     }
     return position;

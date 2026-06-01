@@ -2160,10 +2160,15 @@ class MockMapProvider extends _i1.Mock implements _i66.MapProvider {
 
   @override
   _i20.Future<_i70.TrackingNotice?> sendTrackingPingFromPosition(
-    _i28.Position? pos,
-  ) =>
+    _i28.Position? pos, {
+    bool allowProximityNotification = true,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#sendTrackingPingFromPosition, [pos]),
+            Invocation.method(
+              #sendTrackingPingFromPosition,
+              [pos],
+              {#allowProximityNotification: allowProximityNotification},
+            ),
             returnValue: _i20.Future<_i70.TrackingNotice?>.value(),
           )
           as _i20.Future<_i70.TrackingNotice?>);

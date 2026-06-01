@@ -32,7 +32,7 @@ void main() {
       final sighting = AnimalSightingModel(
         animalCount: 20,
         animals: [
-          AnimalModel(animalName: 'Vos'),
+          AnimalModel(animalName: 'Vos', genderViewCounts: []),
         ],
       );
 
