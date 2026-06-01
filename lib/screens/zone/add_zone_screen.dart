@@ -24,46 +24,57 @@ class AddZoneScreen extends StatefulWidget {
 class _AddZoneScreenState extends State<AddZoneScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final _nameFocusNode = FocusNode();
   final _mapController = fm.MapController();
+  
+
   static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+
   List<LatLng> _polygonPoints = [];
   LatLng? _currentLocation;
   bool _isSubmitting = false;
   bool _isLoadingLocation = false;
   DateTime _lastMapTapTime = DateTime(0);
+
   static const _mapTapDebounceMs = 400;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _descriptionController.dispose();
+    _nameFocusNode.dispose();
     _mapController.dispose();
     super.dispose();
   }
 
   void _onMapTap(LatLng point) {
     final now = DateTime.now();
-    if (now.difference(_lastMapTapTime).inMilliseconds < _mapTapDebounceMs)
+    if (now.difference(_lastMapTapTime).inMilliseconds < _mapTapDebounceMs) {
       return;
+    }
+
     _lastMapTapTime = now;
     setState(() => _polygonPoints.add(point));
   }
 
   Future<void> _goToMyLocation() async {
     if (_isLoadingLocation) return;
+
     final appState = context.read<AppStateProvider>();
+
     if (!appState.isLocationTrackingEnabled) {
       final enable = await showLocationSharingOffDialog(context);
       if (!mounted || enable != true) return;
+
       await appState.setLocationTrackingEnabled(true);
       if (!mounted) return;
     }
 
     setState(() => _isLoadingLocation = true);
+
     try {
       if (!MockLocationConfig.kForceMockLocation) {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
         if (!serviceEnabled) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -76,10 +87,13 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
           }
           return;
         }
+
         var permission = await Geolocator.checkPermission();
+
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
         }
+
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
           if (mounted) {
@@ -96,6 +110,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
       }
 
       Position pos;
+
       if (MockLocationConfig.kForceMockLocation) {
         pos = Position(
           latitude: MockLocationConfig.kMockLat,
@@ -110,40 +125,35 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
           headingAccuracy: 0.0,
         );
       } else {
-        // Eerst cache: vaak direct beschikbaar, dan direct iets tonen
         final cached = await Geolocator.getLastKnownPosition();
+
         if (cached != null && mounted) {
           final point = LatLng(cached.latitude, cached.longitude);
+
           setState(() {
             _currentLocation = point;
             _isLoadingLocation = false;
           });
+
           _mapController.move(point, 16);
-          // Op achtergrond verse positie ophalen (lagere nauwkeurigheid = sneller)
+
           Geolocator.getCurrentPosition(
-                locationSettings: const LocationSettings(
-                  accuracy: LocationAccuracy.low,
-                  timeLimit: Duration(seconds: 8),
-                ),
-              )
-              .then((fresh) {
-                if (!mounted) return;
-                setState(
-                  () =>
-                      _currentLocation = LatLng(
-                        fresh.latitude,
-                        fresh.longitude,
-                      ),
-                );
-                _mapController.move(
-                  LatLng(fresh.latitude, fresh.longitude),
-                  16,
-                );
-              })
-              .catchError((_) {});
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.low,
+              timeLimit: Duration(seconds: 8),
+            ),
+          ).then((fresh) {
+            if (!mounted) return;
+
+            final freshPoint = LatLng(fresh.latitude, fresh.longitude);
+
+            setState(() => _currentLocation = freshPoint);
+            _mapController.move(freshPoint, 16);
+          }).catchError((_) {});
+
           return;
         }
-        // Geen cache: verse positie (low = sneller, max 8 sec)
+
         pos = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.low,
@@ -151,12 +161,16 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
           ),
         );
       }
+
       final point = LatLng(pos.latitude, pos.longitude);
+
       if (!mounted) return;
+
       setState(() => _currentLocation = point);
       _mapController.move(point, 16);
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Huidge locatie kon niet worden opgehaald.'),
@@ -178,6 +192,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _isSubmitting) return;
+
     if (_polygonPoints.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -191,25 +206,27 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
 
     setState(() => _isSubmitting = true);
 
-    final definition =
-        _polygonPoints
-            .map(
-              (p) => ZoneDefinitionPoint(
-                latitude: p.latitude,
-                longitude: p.longitude,
-              ),
-            )
-            .toList();
+    final definition = _polygonPoints
+        .map(
+          (p) => ZoneDefinitionPoint(
+            latitude: p.latitude,
+            longitude: p.longitude,
+          ),
+        )
+        .toList();
+
     final request = ZoneCreateRequest(
       name: _nameController.text.trim(),
-      description: _descriptionController.text.trim(),
+      description: '',
       definition: definition,
     );
 
     String? errorMessage;
     Zone? zone;
+
     try {
       final apiClient = context.read<ApiClient>();
+
       final response = await apiClient.post(
         'zone/',
         request.toJson(),
@@ -217,6 +234,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
       );
 
       if (!mounted) return;
+
       if (response.statusCode == 200) {
         try {
           final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -237,12 +255,13 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     }
 
     if (!mounted) return;
+
     setState(() => _isSubmitting = false);
 
     if (zone != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Zone is toegevoegd.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Zone is toegevoegd.')),
+      );
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,6 +279,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
@@ -284,16 +304,23 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                 child: Text(
                   'Klik op de kaart om punten te\nmarkeren en zo je zone af te bakenen:',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textPrimary,
-                  ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textPrimary,
+                      ),
                 ),
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child:SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  16,
+                  20,
+                  16 + MediaQuery.of(context).viewInsets.bottom,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -301,10 +328,12 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                     children: [
                       Card(
                         color: Colors.white,
-                        elevation: 2,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: AppColors.borderDefault),
+                          side: const BorderSide(
+                            color: AppColors.borderDefault,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -313,12 +342,19 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                             children: [
                               const Text(
                                 'Teken je zone op de kaart',
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                               const SizedBox(height: 6),
                               const Text(
                                 'Tik op de kaart om punten te zetten (min. 3). Gebruik "Huidige locatie" om naar je positie te gaan.',
-                                style: TextStyle(fontSize: 12, color: AppColors.darkGrey),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.darkGrey,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               ClipRRect(
@@ -328,60 +364,105 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                   child: Stack(
                                     children: [
                                       WildLifeNLMap(
-                                mapController: _mapController,
-                                options: fm.MapOptions(
-                                  initialCenter: _defaultCenter,
-                                  initialZoom: 10,
-                                  minZoom: 4,
-                                  maxZoom: 17,
-                                  onTap: (_, point) => _onMapTap(point),
-                                  interactionOptions: const fm.InteractionOptions(
-                                    flags: fm.InteractiveFlag.drag |
-                                        fm.InteractiveFlag.pinchZoom |
-                                        fm.InteractiveFlag.doubleTapZoom |
-                                        fm.InteractiveFlag.flingAnimation |
-                                        fm.InteractiveFlag.pinchMove,
-                                  ),
-                                ),
-                                extraLayers: [
-                                  if (_polygonPoints.isNotEmpty)
-                                    fm.PolygonLayer(
-                                      polygons: [
-                                        fm.Polygon(
-                                          points: _polygonPoints,
-                                          color: AppColors.primaryGreen.withValues(alpha: 0.25),
-                                          borderStrokeWidth: 2,
-                                          borderColor: AppColors.primaryGreen,
-                                        ),
-                                      ],
-                                    ),
-                                  if (_currentLocation != null)
-                                    fm.MarkerLayer(
-                                      markers: [
-                                        fm.Marker(
-                                          point: _currentLocation!,
-                                          width: 36,
-                                          height: 36,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: AppColors.liveLocation,
-                                              border: Border.all(
-                                                color: AppColors.liveLocation,
-                                                width: 3,
-                                              ),
-                                            ),
-                                            child: const Icon(
-                                              Icons.my_location,
-                                              color: Colors.blue,
-                                              size: 22,
-                                            ),
+                                        mapController: _mapController,
+                                        options: fm.MapOptions(
+                                          initialCenter: _defaultCenter,
+                                          initialZoom: 10,
+                                          minZoom: 4,
+                                          maxZoom: 17,
+                                          onTap: (_, point) =>
+                                              _onMapTap(point),
+                                          interactionOptions:
+                                              const fm.InteractionOptions(
+                                            flags: fm.InteractiveFlag.drag |
+                                                fm.InteractiveFlag.pinchZoom |
+                                                fm.InteractiveFlag
+                                                    .doubleTapZoom |
+                                                fm.InteractiveFlag
+                                                    .flingAnimation |
+                                                fm.InteractiveFlag.pinchMove,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                ],
-                              ),
+                                        extraLayers: [
+                                          if (_polygonPoints.isNotEmpty)
+                                            fm.PolygonLayer(
+                                              polygons: [
+                                                fm.Polygon(
+                                                  points: _polygonPoints,
+                                                  color: AppColors.primaryGreen
+                                                      .withValues(alpha: 0.25),
+                                                  borderStrokeWidth: 2,
+                                                  borderColor:
+                                                      AppColors.primaryGreen,
+                                                ),
+                                              ],
+                                            ),
+                                          if (_polygonPoints.isNotEmpty)
+                                            fm.MarkerLayer(
+                                              markers: _polygonPoints
+                                                  .asMap()
+                                                  .entries
+                                                  .map((entry) {
+                                                final index = entry.key;
+                                                final point = entry.value;
+
+                                                return fm.Marker(
+                                                  point: point,
+                                                  width: 35,
+                                                  height: 35,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: AppColors
+                                                          .primaryGreen,
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 3,
+                                                      ),
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      '${index + 1}',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          if (_currentLocation != null)
+                                            fm.MarkerLayer(
+                                              markers: [
+                                                fm.Marker(
+                                                  point: _currentLocation!,
+                                                  width: 36,
+                                                  height: 36,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: AppColors
+                                                          .liveLocation,
+                                                      border: Border.all(
+                                                        color: AppColors
+                                                            .liveLocation,
+                                                        width: 3,
+                                                      ),
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.my_location,
+                                                      color: Colors.blue,
+                                                      size: 22,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
                                       if (_isLoadingLocation)
                                         Positioned.fill(
                                           child: Container(
@@ -390,7 +471,8 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                               child: SizedBox(
                                                 width: 40,
                                                 height: 40,
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                   color: Colors.white,
                                                 ),
@@ -403,16 +485,21 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                         left: 12,
                                         child: GestureDetector(
                                           behavior: HitTestBehavior.opaque,
-                                          onTap: _polygonPoints.isEmpty ? null : _removeLastPoint,
+                                          onTap: _polygonPoints.isEmpty
+                                              ? null
+                                              : _removeLastPoint,
                                           child: Container(
                                             width: 50,
                                             height: 50,
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: AppColors.textPrimary,
-                                              border: Border.all(color: AppColors.borderDefault, width: 2),
+                                              color: AppColors.darkCharcoal,
                                             ),
-                                            child: const Icon(Icons.undo, size: 24, color: Colors.white),
+                                            child: const Icon(
+                                              Icons.undo,
+                                              size: 24,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -421,30 +508,31 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                         right: 12,
                                         child: GestureDetector(
                                           behavior: HitTestBehavior.opaque,
-                                          onTap: _isLoadingLocation ? null : _goToMyLocation,
+                                          onTap: _isLoadingLocation
+                                              ? null
+                                              : _goToMyLocation,
                                           child: Container(
                                             width: 50,
                                             height: 50,
-                                            decoration: BoxDecoration(
+                                            decoration: const BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: const Color(0xFF333333),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withValues(alpha: 0.2),
-                                                  blurRadius: 4,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
+                                              color: AppColors.darkCharcoal,
                                             ),
                                             child: _isLoadingLocation
                                                 ? const Padding(
-                                                    padding: EdgeInsets.all(12),
-                                                    child: CircularProgressIndicator(
+                                                    padding:
+                                                        EdgeInsets.all(12),
+                                                    child:
+                                                        CircularProgressIndicator(
                                                       strokeWidth: 2,
                                                       color: Colors.white,
                                                     ),
                                                   )
-                                                : const Icon(Icons.my_location, size: 24, color: Colors.white),
+                                                : const Icon(
+                                                    Icons.my_location,
+                                                    size: 24,
+                                                    color: Colors.white,
+                                                  ),
                                           ),
                                         ),
                                       ),
@@ -465,71 +553,64 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                   ),
                                   const Spacer(),
                                   TextButton.icon(
-                                    onPressed: _polygonPoints.isEmpty ? null : _removeLastPoint,
+                                    onPressed: _polygonPoints.isEmpty
+                                        ? null
+                                        : _removeLastPoint,
                                     icon: const Icon(Icons.undo, size: 18),
                                     label: const Text('Ongedaan'),
-                                    style: TextButton.styleFrom(foregroundColor: AppColors.primaryGreen),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor:
+                                          AppColors.primaryGreen,
+                                    ),
                                   ),
                                   TextButton.icon(
-                                    onPressed: _polygonPoints.isEmpty ? null : _clearPoints,
-                                    icon: const Icon(Icons.clear_all, size: 18),
+                                    onPressed: _polygonPoints.isEmpty
+                                        ? null
+                                        : _clearPoints,
+                                    icon:
+                                        const Icon(Icons.clear_all, size: 18),
                                     label: const Text('Wissen'),
-                                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red,
+                                    ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Card(
-                        color: Colors.white,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: AppColors.borderDefault),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
+                              const SizedBox(height: 12),
                               TextFormField(
                                 controller: _nameController,
+                                focusNode: _nameFocusNode,
+                                scrollPadding: const EdgeInsets.only(bottom: 260),
+                                onTap: () {
+                                  Future.delayed(const Duration(milliseconds: 350), () {
+                                    if (!mounted) return;
+
+                                    Scrollable.ensureVisible(
+                                      context,
+                                      duration: const Duration(milliseconds: 300),
+                                      curve: Curves.easeOut,
+                                      alignment: 0.15,
+                                    );
+                                  });
+                                },
+                                
                                 decoration: InputDecoration(
                                   labelText: 'Naam',
                                   hintText: 'Minimaal 2 tekens',
                                   filled: true,
                                   fillColor: Colors.white,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.borderDefault),
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: const BorderSide(
+                                      color: AppColors.borderDefault,
+                                    ),
                                   ),
                                 ),
                                 validator: (v) {
                                   final s = v?.trim() ?? '';
-                                  if (s.length < 2) return 'Naam moet minimaal 2 tekens zijn.';
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                controller: _descriptionController,
-                                maxLines: 2,
-                                decoration: InputDecoration(
-                                  labelText: 'Beschrijving',
-                                  hintText: 'Minimaal 5 tekens',
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(color: AppColors.borderDefault),
-                                  ),
-                                ),
-                                validator: (v) {
-                                  final s = v?.trim() ?? '';
-                                  if (s.length < 5) return 'Beschrijving moet minimaal 5 tekens zijn.';
+                                  if (s.length < 2) {
+                                    return 'Naam moet minimaal 2 tekens zijn.';
+                                  }
                                   return null;
                                 },
                               ),
