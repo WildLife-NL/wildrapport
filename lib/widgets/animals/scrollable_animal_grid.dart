@@ -9,7 +9,11 @@ class ScrollableAnimalGrid extends StatelessWidget {
   final String? error;
   final ScrollController scrollController;
   final Function(AnimalModel) onAnimalSelected;
+
+  
   final VoidCallback? onRetry;
+  final Set<String> selectedAnimalIds;
+  final Map<String, int> selectedOrderIds;
 
   const ScrollableAnimalGrid({
     super.key,
@@ -19,6 +23,8 @@ class ScrollableAnimalGrid extends StatelessWidget {
     required this.scrollController,
     required this.onAnimalSelected,
     this.onRetry,
+    this.selectedAnimalIds = const {},
+    this.selectedOrderIds = const {},   
   });
 
   Widget _buildContent() {
@@ -129,7 +135,12 @@ class ScrollableAnimalGrid extends StatelessWidget {
       );
     }
 
-    return AnimalGrid(animals: animals!, onAnimalSelected: onAnimalSelected);
+    return AnimalGrid(
+  animals: animals!,
+  onAnimalSelected: onAnimalSelected,
+  selectedAnimalIds: selectedAnimalIds,
+  selectedOrderIds: selectedOrderIds,
+);
   }
 
   @override

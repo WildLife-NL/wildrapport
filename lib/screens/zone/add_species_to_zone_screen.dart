@@ -20,7 +20,7 @@ class AddSpeciesToZoneScreen extends StatefulWidget {
 class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   Zone? _selectedZone;
   List<Zone> _zones = [];
-  Species? _selectedSpecies;
+  List<Species> _selectedSpecies = [];
   bool _loading = true;
   bool _isSubmitting = false;
   String? _loadError;
@@ -33,13 +33,22 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
 
   Future<void> _loadZones() async {
     final apiClient = context.read<ApiClient>();
+
     try {
-      final zonesResponse = await apiClient.get('zones/me/', authenticated: true);
+      final zonesResponse = await apiClient.get(
+        'zones/me/',
+        authenticated: true,
+      );
+
       List<Zone> zones = [];
+
       if (zonesResponse.statusCode == 200) {
         final list = jsonDecode(zonesResponse.body) as List;
-        zones = list.map((e) => Zone.fromJson(e as Map<String, dynamic>)).toList();
+        zones = list
+            .map((e) => Zone.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
+
       if (mounted) {
         setState(() {
           _zones = zones;
@@ -63,49 +72,66 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
       );
       return;
     }
-    final zoneId = _selectedZone!.id;
-    if (_selectedSpecies == null) {
+
+    if (_selectedSpecies.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kies een diersoort.')),
+        const SnackBar(content: Text('Kies minimaal één diersoort.')),
       );
       return;
     }
+
     if (_isSubmitting) return;
 
     setState(() => _isSubmitting = true);
 
+    final zoneId = _selectedZone!.id;
     String? errorMessage;
-    bool success = false;
+    bool success = true;
+
     try {
       final apiClient = context.read<ApiClient>();
-      final response = await apiClient.post(
-        'zone/species/',
-        {'zoneID': zoneId, 'speciesID': _selectedSpecies!.id},
-        authenticated: true,
-      );
 
-      if (!mounted) return;
-      if (response.statusCode == 200) {
-        success = true;
-      } else {
-        String body = response.body;
-        if (body.length > 200) body = '${body.substring(0, 200)}...';
-        errorMessage = 'Fout ${response.statusCode}: $body';
+      for (final species in _selectedSpecies) {
+        final response = await apiClient.post(
+          'zone/species/',
+          {
+            'zoneID': zoneId,
+            'speciesID': species.id,
+          },
+          authenticated: true,
+        );
+
+        if (response.statusCode != 200) {
+          success = false;
+
+          String body = response.body;
+          if (body.length > 200) {
+            body = '${body.substring(0, 200)}...';
+          }
+
+          errorMessage = 'Fout ${response.statusCode}: $body';
+          break;
+        }
       }
     } catch (e, st) {
-      if (mounted) {
-        errorMessage = e.toString();
-        debugPrint('Add species to zone exception: $e\n$st');
-      }
+      success = false;
+      errorMessage = e.toString();
+      debugPrint('Add species to zone exception: $e\n$st');
     }
 
     if (!mounted) return;
+
     setState(() => _isSubmitting = false);
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dier is aan de zone toegevoegd.')),
+        SnackBar(
+          content: Text(
+            '${_selectedSpecies.length} diersoort${_selectedSpecies.length == 1 ? '' : 'en'} toegevoegd aan de zone.',
+          ),
+        ),
       );
+
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,6 +140,18 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
           duration: const Duration(seconds: 5),
         ),
       );
+    }
+  }
+
+  Future<void> _openSpeciesPicker() async {
+    final species = await Navigator.of(context).push<List<Species>>(
+      MaterialPageRoute(
+        builder: (_) => const SpeciesGridPickerScreen(),
+      ),
+    );
+
+    if (species != null && mounted) {
+      setState(() => _selectedSpecies = species);
     }
   }
 
@@ -130,9 +168,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
               centerText: 'Dier toevoegen',
               rightIcon: null,
               showUserIcon: false,
-              onLeftIconPressed: () {
-                Navigator.of(context).pop();
-              },
+              onLeftIconPressed: () => Navigator.of(context).pop(),
               iconColor: Colors.black,
               textColor: Colors.black,
               fontScale: 1.4,
@@ -143,7 +179,10 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
             const SizedBox(height: 8),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 child: Card(
                   elevation: 0,
                   color: Colors.white,
@@ -161,20 +200,22 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'Kies een zone en diersoort om toe te voegen.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 14,
-                                  color: Colors.black87,
-                                ),
+                            'Kies een zone en één of meerdere diersoorten om toe te voegen.',
+                            style:
+                                Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
                           ),
                           const SizedBox(height: 24),
                           Text(
                             'Zone',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.textPrimary,
+                                    ),
                           ),
                           const SizedBox(height: 8),
                           if (_loading)
@@ -210,7 +251,8 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                             )
                           else
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
@@ -241,36 +283,27 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                                   }).toList(),
                                   onChanged: _zones.isEmpty
                                       ? null
-                                      : (z) => setState(() => _selectedZone = z),
+                                      : (z) {
+                                          setState(() => _selectedZone = z);
+                                        },
                                 ),
                               ),
                             ),
                           const SizedBox(height: 24),
                           Text(
-                            'Diersoort',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
-                                ),
+                            'Diersoorten',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.textPrimary,
+                                    ),
                           ),
                           const SizedBox(height: 8),
                           Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: _loading
-                                  ? null
-                                  : () async {
-                                      final species =
-                                          await Navigator.of(context).push<Species>(
-                                        MaterialPageRoute(
-                                          builder: (_) => const SpeciesGridPickerScreen(),
-                                        ),
-                                      );
-                                      if (species != null && mounted) {
-                                        setState(() => _selectedSpecies = species);
-                                      }
-                                    },
+                              onTap: _loading ? null : _openSpeciesPicker,
                               borderRadius: BorderRadius.circular(16),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -289,11 +322,12 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        _selectedSpecies?.commonName ??
-                                            'Tik om een diersoort te kiezen',
+                                        _selectedSpecies.isEmpty
+                                            ? 'Tik om diersoorten te kiezen'
+                                            : '${_selectedSpecies.length} diersoort${_selectedSpecies.length == 1 ? '' : 'en'} geselecteerd',
                                         style: TextStyle(
                                           fontSize: 15,
-                                          color: _selectedSpecies != null
+                                          color: _selectedSpecies.isNotEmpty
                                               ? Colors.black
                                               : const Color(0xFF7A7A7A),
                                         ),
@@ -308,6 +342,37 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                               ),
                             ),
                           ),
+                          if (_selectedSpecies.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _selectedSpecies.map((species) {
+                                return Chip(
+  label: Text(
+    species.commonName,
+    style: const TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+      color: AppColors.black,
+    ),
+    ),
+    backgroundColor: const Color(0xFFF0F4ED),
+  side: const BorderSide(
+    color: Color.fromARGB(255, 255, 255, 255),
+    width: 1,
+  ),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(20),
+  ),
+  padding: const EdgeInsets.symmetric(
+    horizontal: 8,
+    vertical: 4,
+  ),
+);
+                              }).toList(),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -323,7 +388,9 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                   width: double.infinity,
                   height: primaryButtonHeight(context),
                   child: ElevatedButton(
-                    onPressed: (_isSubmitting || _zones.isEmpty) ? null : _submit,
+                    onPressed: (_isSubmitting || _zones.isEmpty)
+                        ? null
+                        : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF37A904),
                       disabledBackgroundColor: const Color(0xFFEFEFEF),
@@ -343,7 +410,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                             ),
                           )
                         : const Text(
-                            'Dier toevoegen aan zone',
+                            'Dieren toevoegen aan zone',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

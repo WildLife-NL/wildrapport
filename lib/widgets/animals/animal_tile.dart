@@ -5,12 +5,14 @@ class AnimalTile extends StatefulWidget {
   final AnimalModel animal;
   final VoidCallback onTap;
   final bool isSelected;
+  final int? selectionNumber;
 
   const AnimalTile({
     super.key,
     required this.animal,
     required this.onTap,
     this.isSelected = false,
+    this.selectionNumber,
   });
 
   @override
@@ -24,102 +26,128 @@ class _AnimalTileState extends State<AnimalTile> {
       padding: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
         onTap: widget.onTap,
-        child: Card(
-          elevation: 3,
-          shadowColor: Colors.black.withValues(alpha: 0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: widget.isSelected
-                  ? const Color(0xFF4CAF50)
-                  : const Color.fromARGB(64, 0, 0, 0),
-              width: widget.isSelected ? 2 : 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Image area - takes up most of the card
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      topRight: Radius.circular(14),
-                    ),
-                    color: Color(0xFFE6DCCD),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      topRight: Radius.circular(14),
-                    ),
-                    child: SizedBox.expand(
-                      child: widget.animal.animalImagePath != null
-                          ? _buildImageWithFallback()
-                          : Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.image_not_supported_outlined,
-                                    size: 50,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Geen afbeelding',
-                                    style: TextStyle(
-                                      color: Colors.grey[500],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ),
-              // Divider line
-              Container(
-                height: 1,
-                color: widget.isSelected
-                    ? const Color(0xFF4CAF50)
-                    : const Color.fromARGB(84, 0, 0, 0),
-              ),
-              // Name area - bottom section with white background
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
                   color: widget.isSelected
-                      ? const Color(0xFFF0F4ED)
-                      : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(14),
-                    bottomRight: Radius.circular(14),
-                  ),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                child: Text(
-                  widget.animal.animalName,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: widget.isSelected
-                        ? FontWeight.w600
-                        : FontWeight.w400,
-                    color: widget.isSelected
-                        ? const Color(0xFF2E7D32)
-                        : Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                      ? const Color(0xFF4CAF50)
+                      : const Color.fromARGB(64, 0, 0, 0),
+                  width: widget.isSelected ? 3 : 1,
                 ),
               ),
-            ],
-          ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          topRight: Radius.circular(14),
+                        ),
+                        color: Color(0xFFE6DCCD),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          topRight: Radius.circular(14),
+                        ),
+                        child: SizedBox.expand(
+                          child: widget.animal.animalImagePath != null
+                              ? _buildImageWithFallback()
+                              : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image_not_supported_outlined,
+                                        size: 50,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Geen afbeelding',
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 1,
+                    color: widget.isSelected
+                        ? const Color(0xFF4CAF50)
+                        : const Color.fromARGB(84, 0, 0, 0),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: widget.isSelected
+                          ? const Color(0xFFF0F4ED)
+                          : Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(14),
+                        bottomRight: Radius.circular(14),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    child: Text(
+                      widget.animal.animalName,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: widget.isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: widget.isSelected
+                            ? const Color(0xFF2E7D32)
+                            : Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (widget.isSelected && widget.selectionNumber != null)
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF4CAF50),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${widget.selectionNumber}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -138,7 +166,9 @@ class _AnimalTileState extends State<AnimalTile> {
         );
       },
       errorBuilder: (context, error, stackTrace) {
-        debugPrint('[AnimalTile] Error loading image: ${widget.animal.animalImagePath}');
+        debugPrint(
+          '[AnimalTile] Error loading image: ${widget.animal.animalImagePath}',
+        );
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -163,4 +193,3 @@ class _AnimalTileState extends State<AnimalTile> {
     );
   }
 }
-

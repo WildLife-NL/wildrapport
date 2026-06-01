@@ -40,9 +40,10 @@ AnimalModel _animalModelFromSpecies(Species s) {
     ],
   );
 }
+
 class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _searchController = TextEditingController();
+  final List<Species> _selectedSpecies = [];
 
   List<Species> _allSpecies = [];
   final Map<String, Species> _speciesById = {};
@@ -62,7 +63,6 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -93,6 +93,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
       _applyFilters();
     } catch (e) {
       if (!mounted) return;
+
       setState(() {
         _error = e.toString();
         _loading = false;
@@ -101,12 +102,8 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
   }
 
   void _applyFilters() {
-    final query = _searchController.text.trim().toLowerCase();
     final filtered = _allSpecies.where((s) {
       if (_selectedCategory != 'Alle' && s.category != _selectedCategory) {
-        return false;
-      }
-      if (query.isNotEmpty && !s.commonName.toLowerCase().contains(query)) {
         return false;
       }
       return true;
@@ -119,9 +116,11 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
 
   void _onCategoryChanged(String? value) {
     if (value == null) return;
+
     setState(() {
       _selectedCategory = value;
     });
+
     _applyFilters();
   }
 
@@ -130,9 +129,22 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
     if (id == null) return;
 
     final species = _speciesById[id];
-    if (species != null) {
-      Navigator.of(context).pop(species);
-    }
+    if (species == null) return;
+
+    setState(() {
+      final index = _selectedSpecies.indexWhere((s) => s.id == id);
+
+      if (index >= 0) {
+        _selectedSpecies.removeAt(index);
+      } else {
+        _selectedSpecies.add(species);
+      }
+    });
+  }
+
+  void _saveSelectedAnimals() {
+    if (_selectedSpecies.isEmpty) return;
+    Navigator.of(context).pop(_selectedSpecies);
   }
 
   void _handleBack() {
@@ -160,133 +172,9 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 12.0,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 44,
-                    constraints: const BoxConstraints(
-                      minWidth: 140,
-                      maxWidth: 220,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primaryGreen,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isDense: true,
-                        iconSize: 18,
-                        value: _selectedCategory,
-                        items: _categories
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Tooltip(
-                                  message: c,
-                                  waitDuration: const Duration(
-                                    milliseconds: 500,
-                                  ),
-                                  child: Text(
-                                    c,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        selectedItemBuilder: (ctx) => _categories
-                            .map(
-                              (c) => Align(
-                                alignment: Alignment.centerLeft,
-                                child: Tooltip(
-                                  message: c,
-                                  waitDuration: const Duration(
-                                    milliseconds: 500,
-                                  ),
-                                  child: Text(
-                                    c,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: _loading ? null : _onCategoryChanged,
-                        isExpanded: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.primaryGreen,
-                          width: 1.5,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: AppColors.primaryGreen),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              style: const TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Zoeken',
-                                border: InputBorder.none,
-                                isCollapsed: true,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                suffixIcon: _searchController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(
-                                          Icons.clear,
-                                          color: AppColors.primaryGreen,
-                                        ),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          _applyFilters();
-                                        },
-                                      )
-                                    : null,
-                              ),
-                              onChanged: (_) => _applyFilters(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Card(
                   elevation: 0,
                   color: Colors.white,
@@ -302,16 +190,17 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 8),
                         Padding(
-                          padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+                          padding:
+                              const EdgeInsets.only(left: 4.0, bottom: 8.0),
                           child: Text(
                             'Categorie',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black54,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black54,
+                                    ),
                           ),
                         ),
                         Container(
@@ -381,11 +270,51 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                             isLoading: _loading,
                             error: _error,
                             scrollController: _scrollController,
+                            selectedAnimalIds:
+                                _selectedSpecies.map((s) => s.id).toSet(),
+                            selectedOrderIds: {
+                              for (int i = 0;
+                                  i < _selectedSpecies.length;
+                                  i++)
+                                _selectedSpecies[i].id: i + 1,
+                            },
                             onAnimalSelected: _onAnimalSelected,
                             onRetry: _loadSpecies,
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed:
+                        _selectedSpecies.isEmpty ? null : _saveSelectedAnimals,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      disabledBackgroundColor: const Color(0xFFEFEFEF),
+                      foregroundColor: Colors.white,
+                      disabledForegroundColor: const Color(0xFFACACAC),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: Text(
+                      _selectedSpecies.isEmpty
+                          ? 'Selecteer dieren'
+                          : '${_selectedSpecies.length} dieren opslaan',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
