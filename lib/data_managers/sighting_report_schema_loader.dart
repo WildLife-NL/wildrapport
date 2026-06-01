@@ -48,10 +48,26 @@ class SightingReportSchemaLoader {
 
   static const String _tag = 'SightingReportSchema';
 
-  Future<SightingReportSchema> fetch() async {
+  Future<SightingReportSchema> fetch({bool preferAuthenticated = true}) async {
+    Object? lastError;
+    final attempts = preferAuthenticated ? [true, false] : [false, true];
+    for (final authenticated in attempts) {
+      try {
+        return await _fetch(authenticated: authenticated);
+      } catch (e) {
+        lastError = e;
+        debugPrint(
+          '[$_tag] fetch failed (authenticated=$authenticated): $e',
+        );
+      }
+    }
+    throw lastError ?? Exception('[$_tag] schema fetch failed');
+  }
+
+  Future<SightingReportSchema> _fetch({required bool authenticated}) async {
     final res = await _apiClient.get(
       SightingReportSchema.schemaPath,
-      authenticated: false,
+      authenticated: authenticated,
     );
 
     final body = res.body;

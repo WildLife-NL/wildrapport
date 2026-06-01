@@ -14,7 +14,10 @@ import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/api_models/detection_pin.dart';
+import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
+import 'package:wildrapport/models/map_alarm_focus.dart';
+import 'package:wildrapport/services/alarm_map_focus_service.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
@@ -28,6 +31,8 @@ import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
+import 'package:wildrapport/utils/map_marker_style.dart';
 class _IconStyle {
   final Color color;
   final double size;
@@ -41,9 +46,17 @@ class _LocalTrackingPoint {
 }
 
 class KaartOverviewScreen extends StatefulWidget {
-  const KaartOverviewScreen({super.key, this.onBackPressed});
+  const KaartOverviewScreen({
+    super.key,
+    this.onBackPressed,
+    this.isTabActive = true,
+  });
 
   final VoidCallback? onBackPressed;
+
+  /// When false (e.g. map tab in [IndexedStack] while another tab is visible),
+  /// location permission and GPS bootstrap are deferred until the user opens Kaart.
+  final bool isTabActive;
 
   @override
   State<KaartOverviewScreen> createState() => _KaartOverviewScreenState();
@@ -98,6 +111,11 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   // Selected animal for detail card
   AnimalPin? _selectedAnimal;
   bool _showLegend = false;
+
+  AlarmMapFocusService? _alarmMapFocusService;
+  bool _alarmFocusListenerAttached = false;
+  String? _highlightInteractionId;
+  bool _tabBootstrapStarted = false;
 
   @override
   void didChangeDependencies() {
@@ -239,11 +257,37 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _mp.addListener(_mpListener!);
       _listenerAttached = true;
     }
+
+    _alarmMapFocusService ??= context.read<AlarmMapFocusService>();
+    if (!_alarmFocusListenerAttached) {
+      _alarmFocusListenerAttached = true;
+      _alarmMapFocusService!.addListener(_onAlarmMapFocusChanged);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _tryApplyAlarmMapFocus();
+    });
   }
 
   @override
   void initState() {
     super.initState();
+    if (widget.isTabActive) {
+      _scheduleTabBootstrap();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant KaartOverviewScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isTabActive && widget.isTabActive) {
+      _scheduleTabBootstrap();
+    }
+  }
+
+  void _scheduleTabBootstrap() {
+    if (_tabBootstrapStarted) return;
+    _tabBootstrapStarted = true;
+
     final bool isIosDebug = !kIsWeb && Platform.isIOS && kDebugMode;
     if (isIosDebug) {
       debugPrint('[Kaart] iOS debug: skipping bootstrap and live-follow startup');
@@ -252,8 +296,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _bootstrap();
-      _startFollowingMe();
+      _bootstrap(requestLocationAccess: true);
+      _maybeStartFollowingMe();
     });
   }
 
@@ -264,8 +308,52 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (_listenerAttached && _mpListener != null) {
       _mp.removeListener(_mpListener!);
     }
+    _alarmMapFocusService?.removeListener(_onAlarmMapFocusChanged);
     _mp.stopTracking();
     super.dispose();
+  }
+
+  void _onAlarmMapFocusChanged() {
+    if (!mounted) return;
+    _tryApplyAlarmMapFocus();
+  }
+
+  void _tryApplyAlarmMapFocus() {
+    final focus = _alarmMapFocusService?.takePendingFocus();
+    if (focus == null) return;
+    _applyMapAlarmFocus(focus);
+  }
+
+  void _applyMapAlarmFocus(MapAlarmFocus focus) {
+    _followUser = false;
+    _highlightInteractionId =
+        focus.kind == AlarmFocusKind.interaction ? focus.eventId : null;
+    _pendingCenter = LatLng(focus.lat, focus.lon);
+    _pendingZoom = 16;
+    if (_mapReady) {
+      _applyPendingCamera();
+    }
+
+    if (focus.kind == AlarmFocusKind.detection && focus.detection != null) {
+      _mp.ensureDetectionPin(focus.detection!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog<void>(
+          context: context,
+          builder: (_) => DetectionDetailDialog(detection: focus.detection!),
+        );
+      });
+      setState(() {});
+      return;
+    }
+
+    final interaction = focus.interaction;
+    if (interaction != null) {
+      _mp.addOrUpdateInteraction(interaction);
+      setState(() {
+        _selectedAnimal = interaction.toAnimalPin();
+      });
+    }
   }
 
   void _queueFetch() {
@@ -350,7 +438,24 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _centerOnMyLocation() async {
     final mp = context.read<MapProvider>();
     final appState = context.read<AppStateProvider>();
+    final permissionManager = context.read<PermissionInterface>();
     debugPrint('[Map] centreer op locatie');
+
+    var hasPermission =
+        await permissionManager.isPermissionGranted(PermissionType.location);
+    if (!hasPermission) {
+      hasPermission = await permissionManager.requestPermission(
+        context,
+        PermissionType.location,
+        showRationale: true,
+      );
+      if (!hasPermission) {
+        if (!mounted) return;
+        mp.mapController.move(_netherlandsCenter, _netherlandsOverviewZoom);
+        _updateScaleBar();
+        return;
+      }
+    }
 
     if (!appState.isLocationTrackingEnabled) {
       final enable = await showLocationSharingOffDialog(context);
@@ -418,7 +523,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
       final appStateProvider = context.read<AppStateProvider>();
       if (appStateProvider.isLocationTrackingEnabled) {
-        await mp.sendTrackingPingFromPosition(fresh);
+        await mp.sendTrackingPingFromPosition(
+          fresh,
+          allowProximityNotification: false,
+        );
       }
 
       if (_followUser && appStateProvider.isLocationTrackingEnabled) {
@@ -432,7 +540,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
+  Future<void> _maybeStartFollowingMe() async {
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) return;
+
+    final permissionManager = context.read<PermissionInterface>();
+    final granted = await permissionManager.isPermissionGranted(
+      PermissionType.location,
+    );
+    if (!granted || !mounted) return;
+
+    _startFollowingMe();
+  }
+
   void _startFollowingMe() {
+    if (_posSub != null) return;
+
     const settings = LocationSettings(
       accuracy: LocationAccuracy.best,
       distanceFilter: 0, // Update often when walking (like Google Maps)
@@ -601,7 +724,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  Future<void> _bootstrap() async {
+  Future<void> _bootstrap({required bool requestLocationAccess}) async {
     final map = context.read<MapProvider>();
     final app = context.read<AppStateProvider>();
     map.setVicinityNotificationsEnabled(
@@ -610,21 +733,18 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final mgr = _location;
 
     await map.initialize();
+    await InteractionAnimalCountStore.ensureLoaded();
 
     final permissionManager = context.read<PermissionInterface>();
 
-    bool hasLocationPermission = false;
-    hasLocationPermission =
+    bool hasLocationPermission =
         await permissionManager.isPermissionGranted(PermissionType.location);
-    if (!hasLocationPermission) {
+    if (requestLocationAccess && !hasLocationPermission) {
       hasLocationPermission = await permissionManager.requestPermission(
         context,
         PermissionType.location,
-        showRationale: false,
+        showRationale: true,
       );
-      if (hasLocationPermission) {
-        await app.setLocationTrackingEnabled(true);
-      }
     }
     if (!mounted) return;
 
@@ -1003,6 +1123,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
   bool _withinVicinityPinWindow(DateTime timestamp) {
     return DateTime.now().difference(timestamp) < _vicinityPinMaxAge;
+  }
+
+  bool _shouldShowInteractionOnMap(InteractionQueryResult interaction) {
+    final highlightId = _highlightInteractionId;
+    if (highlightId != null && interaction.id == highlightId) return true;
+    return _withinVicinityPinWindow(interaction.moment);
   }
 
   void _updateScaleBar() {
@@ -1417,11 +1543,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
                                         map.interactions
-                                            .where(
-                                              (itx) => _withinVicinityPinWindow(
-                                                itx.moment,
-                                              ),
-                                            )
+                                            .where(_shouldShowInteractionOnMap)
                                             .map((itx) {
                                               final mapRotation =
                                                   map
@@ -1477,10 +1599,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 )
                                 : fm.MarkerLayer(
                                   markers: map.interactions
-                                      .where(
-                                        (itx) =>
-                                            _withinVicinityPinWindow(itx.moment),
-                                      )
+                                      .where(_shouldShowInteractionOnMap)
                                       .map((itx) {
                                         final mapRotation =
                                             map.mapController.camera.rotation;
@@ -1742,35 +1861,27 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
 
   Color _getBorderColorForDetectionType(String? detectionType) {
-    if (detectionType == null) return Colors.white;
-
-    final type = detectionType.toLowerCase();
-
-    if (type.contains('camera') || type.contains('foto')) {
-      return const Color(0xFF00BFD8); // Aqua
-    } else if (type.contains('acoustic') || type.contains('geluid')) {
-      return const Color(0xFFFF9100); // Orange
-    } else if (type.contains('waarneming') || type.contains('sighting')) {
-      return const Color(0xFF8613A8); // Purple
-    } else if (type.contains('collision') || type.contains('botsing')) {
-      return const Color(0xFF0078DA); // Blue
-    } else if (type.contains('schadamelding') || type.contains('damage')) {
-      return const Color(0xFF008C7B); // Teal
-    } else if (type.contains('collar')) {
-      return const Color(0xFFFE008E); // Pink
+    switch (mapMarkerStyleKey(detectionType)) {
+      case 'camera':
+        return const Color(0xFF00BFD8);
+      case 'acoustic':
+        return const Color(0xFFFF9100);
+      case 'waarneming':
+        return const Color(0xFF8613A8);
+      case 'verkeersongeval':
+        return const Color(0xFF0078DA);
+      case 'gewasschade':
+        return const Color(0xFF008C7B);
+      case 'collar':
+        return const Color(0xFFFE008E);
+      default:
+        return Colors.white;
     }
-
-    return Colors.white;
   }
 
   int? _eventCountForPin(AnimalPin pin) {
-    final type = pin.reportType?.toLowerCase();
-    final isFixedPin =
-        type?.contains('camera') == true ||
-        type?.contains('foto') == true ||
-        type?.contains('acoustic') == true ||
-        type?.contains('geluid') == true;
-
+    final styleKey = mapMarkerStyleKey(pin.reportType);
+    final isFixedPin = styleKey == 'camera' || styleKey == 'acoustic';
     return isFixedPin ? 3 : null;
   }
 
@@ -1780,17 +1891,15 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     _IconStyle style, {
     int? eventCount,
   }) {
+    final styleKey = mapMarkerStyleKey(detectionType);
     final borderColor = _getBorderColorForDetectionType(detectionType);
-    final type = detectionType?.toLowerCase();
 
-    final bool isCamera =
-        type?.contains('camera') == true || type?.contains('foto') == true;
-
-    final bool isAcoustic =
-        type?.contains('acoustic') == true || type?.contains('geluid') == true;
-
-    final bool isCollar = type?.contains('collar') == true;
-    final iconPath = getSpeciesIconPath(speciesName);
+    final bool isCamera = styleKey == 'camera';
+    final bool isAcoustic = styleKey == 'acoustic';
+    final bool isCollar = styleKey == 'collar';
+    final bool useSpeciesSilhouette = !isCamera && !isAcoustic;
+    final iconPath =
+        useSpeciesSilhouette ? getSpeciesIconPath(speciesName) : null;
 
     return SizedBox(
       width: style.size + 28,
@@ -2038,7 +2147,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           onTap: onTap,
           child: _buildStyledAnimalPin(
             pin.label,
-            pin.label,
+            pin.markerStyleHint,
             style,
           ),
         ),

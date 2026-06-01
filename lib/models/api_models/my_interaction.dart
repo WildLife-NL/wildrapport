@@ -1,3 +1,5 @@
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
+
 DateTime _parseApiDateTimeToLocal(String? value) {
   final raw = (value ?? '').trim();
   if (raw.isEmpty) return DateTime.now();
@@ -11,6 +13,12 @@ DateTime _parseApiDateTimeToLocal(String? value) {
   if (!hasExplicitTimezone) return parsed;
 
   return parsed.isUtc ? parsed.toLocal() : parsed;
+}
+
+String? _optionalString(Object? value) {
+  if (value == null) return null;
+  final trimmed = value.toString().trim();
+  return trimmed.isEmpty ? null : trimmed;
 }
 
 int _asInt(dynamic value, {int fallback = 0}) {
@@ -103,7 +111,7 @@ class ReportOfDamage {
   final String belonging;
   final String estimatedLoss;
   final bool preventiveMeasures;
-  final String preventiveMeasuresDescription;
+  final String? preventiveMeasuresDescription;
   final String impactType;
   final int impactValue;
   final int estimatedDamage;
@@ -112,7 +120,7 @@ class ReportOfDamage {
     required this.belonging,
     required this.estimatedLoss,
     required this.preventiveMeasures,
-    required this.preventiveMeasuresDescription,
+    this.preventiveMeasuresDescription,
     this.impactType = '',
     this.impactValue = 0,
     this.estimatedDamage = 0,
@@ -123,8 +131,9 @@ class ReportOfDamage {
       belonging: json['belonging'] ?? '',
       estimatedLoss: (json['estimatedLoss'] ?? '').toString(),
       preventiveMeasures: json['preventiveMeasures'] == true,
-      preventiveMeasuresDescription:
-          (json['preventiveMeasuresDescription'] ?? '').toString(),
+      preventiveMeasuresDescription: _optionalString(
+        json['preventiveMeasuresDescription'],
+      ),
       impactType: (json['impactType'] ?? '').toString(),
       impactValue: _asInt(json['impactValue']),
       estimatedDamage: _asInt(json['estimatedDamage']),
@@ -136,7 +145,9 @@ class ReportOfDamage {
       'belonging': belonging,
       'estimatedLoss': estimatedLoss,
       'preventiveMeasures': preventiveMeasures,
-      'preventiveMeasuresDescription': preventiveMeasuresDescription,
+      if (preventiveMeasuresDescription != null &&
+          preventiveMeasuresDescription!.isNotEmpty)
+        'preventiveMeasuresDescription': preventiveMeasuresDescription,
       'impactType': impactType,
       'impactValue': impactValue,
       'estimatedDamage': estimatedDamage,
@@ -369,7 +380,7 @@ class MyInteraction {
   factory MyInteraction.fromJson(Map<String, dynamic> json) {
     return MyInteraction(
       id: json['ID'] ?? '',
-      description: json['description'] ?? '',
+      description: parseInteractionNotes(json) ?? '',
       location: MyInteractionLocation.fromJson(json['location'] ?? {}),
       moment: _parseApiDateTimeToLocal(json['moment']?.toString()),
       place: MyInteractionLocation.fromJson(json['place'] ?? {}),
@@ -397,9 +408,8 @@ class MyInteraction {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final body = <String, dynamic>{
       'ID': id,
-      'description': description,
       'location': location.toJson(),
       'moment': moment.toIso8601String(),
       'place': place.toJson(),
@@ -414,5 +424,10 @@ class MyInteraction {
       'type': type.toJson(),
       if (questionnaire != null) 'questionnaire': questionnaire!.toJson(),
     };
+    applyInteractionNotes(
+      body,
+      description.isEmpty ? null : description,
+    );
+    return body;
   }
 }

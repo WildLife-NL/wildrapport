@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/data_managers/sighting_report_schema_loader.dart';
 
@@ -25,7 +26,9 @@ class SightingReportActivityCatalog {
   static const Map<String, String> _perceivedAnimalLabelsNl = {
     'unknown': 'Onbekend',
     'walking': 'Lopen',
-    'eating': 'Eten of drinken',
+    'eating or drinking': 'Eten of drinken',
+    'eating': 'Eten of drinken', // legacy API value
+    'standing still': 'Stil staan',
     'looking around': 'Rondkijken / omgeving scannen',
     'fleeing': '(Weg)rennen',
     'resting': 'Rusten',
@@ -59,25 +62,68 @@ class SightingReportActivityCatalog {
 
   static bool get isLoaded => _cached != null;
 
+  static SightingReportSchema get defaultSchema => SightingReportSchema(
+        humanActivityValues: const [
+          'unknown',
+          'walking',
+          'cycling',
+          'mountain biking',
+          'walking the dog',
+          'horse riding',
+          'photography',
+          'relaxing',
+          'other...',
+        ],
+        perceivedAnimalActivityValues: const [
+          'unknown',
+          'walking',
+          'eating or drinking',
+          'standing still',
+          'looking around',
+          'fleeing',
+          'resting',
+          'other...',
+        ],
+      );
+
   static Future<SightingReportActivityCatalog> load(ApiClient apiClient) async {
     if (_cached != null) return _cached!;
     final schema = await SightingReportSchemaLoader(apiClient).fetch();
-    _cached = SightingReportActivityCatalog._(
-      humanActivityValues: schema.humanActivityValues,
-      perceivedAnimalActivityValues: schema.perceivedAnimalActivityValues,
-    );
+    _applySchema(schema);
     return _cached!;
   }
 
-  static Future<void> preload(ApiClient apiClient) async {
-    await load(apiClient);
-  }
-
-  static void loadFromSchemaForTest(SightingReportSchema schema) {
+  static void _applySchema(SightingReportSchema schema) {
     _cached = SightingReportActivityCatalog._(
       humanActivityValues: schema.humanActivityValues,
       perceivedAnimalActivityValues: schema.perceivedAnimalActivityValues,
     );
+  }
+
+  static void loadFallback() {
+    if (_cached != null) return;
+    _applySchema(defaultSchema);
+  }
+
+  /// Loads from API when possible; uses built-in defaults if the schema is unavailable.
+  static Future<void> ensureLoaded(ApiClient apiClient) async {
+    if (_cached != null) return;
+    try {
+      await load(apiClient);
+    } catch (e) {
+      debugPrint(
+        '[SightingReportActivityCatalog] ensureLoaded failed, using defaults: $e',
+      );
+      loadFallback();
+    }
+  }
+
+  static Future<void> preload(ApiClient apiClient) async {
+    await ensureLoaded(apiClient);
+  }
+
+  static void loadFromSchemaForTest(SightingReportSchema schema) {
+    _applySchema(schema);
   }
 
   List<SightingReportActivityOption> get humanActivities =>
@@ -122,10 +168,20 @@ class SightingReportActivityCatalog {
     return catalog._humanActivityValues.first;
   }
 
+  /// Maps retired enum values to their replacement in the current schema.
+  static String _perceivedAnimalSchemaAlias(String value) {
+    if (value == 'eating') return 'eating or drinking';
+    return value;
+  }
+
   static String normalizePerceivedAnimal(String? value) {
     final catalog = _cached;
     if (catalog == null || value == null || value.isEmpty) {
       return defaultPerceivedAnimalActivity;
+    }
+    final aliased = _perceivedAnimalSchemaAlias(value);
+    if (catalog._perceivedAnimalActivityValues.contains(aliased)) {
+      return aliased;
     }
     if (catalog._perceivedAnimalActivityValues.contains(value)) return value;
     if (catalog._perceivedAnimalActivityValues

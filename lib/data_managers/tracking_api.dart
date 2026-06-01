@@ -66,15 +66,7 @@ class TrackingApi implements TrackingApiInterface {
 
     try {
       final Map<String, dynamic> decoded = jsonDecode(res.body);
-      final rawVicinity = TrackingVicinityParser.vicinityFromReadingJson(decoded);
-      final vicinity = rawVicinity == null
-          ? null
-          : TrackingVicinityParser.filterNearReading(
-              rawVicinity,
-              lat,
-              lon,
-              tag: 'TrackingApi',
-            );
+      final vicinity = TrackingVicinityParser.vicinityFromReadingJson(decoded);
 
       final conv = decoded['conveyance'];
       final msgObj = conv is Map ? conv['message'] : null;
@@ -137,43 +129,25 @@ class TrackingApi implements TrackingApiInterface {
       return TrackingVicinityParser.empty();
     }
 
-    final sorted = [...readings]
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
     final cutoff = DateTime.now().toUtc().subtract(_mapVicinityMaxReadingAge);
+    final parts = readings
+        .where((r) => !r.timestamp.isBefore(cutoff))
+        .map((r) => r.vicinity)
+        .whereType<Vicinity>()
+        .where(
+          (v) =>
+              v.animals.isNotEmpty ||
+              v.detections.isNotEmpty ||
+              v.interactions.isNotEmpty,
+        );
 
-    for (final reading in sorted) {
-      if (reading.timestamp.isBefore(cutoff)) continue;
-      final raw = reading.vicinity;
-      if (raw == null) continue;
-
-      final filtered = TrackingVicinityParser.filterNearReading(
-        raw,
-        reading.latitude,
-        reading.longitude,
-        tag: 'TrackingApi',
-      );
-
-      final hasPins = filtered.animals.isNotEmpty ||
-          filtered.detections.isNotEmpty ||
-          filtered.interactions.isNotEmpty;
-
-      if (!hasPins && sorted.first != reading) {
-        continue;
-      }
-
-      debugPrint(
-        '[TrackingApi] Map vicinity from latest reading @ '
-        '${reading.latitude.toStringAsFixed(5)},'
-        '${reading.longitude.toStringAsFixed(5)} '
-        '(${reading.timestamp.toIso8601String()}): '
-        '${filtered.animals.length} animals, '
-        '${filtered.detections.length} detections, '
-        '${filtered.interactions.length} interactions',
-      );
-      return filtered;
-    }
-
-    return TrackingVicinityParser.empty();
+    final merged = TrackingVicinityParser.mergeVicinities(parts);
+    debugPrint(
+      '[TrackingApi] Map vicinity merged from ${parts.length} reading(s): '
+      '${merged.animals.length} animals, '
+      '${merged.detections.length} detections, '
+      '${merged.interactions.length} interactions',
+    );
+    return merged;
   }
 }

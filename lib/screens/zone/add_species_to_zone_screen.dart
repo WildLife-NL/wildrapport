@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
@@ -8,6 +9,7 @@ import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/models/api_models/species.dart';
 import 'package:wildrapport/screens/zone/species_grid_picker_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/utils/zone_api_parser.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
 class AddSpeciesToZoneScreen extends StatefulWidget {
@@ -35,18 +37,18 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
     final apiClient = context.read<ApiClient>();
 
     try {
-      final zonesResponse = await apiClient.get(
-        'zones/me/',
-        authenticated: true,
-      );
 
+     final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userID');
+      final zonesResponse =
+    await apiClient.get('zones/me/', authenticated: true);
       List<Zone> zones = [];
 
       if (zonesResponse.statusCode == 200) {
         final list = jsonDecode(zonesResponse.body) as List;
-        zones = list
-            .map((e) => Zone.fromJson(e as Map<String, dynamic>))
-            .toList();
+
+        zones = zonesFromApiListForUser(list, userId);
+
       }
 
       if (mounted) {

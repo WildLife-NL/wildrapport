@@ -4,6 +4,8 @@ import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 /// Builds a map pin from a just-submitted sighting (until next tracking-reading refresh).
 InteractionQueryResult? interactionPinFromSighting(
@@ -31,7 +33,19 @@ InteractionQueryResult? interactionPinFromSighting(
     typeName: normalizeReportTypeKey(sighting.reportType) ?? 'waarneming',
     speciesName: sighting.animalSelected?.animalName,
     description: sighting.description,
+    animalCount: countAnimalsInSighting(sighting),
   );
+}
+
+/// Remember count locally so map/logbook stay correct when API omits it.
+Future<void> cacheSubmittedInteractionCount({
+  required String interactionId,
+  required AnimalSightingModel sighting,
+}) async {
+  final count = countAnimalsInSighting(sighting);
+  if (count > 0) {
+    await InteractionAnimalCountStore.save(interactionId, count);
+  }
 }
 
 /// User-chosen point on the map, not device GPS at submit time.

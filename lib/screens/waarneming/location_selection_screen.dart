@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/interfaces/map/map_state_interface.dart';
-import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/utils/device_location_resolver.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -25,41 +25,51 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   late fm.MapController _mapController;
   LatLng? _selectedLocation;
   LatLng? _currentLocation;
-  late final LocationMapManager _locationService;
 
-  static const LatLng defaultCenter = LatLng(52.0116, 5.8020);
+  static const LatLng _defaultCenter = NetherlandsMapDefaults.center;
 
   @override
   void initState() {
     super.initState();
     _mapController = fm.MapController();
-    _locationService = LocationMapManager();
     _loadCurrentLocation();
   }
 
   Future<void> _loadCurrentLocation() async {
     try {
-      final Position? position = await _locationService.determinePosition();
-      if (!mounted || position == null) return;
-
+      final position = await DeviceLocationResolver.tryResolve(
+        requestPermissionIfDenied: true,
+      );
+      if (!mounted) return;
+      if (position == null) {
+        _mapController.move(
+          _defaultCenter,
+          NetherlandsMapDefaults.overviewZoom,
+        );
+        return;
+      }
       final gpsPoint = LatLng(position.latitude, position.longitude);
-
-      setState(() {
-        _currentLocation = gpsPoint;
-      });
-
-      _mapController.move(gpsPoint, 15.0);
-    } catch (_) {}
+      setState(() => _currentLocation = gpsPoint);
+      _mapController.move(gpsPoint, NetherlandsMapDefaults.detailZoom);
+    } catch (_) {
+      if (mounted) {
+        _mapController.move(
+          _defaultCenter,
+          NetherlandsMapDefaults.overviewZoom,
+        );
+      }
+    }
   }
 
-  void _centerOnCurrentLocation() {
+  Future<void> _centerOnCurrentLocation() async {
     if (_currentLocation != null) {
-      _mapController.move(_currentLocation!, 15.0);
-
-      setState(() {
-        _selectedLocation = _currentLocation;
-      });
+      _mapController.move(_currentLocation!, NetherlandsMapDefaults.detailZoom);
+      setState(() => _selectedLocation = _currentLocation);
+      return;
     }
+    await _loadCurrentLocation();
+    if (!mounted || _currentLocation == null) return;
+    setState(() => _selectedLocation = _currentLocation);
   }
 
   void _onMapTap(LatLng latlng) {
@@ -154,10 +164,10 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                 child: Text(
                   'Identificeer locatie:',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black87,
-                      ),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
             ),
@@ -188,15 +198,17 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                               fm.FlutterMap(
                                 mapController: _mapController,
                                 options: fm.MapOptions(
-                                  initialCenter: defaultCenter,
-                                  initialZoom: 15.0,
+                                  initialCenter: _defaultCenter,
+                                  initialZoom:
+                                      NetherlandsMapDefaults.overviewZoom,
                                   interactionOptions:
                                       const fm.InteractionOptions(
-                                    flags: fm.InteractiveFlag.pinchZoom |
-                                        fm.InteractiveFlag.drag,
-                                  ),
-                                  onTap: (tapPosition, point) =>
-                                      _onMapTap(point),
+                                        flags:
+                                            fm.InteractiveFlag.pinchZoom |
+                                            fm.InteractiveFlag.drag,
+                                      ),
+                                  onTap:
+                                      (tapPosition, point) => _onMapTap(point),
                                 ),
                                 children: [
                                   fm.TileLayer(
@@ -230,7 +242,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                           height: 40,
                                           child: const Icon(
                                             Icons.location_on,
-                                            color: Color(0xFfDB5E5A),
+                                            color: Color(0xFFDB5E5A),
                                             size: 40,
                                           ),
                                         ),
@@ -276,11 +288,12 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                           child: Text(
                             instructionText,
                             textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontSize: 14,
-                                      color: AppColors.textPrimary,
-                                    ),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
                       ),

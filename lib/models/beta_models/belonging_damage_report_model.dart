@@ -4,6 +4,7 @@ import 'package:wildrapport/interfaces/reporting/reportable_interface.dart';
 import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/report_location_model.dart';
 import 'package:wildrapport/models/beta_models/polygon_area_model.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class BelongingDamageReport implements Reportable, PossesionReportFields {
   final String? possesionDamageReportID;
@@ -49,7 +50,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
   @override
   final bool preventiveMeasures;
   @override
-  final String preventiveMeasuresDescription;
+  final String? preventiveMeasuresDescription;
 
   BelongingDamageReport({
     this.possesionDamageReportID,
@@ -68,7 +69,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     this.polygonArea,
     this.damageCategory,
     this.preventiveMeasures = false,
-    this.preventiveMeasuresDescription = '',
+    this.preventiveMeasuresDescription,
   });
 
   // ⬇⬇⬇ THIS IS THE IMPORTANT PART ⬇⬇⬇
@@ -101,33 +102,30 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
     }
 
     final loc = systemLocation ?? userSelectedLocation!;
-    return {
-      "description": description ?? "",
+    final payload = <String, dynamic>{
       "location": {
         "latitude": loc.latitude,
         "longitude": loc.longtitude,
       },
-      // API uses UTC ISO8601 with Z suffix
       "moment": systemDateTime.toUtc().toIso8601String(),
       "place": {
         "latitude": userSelectedLocation!.latitude,
         "longitude": userSelectedLocation!.longtitude,
       },
-      "reportOfDamage": {
-        // ✅ Send the free text name as per API schema
-        "belonging": belongingName.trim(),
-
-        // ✅ ints (int64)
-        "estimatedDamage": currentImpactDamages.round(),
-        "estimatedLoss": estimatedLossBucket,
-        "preventiveMeasures": preventiveMeasures,
-        "preventiveMeasuresDescription": preventiveMeasuresDescription,
-        "impactType": impactedAreaType, // "square-meters" | "units"
-        "impactValue": impactedArea.round(),
-      },
+      "reportOfDamage": buildReportOfDamageJson(
+        belonging: belongingName.trim(),
+        estimatedLoss: estimatedLossBucket,
+        preventiveMeasures: preventiveMeasures,
+        preventiveMeasuresDescription: preventiveMeasuresDescription,
+        estimatedDamage: currentImpactDamages.round(),
+        impactType: impactedAreaType,
+        impactValue: impactedArea.round(),
+      ),
       "speciesID": suspectedSpeciesID,
-      "typeID": 2, // 2 = gewasschade
+      "typeID": 2,
     };
+    applyInteractionNotes(payload, description);
+    return payload;
   }
 
   // You can keep fromJson if you still need to deserialize local/offline copies.
@@ -142,7 +140,7 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
         estimatedTotalDamages:
             double.tryParse(json["estimatedLoss"]?.toString() ?? '') ?? 0,
         estimatedLossBucket: json["estimatedLoss"]?.toString() ?? 'unknown',
-        description: json["description"],
+        description: parseInteractionNotes(json),
         suspectedSpeciesID: json["suspectedAnimalID"],
         userSelectedLocation:
             json["userSelectedLocation"] != null
@@ -163,7 +161,14 @@ class BelongingDamageReport implements Reportable, PossesionReportFields {
                 : null,
         damageCategory: json["damageCategory"],
         preventiveMeasures: json["preventiveMeasures"] ?? false,
-        preventiveMeasuresDescription:
-            json["preventiveMeasuresDescription"]?.toString() ?? '',
+        preventiveMeasuresDescription: _optionalString(
+          json["preventiveMeasuresDescription"],
+        ),
       );
+
+  static String? _optionalString(Object? value) {
+    if (value == null) return null;
+    final trimmed = value.toString().trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
 }

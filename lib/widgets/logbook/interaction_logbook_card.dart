@@ -5,6 +5,7 @@ import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/screens/shared/interaction_detail_screen.dart';
 import 'package:wildrapport/utils/location_label.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 /// Logbook list row for a single [MyInteraction] from `interactions/me`.
 class InteractionLogbookCard extends StatelessWidget {
@@ -28,8 +29,8 @@ class InteractionLogbookCard extends StatelessWidget {
   }
 
   (String typeLabel, String subtitle) _typeLabelAndSubtitle() {
+    final count = countFromMyInteraction(interaction);
     if (interaction.reportOfCollision != null) {
-      final count = interaction.reportOfCollision!.involvedAnimals.length;
       return ('Dieraanrijding', count > 0 ? '$count dieren' : '—');
     }
     if (interaction.reportOfDamage != null) {
@@ -39,21 +40,12 @@ class InteractionLogbookCard extends StatelessWidget {
       return ('Schademelding', belonging);
     }
     if (interaction.reportOfSighting != null) {
-      final count = interaction.reportOfSighting!.involvedAnimals.length;
       return ('Waarneming', count > 0 ? '$count dieren' : '—');
     }
     return (interaction.type.name.isNotEmpty ? interaction.type.name : 'Melding', '—');
   }
 
-  int _animalCount() {
-    if (interaction.reportOfCollision != null) {
-      return interaction.reportOfCollision!.involvedAnimals.length;
-    }
-    if (interaction.reportOfSighting != null) {
-      return interaction.reportOfSighting!.involvedAnimals.length;
-    }
-    return 1;
-  }
+  int _animalCount() => countFromMyInteraction(interaction);
 
   static String _dateOnly(DateTime dateTime) {
     return DateFormat('dd-MM-yyyy').format(dateTime);

@@ -15,6 +15,7 @@ InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
   if (lat == 0.0 && lon == 0.0) return null;
 
   List<AnimalInfo>? involvedAnimals;
+  int? animalCount;
   final sighting = interaction.reportOfSighting;
   if (sighting != null && sighting.involvedAnimals.isNotEmpty) {
     involvedAnimals = sighting.involvedAnimals
@@ -26,6 +27,11 @@ InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
           ),
         )
         .toList();
+    animalCount = involvedAnimals.length;
+  }
+  final collision = interaction.reportOfCollision;
+  if (animalCount == null && collision != null) {
+    animalCount = collision.involvedAnimals.length;
   }
 
   final speciesName = interaction.species.commonName.isNotEmpty
@@ -50,5 +56,6 @@ InteractionQueryResult? mapPinFromMyInteraction(MyInteraction interaction) {
     description: interaction.description.isNotEmpty ? interaction.description : null,
     userName: interaction.user.name.isNotEmpty ? interaction.user.name : null,
     involvedAnimals: involvedAnimals,
+    animalCount: animalCount,
   );
 }

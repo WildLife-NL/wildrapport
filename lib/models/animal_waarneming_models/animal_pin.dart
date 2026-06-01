@@ -1,9 +1,11 @@
 import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 class AnimalPin {
   final String id;
   final String? speciesName;
+  final int? animalCount;
   final double lat;
   final double lon;
   final DateTime seenAt;
@@ -17,6 +19,7 @@ class AnimalPin {
     required this.lon,
     required this.seenAt,
     this.speciesName,
+    this.animalCount,
     this.imageUrl,
     this.reportType,
   });
@@ -49,8 +52,15 @@ class AnimalPin {
       seenAt: parseApiMomentToUtc(ts),
       speciesName:
           (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
+      animalCount: _extractAnimalCount(j),
       imageUrl: j['imageUrl'] as String?,
+      // Vicinity `animals` are GPS collar positions (Smart Parks).
+      reportType: 'collar',
     );
+  }
+
+  static int? _extractAnimalCount(Map<String, dynamic> j) {
+    return extractAnimalCountFromInteractionJson(j);
   }
 
   static double? _asDouble(Object? value) {
