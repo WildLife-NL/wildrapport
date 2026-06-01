@@ -183,9 +183,7 @@ class ProfileApi implements ProfileApiInterface {
 
   @override
   Future<Profile> updateMyProfile(Profile updatedProfile) async {
-    final body = updatedProfile.toUpdateJson(
-      firebaseCloudMessagingToken: updatedProfile.firebaseCloudMessagingToken,
-    );
+    final body = updatedProfile.toUpdateJson();
 
     return _putProfile(body);
   }
@@ -194,7 +192,10 @@ class ProfileApi implements ProfileApiInterface {
   Future<Profile> updateFirebaseCloudMessagingToken(String? token) async {
     // Backend expects full `PUT /profile/me/` body (OpenAPI), not PATCH-only.
     final current = await fetchMyProfile();
-    final body = current.toUpdateJson(firebaseCloudMessagingToken: token);
+    final body = current.toUpdateJson(
+      firebaseCloudMessagingToken: token,
+      includeFirebaseCloudMessagingToken: true,
+    );
     debugPrint(
       '[ProfileApi] PUT /profile/me/ (FCM ${token == null ? 'cleared' : 'set'}, '
       'len=${token?.length ?? 0})',

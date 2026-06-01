@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/beta_models/belonging_damage_report_model.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class BelongingDamageApiTransformer {
   static Map<String, dynamic> transformForApi(BelongingDamageReport report) {
@@ -42,40 +43,29 @@ class BelongingDamageApiTransformer {
     }
 
     // --- final payload exactly how /interaction expects it for R5 ---
-    final payload = {
-      "description": report.description ?? "",
+    final payload = <String, dynamic>{
       "location": {
         "latitude": report.systemLocation!.latitude,
         "longitude": report.systemLocation!.longtitude,
       },
       "moment": report.systemDateTime.toUtc().toIso8601String(),
-
-      // ^ backend examples use Z time like "2025-10-29T13:18:29.004944Z"
       "place": {
         "latitude": report.userSelectedLocation!.latitude,
         "longitude": report.userSelectedLocation!.longtitude,
       },
-
-      "reportOfDamage": {
-        // Backend expects a free text string for the belonging
-        "belonging": belongingName,
-
-        "estimatedDamage": report.currentImpactDamages,
-        "estimatedLoss": report.estimatedTotalDamages,
-
-        // API expects "square-meters" etc.
-        "impactType": report.impactedAreaType,
-
-        // API expects the numeric value (m2 or converted ha→m2)
-        "impactValue": report.impactedArea,
-      },
-
-      // animal suspected of causing damage
+      "reportOfDamage": buildReportOfDamageJson(
+        belonging: belongingName,
+        estimatedLoss: report.estimatedTotalDamages.toString(),
+        preventiveMeasures: report.preventiveMeasures,
+        preventiveMeasuresDescription: report.preventiveMeasuresDescription,
+        estimatedDamage: report.currentImpactDamages.round(),
+        impactType: report.impactedAreaType,
+        impactValue: report.impactedArea.round(),
+      ),
       "speciesID": report.suspectedSpeciesID,
-
-      // Interaction typeID 2 = Damage report / gewasschade
       "typeID": 2,
     };
+    applyInteractionNotes(payload, report.description);
 
     debugPrint('=== Final DamageReport API Payload ===');
     debugPrint(const JsonEncoder.withIndent('  ').convert(payload));

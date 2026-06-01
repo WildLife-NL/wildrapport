@@ -20,7 +20,8 @@ void main() {
             'enum': [
               'unknown',
               'walking',
-              'eating',
+              'eating or drinking',
+              'standing still',
               'looking around',
               'fleeing',
               'resting',
@@ -31,7 +32,8 @@ void main() {
       });
 
       expect(schema.humanActivityValues, contains('walking'));
-      expect(schema.perceivedAnimalActivityValues, contains('eating'));
+      expect(schema.perceivedAnimalActivityValues, contains('eating or drinking'));
+      expect(schema.perceivedAnimalActivityValues, contains('standing still'));
       expect(schema.perceivedAnimalActivityValues, contains('other...'));
     });
 
@@ -41,7 +43,8 @@ void main() {
           humanActivityValues: const ['unknown', 'walking'],
           perceivedAnimalActivityValues: const [
             'walking',
-            'eating',
+            'eating or drinking',
+            'standing still',
             'other...',
           ],
         ),
@@ -52,12 +55,40 @@ void main() {
         'Lopen',
       );
       expect(
+        SightingReportActivityCatalog.labelNlForPerceivedAnimal(
+          'eating or drinking',
+        ),
+        'Eten of drinken',
+      );
+      expect(
+        SightingReportActivityCatalog.labelNlForPerceivedAnimal('standing still'),
+        'Stil staan',
+      );
+      expect(
         SightingReportActivityCatalog.labelNlForPerceivedAnimal('eating'),
         'Eten of drinken',
       );
       expect(
         SightingReportActivityCatalog.labelNlForPerceivedAnimal('other...'),
         'Anders, namelijk ...',
+      );
+    });
+
+    test('normalizes legacy eating to eating or drinking', () {
+      SightingReportActivityCatalog.loadFromSchemaForTest(
+        SightingReportSchema(
+          humanActivityValues: const ['unknown'],
+          perceivedAnimalActivityValues: const [
+            'unknown',
+            'eating or drinking',
+            'standing still',
+          ],
+        ),
+      );
+
+      expect(
+        SightingReportActivityCatalog.normalizePerceivedAnimal('eating'),
+        'eating or drinking',
       );
     });
 

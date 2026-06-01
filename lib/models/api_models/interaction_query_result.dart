@@ -2,6 +2,7 @@
 import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
 import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class AnimalInfo {
   final String? sex;
@@ -133,7 +134,7 @@ class InteractionQueryResult {
       typeName: resolvedTypeName ?? rawTypeName,
       speciesName:
           (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),
-      description: json['description']?.toString(),
+      description: parseInteractionNotes(json),
       userName: (userNode['name'] ?? userNode['username'])?.toString(),
       placeName: placeNode['name']?.toString(),
       involvedAnimals: animals,
@@ -150,7 +151,7 @@ class InteractionQueryResult {
     'moment': moment.toIso8601String(),
     if (typeName != null) 'type': {'name': typeName},
     if (speciesName != null) 'species': {'commonName': speciesName},
-    if (description != null) 'description': description,
+    if (description != null) 'notes': description,
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},
     if (animalCount != null) 'animalCount': animalCount,

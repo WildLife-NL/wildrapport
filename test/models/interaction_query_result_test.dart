@@ -61,6 +61,36 @@ void main() {
       );
     });
 
+    test('parses notes field with description fallback', () {
+      final fromNotes = InteractionQueryResult.fromJson({
+        'ID': 'itx-notes',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T10:30:00Z',
+        'notes': 'Near the ditch',
+      });
+      expect(fromNotes.description, 'Near the ditch');
+
+      final empty = InteractionQueryResult.fromJson({
+        'ID': 'itx-empty',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T10:30:00Z',
+        'notes': '',
+      });
+      expect(empty.description, isNull);
+    });
+
+    test('toJson serializes description as notes', () {
+      final result = InteractionQueryResult(
+        id: 'itx-notes-out',
+        lat: 52.0,
+        lon: 5.0,
+        moment: DateTime.parse('2026-03-25T12:00:00Z'),
+        description: 'Extra info',
+      );
+      expect(result.toJson()['notes'], 'Extra info');
+      expect(result.toJson().containsKey('description'), isFalse);
+    });
+
     test('toJson keeps required shape', () {
       final result = InteractionQueryResult(
         id: 'itx-3',

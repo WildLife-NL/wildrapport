@@ -159,12 +159,28 @@ void main() {
 
       final json = profileModel.toUpdateJson(
         firebaseCloudMessagingToken: 'token',
+        includeFirebaseCloudMessagingToken: true,
       );
 
       expect(json['notes'], 'Weekend walks');
       expect(json['natureVisitAvgWeeklyFrequency'], 4);
+      expect(json['firebaseCloudMessagingToken'], 'token');
       expect(json.containsKey('description'), isFalse);
       expect(json.containsKey('natureVisitFrequency'), isFalse);
+    });
+
+    test('toUpdateJson omits firebaseCloudMessagingToken by default', () {
+      final profileModel = Profile(
+        userID: '123',
+        email: 'john.doe@example.com',
+        userName: 'John Doe',
+        firebaseCloudMessagingToken: 'stored-token',
+        reportAppTerms: true,
+      );
+
+      final json = profileModel.toUpdateJson();
+
+      expect(json.containsKey('firebaseCloudMessagingToken'), isFalse);
     });
 
     test('should handle empty string values in JSON', () {

@@ -56,9 +56,11 @@ class SchademeldingSubmit {
       );
     }
 
-    final description = (sighting.additionalInfo?.trim().isNotEmpty ?? false)
+    final descriptionRaw = (sighting.additionalInfo?.trim().isNotEmpty ?? false)
         ? sighting.additionalInfo!.trim()
         : (sighting.description?.trim() ?? '');
+    final description =
+        descriptionRaw.isEmpty ? null : descriptionRaw;
 
     return BelongingDamageReport(
       possesion: Possesion(possesionID: null, possesionName: belonging, category: null),
@@ -77,8 +79,14 @@ class SchademeldingSubmit {
       systemDateTime: moment,
       preventiveMeasures: sighting.preventiveMeasures ?? false,
       preventiveMeasuresDescription:
-          sighting.preventiveMeasuresDescription?.trim() ?? '',
+          _optionalTrim(sighting.preventiveMeasuresDescription),
     );
+  }
+
+  static String? _optionalTrim(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
   }
 
   static Future<InteractionResponse> submit({

@@ -54,6 +54,8 @@ class AnimalPin {
           (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
       animalCount: _extractAnimalCount(j),
       imageUrl: j['imageUrl'] as String?,
+      // Vicinity `animals` are GPS collar positions (Smart Parks).
+      reportType: 'collar',
     );
   }
 

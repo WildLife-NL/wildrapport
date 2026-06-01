@@ -9,5 +9,5 @@ abstract class PossesionReportFields extends CommonReportFields {
   String get impactedAreaType;
   double get impactedArea;
   bool get preventiveMeasures;
-  String get preventiveMeasuresDescription;
+  String? get preventiveMeasuresDescription;
 }

@@ -95,7 +95,8 @@ void main() {
       expect(reportOfDamage['impactValue'], 100);
       expect(reportOfDamage['estimatedDamage'], 500);
       expect(reportOfDamage['estimatedLoss'], '1000-2000');
-      expect(json['description'], 'Test damage');
+      expect(json['notes'], 'Test damage');
+      expect(json.containsKey('description'), isFalse);
     });
 
     test('should handle null values correctly', () {

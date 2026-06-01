@@ -29,6 +29,7 @@ import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildrapport/utils/interaction_animal_count_store.dart';
+import 'package:wildrapport/utils/map_marker_style.dart';
 class _IconStyle {
   final Color color;
   final double size;
@@ -1744,35 +1745,27 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
 
   Color _getBorderColorForDetectionType(String? detectionType) {
-    if (detectionType == null) return Colors.white;
-
-    final type = detectionType.toLowerCase();
-
-    if (type.contains('camera') || type.contains('foto')) {
-      return const Color(0xFF00BFD8); // Aqua
-    } else if (type.contains('acoustic') || type.contains('geluid')) {
-      return const Color(0xFFFF9100); // Orange
-    } else if (type.contains('waarneming') || type.contains('sighting')) {
-      return const Color(0xFF8613A8); // Purple
-    } else if (type.contains('collision') || type.contains('botsing')) {
-      return const Color(0xFF0078DA); // Blue
-    } else if (type.contains('schadamelding') || type.contains('damage')) {
-      return const Color(0xFF008C7B); // Teal
-    } else if (type.contains('collar')) {
-      return const Color(0xFFFE008E); // Pink
+    switch (mapMarkerStyleKey(detectionType)) {
+      case 'camera':
+        return const Color(0xFF00BFD8);
+      case 'acoustic':
+        return const Color(0xFFFF9100);
+      case 'waarneming':
+        return const Color(0xFF8613A8);
+      case 'verkeersongeval':
+        return const Color(0xFF0078DA);
+      case 'gewasschade':
+        return const Color(0xFF008C7B);
+      case 'collar':
+        return const Color(0xFFFE008E);
+      default:
+        return Colors.white;
     }
-
-    return Colors.white;
   }
 
   int? _eventCountForPin(AnimalPin pin) {
-    final type = pin.reportType?.toLowerCase();
-    final isFixedPin =
-        type?.contains('camera') == true ||
-        type?.contains('foto') == true ||
-        type?.contains('acoustic') == true ||
-        type?.contains('geluid') == true;
-
+    final styleKey = mapMarkerStyleKey(pin.reportType);
+    final isFixedPin = styleKey == 'camera' || styleKey == 'acoustic';
     return isFixedPin ? 3 : null;
   }
 
@@ -1782,17 +1775,15 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     _IconStyle style, {
     int? eventCount,
   }) {
+    final styleKey = mapMarkerStyleKey(detectionType);
     final borderColor = _getBorderColorForDetectionType(detectionType);
-    final type = detectionType?.toLowerCase();
 
-    final bool isCamera =
-        type?.contains('camera') == true || type?.contains('foto') == true;
-
-    final bool isAcoustic =
-        type?.contains('acoustic') == true || type?.contains('geluid') == true;
-
-    final bool isCollar = type?.contains('collar') == true;
-    final iconPath = getSpeciesIconPath(speciesName);
+    final bool isCamera = styleKey == 'camera';
+    final bool isAcoustic = styleKey == 'acoustic';
+    final bool isCollar = styleKey == 'collar';
+    final bool useSpeciesSilhouette = !isCamera && !isAcoustic;
+    final iconPath =
+        useSpeciesSilhouette ? getSpeciesIconPath(speciesName) : null;
 
     return SizedBox(
       width: style.size + 28,
@@ -2040,7 +2031,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
           onTap: onTap,
           child: _buildStyledAnimalPin(
             pin.label,
-            pin.label,
+            pin.markerStyleHint,
             style,
           ),
         ),

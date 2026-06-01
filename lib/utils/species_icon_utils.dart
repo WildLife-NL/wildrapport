@@ -2,6 +2,41 @@ import 'package:flutter/foundation.dart';
 import 'package:wildrapport/managers/waarneming_flow/animal_manager.dart';
 import 'package:wildlifenl_assets/wildlifenl_assets.dart' hide getAnimalPhotoPath;
 
+const _packageSilhouettes =
+    'packages/wildlifenl_assets/assets/icons/animals';
+
+/// Backend / package naming mismatches for map silhouettes.
+String _normalizeSpeciesIconLookup(String raw) {
+  final lower = raw.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
+  const aliases = <String, String>{
+    'wilde kat': 'wild kat',
+    'wildkat': 'wild kat',
+    'shetland-pony': 'shetlandpony',
+    'shetland pony': 'shetlandpony',
+  };
+  return aliases[lower] ?? lower;
+}
+
+/// Correct package silhouette paths where [getAnimalIconPath] points to missing files.
+String? _explicitPackageSilhouettePath(String normalized) {
+  if (normalized.contains('boommarter') || normalized.contains('boommarten')) {
+    return '$_packageSilhouettes/boommarter.png';
+  }
+  if (normalized.contains('bever') || normalized.contains('beaver')) {
+    return '$_packageSilhouettes/bever.png';
+  }
+  if (normalized.contains('shetland')) {
+    return '$_packageSilhouettes/shetlandpony.png';
+  }
+  if (normalized.contains('exmoor')) {
+    return '$_packageSilhouettes/exmoorpony.png';
+  }
+  if (normalized.contains('wild kat') || normalized.contains('wildkat')) {
+    return '$_packageSilhouettes/wild_kat.png';
+  }
+  return null;
+}
+
 /// ===============================
 /// MAP ICONS (silhouette icons)
 /// ===============================
@@ -9,7 +44,13 @@ String? getSpeciesIconPath(String? speciesName) {
   if (speciesName == null || speciesName.trim().isEmpty) return null;
 
   final raw = speciesName.trim();
-  final normalized = raw.toLowerCase();
+  final normalized = _normalizeSpeciesIconLookup(raw);
+
+  final explicitSilhouette = _explicitPackageSilhouettePath(normalized);
+  if (explicitSilhouette != null) {
+    _logSpeciesIconResolution(speciesName, explicitSilhouette);
+    return explicitSilhouette;
+  }
 
   // Handle bovine/Tauros naming variants
   if (normalized.contains('tauros') ||
@@ -30,15 +71,6 @@ String? getSpeciesIconPath(String? speciesName) {
       _logSpeciesIconResolution(speciesName, taurosPath);
       return taurosPath;
     }
-  }
-
-  // wildlifenl_assets: getAnimalIconPath('boommarten') wijst naar een onbestaand
-  // bestand; het silhouet heet boommarter.png.
-  if (normalized.contains('boommarter')) {
-    const packageIcon =
-        'packages/wildlifenl_assets/assets/icons/animals/boommarter.png';
-    _logSpeciesIconResolution(speciesName, packageIcon);
-    return packageIcon;
   }
 
   final aliases = <String, List<String>>{

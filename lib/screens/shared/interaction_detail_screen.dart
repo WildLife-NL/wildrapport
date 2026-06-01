@@ -304,10 +304,12 @@ class InteractionDetailScreen extends StatelessWidget {
           'Preventieve maatregelen',
           report.preventiveMeasures ? 'Ja' : 'Nee',
         ),
-        _buildInfoRow(
-          'Toelichting maatregelen',
-          report.preventiveMeasuresDescription,
-        ),
+        if (report.preventiveMeasuresDescription != null &&
+            report.preventiveMeasuresDescription!.isNotEmpty)
+          _buildInfoRow(
+            'Toelichting maatregelen',
+            report.preventiveMeasuresDescription!,
+          ),
       ],
     );
   }

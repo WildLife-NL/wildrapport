@@ -25,7 +25,9 @@ class SightingReportActivityCatalog {
   static const Map<String, String> _perceivedAnimalLabelsNl = {
     'unknown': 'Onbekend',
     'walking': 'Lopen',
-    'eating': 'Eten of drinken',
+    'eating or drinking': 'Eten of drinken',
+    'eating': 'Eten of drinken', // legacy API value
+    'standing still': 'Stil staan',
     'looking around': 'Rondkijken / omgeving scannen',
     'fleeing': '(Weg)rennen',
     'resting': 'Rusten',
@@ -122,10 +124,20 @@ class SightingReportActivityCatalog {
     return catalog._humanActivityValues.first;
   }
 
+  /// Maps retired enum values to their replacement in the current schema.
+  static String _perceivedAnimalSchemaAlias(String value) {
+    if (value == 'eating') return 'eating or drinking';
+    return value;
+  }
+
   static String normalizePerceivedAnimal(String? value) {
     final catalog = _cached;
     if (catalog == null || value == null || value.isEmpty) {
       return defaultPerceivedAnimalActivity;
+    }
+    final aliased = _perceivedAnimalSchemaAlias(value);
+    if (catalog._perceivedAnimalActivityValues.contains(aliased)) {
+      return aliased;
     }
     if (catalog._perceivedAnimalActivityValues.contains(value)) return value;
     if (catalog._perceivedAnimalActivityValues

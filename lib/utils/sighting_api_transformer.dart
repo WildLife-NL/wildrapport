@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/utils/sighting_report_payload.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildlifenl_rapporten_components/wildlifenl_rapporten_components.dart';
 
@@ -100,6 +101,8 @@ class SightingApiTransformer {
     final reportOfSighting =
         apiPayload['reportOfSighting'] as Map<String, dynamic>;
     SightingReportPayload.applyToReportOfSighting(reportOfSighting, sighting);
+
+    applyInteractionNotes(apiPayload, sighting.description);
 
     debugPrint('=== Final API Payload ===');
     debugPrint(const JsonEncoder.withIndent('  ').convert(apiPayload));

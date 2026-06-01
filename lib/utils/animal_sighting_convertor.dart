@@ -1,5 +1,6 @@
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/utils/sighting_report_payload.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class AnimalSightingConvertor {
   static Map<String, dynamic> toApiFormat(AnimalSightingModel report) {
@@ -25,8 +26,7 @@ class AnimalSightingConvertor {
     };
     SightingReportPayload.applyToReportOfSighting(reportOfSighting, report);
 
-    return {
-      'description': report.description,
+    final payload = <String, dynamic>{
       'location': {
         'latitude': systemLocation.latitude,
         'longitude': systemLocation.longitude,
@@ -40,6 +40,8 @@ class AnimalSightingConvertor {
       'speciesID': report.animalSelected?.animalId,
       'typeID': 1,
     };
+    applyInteractionNotes(payload, report.description);
+    return payload;
   }
 
   static List<Map<String, dynamic>> transformInvolvedAnimals(dynamic animal) {
