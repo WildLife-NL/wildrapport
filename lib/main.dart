@@ -373,9 +373,6 @@ class _MediaQueryWrapper extends StatelessWidget {
           baseTextScale *
               MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
         ),
-        viewInsets: MediaQuery.of(context).viewInsets.copyWith(
-          bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,
-        ),
       ),
       child: child,
     );
