@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,10 +13,15 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildrapport/utils/zone_api_parser.dart';
+import 'package:wildrapport/utils/zone_map_utils.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
 class AddZoneScreen extends StatefulWidget {
-  const AddZoneScreen({super.key});
+  const AddZoneScreen({super.key, this.existingZone});
+
+  /// When set, the screen updates this zone instead of creating a new one.
+  final Zone? existingZone;
 
   @override
   State<AddZoneScreen> createState() => _AddZoneScreenState();
@@ -36,12 +42,47 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   DateTime _lastMapTapTime = DateTime(0);
   static const _mapTapDebounceMs = 400;
 
+  bool get _isEditing => widget.existingZone != null;
+
   @override
   void initState() {
     super.initState();
+    _initFromExistingZone();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadInitialMapCenter();
+      if (_isEditing && _polygonPoints.length >= 3) {
+        _centerMapOnPolygon();
+      } else {
+        _loadInitialMapCenter();
+      }
     });
+  }
+
+  void _initFromExistingZone() {
+    final zone = widget.existingZone;
+    if (zone == null) return;
+    _nameController.text = zone.name;
+    _descriptionController.text = zone.description;
+    final def = zone.definition;
+    if (def == null || def.isEmpty) return;
+    _polygonPoints =
+        def.map((p) => LatLng(p.latitude, p.longitude)).toList();
+    final center = centroidOfPoints(_polygonPoints);
+    if (center != null) _mapCenter = center;
+  }
+
+  void _centerMapOnPolygon() {
+    final bounds = boundsForPoints(_polygonPoints);
+    if (bounds == null) return;
+    try {
+      _mapController.fitCamera(
+        fm.CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(48),
+          maxZoom: 17,
+          minZoom: 4,
+        ),
+      );
+    } catch (_) {}
   }
 
   @override
@@ -226,17 +267,26 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     Zone? zone;
     try {
       final apiClient = context.read<ApiClient>();
-      final response = await apiClient.post(
-        'zone/',
-        request.toJson(),
-        authenticated: true,
-      );
+      final http.Response response;
+      if (_isEditing) {
+        response = await apiClient.put(
+          'zone/${widget.existingZone!.id}',
+          request.toJson(),
+          authenticated: true,
+        );
+      } else {
+        response = await apiClient.post(
+          'zone/',
+          request.toJson(),
+          authenticated: true,
+        );
+      }
 
       if (!mounted) return;
       if (response.statusCode == 200) {
         try {
           final json = jsonDecode(response.body) as Map<String, dynamic>;
-          zone = Zone.fromJson(json);
+          zone = zoneFromApiJson(json);
         } catch (_) {
           errorMessage = 'Ongeldig antwoord van de server.';
         }
@@ -248,7 +298,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     } catch (e, st) {
       if (mounted) {
         errorMessage = e.toString();
-        debugPrint('Zone toevoegen exception: $e\n$st');
+        debugPrint('Zone opslaan exception: $e\n$st');
       }
     }
 
@@ -256,16 +306,22 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     setState(() => _isSubmitting = false);
 
     if (zone != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Zone is toegevoegd.')));
-      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isEditing ? 'Zone is bijgewerkt.' : 'Zone is toegevoegd.',
+          ),
+        ),
+      );
+      Navigator.of(context).pop(true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             errorMessage ??
-                'Zone toevoegen mislukt. Controleer je invoer of probeer later opnieuw.',
+                (_isEditing
+                    ? 'Zone bewerken mislukt. Probeer het later opnieuw.'
+                    : 'Zone toevoegen mislukt. Controleer je invoer of probeer later opnieuw.'),
           ),
           duration: const Duration(seconds: 5),
         ),
@@ -282,7 +338,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Zone toevoegen',
+              centerText: _isEditing ? 'Zone bewerken' : 'Zone toevoegen',
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () => Navigator.of(context).pop(),
@@ -567,7 +623,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Text('Zone toevoegen'),
+                              : Text(_isEditing ? 'Zone opslaan' : 'Zone toevoegen'),
                         ),
                       ),
                     ],

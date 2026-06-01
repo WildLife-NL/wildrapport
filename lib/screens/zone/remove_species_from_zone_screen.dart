@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/utils/zone_api_parser.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
 class ZoneSpeciesItem {
@@ -39,6 +41,8 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
   Future<void> _loadZones() async {
     final apiClient = context.read<ApiClient>();
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userID');
       final response = await apiClient.get('zones/me/', authenticated: true);
       List<Zone> zones = [];
       Map<String, List<ZoneSpeciesItem>> zoneIdToSpecies = {};
@@ -46,7 +50,17 @@ class _RemoveSpeciesFromZoneScreenState extends State<RemoveSpeciesFromZoneScree
         final list = jsonDecode(response.body) as List;
         for (final e in list) {
           final json = e as Map<String, dynamic>;
-          zones.add(Zone.fromJson(json));
+          final ownerId = zoneOwnerUserIdFromJson(json);
+          if (userId != null &&
+              userId.isNotEmpty &&
+              ownerId != null &&
+              ownerId.isNotEmpty &&
+              ownerId != userId) {
+            continue;
+          }
+          final zone = zoneFromApiJson(json);
+          if (zone == null) continue;
+          zones.add(zone);
           final zoneId = json['ID'] as String?;
           if (zoneId != null && json['species'] != null) {
             final speciesList = json['species'] as List;
