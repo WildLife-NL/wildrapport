@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/screens/zone/alarms_screen.dart';
@@ -13,7 +12,6 @@ import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
-import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/alarm_map_focus_service.dart';
 import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
@@ -80,32 +78,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
     setState(() => _currentTab = NavTab.kaart);
   }
 
-  void _requestLocationPermissionIfKaartTab(BuildContext context) {
-    final permissionManager = context.read<PermissionInterface>();
-    final appState = context.read<AppStateProvider>();
-    permissionManager.isPermissionGranted(PermissionType.location).then((granted) {
-      if (granted) {
-        if (!appState.isLocationTrackingEnabled) {
-          appState.setLocationTrackingEnabled(true);
-        }
-        return;
-      }
-      if (!mounted) return;
-      permissionManager.requestPermission(
-        context,
-        PermissionType.location,
-        showRationale: false,
-      ).then((approved) {
-        if (approved && !appState.isLocationTrackingEnabled) {
-          appState.setLocationTrackingEnabled(true);
-        }
-      });
-    });
-  }
-
   void _onTabSelected(NavTab tab) {
     setState(() => _currentTab = tab);
-    if (tab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
   }
 
   @override
@@ -118,7 +92,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (_currentTab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
       _openAlarmsIfRequested();
       _onAlarmMapFocusRequested();
     });
@@ -135,7 +108,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
     final alarmFocus = context.read<AlarmMapFocusService>();
     if (!alarmFocus.consumeOpenMapTabRequest()) return;
     setState(() => _currentTab = NavTab.kaart);
-    _requestLocationPermissionIfKaartTab(context);
   }
 
   @override
@@ -156,7 +128,10 @@ class _MainNavScreenState extends State<MainNavScreen> {
             key: _currentTab == NavTab.rapporten ? null : ValueKey(_currentTab),
             onBackPressed: _onBackFromTab,
           ),
-          KaartOverviewScreen(onBackPressed: _onBackFromTab),
+          KaartOverviewScreen(
+            onBackPressed: _onBackFromTab,
+            isTabActive: _currentTab == NavTab.kaart,
+          ),
           LogbookScreen(
             onBackPressed: _onBackFromTab,
             openRecentSightings: widget.openRecentSightingsDirectly && _currentTab == NavTab.logboek,

@@ -46,9 +46,17 @@ class _LocalTrackingPoint {
 }
 
 class KaartOverviewScreen extends StatefulWidget {
-  const KaartOverviewScreen({super.key, this.onBackPressed});
+  const KaartOverviewScreen({
+    super.key,
+    this.onBackPressed,
+    this.isTabActive = true,
+  });
 
   final VoidCallback? onBackPressed;
+
+  /// When false (e.g. map tab in [IndexedStack] while another tab is visible),
+  /// location permission and GPS bootstrap are deferred until the user opens Kaart.
+  final bool isTabActive;
 
   @override
   State<KaartOverviewScreen> createState() => _KaartOverviewScreenState();
@@ -107,6 +115,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   AlarmMapFocusService? _alarmMapFocusService;
   bool _alarmFocusListenerAttached = false;
   String? _highlightInteractionId;
+  bool _tabBootstrapStarted = false;
 
   @override
   void didChangeDependencies() {
@@ -262,6 +271,23 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   @override
   void initState() {
     super.initState();
+    if (widget.isTabActive) {
+      _scheduleTabBootstrap();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant KaartOverviewScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isTabActive && widget.isTabActive) {
+      _scheduleTabBootstrap();
+    }
+  }
+
+  void _scheduleTabBootstrap() {
+    if (_tabBootstrapStarted) return;
+    _tabBootstrapStarted = true;
+
     final bool isIosDebug = !kIsWeb && Platform.isIOS && kDebugMode;
     if (isIosDebug) {
       debugPrint('[Kaart] iOS debug: skipping bootstrap and live-follow startup');
@@ -270,8 +296,8 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _bootstrap();
-      _startFollowingMe();
+      _bootstrap(requestLocationAccess: true);
+      _maybeStartFollowingMe();
     });
   }
 
@@ -412,7 +438,24 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _centerOnMyLocation() async {
     final mp = context.read<MapProvider>();
     final appState = context.read<AppStateProvider>();
+    final permissionManager = context.read<PermissionInterface>();
     debugPrint('[Map] centreer op locatie');
+
+    var hasPermission =
+        await permissionManager.isPermissionGranted(PermissionType.location);
+    if (!hasPermission) {
+      hasPermission = await permissionManager.requestPermission(
+        context,
+        PermissionType.location,
+        showRationale: true,
+      );
+      if (!hasPermission) {
+        if (!mounted) return;
+        mp.mapController.move(_netherlandsCenter, _netherlandsOverviewZoom);
+        _updateScaleBar();
+        return;
+      }
+    }
 
     if (!appState.isLocationTrackingEnabled) {
       final enable = await showLocationSharingOffDialog(context);
@@ -494,7 +537,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     });
   }
 
+  Future<void> _maybeStartFollowingMe() async {
+    final appState = context.read<AppStateProvider>();
+    if (!appState.isLocationTrackingEnabled) return;
+
+    final permissionManager = context.read<PermissionInterface>();
+    final granted = await permissionManager.isPermissionGranted(
+      PermissionType.location,
+    );
+    if (!granted || !mounted) return;
+
+    _startFollowingMe();
+  }
+
   void _startFollowingMe() {
+    if (_posSub != null) return;
+
     const settings = LocationSettings(
       accuracy: LocationAccuracy.best,
       distanceFilter: 0, // Update often when walking (like Google Maps)
@@ -663,7 +721,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     );
   }
 
-  Future<void> _bootstrap() async {
+  Future<void> _bootstrap({required bool requestLocationAccess}) async {
     final map = context.read<MapProvider>();
     final app = context.read<AppStateProvider>();
     map.setVicinityNotificationsEnabled(
@@ -676,18 +734,14 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
     final permissionManager = context.read<PermissionInterface>();
 
-    bool hasLocationPermission = false;
-    hasLocationPermission =
+    bool hasLocationPermission =
         await permissionManager.isPermissionGranted(PermissionType.location);
-    if (!hasLocationPermission) {
+    if (requestLocationAccess && !hasLocationPermission) {
       hasLocationPermission = await permissionManager.requestPermission(
         context,
         PermissionType.location,
-        showRationale: false,
+        showRationale: true,
       );
-      if (hasLocationPermission) {
-        await app.setLocationTrackingEnabled(true);
-      }
     }
     if (!mounted) return;
 

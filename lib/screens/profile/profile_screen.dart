@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/data_apis/profile_api_interface.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/models/beta_models/profile_model.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
@@ -271,7 +272,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     activeThumbColor: Colors.white,
                                     activeTrackColor: AppColors.primaryGreen,
                                     onChanged: (enabled) async {
-                                      await app.setLocationTrackingEnabled(enabled);
+                                      if (enabled) {
+                                        final permissionManager = context
+                                            .read<PermissionInterface>();
+                                        var granted = await permissionManager
+                                            .isPermissionGranted(
+                                          PermissionType.location,
+                                        );
+                                        if (!granted) {
+                                          granted = await permissionManager
+                                              .requestPermission(
+                                            context,
+                                            PermissionType.location,
+                                            showRationale: true,
+                                          );
+                                        }
+                                        if (!granted || !context.mounted) {
+                                          return;
+                                        }
+                                      }
+                                      await app.setLocationTrackingEnabled(
+                                        enabled,
+                                      );
                                       if (!context.mounted) return;
                                       final map = context.read<MapProvider>();
                                       final state = context.read<AppStateProvider>();

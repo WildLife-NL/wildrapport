@@ -275,7 +275,7 @@ class _MyZonesMapScreenState extends State<MyZonesMapScreen> {
     setState(() => _isLoadingLocation = true);
     var point = await _resolveDeviceLocation(
       preferCached: true,
-      requestPermissionIfDenied: true,
+      requestPermissionIfDenied: false,
     );
     point ??= await _resolveDeviceLocation(
       preferCached: false,

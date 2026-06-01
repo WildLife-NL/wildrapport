@@ -104,9 +104,9 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
 
   Future<void> _loadInitialMapCenter() async {
     setState(() => _isLoadingLocation = true);
-    var point = await _resolveDeviceLocation(
+    var     point = await _resolveDeviceLocation(
       preferCached: true,
-      requestPermissionIfDenied: true,
+      requestPermissionIfDenied: false,
     );
     point ??= await _resolveDeviceLocation(
       preferCached: false,
