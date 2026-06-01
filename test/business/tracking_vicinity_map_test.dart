@@ -33,6 +33,51 @@ void main() {
       expect(filtered.interactions.first.id, 'close');
     });
 
+    test('mergeReadingsList combines pins from multiple readings', () {
+      final now = DateTime.now().toUtc();
+      final first = now.subtract(const Duration(hours: 3));
+      final second = now.subtract(const Duration(hours: 1));
+      final body = '''
+[
+  {
+    "timestamp": "${first.toIso8601String()}",
+    "location": {"latitude": 52.0, "longitude": 5.0},
+    "interactions": [
+      {
+        "ID": "near-old",
+        "location": {"latitude": 52.001, "longitude": 5.001},
+        "moment": "${first.subtract(const Duration(minutes: 15)).toIso8601String()}",
+        "type": {"name": "waarneming"}
+      }
+    ]
+  },
+  {
+    "timestamp": "${second.toIso8601String()}",
+    "location": {"latitude": 52.2, "longitude": 5.2},
+    "interactions": [
+      {
+        "ID": "near-new",
+        "location": {"latitude": 52.201, "longitude": 5.201},
+        "moment": "${second.subtract(const Duration(minutes: 15)).toIso8601String()}",
+        "type": {"name": "waarneming"}
+      }
+    ]
+  }
+]
+''';
+      final merged = TrackingVicinityParser.parseResponseBody(
+        body,
+        tag: 'test',
+        endpoint: 'GET /tracking-readings/me/',
+      );
+
+      expect(merged.interactions.length, 2);
+      expect(
+        merged.interactions.map((i) => i.id).toSet(),
+        {'near-old', 'near-new'},
+      );
+    });
+
     test('parseResponseBody handles single tracking reading object', () {
       final body = '''
 {

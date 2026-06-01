@@ -6,7 +6,7 @@ import 'package:wildrapport/screens/zone/add_zone_screen.dart';
 import 'package:wildrapport/screens/zone/add_species_to_zone_screen.dart';
 import 'package:wildrapport/screens/zone/alarms_screen.dart';
 import 'package:wildrapport/screens/zone/remove_species_from_zone_screen.dart';
-import 'package:wildrapport/screens/zone/deactivate_zone_screen.dart';
+import 'package:wildrapport/screens/zone/my_zones_map_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
@@ -26,7 +26,7 @@ class ZonesScreen extends StatelessWidget {
           children: [
             CustomAppBar(
               leftIcon: null,
-              centerText: "Zone's",
+              centerText: 'Zones',
               rightIcon: null,
               showUserIcon: false,
               iconColor: AppColors.textPrimary,
@@ -59,6 +59,15 @@ class ZonesScreen extends StatelessWidget {
                     ),
                     SizedBox(height: responsive.hp(1.4)),
                     _MenuCard(
+                      icon: Icons.map_outlined,
+                      label: 'Mijn zones op de kaart',
+                      description: 'Bekijk je ingestelde zones',
+                      onPressed: () {
+                        nav.pushForward(context, const MyZonesMapScreen());
+                      },
+                    ),
+                    SizedBox(height: responsive.hp(1.4)),
+                    _MenuCard(
                       icon: Icons.notifications_active,
                       label: 'Mijn alarmen',
                       description: 'Bekijk actieve meldingen',
@@ -82,15 +91,6 @@ class ZonesScreen extends StatelessWidget {
                       description: 'Verwijder soort uit een zone',
                       onPressed: () {
                         nav.pushForward(context, const RemoveSpeciesFromZoneScreen());
-                      },
-                    ),
-                    SizedBox(height: responsive.hp(1.4)),
-                    _MenuCard(
-                      icon: Icons.cancel_outlined,
-                      label: 'Zone deactiveren',
-                      description: 'Schakel een zone tijdelijk uit',
-                      onPressed: () {
-                        nav.pushForward(context, const DeactivateZoneScreen());
                       },
                     ),
                   ],

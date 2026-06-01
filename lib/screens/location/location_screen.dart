@@ -21,6 +21,7 @@ import 'package:wildrapport/screens/waarneming/collision_details_screen.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_screen.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/sighting_api_transformer.dart';
+import 'package:wildrapport/utils/interaction_pin_factory.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/bottom_app_bar.dart';
 import 'package:wildrapport/widgets/location/location_screen_ui_widget.dart';
@@ -198,6 +199,19 @@ class _LocationScreenState extends State<LocationScreen> {
 
       // 8. handle backend result
       if (responseModel != null) {
+        await cacheSubmittedInteractionCount(
+          interactionId: responseModel.interactionID,
+          sighting: updatedSighting,
+        );
+
+        final mapPin = interactionPinFromSighting(
+          updatedSighting,
+          responseModel.interactionID,
+        );
+        if (mapPin != null) {
+          mapProvider.addOrUpdateInteraction(mapPin);
+        }
+
         final q = responseModel.questionnaire;
         final questionCount = q.questions?.length ?? 0;
         debugPrint(

@@ -108,30 +108,34 @@ void main() {
       expect(Vicinity.fromJson(unwrapped).animals.length, 1);
     });
 
-    test('TrackingVicinityParser picks latest reading from array', () {
+    test('TrackingVicinityParser merges pins from all recent readings', () {
+      final now = DateTime.now().toUtc();
+      final older = now.subtract(const Duration(hours: 2));
+      final newer = now.subtract(const Duration(hours: 1));
       final body = '''
 [
   {
     "userID": "u1",
-    "timestamp": "2025-01-01T10:00:00Z",
+    "timestamp": "${older.toIso8601String()}",
     "location": {"latitude": 51.0, "longitude": 5.0},
     "interactions": [
       {
         "ID": "old",
         "location": {"latitude": 51.0, "longitude": 5.0},
-        "moment": "2025-01-01T09:00:00Z"
+        "moment": "${older.subtract(const Duration(minutes: 30)).toIso8601String()}",
+        "type": {"name": "waarneming"}
       }
     ]
   },
   {
     "userID": "u1",
-    "timestamp": "2025-01-02T10:00:00Z",
+    "timestamp": "${newer.toIso8601String()}",
     "location": {"latitude": 52.0, "longitude": 5.0},
     "interactions": [
       {
         "ID": "new",
         "location": {"latitude": 52.0, "longitude": 5.0},
-        "moment": "2025-01-02T09:00:00Z",
+        "moment": "${newer.subtract(const Duration(minutes: 30)).toIso8601String()}",
         "type": {"name": "waarneming"},
         "species": {"commonName": "Ree"}
       }
@@ -144,8 +148,11 @@ void main() {
         tag: 'test',
         endpoint: 'GET /tracking-readings/me/',
       );
-      expect(vicinity.interactions.length, 1);
-      expect(vicinity.interactions.first.id, 'new');
+      expect(vicinity.interactions.length, 2);
+      expect(
+        vicinity.interactions.map((i) => i.id).toSet(),
+        {'old', 'new'},
+      );
     });
 
     test('should skip malformed items and continue parsing others', () {

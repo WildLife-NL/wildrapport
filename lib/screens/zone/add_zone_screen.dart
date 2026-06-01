@@ -1,21 +1,28 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/config/mock_location.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildrapport/utils/zone_api_parser.dart';
+import 'package:wildrapport/utils/zone_map_utils.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
 class AddZoneScreen extends StatefulWidget {
-  const AddZoneScreen({super.key});
+  const AddZoneScreen({super.key, this.existingZone});
+
+  /// When set, the screen updates this zone instead of creating a new one.
+  final Zone? existingZone;
 
   @override
   State<AddZoneScreen> createState() => _AddZoneScreenState();
@@ -26,13 +33,58 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _mapController = fm.MapController();
-  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+  /// Fallback only when GPS is unavailable (centre of NL).
+  static const LatLng _fallbackCenter = LatLng(52.15, 5.38);
+  LatLng _mapCenter = _fallbackCenter;
   List<LatLng> _polygonPoints = [];
   LatLng? _currentLocation;
   bool _isSubmitting = false;
   bool _isLoadingLocation = false;
   DateTime _lastMapTapTime = DateTime(0);
   static const _mapTapDebounceMs = 400;
+
+  bool get _isEditing => widget.existingZone != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFromExistingZone();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isEditing && _polygonPoints.length >= 3) {
+        _centerMapOnPolygon();
+      } else {
+        _loadInitialMapCenter();
+      }
+    });
+  }
+
+  void _initFromExistingZone() {
+    final zone = widget.existingZone;
+    if (zone == null) return;
+    _nameController.text = zone.name;
+    _descriptionController.text = zone.description;
+    final def = zone.definition;
+    if (def == null || def.isEmpty) return;
+    _polygonPoints =
+        def.map((p) => LatLng(p.latitude, p.longitude)).toList();
+    final center = centroidOfPoints(_polygonPoints);
+    if (center != null) _mapCenter = center;
+  }
+
+  void _centerMapOnPolygon() {
+    final bounds = boundsForPoints(_polygonPoints);
+    if (bounds == null) return;
+    try {
+      _mapController.fitCamera(
+        fm.CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(48),
+          maxZoom: 17,
+          minZoom: 4,
+        ),
+      );
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -50,6 +102,27 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     setState(() => _polygonPoints.add(point));
   }
 
+  Future<void> _loadInitialMapCenter() async {
+    setState(() => _isLoadingLocation = true);
+    var     point = await _resolveDeviceLocation(
+      preferCached: true,
+      requestPermissionIfDenied: false,
+    );
+    point ??= await _resolveDeviceLocation(
+      preferCached: false,
+      requestPermissionIfDenied: false,
+    );
+    if (!mounted) return;
+    setState(() => _isLoadingLocation = false);
+    final center = point;
+    if (center == null) return;
+    setState(() {
+      _currentLocation = center;
+      _mapCenter = center;
+    });
+    _mapController.move(center, 16);
+  }
+
   Future<void> _goToMyLocation() async {
     if (_isLoadingLocation) return;
     final appState = context.read<AppStateProvider>();
@@ -62,10 +135,33 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
 
     setState(() => _isLoadingLocation = true);
     try {
+      final point = await _resolveDeviceLocation(
+        preferCached: true,
+        requestPermissionIfDenied: true,
+        showErrors: true,
+      );
+      if (!mounted || point == null) return;
+      setState(() {
+        _currentLocation = point;
+        _mapCenter = point;
+      });
+      _mapController.move(point, 16);
+    } finally {
+      if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
+  /// Returns device GPS position for map centre; null if unavailable.
+  Future<LatLng?> _resolveDeviceLocation({
+    bool preferCached = false,
+    bool requestPermissionIfDenied = false,
+    bool showErrors = false,
+  }) async {
+    try {
       if (!MockLocationConfig.kForceMockLocation) {
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          if (mounted) {
+          if (showErrors && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -74,15 +170,16 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               ),
             );
           }
-          return;
+          return null;
         }
         var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
+        if (permission == LocationPermission.denied &&
+            requestPermissionIfDenied) {
           permission = await Geolocator.requestPermission();
         }
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          if (mounted) {
+          if (showErrors && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
@@ -91,79 +188,40 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               ),
             );
           }
-          return;
+          return null;
         }
       }
 
-      Position pos;
       if (MockLocationConfig.kForceMockLocation) {
-        pos = Position(
-          latitude: MockLocationConfig.kMockLat,
-          longitude: MockLocationConfig.kMockLon,
-          timestamp: DateTime.now(),
-          accuracy: 3.0,
-          altitude: 0.0,
-          heading: 0.0,
-          speed: 0.0,
-          speedAccuracy: 0.0,
-          altitudeAccuracy: 0.0,
-          headingAccuracy: 0.0,
+        return const LatLng(
+          MockLocationConfig.kMockLat,
+          MockLocationConfig.kMockLon,
         );
-      } else {
-        // Eerst cache: vaak direct beschikbaar, dan direct iets tonen
+      }
+
+      if (preferCached) {
         final cached = await Geolocator.getLastKnownPosition();
-        if (cached != null && mounted) {
-          final point = LatLng(cached.latitude, cached.longitude);
-          setState(() {
-            _currentLocation = point;
-            _isLoadingLocation = false;
-          });
-          _mapController.move(point, 16);
-          // Op achtergrond verse positie ophalen (lagere nauwkeurigheid = sneller)
-          Geolocator.getCurrentPosition(
-                locationSettings: const LocationSettings(
-                  accuracy: LocationAccuracy.low,
-                  timeLimit: Duration(seconds: 8),
-                ),
-              )
-              .then((fresh) {
-                if (!mounted) return;
-                setState(
-                  () =>
-                      _currentLocation = LatLng(
-                        fresh.latitude,
-                        fresh.longitude,
-                      ),
-                );
-                _mapController.move(
-                  LatLng(fresh.latitude, fresh.longitude),
-                  16,
-                );
-              })
-              .catchError((_) {});
-          return;
+        if (cached != null) {
+          return LatLng(cached.latitude, cached.longitude);
         }
-        // Geen cache: verse positie (low = sneller, max 8 sec)
-        pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.low,
-            timeLimit: Duration(seconds: 8),
+      }
+
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+      return LatLng(pos.latitude, pos.longitude);
+    } catch (e) {
+      if (showErrors && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Huidige locatie kon niet worden opgehaald.'),
           ),
         );
       }
-      final point = LatLng(pos.latitude, pos.longitude);
-      if (!mounted) return;
-      setState(() => _currentLocation = point);
-      _mapController.move(point, 16);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Huidge locatie kon niet worden opgehaald.'),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoadingLocation = false);
+      return null;
     }
   }
 
@@ -210,17 +268,26 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     Zone? zone;
     try {
       final apiClient = context.read<ApiClient>();
-      final response = await apiClient.post(
-        'zone/',
-        request.toJson(),
-        authenticated: true,
-      );
+      final http.Response response;
+      if (_isEditing) {
+        response = await apiClient.put(
+          'zone/${widget.existingZone!.id}',
+          request.toJson(),
+          authenticated: true,
+        );
+      } else {
+        response = await apiClient.post(
+          'zone/',
+          request.toJson(),
+          authenticated: true,
+        );
+      }
 
       if (!mounted) return;
       if (response.statusCode == 200) {
         try {
           final json = jsonDecode(response.body) as Map<String, dynamic>;
-          zone = Zone.fromJson(json);
+          zone = zoneFromApiJson(json);
         } catch (_) {
           errorMessage = 'Ongeldig antwoord van de server.';
         }
@@ -232,7 +299,7 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     } catch (e, st) {
       if (mounted) {
         errorMessage = e.toString();
-        debugPrint('Zone toevoegen exception: $e\n$st');
+        debugPrint('Zone opslaan exception: $e\n$st');
       }
     }
 
@@ -240,16 +307,22 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
     setState(() => _isSubmitting = false);
 
     if (zone != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Zone is toegevoegd.')));
-      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isEditing ? 'Zone is bijgewerkt.' : 'Zone is toegevoegd.',
+          ),
+        ),
+      );
+      Navigator.of(context).pop(true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             errorMessage ??
-                'Zone toevoegen mislukt. Controleer je invoer of probeer later opnieuw.',
+                (_isEditing
+                    ? 'Zone bewerken mislukt. Probeer het later opnieuw.'
+                    : 'Zone toevoegen mislukt. Controleer je invoer of probeer later opnieuw.'),
           ),
           duration: const Duration(seconds: 5),
         ),
@@ -261,12 +334,14 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: 'Zone toevoegen',
+              centerText: _isEditing ? 'Zone bewerken' : 'Zone toevoegen',
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () => Navigator.of(context).pop(),
@@ -276,20 +351,6 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
               iconScale: 1.15,
               userIconScale: 1.15,
               useFixedText: true,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(25, 12, 0, 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Klik op de kaart om punten te\nmarkeren en zo je zone af te bakenen:',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -313,12 +374,19 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                             children: [
                               const Text(
                                 'Teken je zone op de kaart',
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
                               const SizedBox(height: 6),
                               const Text(
-                                'Tik op de kaart om punten te zetten (min. 3). Gebruik "Huidige locatie" om naar je positie te gaan.',
-                                style: TextStyle(fontSize: 12, color: AppColors.darkGrey),
+                                'Tik op de kaart om punten te zetten (minimaal 3). '
+                                'Rechtsonder: terug naar je huidige locatie.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.darkGrey,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               ClipRRect(
@@ -330,8 +398,8 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                                       WildLifeNLMap(
                                 mapController: _mapController,
                                 options: fm.MapOptions(
-                                  initialCenter: _defaultCenter,
-                                  initialZoom: 10,
+                                  initialCenter: _mapCenter,
+                                  initialZoom: 14,
                                   minZoom: 4,
                                   maxZoom: 17,
                                   onTap: (_, point) => _onMapTap(point),
@@ -537,31 +605,37 @@ class _AddZoneScreenState extends State<AddZoneScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _isSubmitting ? null : _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryGreen,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: _isSubmitting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text('Zone toevoegen'),
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: primaryButtonHeight(context),
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(_isEditing ? 'Zone opslaan' : 'Zone toevoegen'),
                   ),
                 ),
               ),

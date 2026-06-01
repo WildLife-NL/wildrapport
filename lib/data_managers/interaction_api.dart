@@ -17,6 +17,7 @@ import 'package:wildrapport/models/beta_models/interaction_model.dart';
 import 'package:wildrapport/models/beta_models/interaction_response_model.dart';
 import 'package:wildrapport/models/enums/interaction_type.dart';
 import 'package:wildlifenl_rapporten_components/wildlifenl_rapporten_components.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class InteractionApi implements InteractionApiInterface {
   final ApiClient client;
@@ -63,13 +64,7 @@ class InteractionApi implements InteractionApiInterface {
                 'speciesID is required for schademelding (select a suspect species)',
               );
             }
-            // NOTE:
-            // Backend schema for reportOfDamage changed:
-            // - estimatedLoss must be string
-            // - preventiveMeasures + preventiveMeasuresDescription are required
-            // - estimatedDamage/impactType/impactValue are rejected
-            final payload = {
-              "description": report.description ?? '',
+            final payload = <String, dynamic>{
               "location": {
                 "latitude": locLat,
                 "longitude": locLon,
@@ -79,16 +74,17 @@ class InteractionApi implements InteractionApiInterface {
                 "latitude": placeLat,
                 "longitude": placeLon,
               },
-              "reportOfDamage": {
-                "belonging": report.possesion.possesionName ?? '',
-                "estimatedLoss": report.estimatedLossBucket,
-                "preventiveMeasures": report.preventiveMeasures,
-                "preventiveMeasuresDescription":
+              "reportOfDamage": buildReportOfDamageJson(
+                belonging: report.possesion.possesionName ?? '',
+                estimatedLoss: report.estimatedLossBucket,
+                preventiveMeasures: report.preventiveMeasures,
+                preventiveMeasuresDescription:
                     report.preventiveMeasuresDescription,
-              },
+              ),
               "speciesID": speciesID,
               "typeID": 2,
             };
+            applyInteractionNotes(payload, report.description);
             debugPrint("$yellowLog[InteractionAPI]: GEWASSCHADE Payload:");
             debugPrint("$yellowLog${jsonEncode(payload)}");
             debugPrint("$yellowLog========================================");
@@ -121,8 +117,7 @@ class InteractionApi implements InteractionApiInterface {
                 sex: 'unknown',
               ));
             }
-            final payload = {
-              'description': report.description ?? '',
+            final payload = <String, dynamic>{
               'location': {
                 'latitude': report.systemLocation?.latitude ?? 0.0,
                 'longitude': report.systemLocation?.longtitude ?? 0.0,
@@ -144,6 +139,7 @@ class InteractionApi implements InteractionApiInterface {
               'speciesID': report.suspectedSpeciesID ?? '',
               'typeID': 3,
             };
+            applyInteractionNotes(payload, report.description);
             response = await client.post(
               'interaction/',
               payload,

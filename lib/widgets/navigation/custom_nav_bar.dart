@@ -74,7 +74,7 @@ class CustomNavBar extends StatelessWidget {
                       _buildNavItem(
                         tab: NavTab.zones,
                         icon: Icons.add_location_alt,
-                        label: "Zone's",
+                        label: 'Zones',
                       ),
                       _buildNavItem(
                         tab: NavTab.kaart,

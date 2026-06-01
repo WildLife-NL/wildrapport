@@ -12,6 +12,7 @@ import 'package:wildrapport/models/enums/animal_gender.dart';
 import 'package:wildrapport/models/enums/animal_age.dart';
 import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/view_count_model.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 class AnimalSightingReportingManager
     implements AnimalSightingReportingInterface {
@@ -477,8 +478,9 @@ class AnimalSightingReportingManager
     }
 
     // Write that into the active sighting
-    _currentanimalSighting = _currentanimalSighting!.copyWith(
-      animals: converted,
+    final updated = _currentanimalSighting!.copyWith(animals: converted);
+    _currentanimalSighting = updated.copyWith(
+      animalCount: countAnimalsInSighting(updated),
     );
 
     _notifyListeners();

@@ -26,7 +26,7 @@ void main() {
         ),
       );
 
-      expect(find.text("Zone's"), findsOneWidget);
+      expect(find.text('Zones'), findsOneWidget);
       expect(find.text('Rapporten'), findsOneWidget);
       expect(find.text('Kaart'), findsOneWidget);
       expect(find.text('LogBoek'), findsOneWidget);

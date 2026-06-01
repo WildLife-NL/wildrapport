@@ -4,6 +4,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 class AnimalDetailCard extends StatelessWidget {
   static const double _cardHeight = 205;
@@ -23,6 +24,14 @@ class AnimalDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = animal?.speciesName ?? 'Onbekend dier';
+    final cachedCount =
+        animal != null ? InteractionAnimalCountStore.peek(animal!.id) : null;
+    final rawCount = animal?.animalCount;
+    final resolved = [
+      rawCount ?? 0,
+      cachedCount ?? 0,
+    ].reduce((a, b) => a > b ? a : b);
+    final displayCount = resolved > 0 ? resolved : 1;
     final formattedDate = formatLocalDate(animal?.seenAt);
     final formattedTime = formatLocalTime(animal?.seenAt);
 
@@ -92,7 +101,7 @@ class AnimalDetailCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      _buildDetailColumn('Aantal', '1'),
+                      _buildDetailColumn('Aantal', '$displayCount'),
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -184,5 +193,4 @@ class AnimalDetailCard extends StatelessWidget {
       ],
     );
   }
-
 }

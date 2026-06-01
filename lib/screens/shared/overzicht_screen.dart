@@ -177,7 +177,7 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                               },
                             ),
                             (
-                              text: "Zone's",
+                              text: 'Zones',
                               icon: Icons.add_location_alt,
                               imagePath: null,
                               key: Key('zones_button'),

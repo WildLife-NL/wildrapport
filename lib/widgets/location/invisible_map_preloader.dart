@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:wildrapport/config/mock_location.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 
@@ -21,10 +20,7 @@ class InvisibleMapPreloader extends StatelessWidget {
         child: WildLifeNLMap(
           mapController: mapController,
           options: MapOptions(
-            initialCenter: const LatLng(
-              MockLocationConfig.kMockLat,
-              MockLocationConfig.kMockLon,
-            ),
+            initialCenter: NetherlandsMapDefaults.center,
             initialZoom: 5,
             minZoom: 4.0,
             maxZoom: 17.0,

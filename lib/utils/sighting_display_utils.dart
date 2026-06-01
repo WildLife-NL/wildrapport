@@ -3,6 +3,7 @@ import 'package:wildrapport/models/animal_waarneming_models/animal_model.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_sighting_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:wildrapport/utils/interaction_type_display.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 bool hasSchademeldingIndicators(AnimalSightingModel sighting) {
   if (sighting.cropType != null && sighting.cropType!.trim().isNotEmpty) {
@@ -105,14 +106,7 @@ String? primaryDisplayAnimalImagePath(AnimalSightingModel sighting) {
 }
 
 int primaryDisplayAnimalCount(AnimalSightingModel sighting) {
-  if (sighting.animals != null && sighting.animals!.isNotEmpty) {
-    return sighting.animals!.length;
-  }
-  if (sighting.animalCount != null && sighting.animalCount! > 0) {
-    return sighting.animalCount!;
-  }
-  if (sighting.animalSelected != null) return 1;
-  return 0;
+  return countAnimalsInSighting(sighting);
 }
 
 /// Fills missing [reportType] / image paths when loading from local storage.

@@ -18,5 +18,30 @@ void main() {
       expect(path, isNotNull);
       expect(path, contains('steenmarter'));
     });
+
+    test('resolves bever to package bever silhouette', () {
+      expect(
+        getSpeciesIconPath('Bever'),
+        'packages/wildlifenl_assets/assets/icons/animals/bever.png',
+      );
+    });
+
+    test('resolves shetlandpony to package silhouette file', () {
+      expect(
+        getSpeciesIconPath('Shetlandpony'),
+        'packages/wildlifenl_assets/assets/icons/animals/shetlandpony.png',
+      );
+      expect(
+        getSpeciesIconPath('Shetland pony'),
+        'packages/wildlifenl_assets/assets/icons/animals/shetlandpony.png',
+      );
+    });
+
+    test('resolves wilde kat to package wild_kat silhouette', () {
+      expect(
+        getSpeciesIconPath('Wilde kat'),
+        'packages/wildlifenl_assets/assets/icons/animals/wild_kat.png',
+      );
+    });
   });
 }

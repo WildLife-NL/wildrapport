@@ -67,6 +67,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:wildrapport/firebase_options.dart';
 import 'package:wildrapport/services/fcm_message_handler.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
+import 'package:wildrapport/services/alarm_map_focus_service.dart';
 import 'package:wildrapport/services/notification_navigation_handler.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
@@ -129,11 +130,7 @@ void main() async {
 
   final apiClient = ApiClient(baseUrl);
   final appConfig = AppConfig(apiClient);
-  try {
-    await SightingReportActivityCatalog.preload(apiClient);
-  } catch (e) {
-    debugPrint('[main] SightingReport schema preload failed: $e');
-  }
+  await SightingReportActivityCatalog.preload(apiClient);
 
   final profileApi = ProfileApi(apiClient);
   final speciesApi = SpeciesApi(apiClient);
@@ -154,6 +151,7 @@ void main() async {
   final animalManager = AnimalManager(speciesApi, filterManager);
   final belongingDamageFormProvider = BelongingDamageReportProvider();
   final mapProvider = MapProvider();
+  final alarmMapFocusService = AlarmMapFocusService();
   mapProvider.setAppStateProvider(appStateProvider);
   final responseProvider = ResponseProvider();
 
@@ -255,6 +253,9 @@ void main() async {
           value: belongingDamageFormProvider,
         ),
         ChangeNotifierProvider<MapProvider>.value(value: mapProvider),
+        ChangeNotifierProvider<AlarmMapFocusService>.value(
+          value: alarmMapFocusService,
+        ),
         ChangeNotifierProvider<ResponseProvider>.value(value: responseProvider),
         ChangeNotifierProvider<ConveyanceProvider>.value(
           value: conveyanceProvider,
@@ -371,9 +372,6 @@ class _MediaQueryWrapper extends StatelessWidget {
         textScaler: TextScaler.linear(
           baseTextScale *
               MediaQuery.textScalerOf(context).scale(1.0).clamp(0.8, 1.4),
-        ),
-        viewInsets: MediaQuery.of(context).viewInsets.copyWith(
-          bottom: MediaQuery.of(context).viewInsets.bottom * 0.8,
         ),
       ),
       child: child,

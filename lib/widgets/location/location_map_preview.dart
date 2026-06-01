@@ -6,6 +6,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 
 class LocationMapPreview extends StatefulWidget {
   const LocationMapPreview({super.key});
@@ -15,8 +16,8 @@ class LocationMapPreview extends StatefulWidget {
 }
 
 class _LocationMapPreviewState extends State<LocationMapPreview> {
-  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
-  static const double _defaultZoom = 7.0;
+  static const LatLng _defaultCenter = NetherlandsMapDefaults.center;
+  static const double _defaultZoom = NetherlandsMapDefaults.overviewZoom;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +25,20 @@ class _LocationMapPreviewState extends State<LocationMapPreview> {
     final locationSharingOn = context.watch<AppStateProvider>().isLocationTrackingEnabled;
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
-        final hasPosition = mapProvider.selectedPosition != null ||
-            mapProvider.currentPosition != null;
-        final showPosition = locationSharingOn && hasPosition;
+        final current = mapProvider.currentPosition;
+        final selected = mapProvider.selectedPosition;
+        final hasValidCurrent = current != null &&
+            !NetherlandsMapDefaults.isLegacyDevMockCoordinate(
+              current.latitude,
+              current.longitude,
+            );
+        final hasValidSelected = selected != null &&
+            !NetherlandsMapDefaults.isLegacyDevMockCoordinate(
+              selected.latitude,
+              selected.longitude,
+            );
+        final showPosition =
+            locationSharingOn && (hasValidSelected || hasValidCurrent);
 
         if (!showPosition) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -65,8 +77,7 @@ class _LocationMapPreviewState extends State<LocationMapPreview> {
           );
         }
 
-        final position =
-            mapProvider.selectedPosition ?? mapProvider.currentPosition!;
+        final position = hasValidSelected ? selected : current!;
         final point = LatLng(position.latitude, position.longitude);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
+import 'package:wildrapport/utils/zone_api_parser.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 
 class DeactivateZoneScreen extends StatefulWidget {
@@ -31,11 +33,13 @@ class _DeactivateZoneScreenState extends State<DeactivateZoneScreen> {
   Future<void> _loadZones() async {
     final apiClient = context.read<ApiClient>();
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userID');
       final response = await apiClient.get('zones/me/', authenticated: true);
       List<Zone> zones = [];
       if (response.statusCode == 200) {
         final list = jsonDecode(response.body) as List;
-        zones = list.map((e) => Zone.fromJson(e as Map<String, dynamic>)).toList();
+        zones = zonesFromApiListForUser(list, userId);
       }
       if (mounted) {
         setState(() {

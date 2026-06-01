@@ -18,6 +18,9 @@ import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
+import 'package:wildrapport/utils/vicinity_notice_policy.dart';
 
 class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
@@ -48,7 +51,8 @@ class MapProvider extends ChangeNotifier {
   TrackingNotice? _lastTrackingNotice;
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
   Position? _lastSentTrackingPosition;
-  static const double _minTrackingMovementMeters = 1.0;
+  static const double _minTrackingMovementMeters = 20.0;
+  final VicinityNoticePolicy _vicinityNoticePolicy = VicinityNoticePolicy();
   DateTime Function() _nowProvider = DateTime.now;
 
   MapController get mapController {
@@ -85,6 +89,39 @@ class MapProvider extends ChangeNotifier {
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
   void _applyVicinity(Vicinity vicinity) {
+    final hasIncomingPins = vicinity.animals.isNotEmpty ||
+        vicinity.detections.isNotEmpty ||
+        vicinity.interactions.isNotEmpty;
+    final hasExistingPins = _animalPins.isNotEmpty ||
+        _detectionPins.isNotEmpty ||
+        _interactions.isNotEmpty;
+
+    // Avoid wiping the map when a refresh returns no pins (e.g. walk + filter).
+    if (!hasIncomingPins && hasExistingPins) {
+      debugPrint(
+        '[MapProvider] Keeping ${_animalPins.length} animals, '
+        '${_detectionPins.length} detections, '
+        '${_interactions.length} interactions '
+        '(incoming vicinity empty)',
+      );
+      _animalPinsError = null;
+      _detectionPinsError = null;
+      _interactionsError = null;
+      _animalPinsLoading = false;
+      _detectionPinsLoading = false;
+      _interactionsLoading = false;
+      return;
+    }
+
+    final enrichedInteractions = vicinity.interactions
+        .map(
+          (interaction) => enrichInteractionAnimalCount(
+            interaction,
+            cachedCount: InteractionAnimalCountStore.peek(interaction.id),
+          ),
+        )
+        .toList();
+
     _animalPins
       ..clear()
       ..addAll(vicinity.animals);
@@ -93,7 +130,7 @@ class MapProvider extends ChangeNotifier {
       ..addAll(vicinity.detections);
     _interactions
       ..clear()
-      ..addAll(vicinity.interactions);
+      ..addAll(enrichedInteractions);
     _animalPinsError = null;
     _detectionPinsError = null;
     _interactionsError = null;
@@ -108,7 +145,10 @@ class MapProvider extends ChangeNotifier {
     );
   }
 
-  Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+  Future<TrackingNotice?> sendTrackingPingFromPosition(
+    Position pos, {
+    bool allowProximityNotification = true,
+  }) async {
     final now = _nowProvider();
     if (_isNightlyAutoDisableWindow(now)) {
       debugPrint(
@@ -151,21 +191,15 @@ class MapProvider extends ChangeNotifier {
 
         if (notice != null) {
           if (notice.vicinity != null) {
+            await InteractionAnimalCountStore.ensureLoaded();
             _applyVicinity(notice.vicinity!);
           }
           _lastTrackingNotice = notice;
-          if (notice.hasMessage) {
-            debugPrint(
-              '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-            );
-            // Also show an OS-level notification on supported platforms
-            final title =
-                notice.severity == 1
-                    ? 'Waarschuwing'
-                    : (notice.severity == 2 ? 'Melding' : 'Informatie');
-            NotificationService.instance.show(title: title, body: notice.text);
-          }
-          notifyListeners(); // if any UI wants to react to changes
+          _handleProximityNotification(
+            notice,
+            allowProximityNotification: allowProximityNotification,
+          );
+          notifyListeners();
           if (notice.hasMessage) {
             debugPrint(
               '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -173,6 +207,7 @@ class MapProvider extends ChangeNotifier {
             );
           }
         } else {
+          _vicinityNoticePolicy.recordPingResult(null);
           debugPrint(
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
           );
@@ -206,21 +241,15 @@ class MapProvider extends ChangeNotifier {
 
       if (notice != null) {
         if (notice.vicinity != null) {
+          await InteractionAnimalCountStore.ensureLoaded();
           _applyVicinity(notice.vicinity!);
         }
         _lastTrackingNotice = notice;
-        if (notice.hasMessage) {
-          debugPrint(
-            '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-          );
-          // Also show an OS-level notification on supported platforms
-          final title =
-              notice.severity == 1
-                  ? 'Waarschuwing'
-                  : (notice.severity == 2 ? 'Melding' : 'Informatie');
-          NotificationService.instance.show(title: title, body: notice.text);
-        }
-        notifyListeners(); // if any UI wants to react to changes
+        _handleProximityNotification(
+          notice,
+          allowProximityNotification: allowProximityNotification,
+        );
+        notifyListeners();
         if (notice.hasMessage) {
           debugPrint(
             '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -228,6 +257,7 @@ class MapProvider extends ChangeNotifier {
           );
         }
       } else {
+        _vicinityNoticePolicy.recordPingResult(null);
         debugPrint(
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
         );
@@ -238,6 +268,39 @@ class MapProvider extends ChangeNotifier {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
       return null;
     }
+  }
+
+  void _handleProximityNotification(
+    TrackingNotice notice, {
+    required bool allowProximityNotification,
+  }) {
+    final shouldShow = allowProximityNotification &&
+        _vicinityNoticePolicy.shouldShowProximityNotification(notice);
+
+    _vicinityNoticePolicy.recordPingResult(notice);
+
+    if (!allowProximityNotification) {
+      debugPrint(
+        '[MapProvider] 🔕 Proximity notification suppressed for this ping',
+      );
+      return;
+    }
+
+    if (!shouldShow) {
+      debugPrint(
+        '[MapProvider] 🔕 Proximity notification skipped (already nearby / duplicate)',
+      );
+      return;
+    }
+
+    debugPrint(
+      '[MapProvider] 🔔 Showing proximity notification: "${notice.text}"',
+    );
+    final title = notice.severity == 1
+        ? 'Waarschuwing'
+        : (notice.severity == 2 ? 'Melding' : 'Informatie');
+    NotificationService.instance.show(title: title, body: notice.text);
+    _vicinityNoticePolicy.recordNotificationShown(notice);
   }
 
   void emitMockTrackingNotice(String text, {int? severity}) {
@@ -281,13 +344,44 @@ class MapProvider extends ChangeNotifier {
   int get totalPins =>
       _animalPins.length + _detectionPins.length + _interactions.length;
 
-  void addOrUpdateInteraction(InteractionQueryResult interaction) {
-    final index = _interactions.indexWhere((i) => i.id == interaction.id);
+  void ensureDetectionPin(DetectionPin pin) {
+    final index = _detectionPins.indexWhere((p) => p.id == pin.id);
     if (index >= 0) {
-      _interactions[index] = interaction;
+      _detectionPins[index] = pin;
     } else {
-      _interactions.insert(0, interaction);
+      _detectionPins.insert(0, pin);
     }
+    _detectionPinsError = null;
+    _detectionPinsLoading = false;
+    notifyListeners();
+  }
+
+  void addOrUpdateInteraction(InteractionQueryResult interaction) {
+    var enriched = enrichInteractionAnimalCount(
+      interaction,
+      cachedCount: InteractionAnimalCountStore.peek(interaction.id),
+    );
+
+    final index = _interactions.indexWhere((i) => i.id == enriched.id);
+    if (index >= 0) {
+      final existingCount = countFromInteraction(_interactions[index]) ?? 0;
+      final newCount = countFromInteraction(enriched) ?? 0;
+      if (existingCount > newCount) {
+        enriched = enrichInteractionAnimalCount(
+          enriched,
+          cachedCount: existingCount,
+        );
+      }
+      _interactions[index] = enriched;
+    } else {
+      _interactions.insert(0, enriched);
+    }
+
+    final persistCount = countFromInteraction(enriched);
+    if (persistCount != null && persistCount > 0) {
+      InteractionAnimalCountStore.save(enriched.id, persistCount);
+    }
+
     notifyListeners();
   }
 
@@ -446,6 +540,7 @@ class MapProvider extends ChangeNotifier {
         source = 'GET /tracking-readings/me/';
       }
 
+      await InteractionAnimalCountStore.ensureLoaded();
       _applyVicinity(vicinity);
       debugPrint(
         '[MapProvider] ✓ Pins from $source: '
@@ -554,6 +649,7 @@ class MapProvider extends ChangeNotifier {
     selectedPosition = null;
     selectedAddress = '';
     _lastSentTrackingPosition = null;
+    _vicinityNoticePolicy.reset();
     _trackingCacheManager?.clearCache();
     notifyListeners();
   }

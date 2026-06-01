@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
 import 'package:wildrapport/interfaces/data_apis/vicinity_api_interface.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
@@ -91,6 +92,39 @@ class FakeTrackingApi implements TrackingApiInterface {
       Vicinity(animals: [], detections: [], interactions: []);
 }
 
+class _SequentialVicinityApi implements VicinityApiInterface {
+  _SequentialVicinityApi(this._responses);
+
+  final List<Vicinity> _responses;
+  var _index = 0;
+
+  Vicinity _next() {
+    if (_index >= _responses.length) {
+      return _responses.last;
+    }
+    return _responses[_index++];
+  }
+
+  @override
+  Future<Vicinity> getMyVicinity() async => _next();
+
+  @override
+  Future<Vicinity> getVicinityForCurrentLocation({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      _next();
+
+  @override
+  Future<Vicinity> submitTrackingReading({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      _next();
+}
+
 class FakeVicinityApi implements VicinityApiInterface {
   FakeVicinityApi(this.vicinity);
 
@@ -157,6 +191,11 @@ class ThrowingTrackingApi implements TrackingApiInterface {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   late MapProvider mapProvider;
 
   setUp(() {
@@ -392,6 +431,36 @@ void main() {
       expect(mapProvider.interactions.length, 1);
     });
 
+    test('keeps existing pins when refresh returns empty vicinity', () async {
+      final withPins = Vicinity(
+        interactions: [
+          InteractionQueryResult(
+            id: 'i1',
+            lat: 52.0,
+            lon: 5.0,
+            moment: DateTime.now().toUtc(),
+          ),
+        ],
+        animals: const [],
+        detections: const [],
+      );
+      final empty = Vicinity(animals: [], detections: [], interactions: []);
+
+      final api = _SequentialVicinityApi([withPins, empty]);
+      mapProvider.setVicinityApi(api);
+      mapProvider.currentPosition = MockPosition(
+        lat: 52.0,
+        lng: 5.0,
+        time: DateTime.now(),
+      );
+
+      await mapProvider.loadAllPinsFromVicinity();
+      expect(mapProvider.interactions.length, 1);
+
+      await mapProvider.loadAllPinsFromVicinity();
+      expect(mapProvider.interactions.length, 1);
+    });
+
     test('should load vicinity data from api', () async {
       final vicinity = Vicinity(
         animals: [
@@ -477,7 +546,7 @@ void main() {
         time: DateTime.now(),
       );
       final posMoved = MockPosition(
-        lat: 52.3677,
+        lat: 52.3696,
         lng: 4.9041,
         time: DateTime.now(),
       );

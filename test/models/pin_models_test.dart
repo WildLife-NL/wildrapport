@@ -18,6 +18,7 @@ void main() {
       expect(pin.lat, 52.2);
       expect(pin.lon, 5.2);
       expect(pin.speciesName, 'Ree');
+      expect(pin.reportType, 'collar');
     });
 
     test('prefers place over location for map display', () {
@@ -69,6 +70,35 @@ void main() {
       expect(pin.deviceType, 'camera');
       expect(pin.label, 'Vos');
       expect(pin.confidence, 0.89);
+      expect(pin.markerStyleHint, 'camera');
+    });
+
+    test('parses visual type for camera detections', () {
+      final json = {
+        'ID': 'd-visual',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'type': 'visual',
+        'species': {'commonName': 'Vos'},
+      };
+
+      final pin = DetectionPin.fromJson(json);
+
+      expect(pin.type, 'visual');
+      expect(pin.label, 'Vos');
+      expect(pin.markerStyleHint, 'visual');
+    });
+
+    test('parses nested type object from API', () {
+      final pin = DetectionPin.fromJson({
+        'ID': 'd-nested',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'type': {'name': 'visual'},
+      });
+
+      expect(pin.type, 'visual');
+      expect(pin.markerStyleHint, 'visual');
     });
 
     test('falls back to now when detectedAt invalid', () {

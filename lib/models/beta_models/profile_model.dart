@@ -40,11 +40,17 @@ class Profile {
   }
 
   /// Body for `PUT /profile/me/` per OpenAPI (current user update).
-  Map<String, dynamic> toUpdateJson({String? firebaseCloudMessagingToken}) {
+  ///
+  /// [firebaseCloudMessagingToken] is only sent when [includeFirebaseCloudMessagingToken]
+  /// is true (push registration / clear). Regular profile edits omit it so the field
+  /// stays optional on the backend (#168).
+  Map<String, dynamic> toUpdateJson({
+    String? firebaseCloudMessagingToken,
+    bool includeFirebaseCloudMessagingToken = false,
+  }) {
     final apiDateOfBirth = Profile.toApiDateOfBirth(dateOfBirth);
     return {
       'name': userName,
-      'firebaseCloudMessagingToken': firebaseCloudMessagingToken,
       'natureVisitAvgWeeklyFrequency': natureVisitFrequency ?? 0,
       'reportAppTerms': reportAppTerms ?? false,
       'recreationAppTerms': recreationAppTerms ?? false,
@@ -52,6 +58,8 @@ class Profile {
       if (postcode != null && postcode!.isNotEmpty) 'postcode': postcode,
       if (apiDateOfBirth != null) 'dateOfBirth': apiDateOfBirth,
       if (notes != null && notes!.isNotEmpty) 'notes': notes,
+      if (includeFirebaseCloudMessagingToken)
+        'firebaseCloudMessagingToken': firebaseCloudMessagingToken,
     };
   }
 

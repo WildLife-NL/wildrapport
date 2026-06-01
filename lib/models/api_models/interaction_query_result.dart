@@ -1,6 +1,9 @@
 ﻿import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/event_timestamp_extractor.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_payload_utils.dart';
 
 class AnimalInfo {
   final String? sex;
@@ -29,6 +32,7 @@ class InteractionQueryResult {
   final String? userName; // User who reported
   final String? placeName; // Reverse geocoded place name
   final List<AnimalInfo>? involvedAnimals; // Animal details
+  final int? animalCount;
 
   InteractionQueryResult({
     required this.id,
@@ -41,6 +45,7 @@ class InteractionQueryResult {
     this.userName,
     this.placeName,
     this.involvedAnimals,
+    this.animalCount,
   });
 
   factory InteractionQueryResult.fromJson(Map<String, dynamic> json) {
@@ -65,7 +70,9 @@ class InteractionQueryResult {
       );
     }
 
-    final rawMoment = json['moment']?.toString();
+    final rawMoment = extractEventTimestampFromMap(json) ??
+        extractEventTimestampRaw(json['moment']) ??
+        extractEventTimestampRaw(json['timestamp']);
 
     // optional fields
     final typeNode =
@@ -126,14 +133,18 @@ class InteractionQueryResult {
       id: rawId,
       lat: lat,
       lon: lon,
-      moment: parseApiMomentToUtc(rawMoment),
+      moment: parseBackendTimestampToUtc(rawMoment),
       typeName: resolvedTypeName ?? rawTypeName,
       speciesName:
           (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),
-      description: json['description']?.toString(),
+      description: parseInteractionNotes(json),
       userName: (userNode['name'] ?? userNode['username'])?.toString(),
       placeName: placeNode['name']?.toString(),
       involvedAnimals: animals,
+      animalCount: extractAnimalCountFromInteractionJson(
+        json,
+        parsedInvolvedAnimals: animals,
+      ),
     );
   }
 
@@ -143,9 +154,10 @@ class InteractionQueryResult {
     'moment': moment.toIso8601String(),
     if (typeName != null) 'type': {'name': typeName},
     if (speciesName != null) 'species': {'commonName': speciesName},
-    if (description != null) 'description': description,
+    if (description != null) 'notes': description,
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},
+    if (animalCount != null) 'animalCount': animalCount,
   };
 
   static double? _asDouble(Object? v) {
@@ -160,4 +172,5 @@ class InteractionQueryResult {
     if (value is String) return int.tryParse(value.trim());
     return null;
   }
+
 }

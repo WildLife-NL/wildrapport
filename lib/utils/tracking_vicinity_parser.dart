@@ -2,12 +2,19 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
+import 'package:wildrapport/models/api_models/detection_pin.dart';
+import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/models/api_models/vicinity.dart';
 
 class TrackingVicinityParser {
   TrackingVicinityParser._();
 
+  /// Legacy client filter; map loading no longer uses this (see #247).
   static const double defaultMaxDistanceFromReadingMeters = 12000;
+
+  /// Merge pins from recent tracking readings (map stays populated while walking).
+  static const Duration defaultMergedReadingsMaxAge = Duration(hours: 48);
 
   static void logHttpResponse({
     required String tag,
@@ -67,12 +74,7 @@ class TrackingVicinityParser {
 
     final decoded = json.decode(body);
     if (decoded is List) {
-      final reading = latestReadingMap(decoded);
-      if (reading == null) {
-        logVicinityCounts(tag, empty());
-        return empty();
-      }
-      final vicinity = vicinityFromReadingJson(reading) ?? empty();
+      final vicinity = mergeReadingsList(decoded, tag: tag);
       logVicinityCounts(tag, vicinity);
       return vicinity;
     }
@@ -94,6 +96,80 @@ class TrackingVicinityParser {
     throw FormatException(
       '$tag $endpoint: expected JSON object or array, got ${decoded.runtimeType}',
     );
+  }
+
+  /// Combines vicinity payloads from multiple readings, deduped by pin id.
+  static Vicinity mergeVicinities(Iterable<Vicinity> parts) {
+    final animalIds = <String>{};
+    final detectionIds = <String>{};
+    final interactionIds = <String>{};
+    final animals = <AnimalPin>[];
+    final detections = <DetectionPin>[];
+    final interactions = <InteractionQueryResult>[];
+
+    for (final part in parts) {
+      for (final animal in part.animals) {
+        if (animalIds.add(animal.id)) animals.add(animal);
+      }
+      for (final detection in part.detections) {
+        if (detectionIds.add(detection.id)) detections.add(detection);
+      }
+      for (final interaction in part.interactions) {
+        if (interactionIds.add(interaction.id)) interactions.add(interaction);
+      }
+    }
+
+    return Vicinity(
+      animals: animals,
+      detections: detections,
+      interactions: interactions,
+    );
+  }
+
+  /// Parses every recent reading in a GET `/tracking-readings/me/` array.
+  static Vicinity mergeReadingsList(
+    List<dynamic> readings, {
+    String tag = 'TrackingVicinityParser',
+    Duration maxAge = defaultMergedReadingsMaxAge,
+    DateTime? referenceTime,
+  }) {
+    final cutoff = (referenceTime ?? DateTime.now()).toUtc().subtract(maxAge);
+    final parts = <Vicinity>[];
+
+    for (final item in readings) {
+      if (item is! Map) continue;
+      final map = item is Map<String, dynamic>
+          ? item
+          : Map<String, dynamic>.from(item);
+
+      final tsRaw = map['timestamp']?.toString();
+      final parsed = tsRaw != null ? DateTime.tryParse(tsRaw) : null;
+      if (parsed != null && parsed.toUtc().isBefore(cutoff)) {
+        continue;
+      }
+
+      final vicinity = vicinityFromReadingJson(map);
+      if (vicinity != null &&
+          (vicinity.animals.isNotEmpty ||
+              vicinity.detections.isNotEmpty ||
+              vicinity.interactions.isNotEmpty)) {
+        parts.add(vicinity);
+      }
+    }
+
+    if (parts.isEmpty) {
+      debugPrint('[$tag] no vicinity in ${readings.length} reading(s)');
+      return empty();
+    }
+
+    final merged = mergeVicinities(parts);
+    debugPrint(
+      '[$tag] merged ${parts.length} reading(s) => '
+      '${merged.animals.length} animals, '
+      '${merged.detections.length} detections, '
+      '${merged.interactions.length} interactions',
+    );
+    return merged;
   }
 
   static Map<String, dynamic>? latestReadingMap(List<dynamic> readings) {

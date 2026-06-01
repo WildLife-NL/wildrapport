@@ -61,6 +61,36 @@ void main() {
       );
     });
 
+    test('parses notes field with description fallback', () {
+      final fromNotes = InteractionQueryResult.fromJson({
+        'ID': 'itx-notes',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T10:30:00Z',
+        'notes': 'Near the ditch',
+      });
+      expect(fromNotes.description, 'Near the ditch');
+
+      final empty = InteractionQueryResult.fromJson({
+        'ID': 'itx-empty',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T10:30:00Z',
+        'notes': '',
+      });
+      expect(empty.description, isNull);
+    });
+
+    test('toJson serializes description as notes', () {
+      final result = InteractionQueryResult(
+        id: 'itx-notes-out',
+        lat: 52.0,
+        lon: 5.0,
+        moment: DateTime.parse('2026-03-25T12:00:00Z'),
+        description: 'Extra info',
+      );
+      expect(result.toJson()['notes'], 'Extra info');
+      expect(result.toJson().containsKey('description'), isFalse);
+    });
+
     test('toJson keeps required shape', () {
       final result = InteractionQueryResult(
         id: 'itx-3',
@@ -76,6 +106,48 @@ void main() {
       expect(json['location']['latitude'], 51.9);
       expect(json['location']['longitude'], 4.5);
       expect(json['species']['commonName'], 'Wolf');
+    });
+
+    test('prefers involvedAnimals length over incorrect animalCount', () {
+      final json = {
+        'ID': 'itx-sighting',
+        'location': {'latitude': 52.1, 'longitude': 5.1},
+        'moment': '2026-03-25T10:30:00Z',
+        'animalCount': 1,
+        'reportOfSighting': {
+          'involvedAnimals': List.generate(
+            20,
+            (_) => {'sex': 'unknown', 'lifeStage': 'adult'},
+          ),
+        },
+      };
+
+      final result = InteractionQueryResult.fromJson(json);
+
+      expect(result.animalCount, 20);
+      expect(result.involvedAnimals!.length, 20);
+    });
+
+    test('derives animalCount from collision involvedAnimals', () {
+      final json = {
+        'ID': 'itx-4',
+        'location': {'latitude': 52.1, 'longitude': 5.1},
+        'moment': '2026-03-25T10:30:00Z',
+        'reportOfCollision': {
+          'involvedAnimals': [
+            {'sex': 'female'},
+            {'sex': 'male'},
+            {'sex': 'male'},
+            {'sex': 'unknown'},
+          ],
+        },
+      };
+
+      final result = InteractionQueryResult.fromJson(json);
+
+      expect(result.animalCount, 4);
+      expect(result.involvedAnimals, isNotNull);
+      expect(result.involvedAnimals!.length, 4);
     });
   });
 }
