@@ -131,8 +131,9 @@ class TrackingVicinityParser {
     List<dynamic> readings, {
     String tag = 'TrackingVicinityParser',
     Duration maxAge = defaultMergedReadingsMaxAge,
+    DateTime? referenceTime,
   }) {
-    final cutoff = DateTime.now().toUtc().subtract(maxAge);
+    final cutoff = (referenceTime ?? DateTime.now()).toUtc().subtract(maxAge);
     final parts = <Vicinity>[];
 
     for (final item in readings) {

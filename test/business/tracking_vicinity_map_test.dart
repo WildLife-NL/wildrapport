@@ -34,28 +34,31 @@ void main() {
     });
 
     test('mergeReadingsList combines pins from multiple readings', () {
+      final now = DateTime.now().toUtc();
+      final first = now.subtract(const Duration(hours: 3));
+      final second = now.subtract(const Duration(hours: 1));
       final body = '''
 [
   {
-    "timestamp": "2026-03-25T10:00:00Z",
+    "timestamp": "${first.toIso8601String()}",
     "location": {"latitude": 52.0, "longitude": 5.0},
     "interactions": [
       {
         "ID": "near-old",
         "location": {"latitude": 52.001, "longitude": 5.001},
-        "moment": "2026-03-25T09:00:00Z",
+        "moment": "${first.subtract(const Duration(minutes: 15)).toIso8601String()}",
         "type": {"name": "waarneming"}
       }
     ]
   },
   {
-    "timestamp": "2026-03-25T14:00:00Z",
+    "timestamp": "${second.toIso8601String()}",
     "location": {"latitude": 52.2, "longitude": 5.2},
     "interactions": [
       {
         "ID": "near-new",
         "location": {"latitude": 52.201, "longitude": 5.201},
-        "moment": "2026-03-25T13:00:00Z",
+        "moment": "${second.subtract(const Duration(minutes: 15)).toIso8601String()}",
         "type": {"name": "waarneming"}
       }
     ]
