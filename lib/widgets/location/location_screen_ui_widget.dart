@@ -18,6 +18,8 @@ import 'package:wildrapport/screens/belonging/belonging_location_screen.dart';
 import 'package:wildrapport/widgets/location/time_selection_row.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
+import 'package:wildrapport/utils/device_location_resolver.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 import 'dart:async';
 
 class LocationScreenUIWidget extends StatefulWidget {
@@ -65,9 +67,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       return;
     }
 
-    if (_mapProvider.selectedPosition != null) {
+    final selected = _mapProvider.selectedPosition;
+    if (selected != null && !_isStaleMockPosition(selected)) {
       _mapProvider.updatePosition(
-        _mapProvider.selectedPosition!,
+        selected,
         _mapProvider.selectedAddress,
       );
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -79,18 +82,20 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     if (appState.isLocationCacheValid && appState.cachedPosition != null) {
       final position = appState.cachedPosition!;
       final address = appState.cachedAddress ?? '';
-      if (_locationService.isLocationInNetherlands(
-        position.latitude,
-        position.longitude,
-      )) {
+      if (!_isStaleMockPosition(position) &&
+          _locationService.isLocationInNetherlands(
+            position.latitude,
+            position.longitude,
+          )) {
         _mapProvider.updatePosition(position, address);
         _updateMapView(position);
         return;
       }
     }
 
-    // No cached location yet: fetch current GPS immediately so report map opens on user.
-    final Position? freshPosition = await _locationService.determinePosition();
+    final Position? freshPosition = await DeviceLocationResolver.tryResolve(
+      requestPermissionIfDenied: true,
+    );
     if (!mounted) return;
     if (freshPosition != null &&
         _locationService.isLocationInNetherlands(
@@ -107,6 +112,13 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
     _updateMapViewToDefault();
   }
 
+  bool _isStaleMockPosition(Position position) {
+    return NetherlandsMapDefaults.isLegacyDevMockCoordinate(
+      position.latitude,
+      position.longitude,
+    );
+  }
+
   void _updateMapViewToDefault() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
@@ -115,8 +127,10 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       }
       if (!mounted) return;
       try {
-        final center = LatLng(51.69, 5.30);
-        _mapProvider.mapController.move(center, 7);
+        _mapProvider.mapController.move(
+          NetherlandsMapDefaults.center,
+          NetherlandsMapDefaults.overviewZoom,
+        );
       } catch (_) {}
     });
   }
@@ -171,7 +185,9 @@ class _LocationScreenUIWidgetState extends State<LocationScreenUIWidget> {
       if (!mounted) return;
     }
 
-    final Position? pos = await _locationService.determinePosition();
+    final Position? pos = await DeviceLocationResolver.tryResolve(
+      requestPermissionIfDenied: true,
+    );
     if (!mounted) return;
     if (pos == null) {
       ScaffoldMessenger.of(context).showSnackBar(

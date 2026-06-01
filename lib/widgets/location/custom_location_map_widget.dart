@@ -3,6 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
+import 'package:wildrapport/utils/device_location_resolver.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
+import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/providers/map_provider.dart';
@@ -39,7 +42,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   bool _isLoading = true;
   bool _isSatelliteView = false;
 
-  static const LatLng _defaultCenter = LatLng(51.69, 5.30);
+  static const LatLng _defaultCenter = NetherlandsMapDefaults.center;
   bool _mapReady = false;
 
   @override
@@ -55,7 +58,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
       });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _moveMap(_defaultCenter, 7);
+        _moveMap(_defaultCenter, NetherlandsMapDefaults.overviewZoom);
       });
       return;
     }
@@ -79,9 +82,18 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
   void _quickLocationCheck() async {
     debugPrint('[CustomLocationMapScreen] Checking cached location');
 
-    // Try to use current position from MapProvider if available
+    final permissionManager = context.read<PermissionInterface>();
+    final hasPermission = await permissionManager.isPermissionGranted(
+      PermissionType.location,
+    );
+
     final cachedPosition = _mapProvider.currentPosition;
-    if (cachedPosition != null) {
+    if (hasPermission &&
+        cachedPosition != null &&
+        !NetherlandsMapDefaults.isLegacyDevMockCoordinate(
+          cachedPosition.latitude,
+          cachedPosition.longitude,
+        )) {
       debugPrint(
         '[CustomLocationMapScreen] Using cached position from MapProvider',
       );
@@ -94,17 +106,13 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
       return;
     }
 
-    // Otherwise get fresh location
     try {
-      final position = await _locationService.determinePosition();
+      final position = await DeviceLocationResolver.tryResolve(
+        requestPermissionIfDenied: true,
+      );
       if (!mounted) return;
 
       if (position != null) {
-        final appState = context.read<AppStateProvider>();
-        if (!appState.isLocationTrackingEnabled) {
-          await appState.setLocationTrackingEnabled(true);
-          if (!mounted) return;
-        }
         final address = await _locationService.getAddressFromPosition(position);
         if (!mounted) return;
 
@@ -116,11 +124,13 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
         _initializeMapView();
       } else {
         setState(() => _isLoading = false);
+        _moveMap(_defaultCenter, NetherlandsMapDefaults.overviewZoom);
       }
     } catch (e) {
       debugPrint('[CustomLocationMapScreen] Error getting location: $e');
       if (mounted) {
         setState(() => _isLoading = false);
+        _moveMap(_defaultCenter, NetherlandsMapDefaults.overviewZoom);
       }
     }
   }
@@ -132,7 +142,7 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
         _currentPosition!.latitude,
         _currentPosition!.longitude,
       );
-      _moveMap(center, 15);
+      _moveMap(center, NetherlandsMapDefaults.detailZoom);
     }
   }
 
@@ -259,7 +269,9 @@ class _CustomLocationMapScreenState extends State<CustomLocationMapScreen> {
         _currentPosition != null
             ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
             : _defaultCenter;
-    final initialZoom = _currentPosition != null ? 15.0 : 7.0;
+    final initialZoom = _currentPosition != null
+        ? NetherlandsMapDefaults.detailZoom
+        : NetherlandsMapDefaults.overviewZoom;
 
     return Scaffold(
       body: Stack(

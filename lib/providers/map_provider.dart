@@ -20,6 +20,7 @@ import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/utils/involved_animal_count.dart';
 import 'package:wildrapport/utils/interaction_animal_count_store.dart';
+import 'package:wildrapport/utils/vicinity_notice_policy.dart';
 
 class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
@@ -50,7 +51,8 @@ class MapProvider extends ChangeNotifier {
   TrackingNotice? _lastTrackingNotice;
   TrackingNotice? get lastTrackingNotice => _lastTrackingNotice;
   Position? _lastSentTrackingPosition;
-  static const double _minTrackingMovementMeters = 1.0;
+  static const double _minTrackingMovementMeters = 20.0;
+  final VicinityNoticePolicy _vicinityNoticePolicy = VicinityNoticePolicy();
   DateTime Function() _nowProvider = DateTime.now;
 
   MapController get mapController {
@@ -143,7 +145,10 @@ class MapProvider extends ChangeNotifier {
     );
   }
 
-  Future<TrackingNotice?> sendTrackingPingFromPosition(Position pos) async {
+  Future<TrackingNotice?> sendTrackingPingFromPosition(
+    Position pos, {
+    bool allowProximityNotification = true,
+  }) async {
     final now = _nowProvider();
     if (_isNightlyAutoDisableWindow(now)) {
       debugPrint(
@@ -190,18 +195,11 @@ class MapProvider extends ChangeNotifier {
             _applyVicinity(notice.vicinity!);
           }
           _lastTrackingNotice = notice;
-          if (notice.hasMessage) {
-            debugPrint(
-              '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-            );
-            // Also show an OS-level notification on supported platforms
-            final title =
-                notice.severity == 1
-                    ? 'Waarschuwing'
-                    : (notice.severity == 2 ? 'Melding' : 'Informatie');
-            NotificationService.instance.show(title: title, body: notice.text);
-          }
-          notifyListeners(); // if any UI wants to react to changes
+          _handleProximityNotification(
+            notice,
+            allowProximityNotification: allowProximityNotification,
+          );
+          notifyListeners();
           if (notice.hasMessage) {
             debugPrint(
               '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -209,6 +207,7 @@ class MapProvider extends ChangeNotifier {
             );
           }
         } else {
+          _vicinityNoticePolicy.recordPingResult(null);
           debugPrint(
             '[MapProvider] ✓ tracking-reading cached or sent; no notice from backend',
           );
@@ -246,18 +245,11 @@ class MapProvider extends ChangeNotifier {
           _applyVicinity(notice.vicinity!);
         }
         _lastTrackingNotice = notice;
-        if (notice.hasMessage) {
-          debugPrint(
-            '[MapProvider] 🔔 Got tracking notice, calling notifyListeners()',
-          );
-          // Also show an OS-level notification on supported platforms
-          final title =
-              notice.severity == 1
-                  ? 'Waarschuwing'
-                  : (notice.severity == 2 ? 'Melding' : 'Informatie');
-          NotificationService.instance.show(title: title, body: notice.text);
-        }
-        notifyListeners(); // if any UI wants to react to changes
+        _handleProximityNotification(
+          notice,
+          allowProximityNotification: allowProximityNotification,
+        );
+        notifyListeners();
         if (notice.hasMessage) {
           debugPrint(
             '[MapProvider] ✓ tracking-reading OK; notice="${notice.text}"'
@@ -265,6 +257,7 @@ class MapProvider extends ChangeNotifier {
           );
         }
       } else {
+        _vicinityNoticePolicy.recordPingResult(null);
         debugPrint(
           '[MapProvider] ✓ tracking-reading OK; no notice from backend',
         );
@@ -275,6 +268,39 @@ class MapProvider extends ChangeNotifier {
       debugPrint('[MapProvider] ❌ tracking-reading failed: $e');
       return null;
     }
+  }
+
+  void _handleProximityNotification(
+    TrackingNotice notice, {
+    required bool allowProximityNotification,
+  }) {
+    final shouldShow = allowProximityNotification &&
+        _vicinityNoticePolicy.shouldShowProximityNotification(notice);
+
+    _vicinityNoticePolicy.recordPingResult(notice);
+
+    if (!allowProximityNotification) {
+      debugPrint(
+        '[MapProvider] 🔕 Proximity notification suppressed for this ping',
+      );
+      return;
+    }
+
+    if (!shouldShow) {
+      debugPrint(
+        '[MapProvider] 🔕 Proximity notification skipped (already nearby / duplicate)',
+      );
+      return;
+    }
+
+    debugPrint(
+      '[MapProvider] 🔔 Showing proximity notification: "${notice.text}"',
+    );
+    final title = notice.severity == 1
+        ? 'Waarschuwing'
+        : (notice.severity == 2 ? 'Melding' : 'Informatie');
+    NotificationService.instance.show(title: title, body: notice.text);
+    _vicinityNoticePolicy.recordNotificationShown(notice);
   }
 
   void emitMockTrackingNotice(String text, {int? severity}) {
@@ -623,6 +649,7 @@ class MapProvider extends ChangeNotifier {
     selectedPosition = null;
     selectedAddress = '';
     _lastSentTrackingPosition = null;
+    _vicinityNoticePolicy.reset();
     _trackingCacheManager?.clearCache();
     notifyListeners();
   }

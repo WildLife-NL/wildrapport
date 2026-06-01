@@ -7,6 +7,7 @@ import 'package:wildrapport/models/beta_models/possesion_model.dart';
 import 'package:wildrapport/models/beta_models/sighting_report_model.dart';
 import 'package:wildrapport/models/enums/report_type.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wildrapport/screens/login/login_screen.dart';
@@ -160,6 +161,13 @@ class AppStateProvider with ChangeNotifier {
           timeLimit: Duration(seconds: 5),
         ),
       );
+
+      if (NetherlandsMapDefaults.isLegacyDevMockCoordinate(
+        position.latitude,
+        position.longitude,
+      )) {
+        return;
+      }
 
       final address = await locationService.getAddressFromPosition(position);
 

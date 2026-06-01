@@ -523,7 +523,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
 
       final appStateProvider = context.read<AppStateProvider>();
       if (appStateProvider.isLocationTrackingEnabled) {
-        await mp.sendTrackingPingFromPosition(fresh);
+        await mp.sendTrackingPingFromPosition(
+          fresh,
+          allowProximityNotification: false,
+        );
       }
 
       if (_followUser && appStateProvider.isLocationTrackingEnabled) {

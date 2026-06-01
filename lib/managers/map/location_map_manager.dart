@@ -1,28 +1,23 @@
 ﻿import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:wildrapport/utils/device_location_resolver.dart';
+import 'package:wildrapport/utils/netherlands_map_defaults.dart';
 import 'package:wildlifenl_map_logic_components/wildlifenl_map_logic_components.dart';
 
 class LocationMapManager extends NetherlandsMapManager {
-  static const double _defaultLat = 52.088130;
-  static const double _defaultLon = 5.170465;
-
   LocationMapManager()
-      : super(
-          defaultCenter: LatLng(
-            _defaultLat,
-            _defaultLon,
-          ),
-        );
+      : super(defaultCenter: NetherlandsMapDefaults.center);
 
-  static const LatLng denBoschCenter = LatLng(
-    _defaultLat,
-    _defaultLon,
-  );
+  /// @deprecated Use [NetherlandsMapDefaults.center].
+  static const LatLng denBoschCenter = NetherlandsMapDefaults.center;
 
   static const String satelliteTileUrl = MapStateInterface.satelliteTileUrl;
 
   @override
-  Future<Position?> determinePosition() async {
-    return super.determinePosition();
+  Future<Position?> determinePosition() {
+    return DeviceLocationResolver.tryResolve(
+      requestPermissionIfDenied: false,
+      rejectLegacyMockCoordinates: true,
+    );
   }
 }

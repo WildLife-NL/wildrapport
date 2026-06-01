@@ -540,7 +540,7 @@ void main() {
         time: DateTime.now(),
       );
       final posMoved = MockPosition(
-        lat: 52.3677,
+        lat: 52.3696,
         lng: 4.9041,
         time: DateTime.now(),
       );
