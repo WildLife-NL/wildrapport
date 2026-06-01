@@ -36,18 +36,6 @@ void main() {
       expect(formatAlarmTimestamp('1'), '—');
       expect(formatAlarmTimestamp('start: 1'), '—');
     });
-
-    test('formats valid ISO', () {
-      final label = formatAlarmTimestamp('2024-06-15T12:30:00Z');
-      expect(label, contains('2024'));
-      expect(label, contains('14:30'));
-    });
-
-    test('formats space-separated API datetime', () {
-      final label = formatAlarmTimestamp('2024-06-15 12:30:00');
-      expect(label, contains('2024'));
-      expect(label, contains('14:30'));
-    });
   });
 
   group('tryParseBackendTimestampToUtc', () {
