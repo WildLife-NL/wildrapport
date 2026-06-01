@@ -87,6 +87,30 @@ class MapProvider extends ChangeNotifier {
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
   void _applyVicinity(Vicinity vicinity) {
+    final hasIncomingPins = vicinity.animals.isNotEmpty ||
+        vicinity.detections.isNotEmpty ||
+        vicinity.interactions.isNotEmpty;
+    final hasExistingPins = _animalPins.isNotEmpty ||
+        _detectionPins.isNotEmpty ||
+        _interactions.isNotEmpty;
+
+    // Avoid wiping the map when a refresh returns no pins (e.g. walk + filter).
+    if (!hasIncomingPins && hasExistingPins) {
+      debugPrint(
+        '[MapProvider] Keeping ${_animalPins.length} animals, '
+        '${_detectionPins.length} detections, '
+        '${_interactions.length} interactions '
+        '(incoming vicinity empty)',
+      );
+      _animalPinsError = null;
+      _detectionPinsError = null;
+      _interactionsError = null;
+      _animalPinsLoading = false;
+      _detectionPinsLoading = false;
+      _interactionsLoading = false;
+      return;
+    }
+
     final enrichedInteractions = vicinity.interactions
         .map(
           (interaction) => enrichInteractionAnimalCount(

@@ -91,6 +91,39 @@ class FakeTrackingApi implements TrackingApiInterface {
       Vicinity(animals: [], detections: [], interactions: []);
 }
 
+class _SequentialVicinityApi implements VicinityApiInterface {
+  _SequentialVicinityApi(this._responses);
+
+  final List<Vicinity> _responses;
+  var _index = 0;
+
+  Vicinity _next() {
+    if (_index >= _responses.length) {
+      return _responses.last;
+    }
+    return _responses[_index++];
+  }
+
+  @override
+  Future<Vicinity> getMyVicinity() async => _next();
+
+  @override
+  Future<Vicinity> getVicinityForCurrentLocation({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      _next();
+
+  @override
+  Future<Vicinity> submitTrackingReading({
+    required double latitude,
+    required double longitude,
+    DateTime? timestamp,
+  }) async =>
+      _next();
+}
+
 class FakeVicinityApi implements VicinityApiInterface {
   FakeVicinityApi(this.vicinity);
 
@@ -389,6 +422,36 @@ void main() {
 
       expect(mapProvider.animalPins.length, 1);
       expect(mapProvider.detectionPins.length, 1);
+      expect(mapProvider.interactions.length, 1);
+    });
+
+    test('keeps existing pins when refresh returns empty vicinity', () async {
+      final withPins = Vicinity(
+        interactions: [
+          InteractionQueryResult(
+            id: 'i1',
+            lat: 52.0,
+            lon: 5.0,
+            moment: DateTime.now().toUtc(),
+          ),
+        ],
+        animals: const [],
+        detections: const [],
+      );
+      final empty = Vicinity(animals: [], detections: [], interactions: []);
+
+      final api = _SequentialVicinityApi([withPins, empty]);
+      mapProvider.setVicinityApi(api);
+      mapProvider.currentPosition = MockPosition(
+        lat: 52.0,
+        lng: 5.0,
+        time: DateTime.now(),
+      );
+
+      await mapProvider.loadAllPinsFromVicinity();
+      expect(mapProvider.interactions.length, 1);
+
+      await mapProvider.loadAllPinsFromVicinity();
       expect(mapProvider.interactions.length, 1);
     });
 

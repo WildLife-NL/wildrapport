@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:ntp_dart/ntp_dart.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
@@ -47,29 +45,11 @@ class VicinityApi implements VicinityApiInterface {
       );
     }
 
-    final decoded = _decodeBody(res.body);
-    final vicinity = TrackingVicinityParser.parseResponseBody(
+    return TrackingVicinityParser.parseResponseBody(
       res.body,
       tag: _tag,
       endpoint: 'GET $_getMyReadingsPath',
     );
-
-    if (decoded is List) {
-      final latest = TrackingVicinityParser.latestReadingMap(decoded);
-      if (latest != null) {
-        final loc = TrackingVicinityParser.readingLocation(latest);
-        if (loc != null) {
-          return TrackingVicinityParser.filterNearReading(
-            vicinity,
-            loc.latitude,
-            loc.longitude,
-            tag: _tag,
-          );
-        }
-      }
-    }
-
-    return vicinity;
   }
 
   @override
@@ -123,26 +103,10 @@ class VicinityApi implements VicinityApiInterface {
       );
     }
 
-    final vicinity = TrackingVicinityParser.parseResponseBody(
+    return TrackingVicinityParser.parseResponseBody(
       res.body,
       tag: _tag,
       endpoint: 'POST $_postReadingPath',
     );
-
-    return TrackingVicinityParser.filterNearReading(
-      vicinity,
-      latitude,
-      longitude,
-      tag: _tag,
-    );
-  }
-
-  Object? _decodeBody(String body) {
-    if (body.trim().isEmpty) return null;
-    try {
-      return jsonDecode(body);
-    } catch (_) {
-      return null;
-    }
   }
 }
