@@ -318,6 +318,18 @@ class MapProvider extends ChangeNotifier {
   int get totalPins =>
       _animalPins.length + _detectionPins.length + _interactions.length;
 
+  void ensureDetectionPin(DetectionPin pin) {
+    final index = _detectionPins.indexWhere((p) => p.id == pin.id);
+    if (index >= 0) {
+      _detectionPins[index] = pin;
+    } else {
+      _detectionPins.insert(0, pin);
+    }
+    _detectionPinsError = null;
+    _detectionPinsLoading = false;
+    notifyListeners();
+  }
+
   void addOrUpdateInteraction(InteractionQueryResult interaction) {
     var enriched = enrichInteractionAnimalCount(
       interaction,

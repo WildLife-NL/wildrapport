@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/api_models/detection_pin.dart';
 import '../../constants/app_colors.dart';
+import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/translation_utils.dart';
 
 class DetectionDetailDialog extends StatelessWidget {
@@ -117,7 +118,7 @@ class DetectionDetailDialog extends StatelessWidget {
   }
 
   Widget _buildDateTimeInfo() {
-    final local = detection.detectedAt.toLocal();
+    final local = toLocalWallClock(detection.detectedAt);
     final now = DateTime.now();
     final difference = now.difference(local);
 

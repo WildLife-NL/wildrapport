@@ -1,5 +1,6 @@
 ﻿import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/event_timestamp_extractor.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
 import 'package:wildrapport/utils/involved_animal_count.dart';
 import 'package:wildrapport/utils/interaction_payload_utils.dart';
@@ -69,7 +70,9 @@ class InteractionQueryResult {
       );
     }
 
-    final rawMoment = json['moment']?.toString();
+    final rawMoment = extractEventTimestampFromMap(json) ??
+        extractEventTimestampRaw(json['moment']) ??
+        extractEventTimestampRaw(json['timestamp']);
 
     // optional fields
     final typeNode =
@@ -130,7 +133,7 @@ class InteractionQueryResult {
       id: rawId,
       lat: lat,
       lon: lon,
-      moment: parseApiMomentToUtc(rawMoment),
+      moment: parseBackendTimestampToUtc(rawMoment),
       typeName: resolvedTypeName ?? rawTypeName,
       speciesName:
           (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),

@@ -14,7 +14,10 @@ import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/widgets/map/animal_detail_card.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/api_models/detection_pin.dart';
+import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:wildrapport/models/animal_waarneming_models/interaction_to_animal_pin.dart';
+import 'package:wildrapport/models/map_alarm_focus.dart';
+import 'package:wildrapport/services/alarm_map_focus_service.dart';
 import 'package:wildrapport/widgets/map/detection_detail_dialog.dart';
 import 'package:wildrapport/data_managers/tracking_api.dart';
 import 'package:wildrapport/interfaces/data_apis/tracking_api_interface.dart';
@@ -100,6 +103,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   // Selected animal for detail card
   AnimalPin? _selectedAnimal;
   bool _showLegend = false;
+
+  AlarmMapFocusService? _alarmMapFocusService;
+  bool _alarmFocusListenerAttached = false;
+  String? _highlightInteractionId;
 
   @override
   void didChangeDependencies() {
@@ -241,6 +248,15 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _mp.addListener(_mpListener!);
       _listenerAttached = true;
     }
+
+    _alarmMapFocusService ??= context.read<AlarmMapFocusService>();
+    if (!_alarmFocusListenerAttached) {
+      _alarmFocusListenerAttached = true;
+      _alarmMapFocusService!.addListener(_onAlarmMapFocusChanged);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _tryApplyAlarmMapFocus();
+    });
   }
 
   @override
@@ -266,8 +282,52 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (_listenerAttached && _mpListener != null) {
       _mp.removeListener(_mpListener!);
     }
+    _alarmMapFocusService?.removeListener(_onAlarmMapFocusChanged);
     _mp.stopTracking();
     super.dispose();
+  }
+
+  void _onAlarmMapFocusChanged() {
+    if (!mounted) return;
+    _tryApplyAlarmMapFocus();
+  }
+
+  void _tryApplyAlarmMapFocus() {
+    final focus = _alarmMapFocusService?.takePendingFocus();
+    if (focus == null) return;
+    _applyMapAlarmFocus(focus);
+  }
+
+  void _applyMapAlarmFocus(MapAlarmFocus focus) {
+    _followUser = false;
+    _highlightInteractionId =
+        focus.kind == AlarmFocusKind.interaction ? focus.eventId : null;
+    _pendingCenter = LatLng(focus.lat, focus.lon);
+    _pendingZoom = 16;
+    if (_mapReady) {
+      _applyPendingCamera();
+    }
+
+    if (focus.kind == AlarmFocusKind.detection && focus.detection != null) {
+      _mp.ensureDetectionPin(focus.detection!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog<void>(
+          context: context,
+          builder: (_) => DetectionDetailDialog(detection: focus.detection!),
+        );
+      });
+      setState(() {});
+      return;
+    }
+
+    final interaction = focus.interaction;
+    if (interaction != null) {
+      _mp.addOrUpdateInteraction(interaction);
+      setState(() {
+        _selectedAnimal = interaction.toAnimalPin();
+      });
+    }
   }
 
   void _queueFetch() {
@@ -1008,6 +1068,12 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     return DateTime.now().difference(timestamp) < _vicinityPinMaxAge;
   }
 
+  bool _shouldShowInteractionOnMap(InteractionQueryResult interaction) {
+    final highlightId = _highlightInteractionId;
+    if (highlightId != null && interaction.id == highlightId) return true;
+    return _withinVicinityPinWindow(interaction.moment);
+  }
+
   void _updateScaleBar() {
     if (!_mp.isInitialized) return;
 
@@ -1420,11 +1486,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   options: cl.MarkerClusterLayerOptions(
                                     markers:
                                         map.interactions
-                                            .where(
-                                              (itx) => _withinVicinityPinWindow(
-                                                itx.moment,
-                                              ),
-                                            )
+                                            .where(_shouldShowInteractionOnMap)
                                             .map((itx) {
                                               final mapRotation =
                                                   map
@@ -1480,10 +1542,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                 )
                                 : fm.MarkerLayer(
                                   markers: map.interactions
-                                      .where(
-                                        (itx) =>
-                                            _withinVicinityPinWindow(itx.moment),
-                                      )
+                                      .where(_shouldShowInteractionOnMap)
                                       .map((itx) {
                                         final mapRotation =
                                             map.mapController.camera.rotation;

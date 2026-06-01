@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wildrapport/utils/translation_utils.dart';
 import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 class InteractionDetailDialog extends StatelessWidget {
@@ -246,7 +247,7 @@ class InteractionDetailDialog extends StatelessWidget {
   }
 
   Widget _buildDateTimeInfo() {
-    final local = interaction.moment.toLocal();
+    final local = toLocalWallClock(interaction.moment);
     final dateStr = DateFormat('EEEE d MMMM yyyy').format(local);
     final timeStr = DateFormat('HH:mm').format(local);
 

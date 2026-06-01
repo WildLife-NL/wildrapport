@@ -14,6 +14,7 @@ import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/services/alarm_map_focus_service.dart';
 import 'package:wildrapport/services/contact_tracing_coordinator.dart';
 
 class MainNavScreen extends StatefulWidget {
@@ -35,6 +36,8 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   late NavTab _currentTab;
   bool _alarmsNavigationDone = false;
+  bool _alarmFocusListenerAttached = false;
+  AlarmMapFocusService? _alarmMapFocusService;
 
   @override
   void initState() {
@@ -108,11 +111,31 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _alarmMapFocusService ??= context.read<AlarmMapFocusService>();
+    if (!_alarmFocusListenerAttached) {
+      _alarmFocusListenerAttached = true;
+      _alarmMapFocusService!.addListener(_onAlarmMapFocusRequested);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_currentTab == NavTab.kaart) _requestLocationPermissionIfKaartTab(context);
       _openAlarmsIfRequested();
+      _onAlarmMapFocusRequested();
     });
+  }
+
+  @override
+  void dispose() {
+    _alarmMapFocusService?.removeListener(_onAlarmMapFocusRequested);
+    super.dispose();
+  }
+
+  void _onAlarmMapFocusRequested() {
+    if (!mounted) return;
+    final alarmFocus = context.read<AlarmMapFocusService>();
+    if (!alarmFocus.consumeOpenMapTabRequest()) return;
+    setState(() => _currentTab = NavTab.kaart);
+    _requestLocationPermissionIfKaartTab(context);
   }
 
   @override

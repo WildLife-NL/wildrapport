@@ -1,11 +1,12 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
-import 'package:wildrapport/constants/button_layout.dart';
 import 'package:wildrapport/data_managers/alarms_api.dart';
 import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/data_apis/species_api_interface.dart';
+import 'package:wildrapport/screens/zone/alarm_detail_screen.dart';
+import 'package:wildrapport/utils/alarm_display_utils.dart';
+import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildlifenl_alarms_components/wildlifenl_alarms_components.dart';
 
@@ -23,7 +24,6 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
   Map<String, String> _speciesCommonNames = {};
   String? _error;
   bool _loading = true;
-  bool _showAllAlarms = false;
 
   @override
   void initState() {
@@ -38,9 +38,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
     });
     try {
       final api = AlarmsApi(AlarmsApiClientAdapter(context.read<ApiClient>()));
-      final list = _showAllAlarms
-          ? await api.getAllAlarms()
-          : await api.getMyAlarms();
+      final list = await api.getMyAlarms();
       Map<String, String> commonNames = {};
       try {
         final speciesApi = context.read<SpeciesApiInterface>();
@@ -66,12 +64,6 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
     }
   }
 
-  void _switchMode(bool showAll) {
-    if (_showAllAlarms == showAll) return;
-    setState(() => _showAllAlarms = showAll);
-    _load();
-  }
-
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
@@ -82,7 +74,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
           children: [
             CustomAppBar(
               leftIcon: Icons.arrow_back_ios,
-              centerText: "Zone's",
+              centerText: 'Alarmen',
               rightIcon: null,
               showUserIcon: false,
               onLeftIconPressed: () {
@@ -99,28 +91,6 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
               iconScale: 1.15,
               userIconScale: 1.15,
               useFixedText: true,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _SegmentChip(
-                      label: 'Mijn alarmen',
-                      selected: !_showAllAlarms,
-                      onTap: () => _switchMode(false),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _SegmentChip(
-                      label: 'Alle alarmen',
-                      selected: _showAllAlarms,
-                      onTap: () => _switchMode(true),
-                    ),
-                  ),
-                ],
-              ),
             ),
             Expanded(
               child: _buildBody(),
@@ -139,9 +109,9 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
           children: [
             const CircularProgressIndicator(color: AppColors.primaryGreen),
             const SizedBox(height: 16),
-            Text(
-              _showAllAlarms ? 'Alle alarmen ophalen…' : 'Alarmen ophalen…',
-              style: const TextStyle(color: Colors.black87),
+            const Text(
+              'Alarmen ophalen…',
+              style: TextStyle(color: Colors.black87),
             ),
           ],
         ),
@@ -187,9 +157,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _showAllAlarms
-                  ? 'Er zijn geen alarmen.'
-                  : 'Je hebt op dit moment geen alarmen voor je zones.',
+              'Je hebt op dit moment geen alarmen voor je zones.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
@@ -216,81 +184,15 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
   }
 
   void _showAlarmDetail(BuildContext context, Alarm alarm) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _AlarmDetailSheet(
-        alarm: alarm,
-        speciesCommonNames: _speciesCommonNames,
-      ),
-    );
-  }
-}
-
-class _SegmentChip extends StatelessWidget {
-  const _SegmentChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: selected ? AppColors.primaryGreen : Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: kMinTouchTargetHeight),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: selected ? AppColors.textSecondary : AppColors.textPrimary,
-            ),
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AlarmDetailScreen(
+          alarm: alarm,
+          speciesCommonNames: _speciesCommonNames,
         ),
       ),
     );
   }
-}
-
-String? _speciesDisplayName(Alarm alarm, Map<String, String> speciesCommonNames) {
-  final species = alarm.animal?.species;
-  if (species == null) return null;
-  try {
-    final d = species as dynamic;
-    final id = d.id ?? d.ID;
-    if (id != null) {
-      final idStr = id.toString().trim();
-      final common = speciesCommonNames[idStr];
-      if (common != null && common.isNotEmpty) return common;
-    }
-  } catch (_) {}
-  final name = species.name;
-  if (name != null && name.toString().trim().isNotEmpty) return name.toString().trim();
-  return null;
-}
-
-String _defaultAlarmSummary(Alarm alarm, Map<String, String> speciesCommonNames) {
-  final zoneName = alarm.zone.name ?? 'je zone';
-  final speciesName = _speciesDisplayName(alarm, speciesCommonNames);
-  if (speciesName != null) {
-    return 'Er is een $speciesName in je $zoneName.';
-  }
-  if (alarm.detection != null) return 'Er is een detectie in je $zoneName.';
-  if (alarm.interaction != null) return 'Er is een interactie in je $zoneName.';
-  return 'Er is activiteit in je $zoneName.';
 }
 
 class _AlarmTile extends StatelessWidget {
@@ -310,8 +212,8 @@ class _AlarmTile extends StatelessWidget {
     final message = alarm.firstMessageText;
     final summary = (message != null && message.isNotEmpty)
         ? message
-        : _defaultAlarmSummary(alarm, speciesCommonNames);
-    final timestamp = alarm.timestamp;
+        : defaultAlarmSummary(alarm, speciesCommonNames);
+    final timestamp = alarmEventTimestampRaw(alarm) ?? alarm.timestamp;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -363,282 +265,13 @@ class _AlarmTile extends StatelessWidget {
 
   String _formatTimestamp(String timestamp) {
     if (timestamp.isEmpty) return '';
-    try {
-      final dt = DateTime.parse(timestamp);
-      final now = DateTime.now();
-      final diff = now.difference(dt);
-      if (diff.inDays > 0) return '${diff.inDays} dag geleden';
-      if (diff.inHours > 0) return '${diff.inHours} uur geleden';
-      if (diff.inMinutes > 0) return '${diff.inMinutes} min geleden';
-      return 'Zojuist';
-    } catch (_) {
-      return timestamp;
-    }
-  }
-}
-
-class _AlarmDetailSheet extends StatelessWidget {
-  const _AlarmDetailSheet({
-    required this.alarm,
-    required this.speciesCommonNames,
-  });
-
-  final Alarm alarm;
-  final Map<String, String> speciesCommonNames;
-
-  bool _hasConveyanceMessage(Alarm a) {
-    for (final c in a.conveyances) {
-      if ((c.message.title != null && c.message.title!.isNotEmpty) ||
-          (c.message.body != null && c.message.body!.isNotEmpty)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  String? _speciesName(Alarm a) {
-    return _speciesDisplayName(a, speciesCommonNames);
-  }
-
-  String _eventTypeLabel(Alarm a) {
-    final parts = <String>[];
-    if (a.detection != null) parts.add('Detectie');
-    if (a.interaction != null) parts.add('Interactie');
-    if (parts.isEmpty) return '—';
-    return parts.join(', ');
-  }
-
-  Widget _prominentMessageBlock(Alarm a) {
-    final first = a.conveyances.where((c) =>
-        (c.message.title != null && c.message.title!.isNotEmpty) ||
-        (c.message.body != null && c.message.body!.isNotEmpty)).firstOrNull;
-    if (first == null) return const SizedBox.shrink();
-    final title = first.message.title?.trim();
-    final body = first.message.body?.trim();
-    final hasTitle = title != null && title.isNotEmpty;
-    final hasBody = body != null && body.isNotEmpty;
-    if (!hasTitle && !hasBody) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primaryGreen.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.primaryGreen.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (hasTitle)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-          if (hasBody)
-            SelectableText(
-              body,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.4,
-                color: AppColors.textPrimary,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.3,
-      maxChildSize: 0.95,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Alarmdetails',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  children: [
-                    if (_hasConveyanceMessage(alarm)) ...[
-                      _prominentMessageBlock(alarm),
-                      const SizedBox(height: 20),
-                    ] else ...[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          _defaultAlarmSummary(alarm, speciesCommonNames),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                            height: 1.35,
-                          ),
-                        ),
-                      ),
-                    ],
-                    _sectionTitle('Alarm'),
-                    if (_speciesName(alarm) != null)
-                      _detailRow('Diersoort', _speciesName(alarm)!),
-                    _detailRow('Eventsoort', _eventTypeLabel(alarm)),
-                    _detailRow('Tijdstip', _formatTimestampFull(alarm.timestamp)),
-                    _detailRow('Zone', alarm.zone.name ?? '—'),
-                    if (_speciesName(alarm) != null &&
-                        alarm.animal!.locationTimestamp != null)
-                      _detailRow(
-                        'Locatie bijgewerkt',
-                        _formatTimestampFull(alarm.animal!.locationTimestamp!),
-                      ),
-                    if (alarm.conveyances.isNotEmpty &&
-                        !_hasConveyanceMessage(alarm)) ...[
-                      const SizedBox(height: 12),
-                      _sectionTitle('Berichten'),
-                      ...alarm.conveyances.map((c) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (c.message.title != null &&
-                                c.message.title!.isNotEmpty)
-                              _detailRow('Titel', c.message.title!),
-                            if (c.message.body != null &&
-                                c.message.body!.isNotEmpty)
-                              _detailRow('Bericht', c.message.body!),
-                            _detailRow('Tijdstip', _formatTimestampFull(c.timestamp)),
-                            if (c.user?.displayName != null &&
-                                c.user!.displayName!.isNotEmpty)
-                              _detailRow('Gebruiker', c.user!.displayName!),
-                          ],
-                        ),
-                      )),
-                    ],
-                    if (_hasConveyanceMessage(alarm)) ...[
-                      const SizedBox(height: 12),
-                      _sectionTitle('Overige berichten'),
-                      ...alarm.conveyances
-                          .where((c) =>
-                              (c.message.title != null &&
-                                  c.message.title!.isNotEmpty) ||
-                              (c.message.body != null &&
-                                  c.message.body!.isNotEmpty))
-                          .skip(1)
-                          .map((c) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (c.message.title != null &&
-                                        c.message.title!.isNotEmpty)
-                                      _detailRow('Titel', c.message.title!),
-                                    if (c.message.body != null &&
-                                        c.message.body!.isNotEmpty)
-                                      _detailRow('Bericht', c.message.body!),
-                                    _detailRow(
-                                        'Tijdstip', _formatTimestampFull(c.timestamp)),
-                                    if (c.user?.displayName != null &&
-                                        c.user!.displayName!.isNotEmpty)
-                                      _detailRow(
-                                          'Gebruiker', c.user!.displayName!),
-                                  ],
-                                ),
-                              )),
-                    ],
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: AppColors.primaryGreen,
-        ),
-      ),
-    );
-  }
-
-  Widget _detailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(
-            child: SelectableText(
-              value,
-              style: const TextStyle(fontSize: 13, color: Colors.black87),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatTimestampFull(String timestamp) {
-    if (timestamp.isEmpty) return '—';
-    try {
-      final dt = DateTime.parse(timestamp);
-      return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-    } catch (_) {
-      return timestamp;
-    }
+    final dt = tryParseBackendTimestampToUtc(timestamp);
+    if (dt == null) return '';
+    final now = DateTime.now();
+    final diff = now.difference(dt.toLocal());
+    if (diff.inDays > 0) return '${diff.inDays} dag geleden';
+    if (diff.inHours > 0) return '${diff.inHours} uur geleden';
+    if (diff.inMinutes > 0) return '${diff.inMinutes} min geleden';
+    return 'Zojuist';
   }
 }

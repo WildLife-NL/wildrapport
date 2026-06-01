@@ -1,3 +1,5 @@
+import 'package:wildrapport/utils/api_datetime.dart';
+import 'package:wildrapport/utils/event_timestamp_extractor.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
 
 class DetectionPin {
@@ -59,15 +61,13 @@ class DetectionPin {
             ? Map<String, dynamic>.from(species)
             : null;
 
-    final ts =
-        (j['moment'] ?? j['timestamp'] ?? j['start'] ?? j['end'])?.toString();
+    final ts = extractEventTimestampFromMap(j);
 
     return DetectionPin(
       id: id,
       lat: lat,
       lon: lon,
-      detectedAt:
-          DateTime.tryParse(ts ?? '')?.toUtc() ?? DateTime.now().toUtc(),
+      detectedAt: parseBackendTimestampToUtc(ts),
       type: _parseKind(j['type'] ?? j['detectionType']),
       deviceType: _parseKind(
         j['deviceType'] ?? j['sensorType'] ?? j['sensor']?['type'],

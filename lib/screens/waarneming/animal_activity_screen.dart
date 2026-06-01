@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/sighting_report_activities.dart';
+import 'package:wildrapport/data_managers/api_client.dart';
 import 'package:wildrapport/interfaces/waarneming_flow/animal_sighting_reporting_interface.dart';
 import 'package:wildrapport/screens/waarneming/animal_waarneming_summary_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
@@ -23,6 +24,8 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
   String _perceivedAnimalActivity =
       SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
 
+  late final Future<void> _catalogReady;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,10 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
     _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
         SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
+
+    _catalogReady = SightingReportActivityCatalog.ensureLoaded(
+      context.read<ApiClient>(),
+    );
   }
 
   void _handleNext() {
@@ -84,58 +91,19 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.75,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
-                child: Card(
-                  elevation: 0,
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(
-                      color: Color(0xFF999999),
-                      width: 1,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Activiteit',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _activityDropdown(
-                          label: 'Wat deed je toen je het dier zag?',
-                          value: _humanActivity,
-                          options: SightingReportActivityCatalog.instance.humanActivities,
-                          onChanged: (v) {
-                            setState(() => _humanActivity = v);
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        _activityDropdown(
-                          label: 'Wat deed het dier?',
-                          value: _perceivedAnimalActivity,
-                          options:
-                              
-                          SightingReportActivityCatalog.instance.perceivedAnimalActivities,
-                          onChanged: (v) {
-                            setState(() => _perceivedAnimalActivity = v);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            Expanded(
+              child: FutureBuilder<void>(
+                future: _catalogReady,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
+                      ),
+                    );
+                  }
+                  return _buildForm();
+                },
               ),
             ),
             SafeArea(
@@ -171,7 +139,9 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _handleNext,
+                        onPressed: SightingReportActivityCatalog.isLoaded
+                            ? _handleNext
+                            : null,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           backgroundColor: const Color(0xFF37A904),
@@ -197,6 +167,59 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
         ),
       ),
       bottomNavigationBar: const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildForm() {
+    final catalog = SightingReportActivityCatalog.instance;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(
+            color: Color(0xFF999999),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Activiteit',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _activityDropdown(
+                label: 'Wat deed je toen je het dier zag?',
+                value: _humanActivity,
+                options: catalog.humanActivities,
+                onChanged: (v) {
+                  setState(() => _humanActivity = v);
+                },
+              ),
+              const SizedBox(height: 16),
+              _activityDropdown(
+                label: 'Wat deed het dier?',
+                value: _perceivedAnimalActivity,
+                options: catalog.perceivedAnimalActivities,
+                onChanged: (v) {
+                  setState(() => _perceivedAnimalActivity = v);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -227,46 +250,46 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
           borderRadius: BorderRadius.circular(16),
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
-        ),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
           initialValue: options.any((o) => o.apiValue == value)
               ? value
               : options.last.apiValue,
           decoration: InputDecoration(
-  filled: true,
-  fillColor: Colors.white,
-  contentPadding: const EdgeInsets.symmetric(
-    horizontal: 12,
-    vertical: 10,
-  ),
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: const BorderSide(
-      color: Color(0xFF999999),
-      width: 1.2,
-    ),
-  ),
-  focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: const BorderSide(
-      color: Color(0xFF37A904),
-      width: 2,
-    ),
-  ),
-),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                color: Color(0xFF999999),
+                width: 1.2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                color: Color(0xFF37A904),
+                width: 2,
+              ),
+            ),
+          ),
           items: options
               .map(
                 (o) => DropdownMenuItem(
                   value: o.apiValue,
                   child: Text(
-                o.labelNl,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black87,
-                ),
-              ),
+                    o.labelNl,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ),
               )
               .toList(),
