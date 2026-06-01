@@ -2,7 +2,7 @@ import 'package:wildrapport/utils/preferred_report_location.dart';
 
 class DetectionPin {
   final String id;
-  /// API `type`: `visual`, `acoustic`, `chemical`, etc.
+
   final String? type;
   final String? deviceType;
   final String? label;

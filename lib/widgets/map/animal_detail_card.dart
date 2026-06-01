@@ -193,5 +193,4 @@ class AnimalDetailCard extends StatelessWidget {
       ],
     );
   }
-
 }
