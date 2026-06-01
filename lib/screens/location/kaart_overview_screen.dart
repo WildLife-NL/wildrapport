@@ -1656,22 +1656,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
                                   ),
                                   _legendRow(
                                     const Color(0xFF00BFD8),
-                                    'Camera',
+                                    'Cameraval',
                                     icon: Icons.camera_alt,
                                   ),
                                   _legendRow(
                                     const Color(0xFFFF9100),
-                                    'Acoustic',
+                                    'Akoestische sensor',
                                     icon: Icons.graphic_eq,
                                   ),
                                   _legendRow(
                                     const Color(0xFFFE008E),
-                                    'Collar',
+                                    'Diergedragen sensor',
                                     badgeIcon: Icons.settings_remote,
                                   ),
                                   _legendRow(
                                     const Color(0xFF0078DA),
-                                    'Aanrijding',
+                                    'Dieraanrijding',
                                   ),
                                   _legendRow(
                                     const Color(0xFF008C7B),
