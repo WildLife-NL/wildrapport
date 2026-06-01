@@ -79,11 +79,16 @@ class _AnimalWaarnemingSummaryScreenState
           );
         }
 
-        sighting = sighting.copyWith(animals: animalsToAdd);
+        sighting = sighting.copyWith(
+          animals: animalsToAdd,
+          animalCount: widget.totalCount,
+        );
         sightingManager.updateCurrentanimalSighting(sighting);
       }
 
       sightingManager.syncObservedAnimalsToSighting();
+      final sightingForPin =
+          sightingManager.getCurrentanimalSighting() ?? sighting;
 
       final response = await submitReport(
         sightingManager,
@@ -98,8 +103,13 @@ class _AnimalWaarnemingSummaryScreenState
       }
 
       final mapPin = interactionPinFromSighting(
-        sighting,
+        sightingForPin,
         response.interactionID,
+      );
+
+      await cacheSubmittedInteractionCount(
+        interactionId: response.interactionID,
+        sighting: sightingForPin,
       );
 
       if (mapPin != null) {

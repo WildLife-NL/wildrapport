@@ -1,6 +1,7 @@
 ﻿import 'package:wildrapport/utils/interaction_type_display.dart';
 import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/preferred_report_location.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 class AnimalInfo {
   final String? sex;
@@ -29,6 +30,7 @@ class InteractionQueryResult {
   final String? userName; // User who reported
   final String? placeName; // Reverse geocoded place name
   final List<AnimalInfo>? involvedAnimals; // Animal details
+  final int? animalCount;
 
   InteractionQueryResult({
     required this.id,
@@ -41,6 +43,7 @@ class InteractionQueryResult {
     this.userName,
     this.placeName,
     this.involvedAnimals,
+    this.animalCount,
   });
 
   factory InteractionQueryResult.fromJson(Map<String, dynamic> json) {
@@ -134,6 +137,10 @@ class InteractionQueryResult {
       userName: (userNode['name'] ?? userNode['username'])?.toString(),
       placeName: placeNode['name']?.toString(),
       involvedAnimals: animals,
+      animalCount: extractAnimalCountFromInteractionJson(
+        json,
+        parsedInvolvedAnimals: animals,
+      ),
     );
   }
 
@@ -146,6 +153,7 @@ class InteractionQueryResult {
     if (description != null) 'description': description,
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},
+    if (animalCount != null) 'animalCount': animalCount,
   };
 
   static double? _asDouble(Object? v) {
@@ -160,4 +168,5 @@ class InteractionQueryResult {
     if (value is String) return int.tryParse(value.trim());
     return null;
   }
+
 }

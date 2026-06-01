@@ -77,5 +77,47 @@ void main() {
       expect(json['location']['longitude'], 4.5);
       expect(json['species']['commonName'], 'Wolf');
     });
+
+    test('prefers involvedAnimals length over incorrect animalCount', () {
+      final json = {
+        'ID': 'itx-sighting',
+        'location': {'latitude': 52.1, 'longitude': 5.1},
+        'moment': '2026-03-25T10:30:00Z',
+        'animalCount': 1,
+        'reportOfSighting': {
+          'involvedAnimals': List.generate(
+            20,
+            (_) => {'sex': 'unknown', 'lifeStage': 'adult'},
+          ),
+        },
+      };
+
+      final result = InteractionQueryResult.fromJson(json);
+
+      expect(result.animalCount, 20);
+      expect(result.involvedAnimals!.length, 20);
+    });
+
+    test('derives animalCount from collision involvedAnimals', () {
+      final json = {
+        'ID': 'itx-4',
+        'location': {'latitude': 52.1, 'longitude': 5.1},
+        'moment': '2026-03-25T10:30:00Z',
+        'reportOfCollision': {
+          'involvedAnimals': [
+            {'sex': 'female'},
+            {'sex': 'male'},
+            {'sex': 'male'},
+            {'sex': 'unknown'},
+          ],
+        },
+      };
+
+      final result = InteractionQueryResult.fromJson(json);
+
+      expect(result.animalCount, 4);
+      expect(result.involvedAnimals, isNotNull);
+      expect(result.involvedAnimals!.length, 4);
+    });
   });
 }

@@ -28,6 +28,7 @@ import 'package:wildrapport/interfaces/other/permission_interface.dart';
 import 'package:wildrapport/utils/species_icon_utils.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/widgets/map/wildlifenl_map.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 class _IconStyle {
   final Color color;
   final double size;
@@ -610,6 +611,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     final mgr = _location;
 
     await map.initialize();
+    await InteractionAnimalCountStore.ensureLoaded();
 
     final permissionManager = context.read<PermissionInterface>();
 

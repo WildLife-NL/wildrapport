@@ -4,6 +4,7 @@ import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/utils/location_label.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
 
 class InteractionDetailScreen extends StatelessWidget {
   final MyInteraction interaction;
@@ -238,9 +239,11 @@ class InteractionDetailScreen extends StatelessWidget {
   }
 
   Widget _buildCollisionReport(ReportOfCollision report) {
+    final totalCount = countFromMyInteraction(interaction);
     return _buildSection(
       title: 'Aanrijding Details',
       children: [
+        _buildInfoRow('Aantal dieren', '$totalCount'),
         _buildInfoRow('Intensiteit', report.intensity),
         _buildInfoRow('Urgentie', report.urgency),
         _buildInfoRow('Geschatte schade', '€${report.estimatedDamage}'),
@@ -310,9 +313,11 @@ class InteractionDetailScreen extends StatelessWidget {
   }
 
   Widget _buildSightingReport(ReportOfSighting report) {
+    final totalCount = countFromMyInteraction(interaction);
     return _buildSection(
       title: 'Waarneming Details',
       children: [
+        _buildInfoRow('Aantal dieren', '$totalCount'),
         const Text(
           'Betrokken dieren:',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),

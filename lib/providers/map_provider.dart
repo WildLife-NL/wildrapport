@@ -18,6 +18,8 @@ import 'package:wildrapport/utils/notification_service.dart';
 import 'dart:async';
 import 'package:wildrapport/managers/map/location_map_manager.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 class MapProvider extends ChangeNotifier {
   static const Duration defaultTrackingInterval = Duration(minutes: 10);
@@ -85,6 +87,15 @@ class MapProvider extends ChangeNotifier {
   bool _isNightlyAutoDisableWindow(DateTime now) => now.hour == 0;
 
   void _applyVicinity(Vicinity vicinity) {
+    final enrichedInteractions = vicinity.interactions
+        .map(
+          (interaction) => enrichInteractionAnimalCount(
+            interaction,
+            cachedCount: InteractionAnimalCountStore.peek(interaction.id),
+          ),
+        )
+        .toList();
+
     _animalPins
       ..clear()
       ..addAll(vicinity.animals);
@@ -93,7 +104,7 @@ class MapProvider extends ChangeNotifier {
       ..addAll(vicinity.detections);
     _interactions
       ..clear()
-      ..addAll(vicinity.interactions);
+      ..addAll(enrichedInteractions);
     _animalPinsError = null;
     _detectionPinsError = null;
     _interactionsError = null;
@@ -151,6 +162,7 @@ class MapProvider extends ChangeNotifier {
 
         if (notice != null) {
           if (notice.vicinity != null) {
+            await InteractionAnimalCountStore.ensureLoaded();
             _applyVicinity(notice.vicinity!);
           }
           _lastTrackingNotice = notice;
@@ -206,6 +218,7 @@ class MapProvider extends ChangeNotifier {
 
       if (notice != null) {
         if (notice.vicinity != null) {
+          await InteractionAnimalCountStore.ensureLoaded();
           _applyVicinity(notice.vicinity!);
         }
         _lastTrackingNotice = notice;
@@ -282,12 +295,31 @@ class MapProvider extends ChangeNotifier {
       _animalPins.length + _detectionPins.length + _interactions.length;
 
   void addOrUpdateInteraction(InteractionQueryResult interaction) {
-    final index = _interactions.indexWhere((i) => i.id == interaction.id);
+    var enriched = enrichInteractionAnimalCount(
+      interaction,
+      cachedCount: InteractionAnimalCountStore.peek(interaction.id),
+    );
+
+    final index = _interactions.indexWhere((i) => i.id == enriched.id);
     if (index >= 0) {
-      _interactions[index] = interaction;
+      final existingCount = countFromInteraction(_interactions[index]) ?? 0;
+      final newCount = countFromInteraction(enriched) ?? 0;
+      if (existingCount > newCount) {
+        enriched = enrichInteractionAnimalCount(
+          enriched,
+          cachedCount: existingCount,
+        );
+      }
+      _interactions[index] = enriched;
     } else {
-      _interactions.insert(0, interaction);
+      _interactions.insert(0, enriched);
     }
+
+    final persistCount = countFromInteraction(enriched);
+    if (persistCount != null && persistCount > 0) {
+      InteractionAnimalCountStore.save(enriched.id, persistCount);
+    }
+
     notifyListeners();
   }
 
@@ -446,6 +478,7 @@ class MapProvider extends ChangeNotifier {
         source = 'GET /tracking-readings/me/';
       }
 
+      await InteractionAnimalCountStore.ensureLoaded();
       _applyVicinity(vicinity);
       debugPrint(
         '[MapProvider] ✓ Pins from $source: '

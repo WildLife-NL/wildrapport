@@ -53,6 +53,11 @@ class _SchademeldingSummaryScreenState
         '[SchademeldingSubmit] Success interactionID=${response.interactionID}',
       );
 
+      await cacheSubmittedInteractionCount(
+        interactionId: response.interactionID,
+        sighting: sighting,
+      );
+
       final mapPin = interactionPinFromSighting(
         sighting,
         response.interactionID,

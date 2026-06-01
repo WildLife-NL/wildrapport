@@ -5,6 +5,7 @@ import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/models/api_models/my_interaction.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/widgets/logbook/interaction_logbook_card.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 /// Recent logbook entries from the backend (`GET interactions/me`).
 class RecentSightingsScreen extends StatefulWidget {
@@ -25,7 +26,9 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
 
   void _loadInteractions() {
     final api = context.read<MyInteractionApi>();
-    _interactionsFuture = api.getMyInteractions().then(_sortNewestFirst);
+    _interactionsFuture = InteractionAnimalCountStore.ensureLoaded().then((_) {
+      return api.getMyInteractions().then(_sortNewestFirst);
+    });
   }
 
   Future<void> _refresh() async {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
-import 'package:wildrapport/screens/shared/my_interaction_history_screen.dart';
 import 'package:wildrapport/screens/logbook/saved_questionnaires_screen.dart';
 import 'package:wildrapport/screens/logbook/my_responses_screen.dart';
 import 'package:wildrapport/screens/logbook/my_contacts_screen.dart';
@@ -19,13 +18,6 @@ class LogbookScreen extends StatefulWidget {
 
 class _LogbookScreenState extends State<LogbookScreen> {
   bool _hasNavigated = false;
-
-  void _openAllInteractions(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const MyInteractionHistoryScreen()),
-    );
-  }
 
   void _openMyResponses(BuildContext context) {
     Navigator.push(
@@ -120,13 +112,6 @@ class _LogbookScreenState extends State<LogbookScreen> {
                               'Bluetooth-contacten met collars (Smart Parks)',
                           icon: Icons.bluetooth_connected,
                           onTap: () => _openContactMoments(context),
-                        ),
-                        const SizedBox(height: 12),
-                        _ReportButton(
-                          label: 'Mijn interacties',
-                          subtitle: 'Bekijk al je schademeldingen en waarnemingen',
-                          icon: Icons.history_toggle_off,
-                          onTap: () => _openAllInteractions(context),
                         ),
                         const SizedBox(height: 12),
                         _ReportButton(

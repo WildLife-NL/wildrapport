@@ -4,6 +4,8 @@ import 'package:wildrapport/models/api_models/interaction_query_result.dart';
 import 'package:intl/intl.dart';
 import 'package:wildrapport/utils/translation_utils.dart';
 import 'package:wildrapport/utils/interaction_type_display.dart';
+import 'package:wildrapport/utils/involved_animal_count.dart';
+import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 class InteractionDetailDialog extends StatelessWidget {
   final InteractionQueryResult interaction;
@@ -132,6 +134,22 @@ class InteractionDetailDialog extends StatelessWidget {
                       title: 'Locatie',
                       content: _buildLocationInfo(),
                     ),
+
+                    if (_displayAnimalCount() > 0) ...[
+                      const Divider(height: 32),
+                      _buildInfoSection(
+                        icon: Icons.pets,
+                        title: 'Aantal dieren',
+                        content: Text(
+                          '${_displayAnimalCount()}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
 
                     // Animal details if available
                     if (interaction.involvedAnimals != null &&
@@ -323,9 +341,24 @@ class InteractionDetailDialog extends StatelessWidget {
     );
   }
 
+  int _displayAnimalCount() {
+    final enriched = enrichInteractionAnimalCount(
+      interaction,
+      cachedCount: InteractionAnimalCountStore.peek(interaction.id),
+    );
+    return countFromInteraction(enriched) ?? 0;
+  }
+
   Widget _buildAnimalInfo() {
+    final total = _displayAnimalCount();
     if (interaction.involvedAnimals == null ||
         interaction.involvedAnimals!.isEmpty) {
+      if (total > 0) {
+        return Text(
+          '$total dier${total > 1 ? 'en' : ''} gemeld',
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
+        );
+      }
       return const Text(
         'Geen details beschikbaar',
         style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -360,7 +393,7 @@ class InteractionDetailDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${interaction.involvedAnimals!.length} dier${interaction.involvedAnimals!.length > 1 ? 'en' : ''}',
+          '$total dier${total > 1 ? 'en' : ''}',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
