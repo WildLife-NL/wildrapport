@@ -11,6 +11,7 @@ import 'package:wildrapport/screens/schademelding/schademelding_type_selection_s
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 
+
 class SchademeldingLocationDateTimeScreen extends StatefulWidget {
   final LatLng selectedLocation;
 
@@ -59,13 +60,13 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF37A904), // header background & selected
+              primary: AppColors.primaryGreen, // header background & selected
               onPrimary: Colors.white, // header/selected text color
               onSurface: Colors.black, // body text color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF37A904), // buttons
+                foregroundColor: AppColors.primaryGreen, // buttons
               ),
             ),
           ),
@@ -175,7 +176,7 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F4),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -202,11 +203,11 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Card(
                   elevation: 0,
-                  color: Colors.white,
+                  color: AppColors.cardBackground,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
-                      color: const Color(0xFF999999),
+                      color: AppColors.borderDefault,
                       width: 1,
                     ),
                   ),
@@ -237,11 +238,11 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
                           },
                           child: Card(
                             elevation: 0,
-                            color: Colors.white,
+                            color: AppColors.cardBackground,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                               side: BorderSide(
-                                color: Colors.black.withValues(alpha: 0.2),
+                                color: AppColors.borderDefault,
                                 width: 1,
                               ),
                             ),
@@ -283,7 +284,7 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
                                               height: 40,
                                               child: const Icon(
                                                 Icons.location_on,
-                                                color: Color(0xFfDB5E5A),
+                                                color: AppColors.error,
                                                 size: 40,
                                               ),
                                             ),

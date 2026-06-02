@@ -11,6 +11,7 @@ import 'package:wildrapport/models/beta_models/location_model.dart';
 import 'package:wildrapport/models/enums/location_source.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/screens/schademelding/schademelding_location_datetime_screen.dart';
+import 'package:wildrapport/constants/app_colors.dart';
 
 class SchademeldingLocationSelectionScreen extends StatefulWidget {
   const SchademeldingLocationSelectionScreen({super.key});
@@ -108,7 +109,7 @@ class _SchademeldingLocationSelectionScreenState extends State<SchademeldingLoca
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F4),
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -146,11 +147,11 @@ class _SchademeldingLocationSelectionScreenState extends State<SchademeldingLoca
                 padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
                 child: Card(
                 elevation: 0,
-                color: Colors.white,
+                color: AppColors.cardBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: const Color(0xFF999999),
+                    color: AppColors.borderDefault,
                     width: 1,
                   ),
                 ),
