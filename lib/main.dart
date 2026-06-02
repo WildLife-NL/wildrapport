@@ -320,10 +320,10 @@ class MyApp extends StatelessWidget {
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'WildRapport',
         theme: ThemeData(
-          scaffoldBackgroundColor: AppColors.lightMintGreen,
+          scaffoldBackgroundColor: AppColors.backgroundLight,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.darkGreen,
-            surface: AppColors.lightMintGreen,
+            seedColor: AppColors.primaryGreen,
+            surface: AppColors.backgroundLight,
           ),
           textTheme: AppTextTheme.textTheme,
           fontFamily: 'Roboto',
@@ -333,7 +333,7 @@ class MyApp extends StatelessWidget {
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: AppColors.mediumGrey),
+              side: const BorderSide(color: AppColors.borderDefault),
             ),
             contentTextStyle: const TextStyle(
               color: AppColors.textPrimary,
