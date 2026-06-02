@@ -10,7 +10,7 @@ class PermissionManager implements PermissionInterface {
 
   @override
   Future<bool> isPermissionGranted(PermissionType permission) async {
-    final isGranted = await Permission.location.isGranted;
+    final isGranted = await Permission.locationWhenInUse.isGranted;
     debugPrint('[PermissionManager] Checking permission status: $isGranted');
     return isGranted;
   }
@@ -35,7 +35,7 @@ class PermissionManager implements PermissionInterface {
     }
 
     debugPrint('[PermissionManager] Making actual permission request');
-    final status = await Permission.location.request();
+    final status = await Permission.locationWhenInUse.request();
     debugPrint(
       '[PermissionManager] Permission request result: ${status.isGranted}',
     );

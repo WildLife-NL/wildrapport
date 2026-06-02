@@ -288,11 +288,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     if (_tabBootstrapStarted) return;
     _tabBootstrapStarted = true;
 
-    final bool isIosDebug = !kIsWeb && Platform.isIOS && kDebugMode;
-    if (isIosDebug) {
-      debugPrint('[Kaart] iOS debug: skipping bootstrap and live-follow startup');
-      return;
-    }
+    
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -438,24 +434,29 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   Future<void> _centerOnMyLocation() async {
     final mp = context.read<MapProvider>();
     final appState = context.read<AppStateProvider>();
-    final permissionManager = context.read<PermissionInterface>();
     debugPrint('[Map] centreer op locatie');
 
-    var hasPermission =
-        await permissionManager.isPermissionGranted(PermissionType.location);
-    if (!hasPermission) {
-      hasPermission = await permissionManager.requestPermission(
-        context,
-        PermissionType.location,
-        showRationale: true,
-      );
-      if (!hasPermission) {
-        if (!mounted) return;
-        mp.mapController.move(_netherlandsCenter, _netherlandsOverviewZoom);
-        _updateScaleBar();
-        return;
-      }
-    }
+final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+if (!serviceEnabled) {
+  await Geolocator.openLocationSettings();
+  return;
+}
+
+var permission = await Geolocator.checkPermission();
+
+if (permission == LocationPermission.denied) {
+  permission = await Geolocator.requestPermission();
+}
+
+final hasPermission =
+    permission == LocationPermission.whileInUse ||
+    permission == LocationPermission.always;
+
+if (!hasPermission) {
+  await Geolocator.openAppSettings();
+  return;
+}
+    
 
     if (!appState.isLocationTrackingEnabled) {
       final enable = await showLocationSharingOffDialog(context);
@@ -735,17 +736,22 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
     await map.initialize();
     await InteractionAnimalCountStore.ensureLoaded();
 
-    final permissionManager = context.read<PermissionInterface>();
+    bool hasLocationPermission = false;
 
-    bool hasLocationPermission =
-        await permissionManager.isPermissionGranted(PermissionType.location);
-    if (requestLocationAccess && !hasLocationPermission) {
-      hasLocationPermission = await permissionManager.requestPermission(
-        context,
-        PermissionType.location,
-        showRationale: true,
-      );
-    }
+final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+if (serviceEnabled) {
+  var permission = await Geolocator.checkPermission();
+
+  if (permission == LocationPermission.denied &&
+      requestLocationAccess) {
+    permission = await Geolocator.requestPermission();
+  }
+
+  hasLocationPermission =
+      permission == LocationPermission.whileInUse ||
+      permission == LocationPermission.always;
+}
     if (!mounted) return;
 
     Position? pos;

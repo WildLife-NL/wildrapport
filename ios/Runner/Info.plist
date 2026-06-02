@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>WildRapport gebruikt je locatie om meldingen op de kaart te tonen.</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>WildRapport gebruikt je locatie om meldingen en dieren in de buurt te tonen.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
