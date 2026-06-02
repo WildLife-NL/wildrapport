@@ -142,9 +142,9 @@ void main() async {
 
   final loginApiClient = HttpLoginApiClient(
     baseUrl: baseUrl,
-    displayNameApp: 'Wild Rapport',
+    displayNameApp: 'WildRapport',
   );
-  final loginService = DefaultLoginService(loginApiClient, displayNameApp: 'Wild Rapport');
+  final loginService = DefaultLoginService(loginApiClient, displayNameApp: 'WildRapport');
   final interactionReadApi = HttpInteractionReadApi(baseUrl: baseUrl);
   final myInteractionApi = MyInteractionApi(interactionReadApi);
   final filterManager = FilterManager();
@@ -318,7 +318,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
-        title: 'Wild Rapport',
+        title: 'WildRapport',
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.lightMintGreen,
           colorScheme: ColorScheme.fromSeed(
