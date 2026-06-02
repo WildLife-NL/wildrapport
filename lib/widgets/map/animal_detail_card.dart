@@ -26,12 +26,7 @@ class AnimalDetailCard extends StatelessWidget {
     final reportedBy = animal?.reportedByName ?? 'Onbekende gebruiker';
     final displayName = animal?.speciesName ?? 'Onbekend dier';
     final latinName = animal?.speciesLatinName ?? '';
-    //print('POPUP LATIN NAME: $latinName');
-    print(
-  'Popup -> type=${animal?.reportType} '
-  'common=${animal?.speciesName} '
-  'latin=${animal?.speciesLatinName}'
-);
+
     final cachedCount =
         animal != null ? InteractionAnimalCountStore.peek(animal!.id) : null;
     final rawCount = animal?.animalCount;
@@ -43,13 +38,12 @@ class AnimalDetailCard extends StatelessWidget {
     final formattedDate = formatLocalDate(animal?.seenAt);
     final formattedTime = formatLocalTime(animal?.seenAt);
     final groupSummary =
-    animal?.groupSummary ?? '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}';
+        animal?.groupSummary ??
+        '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}';
 
     final iconPath = animal?.speciesName != null
-    ? getSpeciesCardImagePath(animal!.speciesName!)
-    : null;
-
-    
+        ? getSpeciesCardImagePath(animal!.speciesName!)
+        : null;
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -57,10 +51,7 @@ class AnimalDetailCard extends StatelessWidget {
       child: SizedBox(
         height: _cardHeight,
         child: Card(
-          margin: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 6,
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           elevation: 0,
           color: Colors.white,
           clipBehavior: Clip.antiAlias,
@@ -87,116 +78,86 @@ class AnimalDetailCard extends StatelessWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 14, 11),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _reportTypePill(animal?.reportType),
+                      const SizedBox(height: 7),
                       Text(
-                        reportTypeDisplayLabel(animal?.reportType),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      RichText(
+                        displayName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: displayName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            if (latinName.isNotEmpty)
-                              TextSpan(
-                                text: ' ($latinName)',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                          ],
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                          height: 1.0,
+                          letterSpacing: -0.4,
                         ),
                       ),
-                    
-                      const SizedBox(height: 10),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF2F7F1),
-                          borderRadius: BorderRadius.circular(8),
+                      if (latinName.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          latinName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                            color: Color(0xFF777777),
+                            height: 1.15,
+                          ),
                         ),
+                      ],
+                      const SizedBox(height: 13),
+                      _infoRow(
+                        icon: Icons.pets,
                         child: Text(
                           groupSummary,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
                             color: AppColors.textPrimary,
+                            height: 1.18,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 14,
-                            color: Color.fromARGB(255, 115, 115, 115),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            formattedDate,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: Color.fromARGB(255, 115, 115, 115),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            formattedTime,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      
-                      const Spacer(), 
-                      Row(
-                        children: [
-                          //const Icon(Icons.person_outline, size: 14),
-                          //const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              'Gemeld door: $reportedBy',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Color.fromARGB(255, 115, 115, 115),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 10),
+                      _dateTimeRow(formattedDate, formattedTime),
                       const Spacer(),
+                      const Divider(
+                        height: 12,
+                        thickness: 1,
+                        color: Color(0xFFE8E8E8),
+                      ),
+                      _infoRow(
+                        icon: Icons.person_outline,
+                        iconSize: 17,
+                        child: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF777777),
+                              height: 1.2,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Gemeld door: '),
+                              TextSpan(
+                                text: reportedBy,
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -205,6 +166,104 @@ class AnimalDetailCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Color _reportTypeColor(String? reportType) {
+    switch (reportType?.toLowerCase()) {
+      case 'waarneming':
+        return const Color(0xFF8613A8);
+      case 'gewasschade':
+        return const Color(0xFF008C7B);
+      case 'verkeersongeval':
+        return const Color(0xFF0078DA);
+      case 'collar':
+        return const Color(0xFFFE008E);
+      case 'camera':
+        return const Color(0xFF00BFD8);
+      case 'acoustic':
+        return const Color(0xFFFF9100);
+      default:
+        return const Color(0xFF777777);
+    }
+  }
+
+  Widget _reportTypePill(String? reportType) {
+    final color = _reportTypeColor(reportType);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.45),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        reportTypeDisplayLabel(reportType).toUpperCase(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.1,
+          color: color,
+          height: 1.0,
+        ),
+      ),
+    );
+  }
+
+  Widget _dateTimeRow(String formattedDate, String formattedTime) {
+    return Row(
+      children: [
+        _smallIcon(Icons.calendar_today_outlined),
+        const SizedBox(width: 5),
+        Text(
+          formattedDate,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(width: 14),
+        _smallIcon(Icons.access_time),
+        const SizedBox(width: 5),
+        Text(
+          formattedTime,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow({
+    required IconData icon,
+    required Widget child,
+    double iconSize = 16,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _smallIcon(icon, size: iconSize),
+        const SizedBox(width: 7),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  Widget _smallIcon(IconData icon, {double size = 14}) {
+    return Icon(
+      icon,
+      size: size,
+      color: const Color(0xFF777777),
     );
   }
 
@@ -221,7 +280,7 @@ class AnimalDetailCard extends StatelessWidget {
           errorBuilder: (_, __, ___) => const Icon(
             Icons.pets,
             size: 38,
-            color: AppColors.primaryGreen,
+            color: AppColors.darkCharcoal,
           ),
         ),
       );
@@ -230,32 +289,7 @@ class AnimalDetailCard extends StatelessWidget {
     return const Icon(
       Icons.pets,
       size: 38,
-      color: AppColors.primaryGreen,
-    );
-  }
-
-  Widget _buildDetailColumn(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color.fromARGB(255, 115, 115, 115),
-          ),
-        ),
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+      color: AppColors.darkCharcoal,
     );
   }
 }

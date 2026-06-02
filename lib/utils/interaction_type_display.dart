@@ -1,4 +1,5 @@
-/// Normalized interaction keys used in the app: `waarneming`, `gewasschade`, `verkeersongeval`.
+/// Normalized interaction keys used in the app:
+/// `waarneming`, `gewasschade`, `verkeersongeval`, `collar`, `camera`, `acoustic`.
 String? normalizeReportTypeKey(
   String? raw, {
   int? typeId,
@@ -22,6 +23,7 @@ String? normalizeReportTypeKey(
       value == 'observation') {
     return 'waarneming';
   }
+
   if (value == 'gewasschade' ||
       value.contains('schademelding') ||
       value.contains('crop damage') ||
@@ -29,12 +31,31 @@ String? normalizeReportTypeKey(
       value.contains('gewas')) {
     return 'gewasschade';
   }
+
   if (value == 'verkeersongeval' ||
       value.contains('dieraanrijding') ||
       value.contains('collision') ||
       value.contains('traffic') ||
       value.contains('aanrijding')) {
     return 'verkeersongeval';
+  }
+
+  if (value == 'collar' ||
+      value.contains('diergedragen') ||
+      value.contains('wearable')) {
+    return 'collar';
+  }
+
+  if (value == 'camera' ||
+      value.contains('cameraval') ||
+      value.contains('camera trap')) {
+    return 'camera';
+  }
+
+  if (value == 'acoustic' ||
+      value.contains('akoestisch') ||
+      value.contains('acoustic')) {
+    return 'acoustic';
   }
 
   return value;
@@ -63,6 +84,12 @@ String reportTypeDisplayLabel(String? reportTypeKey) {
       return 'Schademelding';
     case 'verkeersongeval':
       return 'Dieraanrijding';
+    case 'collar':
+      return 'Diergedragen sensor';
+    case 'camera':
+      return 'Cameraval';
+    case 'acoustic':
+      return 'Akoestische sensor';
     case 'waarneming':
     default:
       return 'Waarneming';
@@ -81,8 +108,8 @@ String? reportTypeFromInteractionJson(Map<String, dynamic> json) {
   final typeNode = json['type'] is Map
       ? Map<String, dynamic>.from(json['type'] as Map)
       : json['interactionType'] is Map
-      ? Map<String, dynamic>.from(json['interactionType'] as Map)
-      : <String, dynamic>{};
+          ? Map<String, dynamic>.from(json['interactionType'] as Map)
+          : <String, dynamic>{};
 
   final typeId = _parseTypeId(
     json['typeID'] ?? typeNode['ID'] ?? typeNode['id'],
