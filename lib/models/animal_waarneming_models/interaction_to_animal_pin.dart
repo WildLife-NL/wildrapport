@@ -6,18 +6,23 @@ import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 extension InteractionToAnimalPin on InteractionQueryResult {
   AnimalPin toAnimalPin() {
-    final enriched = enrichInteractionAnimalCount(
-      this,
-      cachedCount: InteractionAnimalCountStore.peek(id),
-    );
-    return AnimalPin(
-      id: id,
-      lat: lat,
-      lon: lon,
-      seenAt: moment,
-      speciesName: speciesName,
-      animalCount: countFromInteraction(enriched),
-      reportType: normalizeReportTypeKey(typeName),
-    );
-  }
+  print('TO ANIMAL PIN -> common=$speciesName latin=$speciesLatinName');
+
+  final enriched = enrichInteractionAnimalCount(
+    this,
+    cachedCount: InteractionAnimalCountStore.peek(id),
+  );
+
+  return AnimalPin(
+    id: id,
+    lat: lat,
+    lon: lon,
+    seenAt: moment,
+    speciesName: speciesName,
+    speciesLatinName: speciesLatinName,
+    animalCount: countFromInteraction(enriched),
+    reportType: normalizeReportTypeKey(typeName),
+  );
+}
+   
 }

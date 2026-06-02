@@ -7,7 +7,7 @@ import 'package:wildrapport/utils/api_datetime.dart';
 import 'package:wildrapport/utils/interaction_animal_count_store.dart';
 
 class AnimalDetailCard extends StatelessWidget {
-  static const double _cardHeight = 205;
+  static const double _cardHeight = 230;
   static const double _imageWidth = 150;
 
   final AnimalPin? animal;
@@ -24,6 +24,8 @@ class AnimalDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = animal?.speciesName ?? 'Onbekend dier';
+    final latinName = animal?.speciesLatinName ?? '';
+    print('POPUP LATIN NAME: $latinName');
     final cachedCount =
         animal != null ? InteractionAnimalCountStore.peek(animal!.id) : null;
     final rawCount = animal?.animalCount;
@@ -100,6 +102,15 @@ class AnimalDetailCard extends StatelessWidget {
                           color: Colors.black,
                         ),
                       ),
+                      if (latinName.isNotEmpty)
+                    Text(
+                      latinName,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
+                      ),
+                    ),
                       const SizedBox(height: 6),
                       _buildDetailColumn('Aantal', '$displayCount'),
                       const SizedBox(height: 4),

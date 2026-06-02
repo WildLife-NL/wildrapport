@@ -28,6 +28,7 @@ class InteractionQueryResult {
   final DateTime moment;
   final String? typeName; // e.g., "Sighting"
   final String? speciesName; // e.g., "Vos"
+  final String? speciesLatinName; // e.g., "Vulpes vulpes"
   final String? description; // optional
   final String? userName; // User who reported
   final String? placeName; // Reverse geocoded place name
@@ -41,6 +42,7 @@ class InteractionQueryResult {
     required this.moment,
     this.typeName,
     this.speciesName,
+    this.speciesLatinName,
     this.description,
     this.userName,
     this.placeName,
@@ -80,6 +82,9 @@ class InteractionQueryResult {
         json['interactionType'] as Map<String, dynamic>? ??
         const {};
     final speciesNode = json['species'] as Map<String, dynamic>? ?? const {};
+    print('SPECIES NODE = $speciesNode');
+print('COMMON = ${speciesNode['commonName']}');
+print('NAME = ${speciesNode['name']}');
     final userNode = json['user'] as Map<String, dynamic>? ?? const {};
     final placeNode = json['place'] as Map<String, dynamic>? ?? const {};
 
@@ -135,8 +140,8 @@ class InteractionQueryResult {
       lon: lon,
       moment: parseBackendTimestampToUtc(rawMoment),
       typeName: resolvedTypeName ?? rawTypeName,
-      speciesName:
-          (speciesNode['commonName'] ?? speciesNode['name'])?.toString(),
+      speciesName: speciesNode['commonName']?.toString(),
+      speciesLatinName: speciesNode['name']?.toString(),
       description: parseInteractionNotes(json),
       userName: (userNode['name'] ?? userNode['username'])?.toString(),
       placeName: placeNode['name']?.toString(),
@@ -153,7 +158,11 @@ class InteractionQueryResult {
     'location': {'latitude': lat, 'longitude': lon},
     'moment': moment.toIso8601String(),
     if (typeName != null) 'type': {'name': typeName},
-    if (speciesName != null) 'species': {'commonName': speciesName},
+    if (speciesName != null || speciesLatinName != null)
+      'species': {
+        if (speciesName != null) 'commonName': speciesName,
+        if (speciesLatinName != null) 'name': speciesLatinName,
+      },
     if (description != null) 'notes': description,
     if (userName != null) 'user': {'name': userName},
     if (placeName != null) 'place': {'name': placeName},

@@ -5,6 +5,7 @@ import 'package:wildrapport/utils/involved_animal_count.dart';
 class AnimalPin {
   final String id;
   final String? speciesName;
+  final String? speciesLatinName;
   final int? animalCount;
   final double lat;
   final double lon;
@@ -19,6 +20,7 @@ class AnimalPin {
     required this.lon,
     required this.seenAt,
     this.speciesName,
+    this.speciesLatinName,
     this.animalCount,
     this.imageUrl,
     this.reportType,
@@ -45,13 +47,15 @@ class AnimalPin {
         (j['locationTimestamp'] ?? j['moment'] ?? j['timestamp'] ?? j['seenAt'])
             ?.toString();
 
+    print('Common: ${j['species']?['commonName']}');
+    print('Latin: ${j['species']?['name']}');
     return AnimalPin(
       id: id,
       lat: lat,
       lon: lon,
       seenAt: parseApiMomentToUtc(ts),
-      speciesName:
-          (j['species']?['commonName'] ?? j['species']?['name'])?.toString(),
+      speciesName: j['species']?['commonName']?.toString(),
+      speciesLatinName: j['species']?['name']?.toString(),
       animalCount: _extractAnimalCount(j),
       imageUrl: j['imageUrl'] as String?,
       // Vicinity `animals` are GPS collar positions (Smart Parks).
