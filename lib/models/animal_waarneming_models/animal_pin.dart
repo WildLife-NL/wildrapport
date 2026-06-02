@@ -13,6 +13,8 @@ class AnimalPin {
   final String? imageUrl;
   /// `waarneming`, `gewasschade`, or `verkeersongeval` (interaction pins).
   final String? reportType;
+  final String? reportedByName;
+  final String? groupSummary;
 
   AnimalPin({
     required this.id,
@@ -24,6 +26,8 @@ class AnimalPin {
     this.animalCount,
     this.imageUrl,
     this.reportType,
+    this.reportedByName,
+    this.groupSummary,
   });
 
   factory AnimalPin.fromJson(Map<String, dynamic> j) {
@@ -58,6 +62,7 @@ class AnimalPin {
       speciesLatinName: j['species']?['name']?.toString(),
       animalCount: _extractAnimalCount(j),
       imageUrl: j['imageUrl'] as String?,
+      reportedByName: j['user']?['name']?.toString(),
       // Vicinity `animals` are GPS collar positions (Smart Parks).
       reportType: 'collar',
     );

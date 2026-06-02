@@ -82,9 +82,7 @@ class InteractionQueryResult {
         json['interactionType'] as Map<String, dynamic>? ??
         const {};
     final speciesNode = json['species'] as Map<String, dynamic>? ?? const {};
-    print('SPECIES NODE = $speciesNode');
-print('COMMON = ${speciesNode['commonName']}');
-print('NAME = ${speciesNode['name']}');
+    print('Interaction species node: $speciesNode');
     final userNode = json['user'] as Map<String, dynamic>? ?? const {};
     final placeNode = json['place'] as Map<String, dynamic>? ?? const {};
 

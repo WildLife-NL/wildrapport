@@ -23,9 +23,15 @@ class AnimalDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reportedBy = animal?.reportedByName ?? 'Onbekende gebruiker';
     final displayName = animal?.speciesName ?? 'Onbekend dier';
     final latinName = animal?.speciesLatinName ?? '';
-    print('POPUP LATIN NAME: $latinName');
+    //print('POPUP LATIN NAME: $latinName');
+    print(
+  'Popup -> type=${animal?.reportType} '
+  'common=${animal?.speciesName} '
+  'latin=${animal?.speciesLatinName}'
+);
     final cachedCount =
         animal != null ? InteractionAnimalCountStore.peek(animal!.id) : null;
     final rawCount = animal?.animalCount;
@@ -36,14 +42,14 @@ class AnimalDetailCard extends StatelessWidget {
     final displayCount = resolved > 0 ? resolved : 1;
     final formattedDate = formatLocalDate(animal?.seenAt);
     final formattedTime = formatLocalTime(animal?.seenAt);
+    final groupSummary =
+    animal?.groupSummary ?? '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}';
 
     final iconPath = animal?.speciesName != null
     ? getSpeciesCardImagePath(animal!.speciesName!)
     : null;
 
-    final locationLabel = animal != null
-        ? '${animal!.lat.toStringAsFixed(5)}, ${animal!.lon.toStringAsFixed(5)}'
-        : 'Onbekende locatie';
+    
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -92,50 +98,98 @@ class AnimalDetailCard extends StatelessWidget {
                           color: Colors.grey,
                         ),
                       ),
-                      Text(
-                        displayName,
+                      RichText(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: displayName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            if (latinName.isNotEmpty)
+                              TextSpan(
+                                text: ' ($latinName)',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      if (latinName.isNotEmpty)
-                    Text(
-                      latinName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey,
-                      ),
-                    ),
-                      const SizedBox(height: 6),
-                      _buildDetailColumn('Aantal', '$displayCount'),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildDetailColumn('Datum', formattedDate),
+                    
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2F7F1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          groupSummary,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _buildDetailColumn('Tijd', formattedTime),
-                          ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14),
+                          const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 14,
+                            color: Color.fromARGB(255, 115, 115, 115),
+                          ),
                           const SizedBox(width: 4),
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Color.fromARGB(255, 115, 115, 115),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            formattedTime,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      
+                      const Spacer(), 
+                      Row(
+                        children: [
+                          //const Icon(Icons.person_outline, size: 14),
+                          //const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              locationLabel,
+                              'Gemeld door: $reportedBy',
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: Color.fromARGB(255, 115, 115, 115),
                               ),
                             ),
