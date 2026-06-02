@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
-import 'dart:io';
+//import 'dart:io';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -70,6 +70,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   bool _mapReady = false;
   LatLng? _pendingCenter;
   double? _pendingZoom;
+  
 
   // cache things we must clean up
   late MapProvider _mp; // <— cached provider
@@ -108,8 +109,9 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
   double _scaleBarWidth = 80;
   String _scaleBarLabel = '100 m';
 
-  // Selected animal for detail card
+  // Selected animal/detection for detail card
   AnimalPin? _selectedAnimal;
+  DetectionPin? __selectedDetection;
   bool _showLegend = false;
 
   AlarmMapFocusService? _alarmMapFocusService;
@@ -334,10 +336,10 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _mp.ensureDetectionPin(focus.detection!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        showDialog<void>(
-          context: context,
-          builder: (_) => DetectionDetailDialog(detection: focus.detection!),
-        );
+        setState(() {
+          _selectedAnimal = null;
+          __selectedDetection = focus.detection;
+        });
       });
       setState(() {});
       return;
@@ -348,6 +350,7 @@ class _KaartOverviewScreenState extends State<KaartOverviewScreen>
       _mp.addOrUpdateInteraction(interaction);
       setState(() {
         _selectedAnimal = interaction.toAnimalPin();
+        __selectedDetection = null;
       });
     }
   }
@@ -1296,6 +1299,7 @@ if (serviceEnabled) {
                                                   onTap: () {
                                                     setState(() {
                                                       _selectedAnimal = pin;
+                                                      __selectedDetection = null;
                                                     });
                                                   },
                                                 ),
@@ -1388,12 +1392,10 @@ if (serviceEnabled) {
                                                   mapRotation: mapRotation,
                                                   style: style,
                                                   onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (_) =>
-                                                          DetectionDetailDialog(
-                                                            detection: pin,
-                                                          ),
+                                                    setState(() {
+                                                      _selectedAnimal = null;
+                                                      __selectedDetection = pin;
+                                                    }
                                                     );
                                                   },
                                                 ),
@@ -1448,13 +1450,10 @@ if (serviceEnabled) {
                                                 mapRotation: mapRotation,
                                                 style: style,
                                                 onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (_) =>
-                                                        DetectionDetailDialog(
-                                                          detection: pin,
-                                                        ),
-                                                  );
+                                                  setState(() {
+                                                    _selectedAnimal = null;
+                                                    __selectedDetection = pin;
+                                                  });
                                                 },
                                               ),
                                             );
@@ -1573,6 +1572,7 @@ if (serviceEnabled) {
                                                       setState(() {
                                                         _selectedAnimal =
                                                             itx.toAnimalPin();
+                                                        __selectedDetection = null;
                                                       });
                                                     },
                                                     child: Builder(
@@ -1621,6 +1621,7 @@ if (serviceEnabled) {
                                               onTap: () {
                                                 setState(() {
                                                   _selectedAnimal = itx.toAnimalPin();
+                                                  __selectedDetection = null;
                                                 });
                                               },
                                               child: Builder(
@@ -1808,19 +1809,21 @@ if (serviceEnabled) {
                           ),
                         ),
 
-                      if (_selectedAnimal == null)
+                      if (_selectedAnimal == null && __selectedDetection == null)
                         Positioned(
                           top: MediaQuery.paddingOf(context).top + 8,
                           right: 12,
                           child: _mapVerticalControlPill(),
                         ),
 
-                      if (_selectedAnimal != null)
+                      if (_selectedAnimal != null || __selectedDetection != null)
                         Positioned.fill(
                           child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
                             onTap: () {
                               setState(() {
                                 _selectedAnimal = null;
+                                __selectedDetection = null;
                               });
                             },
                             child: AnimatedContainer(
@@ -1853,6 +1856,33 @@ if (serviceEnabled) {
                               padding: const EdgeInsets.only(bottom: 18),
                               child: AnimalDetailCard(
                                 animal: _selectedAnimal!,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      if (__selectedDetection != null)
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 1, end: 0),
+                            duration: const Duration(milliseconds: 320),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return Transform.translate(
+                                offset: Offset(0, value * 80),
+                                child: Opacity(
+                                  opacity: 1 - value,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 18),
+                              child: DetectionDetailDialog(
+                                detection: __selectedDetection!,
                               ),
                             ),
                           ),
