@@ -316,15 +316,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MediaQueryWrapper(
       child: MaterialApp(
+        
         debugShowCheckedModeBanner: false,
         navigatorKey: context.read<AppStateProvider>().navigatorKey,
         title: 'WildRapport',
         theme: ThemeData(
+        cardTheme: CardThemeData(
+          elevation: 0,
+          color: AppColors.cardBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(
+              color: AppColors.borderDefault,
+            ),
+          ),
+        ),
+          
           scaffoldBackgroundColor: AppColors.backgroundLight,
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primaryGreen,
             surface: AppColors.backgroundLight,
           ),
+          
           textTheme: AppTextTheme.textTheme,
           fontFamily: 'Roboto',
           snackBarTheme: SnackBarThemeData(
