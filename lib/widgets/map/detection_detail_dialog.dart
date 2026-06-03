@@ -175,10 +175,10 @@ class DetectionDetailDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.45),
+          color: color.withValues(alpha: 0.45),
           width: 1,
         ),
       ),
