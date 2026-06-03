@@ -56,13 +56,14 @@ class _RecentSightingsScreenState extends State<RecentSightingsScreen> {
           children: [
             CustomAppBar(
               centerText: 'Recente meldingen',
+              
               leftIcon: Icons.arrow_back_ios,
               rightIcon: null,
               showUserIcon: false,
               useFixedText: true,
               onLeftIconPressed: () => _handleBackNavigation(context),
               textColor: AppColors.textPrimary,
-              fontScale: 1.4,
+              fontScale: 1.1,
               iconScale: 1.15,
               userIconScale: 1.15,
             ),
