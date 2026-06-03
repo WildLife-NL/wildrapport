@@ -44,7 +44,7 @@ class AppColors {
   // Border colors
   static const Color borderDefault = Color.fromARGB(255, 207, 207, 207);
   static const Color borderLight = Color(0xFFD4D4D4);
-  static const Color borderDark = Color(0xFF333333);
+  //static const Color borderDark = Color(0xFF333333);
 
   // State colors
   static const Color selected = Color(0xFF4CAF50);
