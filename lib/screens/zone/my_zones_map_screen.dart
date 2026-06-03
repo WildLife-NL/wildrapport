@@ -485,19 +485,6 @@ class _MyZonesMapScreenState extends State<MyZonesMapScreen> {
               userIconScale: 1.15,
               useFixedText: true,
             ),
-            if (!_loading && _loadError == null && _listZones.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  responsive.wp(5),
-                  0,
-                  responsive.wp(5),
-                  responsive.hp(0.4),
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: _ZoneCountBadge(count: _listZones.length),
-                ),
-              ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
@@ -538,7 +525,6 @@ class _MyZonesMapScreenState extends State<MyZonesMapScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
-                            flex: 2,
                             child: _ZonesContentCard(
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
@@ -561,7 +547,6 @@ class _MyZonesMapScreenState extends State<MyZonesMapScreen> {
                           ),
                           SizedBox(height: responsive.hp(0.6)),
                           Expanded(
-                            flex: 1,
                             child: _ZonesListPanel(
                               zones: _listZones,
                               speciesByZoneId: _speciesByZoneId,
@@ -608,45 +593,6 @@ class _ZonesContentCard extends StatelessWidget {
         side: BorderSide(color: Colors.grey.shade300, width: 1.5),
       ),
       child: child,
-    );
-  }
-}
-
-class _ZoneCountBadge extends StatelessWidget {
-  const _ZoneCountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.primaryGreen.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primaryGreen.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.place_outlined,
-            size: 14,
-            color: AppColors.primaryGreen,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            count == 1 ? '1 zone zichtbaar' : '$count zones zichtbaar',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primaryGreen,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
