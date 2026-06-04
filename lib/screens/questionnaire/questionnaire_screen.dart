@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
@@ -8,14 +10,21 @@ import 'package:wildrapport/providers/response_provider.dart';
 import 'package:wildrapport/screens/questionnaire/questionnaire_completion_screen.dart';
 import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 import 'package:wildrapport/constants/app_colors.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
+import 'package:wildrapport/widgets/questionnaire/questionnaire_home.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
   final Questionnaire questionnaire;
   final String interactionID;
+  final int? initialScreenIndex;
+  final List<Response>? initialResponses;
+
   const QuestionnaireScreen({
     super.key,
     required this.questionnaire,
     required this.interactionID,
+    this.initialScreenIndex,
+    this.initialResponses,
   });
 
   @override
@@ -35,7 +44,44 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     super.initState();
     _questionnaireManager = context.read<QuestionnaireInterface>();
     _responseManager = context.read<ResponseInterface>();
+    if (widget.initialResponses != null) {
+      responseProvider.responses = List<Response>.from(widget.initialResponses!);
+    }
     _loadQuestionnaire();
+  }
+
+  Future<void> _persistCurrentAnswerIfAny() async {
+    if (responseProvider.interactionID == null ||
+        responseProvider.questionID == null) {
+      return;
+    }
+    if (responseProvider.responses.isEmpty) return;
+    final currentResponse = responseProvider.responses.firstWhere(
+      (r) => r.questionID == responseProvider.questionID,
+      orElse: () => responseProvider.responses.last,
+    );
+    await _responseManager.storeResponse(
+      currentResponse,
+      widget.questionnaire.id,
+      responseProvider.questionID!,
+    );
+  }
+
+  Future<void> _saveForLater() async {
+    await _persistCurrentAnswerIfAny();
+    if (!mounted) return;
+    await saveQuestionnaireDraftAndExit(
+      context,
+      draft: DraftQuestionnaire(
+        interactionID: widget.interactionID,
+        savedAt: DateTime.now(),
+        questionnaireJson: widget.questionnaire.toJson(),
+        currentScreenIndex: currentQuestionnaireIndex,
+        responsesJson: responseProvider.responses
+            .map((r) => r.toJson())
+            .toList(),
+      ),
+    );
   }
 
   void nextScreen() {
@@ -127,8 +173,13 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
         );
 
     if (mounted) {
+      var index = widget.initialScreenIndex ?? 0;
+      if (questionnaireScreens.isNotEmpty) {
+        index = index.clamp(0, questionnaireScreens.length - 1);
+      }
       setState(() {
         questionnaireScreensList = questionnaireScreens;
+        currentQuestionnaireIndex = index;
       });
       debugPrint(
         'Loaded questionnaireScreensList: ${questionnaireScreensList.length}',
@@ -163,8 +214,9 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             children: [
               CustomAppBar(
                 leftIcon: null,
-                centerText: "Vragenlijst",
-                rightIcon: null,
+                centerText: 'Vragenlijst',
+                rightIcon: Icons.bookmark_border,
+                onRightIconPressed: () => unawaited(_saveForLater()),
                 showUserIcon: false,
                 useFixedText: true,
                 iconColor: AppColors.textPrimary,
@@ -173,6 +225,28 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                 iconScale: 1.15,
                 userIconScale: 1.15,
               ),
+              if (currentQuestionnaireIndex > 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () => unawaited(_saveForLater()),
+                      icon: const Icon(
+                        Icons.bookmark_add_outlined,
+                        size: 20,
+                        color: AppColors.primaryGreen,
+                      ),
+                      label: const Text(
+                        'Voor later opslaan',
+                        style: TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               Expanded(
                 child: questionnaireScreensList[currentQuestionnaireIndex],
               ),

@@ -9,6 +9,8 @@ import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
+import 'package:wildrapport/config/feature_flags.dart';
+import 'package:wildrapport/screens/profile/bluetooth_contact_settings_screen.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 
 class OverzichtScreen extends StatefulWidget {
@@ -176,28 +178,44 @@ class _OverzichtScreenState extends State<OverzichtScreen> {
                                 }
                               },
                             ),
-                            (
-                              text: 'Zones',
-                              icon: Icons.add_location_alt,
-                              imagePath: null,
-                              key: Key('zones_button'),
-                              onPressed: () {
-                                try {
-                                  navigationManager.pushReplacementForward(
-                                    context,
-                                    const ZonesScreen(),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Er is een fout opgetreden bij het navigeren',
+                            if (FeatureFlags.zonesNavEnabled)
+                              (
+                                text: 'Zones',
+                                icon: Icons.add_location_alt,
+                                imagePath: null,
+                                key: Key('zones_button'),
+                                onPressed: () {
+                                  try {
+                                    navigationManager.pushReplacementForward(
+                                      context,
+                                      const ZonesScreen(),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Er is een fout opgetreden bij het navigeren',
+                                        ),
                                       ),
+                                    );
+                                  }
+                                },
+                              )
+                            else
+                              (
+                                text: 'Bluetooth',
+                                icon: Icons.bluetooth,
+                                imagePath: null,
+                                key: Key('bluetooth_button'),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const BluetoothContactSettingsScreen(),
                                     ),
                                   );
-                                }
-                              },
-                            ),
+                                },
+                              ),
                             (
                               text: 'Uitloggen',
                               icon: Icons.logout,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wildrapport/config/feature_flags.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 
 
@@ -71,11 +72,18 @@ class CustomNavBar extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildNavItem(
-                        tab: NavTab.zones,
-                        icon: Icons.add_location_alt,
-                        label: 'Zones',
-                      ),
+                      if (FeatureFlags.zonesNavEnabled)
+                        _buildNavItem(
+                          tab: NavTab.zones,
+                          icon: Icons.add_location_alt,
+                          label: 'Zones',
+                        ),
+                      if (!FeatureFlags.zonesNavEnabled)
+                        _buildNavItem(
+                          tab: NavTab.bluetooth,
+                          icon: Icons.bluetooth,
+                          label: 'Bluetooth',
+                        ),
                       _buildNavItem(
                         tab: NavTab.kaart,
                         icon: Icons.map,

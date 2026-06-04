@@ -132,7 +132,7 @@ class CustomAppBar extends StatelessWidget {
                   if (rightIcon != null)
                     Padding(
                       padding: EdgeInsets.only(
-                        right: responsive.wp(8), // 8% of screen width
+                        right: responsive.wp(8),
                       ),
                       child: GestureDetector(
                         onTap: onRightIconPressed,
@@ -146,8 +146,8 @@ class CustomAppBar extends StatelessWidget {
                   else if (showUserIcon)
                     Padding(
                       padding: EdgeInsets.only(
-                        right: responsive.wp(8), // 8% of screen width
-                        bottom: responsive.hp(0.8), // nudge slightly upward
+                        right: responsive.wp(8),
+                        bottom: responsive.hp(0.8),
                       ),
                       child: GestureDetector(
                         onTap:

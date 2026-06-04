@@ -94,6 +94,8 @@ class SavedQuestionnairesScreen extends StatelessWidget {
                                       builder: (_) => QuestionnaireScreen(
                                         questionnaire: q,
                                         interactionID: d.interactionID,
+                                        initialScreenIndex: d.currentScreenIndex,
+                                        initialResponses: d.toResponses(),
                                       ),
                                     ),
                                   );

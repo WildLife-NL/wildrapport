@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
+import 'package:wildrapport/config/feature_flags.dart';
 import 'package:wildrapport/screens/zone/alarms_screen.dart';
 import 'package:wildrapport/screens/zone/zones_screen.dart';
 import 'package:wildrapport/screens/shared/rapporteren.dart';
 import 'package:wildrapport/screens/location/kaart_overview_screen.dart';
 import 'package:wildrapport/screens/logbook/logbook_screen.dart';
+import 'package:wildrapport/screens/profile/bluetooth_contact_settings_screen.dart';
 import 'package:wildrapport/screens/profile/profile_screen.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
@@ -40,7 +42,11 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   void initState() {
     super.initState();
-    _currentTab = widget.initialTab ?? NavTab.rapporten;
+    var initial = widget.initialTab ?? NavTab.rapporten;
+    if (!FeatureFlags.zonesNavEnabled && initial == NavTab.zones) {
+      initial = NavTab.kaart;
+    }
+    _currentTab = initial;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(context.read<ContactTracingCoordinator>().initialize());
@@ -49,7 +55,6 @@ class _MainNavScreenState extends State<MainNavScreen> {
 
   void _openAlarmsIfRequested() {
     if (!widget.openAlarmsDirectly || _alarmsNavigationDone) return;
-    if (_currentTab != NavTab.zones) return;
     _alarmsNavigationDone = true;
     context.read<NavigationStateInterface>().pushForward(
           context,
@@ -60,12 +65,29 @@ class _MainNavScreenState extends State<MainNavScreen> {
   int get _currentIndex => _tabToIndex(_currentTab);
 
   static int _tabToIndex(NavTab tab) {
+    if (FeatureFlags.zonesNavEnabled) {
+      switch (tab) {
+        case NavTab.zones:
+        case NavTab.bluetooth:
+          return 0;
+        case NavTab.rapporten:
+          return 1;
+        case NavTab.kaart:
+          return 2;
+        case NavTab.logboek:
+          return 3;
+        case NavTab.profile:
+          return 4;
+      }
+    }
     switch (tab) {
       case NavTab.zones:
         return 0;
-      case NavTab.rapporten:
-        return 1;
+      case NavTab.bluetooth:
+        return 0;
       case NavTab.kaart:
+        return 1;
+      case NavTab.rapporten:
         return 2;
       case NavTab.logboek:
         return 3;
@@ -79,6 +101,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
   }
 
   void _onTabSelected(NavTab tab) {
+    if (!FeatureFlags.zonesNavEnabled && tab == NavTab.zones) return;
     setState(() => _currentTab = tab);
   }
 
@@ -122,22 +145,47 @@ class _MainNavScreenState extends State<MainNavScreen> {
       child: Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: [
-          ZonesScreen(onBackPressed: _onBackFromTab),
-          Rapporteren(
-            key: _currentTab == NavTab.rapporten ? null : ValueKey(_currentTab),
-            onBackPressed: _onBackFromTab,
-          ),
-          KaartOverviewScreen(
-            onBackPressed: _onBackFromTab,
-            isTabActive: _currentTab == NavTab.kaart,
-          ),
-          LogbookScreen(
-            onBackPressed: _onBackFromTab,
-            openRecentSightings: widget.openRecentSightingsDirectly && _currentTab == NavTab.logboek,
-          ),
-          ProfileScreen(onBackPressed: _onBackFromTab),
-        ],
+        children: FeatureFlags.zonesNavEnabled
+            ? [
+                ZonesScreen(onBackPressed: _onBackFromTab),
+                Rapporteren(
+                  key: _currentTab == NavTab.rapporten
+                      ? null
+                      : ValueKey(_currentTab),
+                  onBackPressed: _onBackFromTab,
+                ),
+                KaartOverviewScreen(
+                  onBackPressed: _onBackFromTab,
+                  isTabActive: _currentTab == NavTab.kaart,
+                ),
+                LogbookScreen(
+                  onBackPressed: _onBackFromTab,
+                  openRecentSightings: widget.openRecentSightingsDirectly &&
+                      _currentTab == NavTab.logboek,
+                ),
+                ProfileScreen(onBackPressed: _onBackFromTab),
+              ]
+            : [
+                const BluetoothContactSettingsScreen(
+                  embeddedInMainNav: true,
+                ),
+                KaartOverviewScreen(
+                  onBackPressed: _onBackFromTab,
+                  isTabActive: _currentTab == NavTab.kaart,
+                ),
+                Rapporteren(
+                  key: _currentTab == NavTab.rapporten
+                      ? null
+                      : ValueKey(_currentTab),
+                  onBackPressed: _onBackFromTab,
+                ),
+                LogbookScreen(
+                  onBackPressed: _onBackFromTab,
+                  openRecentSightings: widget.openRecentSightingsDirectly &&
+                      _currentTab == NavTab.logboek,
+                ),
+                ProfileScreen(onBackPressed: _onBackFromTab),
+              ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,

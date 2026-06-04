@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wildrapport/config/feature_flags.dart';
 import 'package:wildrapport/models/enums/nav_tab.dart';
 import 'package:wildrapport/widgets/navigation/custom_nav_bar.dart';
 
@@ -26,7 +27,11 @@ void main() {
         ),
       );
 
-      expect(find.text('Zones'), findsOneWidget);
+      if (FeatureFlags.zonesNavEnabled) {
+        expect(find.text('Zones'), findsOneWidget);
+      } else {
+        expect(find.text('Bluetooth'), findsOneWidget);
+      }
       expect(find.text('Rapporten'), findsOneWidget);
       expect(find.text('Kaart'), findsOneWidget);
       expect(find.text('LogBoek'), findsOneWidget);
@@ -57,7 +62,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           CustomNavBar(
-            currentTab: NavTab.zones,
+            currentTab: NavTab.kaart,
             onTabSelected: (tab) => selected = tab,
           ),
         ),
@@ -67,6 +72,26 @@ void main() {
       await tester.pump();
 
       expect(selected, NavTab.kaart);
+    });
+
+    testWidgets('calls callback when bluetooth tab tapped', (tester) async {
+      if (FeatureFlags.zonesNavEnabled) return;
+
+      NavTab? selected;
+
+      await tester.pumpWidget(
+        _wrap(
+          CustomNavBar(
+            currentTab: NavTab.kaart,
+            onTabSelected: (tab) => selected = tab,
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Bluetooth'));
+      await tester.pump();
+
+      expect(selected, NavTab.bluetooth);
     });
   });
 

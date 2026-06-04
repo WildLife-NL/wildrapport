@@ -6,6 +6,36 @@ import 'package:wildrapport/constants/app_text_theme.dart';
 import 'package:wildrapport/screens/shared/main_nav_screen.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/models/api_models/questionaire.dart';
+import 'package:wildrapport/models/beta_models/response_model.dart';
+
+/// Slaat de vragenlijst op en gaat terug naar het hoofdscherm.
+Future<void> saveQuestionnaireDraftAndExit(
+  BuildContext context, {
+  required DraftQuestionnaire draft,
+}) async {
+  try {
+    await DraftsStore.saveDraft(draft);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Vragenlijst opgeslagen voor later'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const MainNavScreen()),
+      (route) => route.isFirst,
+    );
+  } catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Opslaan mislukt: $e'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
 
 class QuestionnaireHome extends StatelessWidget {
   final VoidCallback nextScreen;
@@ -31,15 +61,16 @@ class QuestionnaireHome extends StatelessWidget {
 
     return Stack(
       children: [
-        // Main content
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: responsive.wp(8),
-            vertical: responsive.hp(5),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+        SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              responsive.wp(8),
+              responsive.hp(5),
+              responsive.wp(8),
+              responsive.hp(4),
+            ),
+            child: Column(
+              children: [
               // Questionnaire name
               Text(
                 questionnaireName,
@@ -120,25 +151,15 @@ class QuestionnaireHome extends StatelessWidget {
                 width: responsive.wp(60),
                 height: responsive.hp(6),
                 child: ElevatedButton(
-                  onPressed: () async {
-                    // Save draft locally for later resume
-                    await DraftsStore.saveDraft(
-                      DraftQuestionnaire(
-                        interactionID: interactionID,
-                        savedAt: DateTime.now(),
-                        questionnaireJson: questionnaire.toJson(),
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vragenlijst opgeslagen voor later')),
-                    );
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MainNavScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: () => saveQuestionnaireDraftAndExit(
+                    context,
+                    draft: DraftQuestionnaire(
+                      interactionID: interactionID,
+                      savedAt: DateTime.now(),
+                      questionnaireJson: questionnaire.toJson(),
+                      currentScreenIndex: 0,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -161,20 +182,18 @@ class QuestionnaireHome extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         ),
-        // Small close button in top-right corner
         Positioned(
-          top: responsive.hp(2),
+          top: responsive.hp(1),
           right: responsive.wp(1.2),
           child: IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainNavScreen(),
-                ),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainNavScreen()),
+                (route) => route.isFirst,
               );
             },
             icon: Icon(
@@ -195,23 +214,44 @@ class DraftQuestionnaire {
   final String interactionID;
   final DateTime savedAt;
   final Map<String, dynamic> questionnaireJson;
+  final int currentScreenIndex;
+  final List<Map<String, dynamic>> responsesJson;
+
   DraftQuestionnaire({
     required this.interactionID,
     required this.savedAt,
     required this.questionnaireJson,
-  });
+    this.currentScreenIndex = 0,
+    List<Map<String, dynamic>>? responsesJson,
+  }) : responsesJson = responsesJson ?? const [];
 
   Map<String, dynamic> toJson() => {
         'interactionID': interactionID,
         'savedAt': savedAt.toIso8601String(),
         'questionnaire': questionnaireJson,
+        'currentScreenIndex': currentScreenIndex,
+        'responses': responsesJson,
       };
 
-  static DraftQuestionnaire fromJson(Map<String, dynamic> json) => DraftQuestionnaire(
-        interactionID: json['interactionID'] as String,
-        savedAt: DateTime.parse(json['savedAt'] as String),
-        questionnaireJson: json['questionnaire'] as Map<String, dynamic>,
-      );
+  static DraftQuestionnaire fromJson(Map<String, dynamic> json) {
+    final rawResponses = json['responses'];
+    return DraftQuestionnaire(
+      interactionID: json['interactionID'] as String,
+      savedAt: DateTime.parse(json['savedAt'] as String),
+      questionnaireJson: Map<String, dynamic>.from(
+        json['questionnaire'] as Map,
+      ),
+      currentScreenIndex: json['currentScreenIndex'] as int? ?? 0,
+      responsesJson: rawResponses is List
+          ? rawResponses
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList()
+          : const [],
+    );
+  }
+
+  List<Response> toResponses() =>
+      responsesJson.map((m) => Response.fromJson(m)).toList();
 
   Questionnaire toQuestionnaire() => Questionnaire.fromJson(questionnaireJson);
 }

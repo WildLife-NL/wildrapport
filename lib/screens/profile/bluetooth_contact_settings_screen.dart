@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
@@ -9,12 +11,19 @@ import 'package:wildrapport/services/contact_tracing_monitor.dart';
 import 'package:wildrapport/services/contact_tracing_preferences.dart';
 import 'package:wildrapport/models/api_models/contact_model.dart';
 import 'package:wildrapport/utils/ble_mac_format.dart';
+import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/utils/snack_bar_utils.dart';
 import 'package:wildrapport/widgets/contact_tracing/contact_tracing_info_panel.dart';
 
 /// Interval, status en instellingen voor Bluetooth-contacttracing.
 class BluetoothContactSettingsScreen extends StatefulWidget {
-  const BluetoothContactSettingsScreen({super.key});
+  const BluetoothContactSettingsScreen({
+    super.key,
+    this.embeddedInMainNav = false,
+  });
+
+  /// True when shown as a main bottom-nav tab (no back arrow; outer nav stays visible).
+  final bool embeddedInMainNav;
 
   @override
   State<BluetoothContactSettingsScreen> createState() =>
@@ -109,6 +118,24 @@ class _BluetoothContactSettingsScreenState
     );
   }
 
+  Future<void> _setBackgroundEnabled(bool enabled) async {
+    if (enabled) {
+      if (!kIsWeb && Platform.isAndroid) {
+        await NotificationService.instance
+            .requestAndroidNotificationPermission();
+      } else if (!kIsWeb && Platform.isIOS) {
+        await NotificationService.instance.requestIosNotificationPermission();
+      }
+    }
+    if (!mounted) return;
+    final contactEnded = await _coordinator.setBackgroundEnabled(enabled);
+    if (!mounted) return;
+    if (!enabled && contactEnded) {
+      _showSnack('Bluetooth uit — contact beëindigd');
+    }
+    setState(() {});
+  }
+
   Widget _settingsSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 12, 4, 4),
@@ -168,8 +195,9 @@ class _BluetoothContactSettingsScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFEFF2EF),
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.embeddedInMainNav,
         title: const Text(
-          'Interval & status',
+          'Bluetooth',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         backgroundColor: const Color(0xFFEFF2EF),
@@ -178,6 +206,65 @@ class _BluetoothContactSettingsScreenState
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+              child: SwitchListTile(
+                secondary: Icon(
+                  Icons.bluetooth_rounded,
+                  color: AppColors.primaryGreen,
+                ),
+                title: const Text(
+                  'Bluetooth contacttracing',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  coordinator.backgroundEnabled
+                      ? 'Achtergrond elke '
+                          '${coordinator.backgroundIntervalSeconds} s'
+                      : 'Scant collars en start contact automatisch',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                value: coordinator.backgroundEnabled,
+                activeThumbColor: Colors.white,
+                activeTrackColor: AppColors.primaryGreen,
+                onChanged: (v) => unawaited(_setBackgroundEnabled(v)),
+              ),
+            ),
+          ),
+          if (!coordinator.backgroundEnabled) ...[
+            const SizedBox(height: 8),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Zet Bluetooth aan om collars in de buurt te scannen en '
+                      'contacten automatisch te starten.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    FilledButton.icon(
+                      onPressed: () => unawaited(_setBackgroundEnabled(true)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      icon: const Icon(Icons.bluetooth_connected),
+                      label: const Text('Bluetooth aanzetten'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -200,17 +287,6 @@ class _BluetoothContactSettingsScreenState
                       fontSize: 15,
                     ),
                   ),
-                  if (!coordinator.backgroundEnabled) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'Achtergrondscan staat uit. Zet de schakelaar aan onder Profiel → Voorkeuren.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
                   if (hasActive && monitor.activeContact != null) ...[
                     const SizedBox(height: 14),
                     ContactTracingInfoPanel(
@@ -248,14 +324,15 @@ class _BluetoothContactSettingsScreenState
               ),
             ),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _settingsSectionTitle('Instellingen'),
-                  _intervalSlider(
+          if (coordinator.backgroundEnabled)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _settingsSectionTitle('Interval & instellingen'),
+                    _intervalSlider(
                     label:
                         'Achtergrondscan: ${coordinator.backgroundIntervalSeconds} s',
                     hint:
@@ -328,10 +405,10 @@ class _BluetoothContactSettingsScreenState
                       unawaited(coordinator.setOnlySmartParks(v));
                     },
                   ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           if (coordinator.backgroundEnabled && !hasActive) ...[
             const SizedBox(height: 8),
             _settingsSectionTitle('Laatst gezien in buurt'),
