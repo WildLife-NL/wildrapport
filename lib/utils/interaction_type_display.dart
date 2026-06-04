@@ -1,3 +1,5 @@
+import 'package:wildrapport/utils/vicinity_tracker_pin.dart';
+
 /// Normalized interaction keys used in the app:
 /// `waarneming`, `gewasschade`, `verkeersongeval`, `collar`, `camera`, `acoustic`.
 String? normalizeReportTypeKey(
@@ -105,6 +107,9 @@ int? _parseTypeId(Object? value) {
 
 /// Resolves report type from API interaction JSON (vicinity / query).
 String? reportTypeFromInteractionJson(Map<String, dynamic> json) {
+  // Must run before typeID/name heuristics — trackers are often mislabeled as waarneming.
+  if (isTrackerCollarVicinityJson(json)) return 'collar';
+
   final typeNode = json['type'] is Map
       ? Map<String, dynamic>.from(json['type'] as Map)
       : json['interactionType'] is Map
@@ -119,8 +124,8 @@ String? reportTypeFromInteractionJson(Map<String, dynamic> json) {
   return inferReportTypeKey(
     typeName: typeName,
     typeId: typeId,
-    hasReportOfSighting: json['reportOfSighting'] != null,
-    hasReportOfCollision: json['reportOfCollision'] != null,
-    hasReportOfDamage: json['reportOfDamage'] != null,
+    hasReportOfSighting: reportBlockHasCitizenContent(json['reportOfSighting']),
+    hasReportOfCollision: reportBlockHasCitizenContent(json['reportOfCollision']),
+    hasReportOfDamage: reportBlockHasCitizenContent(json['reportOfDamage']),
   );
 }

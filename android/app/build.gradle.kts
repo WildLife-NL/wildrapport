@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wildrapport"
+    namespace = "com.wildlife.wildrapport"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.wildrapport"
+        applicationId = "com.wildlife.wildrapport"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
