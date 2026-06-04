@@ -20,6 +20,12 @@ class AnimalActivityScreen extends StatefulWidget {
 }
 
 class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
+  final _humanActivityOtherController = TextEditingController();
+  final _perceivedAnimalActivityOtherController = TextEditingController();
+  final _humanOtherFocusNode = FocusNode();
+  final _perceivedOtherFocusNode = FocusNode();
+  final _scrollController = ScrollController();
+
   String _humanActivity = SightingReportActivityCatalog.defaultHumanActivity;
   String _perceivedAnimalActivity =
       SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
@@ -35,23 +41,88 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
     _humanActivity =
         sighting?.humanActivity ?? SightingReportActivityCatalog.defaultHumanActivity;
-
     _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
         SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
+
+    _humanActivityOtherController.text = sighting?.humanActivityOther?.trim() ?? '';
+    _perceivedAnimalActivityOtherController.text =
+        sighting?.perceivedAnimalActivityOther?.trim() ?? '';
+
+    _humanOtherFocusNode.addListener(_scrollFocusedFieldIntoView);
+    _perceivedOtherFocusNode.addListener(_scrollFocusedFieldIntoView);
 
     _catalogReady = SightingReportActivityCatalog.ensureLoaded(
       context.read<ApiClient>(),
     );
   }
 
+  @override
+  void dispose() {
+    _humanOtherFocusNode.removeListener(_scrollFocusedFieldIntoView);
+    _perceivedOtherFocusNode.removeListener(_scrollFocusedFieldIntoView);
+    _humanActivityOtherController.dispose();
+    _perceivedAnimalActivityOtherController.dispose();
+    _humanOtherFocusNode.dispose();
+    _perceivedOtherFocusNode.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollFocusedFieldIntoView() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      final target = _scrollController.position.maxScrollExtent;
+      _scrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  bool _validateOtherFields() {
+    if (SightingReportActivityCatalog.isOtherHuman(_humanActivity) &&
+        _humanActivityOtherController.text.trim().isEmpty) {
+      _showValidationMessage('Vul in wat je deed bij "Anders, namelijk".');
+      _humanOtherFocusNode.requestFocus();
+      return false;
+    }
+    if (SightingReportActivityCatalog.isOtherPerceivedAnimal(
+          _perceivedAnimalActivity,
+        ) &&
+        _perceivedAnimalActivityOtherController.text.trim().isEmpty) {
+      _showValidationMessage('Vul in wat het dier deed bij "Anders, namelijk".');
+      _perceivedOtherFocusNode.requestFocus();
+      return false;
+    }
+    return true;
+  }
+
+  void _showValidationMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   void _handleNext() {
+    if (!_validateOtherFields()) return;
+
     final sightingManager = context.read<AnimalSightingReportingInterface>();
     final sighting = sightingManager.getCurrentanimalSighting();
 
     if (sighting != null) {
       final updatedSighting = sighting.copyWith(
         humanActivity: _humanActivity,
+        humanActivityOther: SightingReportActivityCatalog.isOtherHuman(_humanActivity)
+            ? _humanActivityOtherController.text.trim()
+            : null,
         perceivedAnimalActivity: _perceivedAnimalActivity,
+        perceivedAnimalActivityOther:
+            SightingReportActivityCatalog.isOtherPerceivedAnimal(
+              _perceivedAnimalActivity,
+            )
+                ? _perceivedAnimalActivityOtherController.text.trim()
+                : null,
       );
 
       sightingManager.updateCurrentanimalSighting(updatedSighting);
@@ -73,8 +144,11 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -102,14 +176,14 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                       ),
                     );
                   }
-                  return _buildForm();
+                  return _buildForm(keyboardInset);
                 },
               ),
             ),
             SafeArea(
               top: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + keyboardInset),
                 child: Row(
                   children: [
                     Expanded(
@@ -170,10 +244,17 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(double keyboardInset) {
     final catalog = SightingReportActivityCatalog.instance;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+    final showHumanOther =
+        SightingReportActivityCatalog.isOtherHuman(_humanActivity);
+    final showPerceivedOther =
+        SightingReportActivityCatalog.isOtherPerceivedAnimal(_perceivedAnimalActivity);
+
+    return SingleChildScrollView(
+      controller: _scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.fromLTRB(16, 2, 16, 24 + keyboardInset),
       child: Card(
         elevation: 0,
         color: Colors.white,
@@ -207,6 +288,14 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                   setState(() => _humanActivity = v);
                 },
               ),
+              if (showHumanOther) ...[
+                const SizedBox(height: 10),
+                _otherTextField(
+                  controller: _humanActivityOtherController,
+                  focusNode: _humanOtherFocusNode,
+                  hint: 'Beschrijf jouw activiteit',
+                ),
+              ],
               const SizedBox(height: 16),
               _activityDropdown(
                 label: 'Wat deed het dier?',
@@ -216,10 +305,56 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                   setState(() => _perceivedAnimalActivity = v);
                 },
               ),
+              if (showPerceivedOther) ...[
+                const SizedBox(height: 10),
+                _otherTextField(
+                  controller: _perceivedAnimalActivityOtherController,
+                  focusNode: _perceivedOtherFocusNode,
+                  hint: 'Beschrijf de activiteit van het dier',
+                ),
+              ],
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _otherTextField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String hint,
+  }) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      textInputAction: TextInputAction.done,
+      maxLines: 2,
+      minLines: 1,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(
+            color: Color(0xFF999999),
+            width: 1.2,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(
+            color: Color(0xFF37A904),
+            width: 2,
+          ),
+        ),
+      ),
+      onChanged: (_) => setState(() {}),
     );
   }
 
