@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:wildrapport/models/animal_waarneming_models/animal_pin.dart';
 import 'package:wildrapport/models/api_models/detection_pin.dart';
 import 'package:wildrapport/models/api_models/interaction_query_result.dart';
+import 'package:wildrapport/utils/vicinity_tracker_pin.dart';
 
 class Vicinity {
   final List<AnimalPin> animals;
@@ -60,14 +61,23 @@ class Vicinity {
 
     for (final item in interactionsList) {
       if (item is Map) {
+        final map = item is Map<String, dynamic>
+            ? item
+            : Map<String, dynamic>.from(item);
+
+        if (isTrackerCollarVicinityJson(map)) {
+          try {
+            animals.add(AnimalPin.fromJson(map));
+            continue;
+          } catch (e) {
+            debugPrint(
+              '[Vicinity] Tracker in interactions[] — parse as animal failed: $e',
+            );
+          }
+        }
+
         try {
-          interactions.add(
-            InteractionQueryResult.fromJson(
-              item is Map<String, dynamic>
-                  ? item
-                  : Map<String, dynamic>.from(item),
-            ),
-          );
+          interactions.add(InteractionQueryResult.fromJson(map));
         } catch (e) {
           debugPrint('[Vicinity] Failed to parse interaction: $e');
           debugPrint('[Vicinity] Interaction JSON: $item');

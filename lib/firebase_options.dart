@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '635742717996',
     projectId: 'wildrapport',
     storageBucket: 'wildrapport.firebasestorage.app',
-    iosBundleId: 'com.example.wildrapport',
+    iosBundleId: 'com.wildlife.wildrapport',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '635742717996',
     projectId: 'wildrapport',
     storageBucket: 'wildrapport.firebasestorage.app',
-    iosBundleId: 'com.example.wildrapport',
+    iosBundleId: 'com.wildlife.wildrapport',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

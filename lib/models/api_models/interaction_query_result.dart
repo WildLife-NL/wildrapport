@@ -119,18 +119,9 @@ class InteractionQueryResult {
               .toList();
     }
 
-    final typeId = _parseTypeId(
-      json['typeID'] ?? typeNode['ID'] ?? typeNode['id'],
-    );
     final rawTypeName =
         (typeNode['name'] ?? typeNode['displayName'])?.toString();
-    final resolvedTypeName = inferReportTypeKey(
-      typeName: rawTypeName,
-      typeId: typeId,
-      hasReportOfSighting: reportOfSighting != null,
-      hasReportOfCollision: reportOfCollision != null,
-      hasReportOfDamage: reportOfDamage != null,
-    );
+    final resolvedTypeName = reportTypeFromInteractionJson(json);
 
     return InteractionQueryResult(
       id: rawId,
@@ -172,12 +163,4 @@ class InteractionQueryResult {
     if (v is num) return v.toDouble();
     return double.tryParse(v.toString());
   }
-
-  static int? _parseTypeId(Object? value) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value.trim());
-    return null;
-  }
-
 }
