@@ -24,7 +24,6 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
   final _perceivedAnimalActivityOtherController = TextEditingController();
   final _humanOtherFocusNode = FocusNode();
   final _perceivedOtherFocusNode = FocusNode();
-  final _scrollController = ScrollController();
 
   String _humanActivity = SightingReportActivityCatalog.defaultHumanActivity;
   String _perceivedAnimalActivity =
@@ -48,9 +47,6 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     _perceivedAnimalActivityOtherController.text =
         sighting?.perceivedAnimalActivityOther?.trim() ?? '';
 
-    _humanOtherFocusNode.addListener(_scrollFocusedFieldIntoView);
-    _perceivedOtherFocusNode.addListener(_scrollFocusedFieldIntoView);
-
     _catalogReady = SightingReportActivityCatalog.ensureLoaded(
       context.read<ApiClient>(),
     );
@@ -58,26 +54,11 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
   @override
   void dispose() {
-    _humanOtherFocusNode.removeListener(_scrollFocusedFieldIntoView);
-    _perceivedOtherFocusNode.removeListener(_scrollFocusedFieldIntoView);
     _humanActivityOtherController.dispose();
     _perceivedAnimalActivityOtherController.dispose();
     _humanOtherFocusNode.dispose();
     _perceivedOtherFocusNode.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _scrollFocusedFieldIntoView() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
-      final target = _scrollController.position.maxScrollExtent;
-      _scrollController.animateTo(
-        target,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    });
   }
 
   bool _validateOtherFields() {
@@ -144,14 +125,13 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F4),
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         bottom: false,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CustomAppBar(
               centerText: 'Waarneming',
@@ -176,65 +156,8 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
                       ),
                     );
                   }
-                  return _buildForm(keyboardInset);
+                  return _buildScrollableContent();
                 },
-              ),
-            ),
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + keyboardInset),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _handleBack,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(
-                            color: Color(0xFF999999),
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          foregroundColor: Colors.black,
-                          backgroundColor: Colors.white,
-                        ),
-                        child: const Text(
-                          'Vorige',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: SightingReportActivityCatalog.isLoaded
-                            ? _handleNext
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: const Color(0xFF37A904),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text(
-                          'Volgende',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
@@ -244,79 +167,139 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     );
   }
 
-  Widget _buildForm(double keyboardInset) {
+  Widget _buildScrollableContent() {
     final catalog = SightingReportActivityCatalog.instance;
     final showHumanOther =
         SightingReportActivityCatalog.isOtherHuman(_humanActivity);
     final showPerceivedOther =
         SightingReportActivityCatalog.isOtherPerceivedAnimal(_perceivedAnimalActivity);
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return SingleChildScrollView(
-      controller: _scrollController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(16, 2, 16, 24 + keyboardInset),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(
-            color: Color(0xFF999999),
-            width: 1,
+      padding: EdgeInsets.fromLTRB(16, 2, 16, 16 + bottomInset),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Card(
+            elevation: 0,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(
+                color: Color(0xFF999999),
+                width: 1,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Activiteit',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _activityDropdown(
+                    label: 'Wat deed je toen je het dier zag?',
+                    value: _humanActivity,
+                    options: catalog.humanActivities,
+                    onChanged: (v) {
+                      setState(() => _humanActivity = v);
+                    },
+                  ),
+                  if (showHumanOther) ...[
+                    const SizedBox(height: 10),
+                    _otherTextField(
+                      controller: _humanActivityOtherController,
+                      focusNode: _humanOtherFocusNode,
+                      hint: 'Beschrijf jouw activiteit',
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  _activityDropdown(
+                    label: 'Wat deed het dier?',
+                    value: _perceivedAnimalActivity,
+                    options: catalog.perceivedAnimalActivities,
+                    onChanged: (v) {
+                      setState(() => _perceivedAnimalActivity = v);
+                    },
+                  ),
+                  if (showPerceivedOther) ...[
+                    const SizedBox(height: 10),
+                    _otherTextField(
+                      controller: _perceivedAnimalActivityOtherController,
+                      focusNode: _perceivedOtherFocusNode,
+                      hint: 'Beschrijf de activiteit van het dier',
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Activiteit',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _activityDropdown(
-                label: 'Wat deed je toen je het dier zag?',
-                value: _humanActivity,
-                options: catalog.humanActivities,
-                onChanged: (v) {
-                  setState(() => _humanActivity = v);
-                },
-              ),
-              if (showHumanOther) ...[
-                const SizedBox(height: 10),
-                _otherTextField(
-                  controller: _humanActivityOtherController,
-                  focusNode: _humanOtherFocusNode,
-                  hint: 'Beschrijf jouw activiteit',
-                ),
-              ],
-              const SizedBox(height: 16),
-              _activityDropdown(
-                label: 'Wat deed het dier?',
-                value: _perceivedAnimalActivity,
-                options: catalog.perceivedAnimalActivities,
-                onChanged: (v) {
-                  setState(() => _perceivedAnimalActivity = v);
-                },
-              ),
-              if (showPerceivedOther) ...[
-                const SizedBox(height: 10),
-                _otherTextField(
-                  controller: _perceivedAnimalActivityOtherController,
-                  focusNode: _perceivedOtherFocusNode,
-                  hint: 'Beschrijf de activiteit van het dier',
-                ),
-              ],
-            ],
-          ),
-        ),
+          const SizedBox(height: 16),
+          _navigationButtons(),
+        ],
       ),
+    );
+  }
+
+  Widget _navigationButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: _handleBack,
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: const BorderSide(
+                color: Color(0xFF999999),
+                width: 1.5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.white,
+            ),
+            child: const Text(
+              'Vorige',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed:
+                SightingReportActivityCatalog.isLoaded ? _handleNext : null,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              backgroundColor: const Color(0xFF37A904),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(
+              'Volgende',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -325,13 +308,26 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     required FocusNode focusNode,
     required String hint,
   }) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      textInputAction: TextInputAction.done,
-      maxLines: 2,
-      minLines: 1,
-      decoration: InputDecoration(
+    return Builder(
+      builder: (fieldContext) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          textInputAction: TextInputAction.next,
+          keyboardType: TextInputType.text,
+          scrollPadding: const EdgeInsets.only(bottom: 220),
+          onTap: () {
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (!fieldContext.mounted) return;
+              Scrollable.ensureVisible(
+                fieldContext,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                alignment: 0.25,
+              );
+            });
+          },
+          decoration: InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
@@ -354,7 +350,8 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
           ),
         ),
       ),
-      onChanged: (_) => setState(() {}),
+        );
+      },
     );
   }
 
@@ -364,6 +361,10 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     required List<SightingReportActivityOption> options,
     required ValueChanged<String> onChanged,
   }) {
+    final resolvedValue = options.any((o) => o.apiValue == value)
+        ? value
+        : options.last.apiValue;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -377,11 +378,10 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          key: ValueKey(value),
-          menuMaxHeight: 600,
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-          ),
+          value: resolvedValue,
+          menuMaxHeight: 400,
+          isExpanded: true,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
           borderRadius: BorderRadius.circular(16),
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(
@@ -389,9 +389,6 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             fontWeight: FontWeight.w500,
             color: AppColors.textPrimary,
           ),
-          initialValue: options.any((o) => o.apiValue == value)
-              ? value
-              : options.last.apiValue,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
