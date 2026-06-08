@@ -63,23 +63,13 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   ].firstWhere((s) => s.isNotEmpty, orElse: () => '');
 
   if (body.isNotEmpty) {
+    if (looksLikeTechnicalAlarmBody(body)) {
+      return (title: title, body: friendlyAlarmFallbackBody(data));
+    }
     return (title: title, body: body);
   }
 
-  // Data-only message without known keys — still surface something visible.
-  if (data.isNotEmpty) {
-    final summary = data.entries
-        .where((e) => e.value != null && e.value.toString().isNotEmpty)
-        .map((e) => '${e.key}: ${e.value}')
-        .take(2)
-        .join('\n');
-    return (
-      title: title,
-      body: summary.isEmpty ? 'Nieuwe melding' : summary,
-    );
-  }
-
-  return (title: title, body: '');
+  return (title: title, body: friendlyAlarmFallbackBody(data));
 }
 
 Future<void> _showRemoteMessageAsNotification(
@@ -132,6 +122,61 @@ Future<void> _showRemoteMessageAsNotification(
     payload: payload,
     skipPermissionCheck: skipPermissionCheck,
   );
+}
+
+bool looksLikeTechnicalAlarmBody(String text) {
+  final trimmed = text.trim();
+  if (trimmed.isEmpty) return false;
+
+  final technicalKeyPattern = RegExp(
+    r'\b(?:alarm|zone|species|animal)?id\b\s*:',
+    caseSensitive: false,
+  );
+  if (technicalKeyPattern.hasMatch(trimmed)) return true;
+
+  final uuidPattern = RegExp(
+    r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
+  );
+  return uuidPattern.hasMatch(trimmed) && trimmed.contains('\n');
+}
+
+String friendlyAlarmFallbackBody(Map<String, dynamic> data) {
+  String readFirstNonEmpty(List<String> keys) {
+    for (final key in keys) {
+      final value = data[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  final speciesName = readFirstNonEmpty(const [
+    'speciesName',
+    'animalName',
+    'commonName',
+    'species',
+    'animal',
+    'speciesLabel',
+    'animalLabel',
+  ]);
+  final zoneName = readFirstNonEmpty(const [
+    'zoneName',
+    'zone',
+    'zoneLabel',
+    'areaName',
+    'locationName',
+  ]);
+
+  if (speciesName.isNotEmpty && zoneName.isNotEmpty) {
+    return 'Er is een $speciesName in $zoneName.';
+  }
+  if (speciesName.isNotEmpty) {
+    return 'Er is een $speciesName gemeld.';
+  }
+  if (zoneName.isNotEmpty) {
+    return 'Er is activiteit in $zoneName.';
+  }
+
+  return 'Nieuw alarm — open de app voor details.';
 }
 
 bool _firebaseMessageListenersAttached = false;
