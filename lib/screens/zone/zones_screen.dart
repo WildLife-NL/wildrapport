@@ -92,9 +92,15 @@ class ZonesScreen extends StatelessWidget {
                     _MenuCard(
                       icon: Icons.remove_circle_outline,
                       label: 'Alarm verwijderen voor diersoort',
-                      description: 'Verwijder soort uit een zone',
+                      description: FeatureFlags.removeSpeciesFromZoneEnabled
+                          ? 'Verwijder soort uit een zone'
+                          : 'Tijdelijk niet beschikbaar',
+                      enabled: FeatureFlags.removeSpeciesFromZoneEnabled,
                       onPressed: () {
-                        nav.pushForward(context, const RemoveSpeciesFromZoneScreen());
+                        nav.pushForward(
+                          context,
+                          const RemoveSpeciesFromZoneScreen(),
+                        );
                       },
                     ),
                   ],

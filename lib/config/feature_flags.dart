@@ -5,4 +5,7 @@ abstract final class FeatureFlags {
 
   /// Adding species / alarm animals to a zone (disabled in current release).
   static const bool addSpeciesToZoneEnabled = false;
+
+  /// Removing species alarms from a zone (disabled in current release).
+  static const bool removeSpeciesFromZoneEnabled = false;
 }
