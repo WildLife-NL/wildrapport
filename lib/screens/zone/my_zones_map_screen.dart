@@ -12,6 +12,7 @@ import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/utils/location_sharing_dialog.dart';
 import 'package:wildrapport/utils/responsive_utils.dart';
 import 'package:wildrapport/models/api_models/species.dart';
+import 'package:wildrapport/config/feature_flags.dart';
 import 'package:wildrapport/screens/zone/add_zone_screen.dart';
 import 'package:wildrapport/screens/zone/species_grid_picker_screen.dart';
 import 'package:wildrapport/utils/zone_api_parser.dart';
@@ -957,13 +958,14 @@ class _ZoneActionsMenu extends StatelessWidget {
             color: Colors.red,
           ),
         ),
-        const PopupMenuItem(
-          value: 'add',
-          child: _ZoneMenuRow(
-            icon: Icons.add,
-            label: 'Dier toevoegen',
+        if (FeatureFlags.addSpeciesToZoneEnabled)
+          const PopupMenuItem(
+            value: 'add',
+            child: _ZoneMenuRow(
+              icon: Icons.add,
+              label: 'Dier toevoegen',
+            ),
           ),
-        ),
       ],
     );
   }

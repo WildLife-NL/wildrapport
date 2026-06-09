@@ -132,7 +132,7 @@ class NotificationNavigationHandler {
     nav.pushAndRemoveUntil(
       MaterialPageRoute(
         builder: (_) => const MainNavScreen(
-          initialTab: NavTab.kaart,
+          initialTab: NavTab.zones,
           openAlarmsDirectly: true,
         ),
       ),

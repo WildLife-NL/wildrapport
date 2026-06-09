@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wildrapport/config/feature_flags.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/interfaces/state/navigation_state_interface.dart';
 import 'package:wildrapport/screens/zone/add_zone_screen.dart';
@@ -79,7 +80,10 @@ class ZonesScreen extends StatelessWidget {
                     _MenuCard(
                       icon: Icons.pets,
                       label: 'Alarm instellen voor diersoort',
-                      description: 'Voeg soort toe aan een zone',
+                      description: FeatureFlags.addSpeciesToZoneEnabled
+                          ? 'Voeg soort toe aan een zone'
+                          : 'Tijdelijk niet beschikbaar',
+                      enabled: FeatureFlags.addSpeciesToZoneEnabled,
                       onPressed: () {
                         nav.pushForward(context, const AddSpeciesToZoneScreen());
                       },
@@ -109,30 +113,39 @@ class _MenuCard extends StatelessWidget {
   final String label;
   final String description;
   final VoidCallback onPressed;
+  final bool enabled;
 
   const _MenuCard({
     required this.icon,
     required this.label,
     required this.description,
     required this.onPressed,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final responsive = context.responsive;
+    final iconColor =
+        enabled ? AppColors.primaryGreen : Colors.grey.shade400;
+    final titleColor =
+        enabled ? AppColors.textPrimary : Colors.grey.shade500;
+    final descriptionColor =
+        enabled ? Colors.grey.shade600 : Colors.grey.shade400;
+
     return SizedBox(
       width: double.infinity,
       height: 124,
       child: GestureDetector(
-        onTap: onPressed,
+        onTap: enabled ? onPressed : null,
         child: Card(
-          elevation: 2,
+          elevation: enabled ? 2 : 0,
           shadowColor: Colors.black12,
-          color: Colors.white,
+          color: enabled ? Colors.white : Colors.grey.shade100,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
             side: BorderSide(
-              color: Colors.grey.shade300,
+              color: enabled ? Colors.grey.shade300 : Colors.grey.shade300,
               width: 1.5,
             ),
           ),
@@ -144,7 +157,7 @@ class _MenuCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(icon, color: AppColors.primaryGreen, size: 28),
+                Icon(icon, color: iconColor, size: 28),
                 SizedBox(width: responsive.wp(5)),
                 Expanded(
                   child: Column(
@@ -156,7 +169,7 @@ class _MenuCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: responsive.fontSize(16),
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: titleColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -164,7 +177,7 @@ class _MenuCard extends StatelessWidget {
                         description,
                         style: TextStyle(
                           fontSize: responsive.fontSize(12),
-                          color: Colors.grey.shade600,
+                          color: descriptionColor,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -175,7 +188,7 @@ class _MenuCard extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 18,
-                  color: Colors.grey.shade400,
+                  color: enabled ? Colors.grey.shade400 : Colors.grey.shade300,
                 ),
               ],
             ),
