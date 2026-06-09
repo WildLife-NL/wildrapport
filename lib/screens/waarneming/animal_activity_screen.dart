@@ -10,10 +10,7 @@ import 'package:wildrapport/widgets/shared_ui_widgets/app_bar.dart';
 class AnimalActivityScreen extends StatefulWidget {
   final int totalCount;
 
-  const AnimalActivityScreen({
-    super.key,
-    required this.totalCount,
-  });
+  const AnimalActivityScreen({super.key, required this.totalCount});
 
   @override
   State<AnimalActivityScreen> createState() => _AnimalActivityScreenState();
@@ -36,14 +33,19 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     super.initState();
 
     final sighting =
-        context.read<AnimalSightingReportingInterface>().getCurrentanimalSighting();
+        context
+            .read<AnimalSightingReportingInterface>()
+            .getCurrentanimalSighting();
 
     _humanActivity =
-        sighting?.humanActivity ?? SightingReportActivityCatalog.defaultHumanActivity;
-    _perceivedAnimalActivity = sighting?.perceivedAnimalActivity ??
+        sighting?.humanActivity ??
+        SightingReportActivityCatalog.defaultHumanActivity;
+    _perceivedAnimalActivity =
+        sighting?.perceivedAnimalActivity ??
         SightingReportActivityCatalog.defaultPerceivedAnimalActivity;
 
-    _humanActivityOtherController.text = sighting?.humanActivityOther?.trim() ?? '';
+    _humanActivityOtherController.text =
+        sighting?.humanActivityOther?.trim() ?? '';
     _perceivedAnimalActivityOtherController.text =
         sighting?.perceivedAnimalActivityOther?.trim() ?? '';
 
@@ -72,7 +74,9 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
           _perceivedAnimalActivity,
         ) &&
         _perceivedAnimalActivityOtherController.text.trim().isEmpty) {
-      _showValidationMessage('Vul in wat het dier deed bij "Anders, namelijk".');
+      _showValidationMessage(
+        'Vul in wat het dier deed bij "Anders, namelijk".',
+      );
       _perceivedOtherFocusNode.requestFocus();
       return false;
     }
@@ -80,9 +84,9 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
   }
 
   void _showValidationMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _handleNext() {
@@ -94,14 +98,15 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     if (sighting != null) {
       final updatedSighting = sighting.copyWith(
         humanActivity: _humanActivity,
-        humanActivityOther: SightingReportActivityCatalog.isOtherHuman(_humanActivity)
-            ? _humanActivityOtherController.text.trim()
-            : null,
+        humanActivityOther:
+            SightingReportActivityCatalog.isOtherHuman(_humanActivity)
+                ? _humanActivityOtherController.text.trim()
+                : null,
         perceivedAnimalActivity: _perceivedAnimalActivity,
         perceivedAnimalActivityOther:
             SightingReportActivityCatalog.isOtherPerceivedAnimal(
-              _perceivedAnimalActivity,
-            )
+                  _perceivedAnimalActivity,
+                )
                 ? _perceivedAnimalActivityOtherController.text.trim()
                 : null,
       );
@@ -112,9 +117,9 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnimalWaarnemingSummaryScreen(
-          totalCount: widget.totalCount,
-        ),
+        builder:
+            (context) =>
+                AnimalWaarnemingSummaryScreen(totalCount: widget.totalCount),
       ),
     );
   }
@@ -169,10 +174,13 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
 
   Widget _buildScrollableContent() {
     final catalog = SightingReportActivityCatalog.instance;
-    final showHumanOther =
-        SightingReportActivityCatalog.isOtherHuman(_humanActivity);
+    final showHumanOther = SightingReportActivityCatalog.isOtherHuman(
+      _humanActivity,
+    );
     final showPerceivedOther =
-        SightingReportActivityCatalog.isOtherPerceivedAnimal(_perceivedAnimalActivity);
+        SightingReportActivityCatalog.isOtherPerceivedAnimal(
+          _perceivedAnimalActivity,
+        );
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return SingleChildScrollView(
@@ -186,10 +194,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(
-                color: Color(0xFF999999),
-                width: 1,
-              ),
+              side: const BorderSide(color: Color(0xFF999999), width: 1),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -258,10 +263,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             onPressed: _handleBack,
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              side: const BorderSide(
-                color: Color(0xFF999999),
-                width: 1.5,
-              ),
+              side: const BorderSide(color: Color(0xFF999999), width: 1.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
               ),
@@ -270,10 +272,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             ),
             child: const Text(
               'Vorige',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -292,10 +291,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             ),
             child: const Text(
               'Volgende',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -328,28 +324,25 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             });
           },
           decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-            color: Color(0xFF999999),
-            width: 1.2,
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                color: Color(0xFF999999),
+                width: 1.2,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(color: Color(0xFF37A904), width: 2),
+            ),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-            color: Color(0xFF37A904),
-            width: 2,
-          ),
-        ),
-      ),
         );
       },
     );
@@ -361,9 +354,12 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
     required List<SightingReportActivityOption> options,
     required ValueChanged<String> onChanged,
   }) {
-    final resolvedValue = options.any((o) => o.apiValue == value)
-        ? value
-        : options.last.apiValue;
+    final resolvedValue =
+        options.isEmpty
+            ? null
+            : options.any((o) => o.apiValue == value)
+            ? value
+            : options.last.apiValue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +374,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          value: resolvedValue,
+          initialValue: resolvedValue,
           menuMaxHeight: 400,
           isExpanded: true,
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -389,6 +385,7 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             fontWeight: FontWeight.w500,
             color: AppColors.textPrimary,
           ),
+          hint: options.isEmpty ? const Text('Geen opties beschikbaar') : null,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
@@ -405,29 +402,30 @@ class _AnimalActivityScreenState extends State<AnimalActivityScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(
-                color: Color(0xFF37A904),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF37A904), width: 2),
             ),
           ),
-          items: options
-              .map(
-                (o) => DropdownMenuItem(
-                  value: o.apiValue,
-                  child: Text(
-                    o.labelNl,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.black87,
+          items:
+              options
+                  .map(
+                    (o) => DropdownMenuItem(
+                      value: o.apiValue,
+                      child: Text(
+                        o.labelNl,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )
-              .toList(),
-          onChanged: (v) {
-            if (v != null) onChanged(v);
-          },
+                  )
+                  .toList(),
+          onChanged:
+              options.isEmpty
+                  ? null
+                  : (v) {
+                    if (v != null) onChanged(v);
+                  },
         ),
       ],
     );

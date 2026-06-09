@@ -41,9 +41,9 @@ class DetectionDetailDialog extends StatelessWidget {
         ? <String>[
             if (detection.animalLifeStage != null &&
                 detection.animalLifeStage!.isNotEmpty)
-              'Levensfase: ${_formatAnimalLifeStage(detection.animalLifeStage!)}',
+              _formatAnimalLifeStage(detection.animalLifeStage!),
             if (detection.animalSex != null && detection.animalSex!.isNotEmpty)
-              'Geslacht: ${_formatAnimalSex(detection.animalSex!)}',
+              _formatAnimalSex(detection.animalSex!),
           ]
         : const <String>[];
 
@@ -295,10 +295,22 @@ class DetectionDetailDialog extends StatelessWidget {
     required int? count,
     required List<String> details,
   }) {
-    final countText = _animalCountText(count);
-    if (details.isEmpty) return countText;
+    final effectiveCount = count != null && count > 0 ? count : 1;
+    if (details.isEmpty) return _animalCountText(effectiveCount);
 
-    return '$countText · ${details.join(' · ')}';
+    final lifeStage = details.where(_isLifeStageLabel).toList();
+    final sex = details.where(_isSexLabel).toList();
+
+    final descriptorParts = <String>[];
+    if (lifeStage.isNotEmpty) {
+      descriptorParts.add(_formatLifeStageForCount(lifeStage.first, effectiveCount));
+    }
+    if (sex.isNotEmpty) {
+      descriptorParts.add(_formatSexForCount(sex.first, effectiveCount));
+    }
+
+    if (descriptorParts.isEmpty) return _animalCountText(effectiveCount);
+    return '$effectiveCount ${descriptorParts.join(' ')}';
   }
 
   Widget _dateTimeRow() {
@@ -338,6 +350,46 @@ class DetectionDetailDialog extends StatelessWidget {
   String _animalCountText(int? count) {
     final effectiveCount = count != null && count > 0 ? count : 1;
     return '$effectiveCount ${effectiveCount == 1 ? 'dier' : 'dieren'}';
+  }
+
+  bool _isLifeStageLabel(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'jong' ||
+        normalized == 'volwassen' ||
+        normalized == 'oud';
+  }
+
+  bool _isSexLabel(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'mannetje' || normalized == 'vrouwtje';
+  }
+
+  String _formatLifeStageForCount(String value, int count) {
+    final normalized = value.trim().toLowerCase();
+    if (count == 1) return value;
+    switch (normalized) {
+      case 'jong':
+        return 'jonge';
+      case 'volwassen':
+        return 'volwassen';
+      case 'oud':
+        return 'oude';
+      default:
+        return value;
+    }
+  }
+
+  String _formatSexForCount(String value, int count) {
+    final normalized = value.trim().toLowerCase();
+    if (count == 1) return value;
+    switch (normalized) {
+      case 'mannetje':
+        return 'mannetjes';
+      case 'vrouwtje':
+        return 'vrouwtjes';
+      default:
+        return value;
+    }
   }
 
   Widget _infoRow({
