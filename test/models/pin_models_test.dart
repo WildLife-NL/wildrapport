@@ -115,5 +115,83 @@ void main() {
       expect(pin.detectedAt.isAfter(before), isTrue);
       expect(pin.detectedAt.isBefore(after), isTrue);
     });
+
+    test('parses reporter name from nested reportedBy object', () {
+      final pin = DetectionPin.fromJson({
+        'id': 'd-reporter-1',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'deviceType': 'acoustic',
+        'reportedBy': {
+          'displayName': 'Animal Simulator',
+        },
+      });
+
+      expect(pin.reportedByName, 'Animal Simulator');
+    });
+
+    test('parses animal sex and life stage from backend animal object', () {
+      final pin = DetectionPin.fromJson({
+        'id': 'd-animal-meta-1',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'type': 'visual',
+        'animal': {
+          'sex': 'female',
+          'lifeStage': 'adult',
+        },
+      });
+
+      expect(pin.animalSex, 'female');
+      expect(pin.animalLifeStage, 'adult');
+    });
+
+    test('parses animal count from animals array', () {
+      final pin = DetectionPin.fromJson({
+        'id': 'd-animal-count-1',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'type': 'visual',
+        'animals': [
+          {'sex': 'female'},
+          {'sex': 'male'},
+        ],
+      });
+
+      expect(pin.animalCount, 2);
+    });
+
+    test('parses animal sex and life stage from animals array schema', () {
+      final pin = DetectionPin.fromJson({
+        'ID': 'd-animals-array-1',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'start': '2026-03-25T13:15:00Z',
+        'sensorType': 'visual',
+        'animals': [
+          {
+            'sex': 'female',
+            'lifeStage': 'infant',
+            'condition': 'healthy',
+          },
+        ],
+      });
+
+      expect(pin.animalSex, 'female');
+      expect(pin.animalLifeStage, 'infant');
+    });
+
+    test('falls back to sensor name when reporter fields are absent', () {
+      final pin = DetectionPin.fromJson({
+        'id': 'd-reporter-2',
+        'location': {'latitude': 52.0, 'longitude': 5.0},
+        'moment': '2026-03-25T13:15:00Z',
+        'type': 'visual',
+        'sensor': {
+          'name': 'Animal Simulator',
+        },
+      });
+
+      expect(pin.reportedByName, 'Animal Simulator');
+    });
   });
 }

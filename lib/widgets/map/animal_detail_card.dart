@@ -23,7 +23,9 @@ class AnimalDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reportedBy = animal?.reportedByName ?? 'Onbekende gebruiker';
+    final reportedBy = (animal?.reportType == 'collar')
+      ? 'SmartParks'
+      : (animal?.reportedByName ?? 'Onbekende gebruiker');
     final displayName = animal?.speciesName ?? 'Onbekend dier';
     final latinName = animal?.speciesLatinName ?? '';
 
@@ -37,9 +39,14 @@ class AnimalDetailCard extends StatelessWidget {
     final displayCount = resolved > 0 ? resolved : 1;
     final formattedDate = formatLocalDate(animal?.seenAt);
     final formattedTime = formatLocalTime(animal?.seenAt);
-    final groupSummary =
-        animal?.groupSummary ??
-        '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}';
+    String buildCollarSummary() {
+      // For collar pins prefer a simple count summary (easier to read on map cards).
+      return '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}';
+    }
+
+    final groupSummary = animal?.groupSummary ??
+        ((animal?.reportType == 'collar') ? buildCollarSummary() :
+            '$displayCount ${displayCount == 1 ? 'dier' : 'dieren'}');
 
     final iconPath = animal?.speciesName != null
         ? getSpeciesCardImagePath(animal!.speciesName!)

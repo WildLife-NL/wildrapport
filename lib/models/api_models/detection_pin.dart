@@ -8,6 +8,11 @@ class DetectionPin {
   final String? type;
   final String? deviceType;
   final String? label;
+  final String? speciesLatinName;
+  final String? animalSex;
+  final String? animalLifeStage;
+  final int? animalCount;
+  final String? reportedByName;
   final double lat;
   final double lon;
   final DateTime detectedAt;
@@ -21,6 +26,11 @@ class DetectionPin {
     this.type,
     this.deviceType,
     this.label,
+    this.speciesLatinName,
+    this.animalSex,
+    this.animalLifeStage,
+    this.animalCount,
+    this.reportedByName,
     this.confidence,
   });
 
@@ -54,12 +64,16 @@ class DetectionPin {
       throw const FormatException('DetectionPin: missing id');
     }
 
-    final species = j['species'];
+    final species =
+      j['species'] ?? j['animal'] ?? j['detectedAnimal'] ?? j['capture']?['species'];
     final speciesMap = species is Map<String, dynamic>
         ? species
         : species is Map
             ? Map<String, dynamic>.from(species)
             : null;
+    final firstAnimal = _firstMapFromList(j['animals']);
+    final animals = j['animals'];
+    final animalCount = animals is List ? animals.length : null;
 
     final ts = extractEventTimestampFromMap(j);
 
@@ -75,8 +89,176 @@ class DetectionPin {
       label: j['label']?.toString() ??
           speciesMap?['commonName']?.toString() ??
           speciesMap?['name']?.toString(),
+      speciesLatinName: _readNestedString(j, const [
+        'species.scientificName',
+        'species.latinName',
+        'species.name',
+        'animal.scientificName',
+        'animal.latinName',
+        'animal.name',
+        'detectedAnimal.scientificName',
+        'detectedAnimal.latinName',
+        'detectedAnimal.name',
+        'capture.species.scientificName',
+        'capture.species.latinName',
+        'capture.species.name',
+      ]) ??
+          speciesMap?['scientificName']?.toString() ??
+          speciesMap?['latinName']?.toString() ??
+          speciesMap?['name']?.toString(),
+      animalSex: _readNestedString(firstAnimal, const [
+            'sex',
+            'gender',
+          ]) ??
+          _readNestedString(j, const [
+            'sex',
+            'geslacht',
+            'gender',
+          ]),
+      animalLifeStage: _readNestedString(firstAnimal, const [
+            'lifeStage',
+          ]) ??
+          _readNestedString(j, const [
+            'animal.lifeStage',
+            'detectedAnimal.lifeStage',
+            'capture.species.lifeStage',
+            'species.lifeStage',
+            'lifeStage',
+          ]),
+      animalCount: animalCount,
+      reportedByName: _readNestedString(j, const [
+        'reportedByName',
+        'reportedBy.name',
+        'reportedBy.fullName',
+        'reportedBy.displayName',
+        'reportedBy.username',
+        'reportedBy.userName',
+        'reportedBy.profile.name',
+        'reportedBy.profile.displayName',
+        'reportedBy.name',
+        'reportedBy',
+        'reportingUser.name',
+        'reportingUser.fullName',
+        'reportingUser.displayName',
+        'createdBy.name',
+        'createdBy.fullName',
+        'createdBy.displayName',
+        'createdBy.username',
+        'createdByUser.name',
+        'submittedBy.name',
+        'submittedBy.fullName',
+        'submittedBy.displayName',
+        'user.name',
+        'user.fullName',
+        'user.displayName',
+        'user.username',
+        'profile.name',
+        'profile.fullName',
+        'profile.displayName',
+        'owner.name',
+        'owner.fullName',
+        'owner.displayName',
+        'owner',
+        'device.owner',
+        'device.owner.name',
+        'device.owner.fullName',
+        'device.owner.displayName',
+        'device.name',
+        'sensor.owner',
+        'sensor.owner.name',
+        'sensor.owner.fullName',
+        'sensor.owner.displayName',
+        'sensor.reportedBy',
+        'sensor.reportedBy.name',
+        'sensor.reporter',
+        'sensor.name',
+        'deployment.reportedBy',
+        'deployment.reportedBy.name',
+        'deployment.owner',
+        'deployment.owner.name',
+        'deployment.owner.fullName',
+        'deployment.name',
+        'source.reportedBy',
+        'source.reportedBy.name',
+        'source.owner',
+        'source.owner.name',
+        'source.name',
+        'camera.owner',
+        'camera.owner.name',
+        'camera.owner.fullName',
+        'camera.owner.displayName',
+        'camera.reportedBy',
+        'camera.reportedBy.name',
+        'camera.name',
+        'site.reportedBy',
+        'site.reportedBy.name',
+        'site.owner',
+        'site.owner.name',
+        'site.name',
+        'reporter',
+        'reported_by',
+      ]),
       confidence: (j['confidence'] as num?)?.toDouble(),
     );
+  }
+
+  static String? _readNestedString(Object? value, List<String> paths) {
+    if (value == null || value is! Map) return null;
+
+    for (final path in paths) {
+      Object? node = value;
+      for (final seg in path.split('.')) {
+        if (node is! Map) {
+          node = null;
+          break;
+        }
+        node = node[seg];
+      }
+
+      final text = _extractStringValue(node);
+      if (text != null && text.isNotEmpty) return text;
+    }
+
+    return null;
+  }
+
+  static Map<String, dynamic>? _firstMapFromList(Object? value) {
+    if (value is! List) return null;
+
+    for (final item in value) {
+      if (item is Map<String, dynamic>) return item;
+      if (item is Map) return Map<String, dynamic>.from(item);
+    }
+
+    return null;
+  }
+
+  static String? _extractStringValue(Object? value) {
+    if (value == null) return null;
+
+    if (value is String) {
+      final text = value.trim();
+      return text.isEmpty ? null : text;
+    }
+
+    if (value is Map) {
+      for (final key in const [
+        'name',
+        'fullName',
+        'displayName',
+        'username',
+        'userName',
+        'title',
+        'label',
+      ]) {
+        final candidate = _extractStringValue(value[key]);
+        if (candidate != null && candidate.isNotEmpty) return candidate;
+      }
+      return null;
+    }
+
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
   }
 
   static double? _asDouble(Object? value) {

@@ -20,9 +20,39 @@ class DetectionDetailDialog extends StatelessWidget {
         ? Translator.toDutch(detection.label!)
         : 'Onbekende detectie';
 
+    final rawKind = (detection.deviceType ?? detection.type ?? '').toLowerCase();
+    final isCameraOrAcoustic = rawKind.contains('camera') ||
+      rawKind.contains('cameraval') ||
+      rawKind.contains('visual') ||
+      rawKind.contains('acoustic') ||
+      rawKind.contains('akoestisch');
+
     final deviceLabel = detection.deviceType != null
-        ? Translator.toDutch(detection.deviceType!)
-        : 'Detectie';
+      ? Translator.toDutch(detection.deviceType!)
+      : 'Detectie';
+
+    final subtitleLabel = (isCameraOrAcoustic &&
+        detection.speciesLatinName != null &&
+        detection.speciesLatinName!.isNotEmpty)
+      ? detection.speciesLatinName!
+      : deviceLabel;
+
+    final animalDetails = isCameraOrAcoustic
+        ? <String>[
+            if (detection.animalLifeStage != null &&
+                detection.animalLifeStage!.isNotEmpty)
+              'Levensfase: ${_formatAnimalLifeStage(detection.animalLifeStage!)}',
+            if (detection.animalSex != null && detection.animalSex!.isNotEmpty)
+              'Geslacht: ${_formatAnimalSex(detection.animalSex!)}',
+          ]
+        : const <String>[];
+
+    final animalSummary = isCameraOrAcoustic
+        ? _buildAnimalSummary(
+            count: detection.animalCount,
+            details: animalDetails,
+          )
+        : null;
 
     final iconPath = detection.label != null
         ? getSpeciesCardImagePath(detection.label!)
@@ -86,7 +116,7 @@ class DetectionDetailDialog extends StatelessWidget {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              deviceLabel,
+                              subtitleLabel,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -97,23 +127,6 @@ class DetectionDetailDialog extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 13),
-                            if (detection.deviceType != null)
-                              _infoRow(
-                                icon: Icons.devices,
-                                child: Text(
-                                  deviceLabel,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.textPrimary,
-                                    height: 1.18,
-                                  ),
-                                ),
-                              ),
-                            if (detection.deviceType != null)
-                              const SizedBox(height: 8),
                             if (detection.confidence != null)
                               _infoRow(
                                 icon: Icons.analytics_outlined,
@@ -131,6 +144,23 @@ class DetectionDetailDialog extends StatelessWidget {
                               ),
                             if (detection.confidence != null)
                               const SizedBox(height: 10),
+                            if (animalSummary != null) ...[
+                              _infoRow(
+                                icon: Icons.pets,
+                                child: Text(
+                                  animalSummary,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textPrimary,
+                                    height: 1.18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 10),
                             _dateTimeRow(),
                             const Spacer(),
                             const Divider(
@@ -138,20 +168,49 @@ class DetectionDetailDialog extends StatelessWidget {
                               thickness: 1,
                               color: Color(0xFFE8E8E8),
                             ),
-                            _infoRow(
-                              icon: Icons.location_on_outlined,
-                              iconSize: 17,
-                              child: Text(
-                                '${detection.lat.toStringAsFixed(6)}, ${detection.lon.toStringAsFixed(6)}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF777777),
-                                  height: 1.2,
+                            if (isCameraOrAcoustic)
+                              _infoRow(
+                                icon: Icons.person_outline,
+                                iconSize: 17,
+                                child: RichText(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF777777),
+                                      height: 1.2,
+                                    ),
+                                    children: [
+                                      const TextSpan(text: 'Gemeld door: '),
+                                      TextSpan(
+                                        text: (detection.reportedByName != null && detection.reportedByName!.isNotEmpty)
+                                            ? detection.reportedByName!
+                                            : 'unavailable',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else
+                              _infoRow(
+                                icon: Icons.location_on_outlined,
+                                iconSize: 17,
+                                child: Text(
+                                  '${detection.lat.toStringAsFixed(6)}, ${detection.lon.toStringAsFixed(6)}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF777777),
+                                    height: 1.2,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -200,7 +259,7 @@ class DetectionDetailDialog extends StatelessWidget {
   Color _detectionTypeColor(String? deviceType) {
     final value = deviceType?.toLowerCase() ?? '';
 
-    if (value.contains('camera')) {
+    if (value.contains('camera') || value.contains('visual')) {
       return const Color(0xFF00BFD8);
     }
     if (value.contains('acoustic') || value.contains('akoestisch')) {
@@ -213,6 +272,33 @@ class DetectionDetailDialog extends StatelessWidget {
     }
 
     return const Color(0xFF777777);
+  }
+
+  String _formatAnimalSex(String raw) {
+    final value = raw.trim().toLowerCase();
+    if (value == 'male' || value == 'm' || value == 'man') return 'mannetje';
+    if (value == 'female' || value == 'f' || value == 'vrouw') {
+      return 'vrouwtje';
+    }
+    return raw;
+  }
+
+  String _formatAnimalLifeStage(String raw) {
+    final value = raw.trim().toLowerCase();
+    if (value == 'adult') return 'volwassen';
+    if (value == 'juvenile' || value == 'young') return 'jong';
+    if (value == 'infant' || value == 'subadult') return 'jong';
+    return raw;
+  }
+
+  String _buildAnimalSummary({
+    required int? count,
+    required List<String> details,
+  }) {
+    final countText = _animalCountText(count);
+    if (details.isEmpty) return countText;
+
+    return '$countText · ${details.join(' · ')}';
   }
 
   Widget _dateTimeRow() {
@@ -247,6 +333,11 @@ class DetectionDetailDialog extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _animalCountText(int? count) {
+    final effectiveCount = count != null && count > 0 ? count : 1;
+    return '$effectiveCount ${effectiveCount == 1 ? 'dier' : 'dieren'}';
   }
 
   Widget _infoRow({
