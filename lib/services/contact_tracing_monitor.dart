@@ -126,8 +126,9 @@ class ContactTracingMonitor extends ChangeNotifier {
       await FlutterBluePlus.stopScan();
       result = await _contactApi.endContact(id);
       _lastEndedContact = result;
-      _lastAutoEndMessage =
-          automatic ? 'Signaal weg — contact beëindigd.' : null;
+      _lastAutoEndMessage = automatic
+          ? 'Signaal weg — contact beëindigd.'
+          : 'Contact beëindigd.';
       debugPrint('[ContactTracingMonitor] Ended contact $id');
     } catch (e) {
       _lastAutoEndMessage = automatic

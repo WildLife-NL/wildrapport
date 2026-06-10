@@ -33,6 +33,11 @@ class ContactTracingCoordinator extends ChangeNotifier {
   Timer? _backgroundTimer;
   StreamSubscription<List<ScanResult>>? _discoveryScanSub;
   StreamSubscription<bool>? _discoveryScanningSub;
+  final Set<String> _noAutoReconnectMacs = {};
+  final Map<String, DateTime> _noAutoReconnectLastSeenAt = {};
+  bool _endingContacts = false;
+  int _contactGeneration = 0;
+  DateTime? _suppressStartedPresentationUntil;
 
   bool get backgroundEnabled => _settings.backgroundEnabled;
   int get backgroundIntervalSeconds => _settings.backgroundIntervalSeconds;
@@ -43,6 +48,14 @@ class ContactTracingCoordinator extends ChangeNotifier {
   bool get backgroundScanning => _backgroundScanning;
   String get statusMessage => _statusMessage;
   ContactTracingMonitor get monitor => _monitor;
+
+  /// Voorkomt "Contact gestart"-sheet/melding direct na handmatig beëindigen.
+  bool get shouldPresentContactStartedUi {
+    if (_endingContacts) return false;
+    final until = _suppressStartedPresentationUntil;
+    if (until != null && DateTime.now().isBefore(until)) return false;
+    return true;
+  }
 
   List<ScanResult> get discoveryDevicesSorted {
     final list = _discoveryDevices.values.where(_acceptScanResult).toList()
@@ -77,50 +90,118 @@ class ContactTracingCoordinator extends ChangeNotifier {
 
   /// Beëindigt elk actief contact (lokaal + server). Retourneert true als er iets gesloten is.
   Future<bool> endAllActiveContacts() async {
+    final endedMac = _monitor.activeContactMac;
+    _contactGeneration++;
+    _suppressStartedPresentationUntil =
+        DateTime.now().add(const Duration(seconds: 5));
+    _endingContacts = true;
+    _registerInFlight = false;
+    if (endedMac != null && endedMac.isNotEmpty) {
+      _markNoAutoReconnect(endedMac);
+    }
+
+    final endedContactSnapshot = _monitor.activeContact;
     await _stopBackgroundLoop();
     var ended = false;
 
-    if (_monitor.hasActiveSession && !_monitor.busyEnding) {
-      try {
-        await _monitor.endActiveContact(automatic: false);
-        ended = true;
-      } catch (e) {
-        debugPrint('[ContactTracingCoordinator] monitor end: $e');
-        await _monitor.stop(notify: false);
-      }
-    } else {
-      await _monitor.stop(notify: false);
-    }
-
-    final stored = await _contactApi.loadActiveSession();
-    final storedId = stored.id?.trim();
-    if (storedId != null && storedId.isNotEmpty) {
-      try {
-        await _contactApi.endContact(storedId);
-        ended = true;
-      } catch (e) {
-        debugPrint('[ContactTracingCoordinator] prefs end $storedId: $e');
-      }
-    }
-
     try {
-      final contacts = await _contactApi.getMyContacts();
-      for (final c in contacts) {
-        if (!c.isActive) continue;
+      if (_monitor.hasActiveSession && !_monitor.busyEnding) {
         try {
-          await _contactApi.endContact(c.id);
+          await _monitor.endActiveContact(automatic: false);
           ended = true;
         } catch (e) {
-          debugPrint('[ContactTracingCoordinator] server end ${c.id}: $e');
+          debugPrint('[ContactTracingCoordinator] monitor end: $e');
+          await _monitor.stop(notify: false);
+        }
+      } else {
+        await _monitor.stop(notify: false);
+      }
+
+      final stored = await _contactApi.loadActiveSession();
+      final storedId = stored.id?.trim();
+      if (storedId != null && storedId.isNotEmpty) {
+        try {
+          await _contactApi.endContact(storedId);
+          ended = true;
+        } catch (e) {
+          debugPrint('[ContactTracingCoordinator] prefs end $storedId: $e');
         }
       }
-    } catch (e) {
-      debugPrint('[ContactTracingCoordinator] list contacts: $e');
+
+      try {
+        final contacts = await _contactApi.getMyContacts();
+        for (final c in contacts) {
+          if (!c.isActive) continue;
+          try {
+            await _contactApi.endContact(c.id);
+            ended = true;
+          } catch (e) {
+            debugPrint('[ContactTracingCoordinator] server end ${c.id}: $e');
+          }
+        }
+      } catch (e) {
+        debugPrint('[ContactTracingCoordinator] list contacts: $e');
+      }
+
+      await _contactApi.clearActiveSession();
+
+      _statusMessage = ended ? 'Contact beëindigd' : 'Geen actief contact';
+      if (ended) {
+        unawaited(
+          _notifyContactEnded(
+            endedContactSnapshot ?? _monitor.lastEndedContact,
+            automatic: false,
+          ),
+        );
+      }
+    } finally {
+      _endingContacts = false;
+      notifyListeners();
+      if (_settings.backgroundEnabled && !_monitor.hasActiveSession) {
+        unawaited(_scheduleBackgroundLoop());
+      }
+    }
+    return ended;
+  }
+
+  void _markNoAutoReconnect(String mac) {
+    final normalized = formatBleHardwareAddress(mac);
+    _noAutoReconnectMacs.add(normalized);
+    _noAutoReconnectLastSeenAt[normalized] = DateTime.now();
+  }
+
+  void _clearNoAutoReconnect(String mac) {
+    final normalized = formatBleHardwareAddress(mac);
+    _noAutoReconnectMacs.remove(normalized);
+    _noAutoReconnectLastSeenAt.remove(normalized);
+  }
+
+  bool _isBlockedFromAutoStart(String mac) {
+    return _noAutoReconnectMacs.contains(formatBleHardwareAddress(mac));
+  }
+
+  void _updateNoAutoReconnectAfterScan(List<ScanResult> devices) {
+    final seen = <String>{};
+    for (final result in devices) {
+      final mac = ContactTracingBle.resolveHardwareAddress(result);
+      if (mac != null && isValidBleHardwareAddress(mac)) {
+        seen.add(formatBleHardwareAddress(mac));
+      }
     }
 
-    _statusMessage = ended ? 'Contact beëindigd' : 'Geen actief contact';
-    notifyListeners();
-    return ended;
+    final now = DateTime.now();
+    final grace = Duration(seconds: _settings.signalLossSeconds);
+    for (final blocked in _noAutoReconnectMacs.toList()) {
+      if (seen.contains(blocked)) {
+        _noAutoReconnectLastSeenAt[blocked] = now;
+        continue;
+      }
+      final lastSeen = _noAutoReconnectLastSeenAt[blocked];
+      if (lastSeen != null && now.difference(lastSeen) >= grace) {
+        _noAutoReconnectMacs.remove(blocked);
+        _noAutoReconnectLastSeenAt.remove(blocked);
+      }
+    }
   }
 
   /// Zet achtergrondscan aan/uit. Bij uitzetten wordt elk actief contact beëindigd.
@@ -194,6 +275,7 @@ class ContactTracingCoordinator extends ChangeNotifier {
         if (!c.isActive) continue;
         final mac = c.contactHardwareAddress;
         if (mac == null || mac.isEmpty) continue;
+        if (_isBlockedFromAutoStart(mac)) continue;
         await _monitor.start(
           contactId: c.id,
           mac: formatBleHardwareAddress(mac),
@@ -208,18 +290,32 @@ class ContactTracingCoordinator extends ChangeNotifier {
   }
 
   void _onMonitorChanged() {
+    if (_endingContacts) return;
+
     if (_monitor.hasActiveSession) {
       _stopBackgroundLoop();
       _statusMessage = _monitor.activeAnimalLabel != null
           ? 'Contact: ${_monitor.activeAnimalLabel}'
           : 'Contact actief';
-    } else if (_settings.backgroundEnabled) {
-      _statusMessage =
-          'Achtergrondscan elke ${_settings.backgroundIntervalSeconds} s';
-      unawaited(_scheduleBackgroundLoop());
     } else {
-      _stopBackgroundLoop();
-      _statusMessage = 'Uit';
+      final autoEndMessage = _monitor.lastAutoEndMessage;
+      if (autoEndMessage != null) {
+        unawaited(
+          _notifyContactEnded(
+            _monitor.lastEndedContact,
+            automatic: true,
+          ),
+        );
+        _monitor.clearAutoEndMessage();
+      }
+      if (_settings.backgroundEnabled) {
+        _statusMessage =
+            'Achtergrondscan elke ${_settings.backgroundIntervalSeconds} s';
+        unawaited(_scheduleBackgroundLoop());
+      } else {
+        _stopBackgroundLoop();
+        _statusMessage = 'Uit';
+      }
     }
     notifyListeners();
   }
@@ -247,7 +343,8 @@ class ContactTracingCoordinator extends ChangeNotifier {
       (_) {
         if (!_settings.backgroundEnabled ||
             _monitor.hasActiveSession ||
-            _registerInFlight) {
+            _registerInFlight ||
+            _endingContacts) {
           return;
         }
         unawaited(_runBackgroundDiscoveryScan());
@@ -282,7 +379,8 @@ class ContactTracingCoordinator extends ChangeNotifier {
   Future<void> _runBackgroundDiscoveryScan() async {
     if (_registerInFlight ||
         _monitor.hasActiveSession ||
-        !_settings.backgroundEnabled) {
+        !_settings.backgroundEnabled ||
+        _endingContacts) {
       return;
     }
     if (!await _ensureBleReady()) return;
@@ -302,7 +400,7 @@ class ContactTracingCoordinator extends ChangeNotifier {
       if (strongest.isNotEmpty &&
           !_registerInFlight &&
           !_monitor.hasActiveSession) {
-        unawaited(_registerStrongest(strongest.first));
+        unawaited(_tryAutoStartFromDevices(strongest));
       }
     });
 
@@ -331,12 +429,54 @@ class ContactTracingCoordinator extends ChangeNotifier {
     if (!_monitor.hasActiveSession &&
         discoveryDevicesSorted.isNotEmpty &&
         !_registerInFlight) {
-      await _registerStrongest(discoveryDevicesSorted.first);
+      await _tryAutoStartFromDevices(discoveryDevicesSorted);
+    } else {
+      _updateNoAutoReconnectAfterScan(discoveryDevicesSorted);
+    }
+  }
+
+  Future<void> _tryAutoStartFromDevices(List<ScanResult> devices) async {
+    for (final result in devices) {
+      if (_registerInFlight || _monitor.hasActiveSession || _endingContacts) {
+        return;
+      }
+
+      final mac = ContactTracingBle.resolveHardwareAddress(result);
+      if (mac == null || !isValidBleHardwareAddress(mac)) continue;
+
+      if (_isBlockedFromAutoStart(mac)) {
+        debugPrint(
+          '[ContactTracingCoordinator] Auto-start overgeslagen voor $mac (handmatig beëindigd)',
+        );
+        continue;
+      }
+
+      await _registerStrongest(result);
+      return;
+    }
+    _updateNoAutoReconnectAfterScan(devices);
+  }
+
+  bool _isStaleContactGeneration(int generation) {
+    return generation != _contactGeneration || _endingContacts;
+  }
+
+  Future<void> _abortOrphanContact(Contact contact) async {
+    try {
+      await _contactApi.endContact(contact.id);
+    } catch (e) {
+      debugPrint(
+        '[ContactTracingCoordinator] orphan contact cleanup ${contact.id}: $e',
+      );
     }
   }
 
   Future<void> _registerStrongest(ScanResult result) async {
-    if (_registerInFlight || _monitor.hasActiveSession) return;
+    if (_registerInFlight ||
+        _monitor.hasActiveSession ||
+        _endingContacts) {
+      return;
+    }
 
     final mac = ContactTracingBle.resolveHardwareAddress(result);
     if (mac == null || !isValidBleHardwareAddress(mac)) {
@@ -346,23 +486,45 @@ class ContactTracingCoordinator extends ChangeNotifier {
       return;
     }
 
+    final generation = _contactGeneration;
     _registerInFlight = true;
     _statusMessage = 'Collar gevonden — contact registreren…';
     notifyListeners();
 
     await _stopBackgroundLoop();
+    if (_isStaleContactGeneration(generation)) {
+      _registerInFlight = false;
+      notifyListeners();
+      return;
+    }
 
     try {
       final contact = await _contactApi.startContact(mac);
+      if (_isStaleContactGeneration(generation) ||
+          _isBlockedFromAutoStart(mac)) {
+        await _abortOrphanContact(contact);
+        if (_settings.backgroundEnabled && !_monitor.hasActiveSession) {
+          await _scheduleBackgroundLoop();
+        }
+        return;
+      }
+
       await _monitor.start(
         contactId: contact.id,
         mac: mac,
         contact: contact,
       );
+      if (_isStaleContactGeneration(generation)) {
+        await _monitor.stop(notify: false);
+        await _abortOrphanContact(contact);
+        return;
+      }
+
+      _clearNoAutoReconnect(mac);
 
       final animal = _monitor.activeAnimalLabel ?? 'een dier';
       _statusMessage = 'Contact met $animal';
-      if (_settings.notifyOnAnimalFound) {
+      if (_settings.notifyOnAnimalFound && shouldPresentContactStartedUi) {
         await _notifyAnimalFound(contact);
       }
     } catch (e) {
@@ -390,6 +552,26 @@ class ContactTracingCoordinator extends ChangeNotifier {
       importance: Importance.high,
       priority: Priority.high,
       payload: 'contact_tracing',
+    );
+  }
+
+  Future<void> _notifyContactEnded(
+    Contact? contact, {
+    required bool automatic,
+  }) async {
+    if (!_settings.notifyOnAnimalFound) return;
+
+    final label = contact?.displayAnimalTitle ?? 'Collar';
+    final body = automatic
+        ? 'Contact met $label beëindigd — signaal weg.'
+        : 'Contact met $label is beëindigd.';
+
+    await NotificationService.instance.show(
+      title: 'Contact beëindigd',
+      body: body,
+      importance: Importance.high,
+      priority: Priority.high,
+      payload: 'contact_tracing_ended',
     );
   }
 
