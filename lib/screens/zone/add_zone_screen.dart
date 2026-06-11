@@ -259,14 +259,13 @@ _mapController.move(center, 16);
     setState(() => _polygonPoints.clear());
   }
 
-  /// API vereist minimaal 5 tekens; lege string geeft 422.
-  String _zoneDescriptionForRequest() {
-    if (_isEditing) {
-      final existing = widget.existingZone!.description.trim();
-      if (existing.length >= 5) return existing;
-    }
-    final name = _nameController.text.trim();
-    return name.length >= 5 ? name : 'Zone: $name';
+  Map<String, dynamic> _buildZoneRequestBody(
+    List<ZoneDefinitionPoint> definition,
+  ) {
+    return {
+      'name': _nameController.text.trim(),
+      'definition': definition.map((e) => e.toJson()).toList(),
+    };
   }
 
   Future<void> _submit() async {
@@ -294,11 +293,7 @@ _mapController.move(center, 16);
         )
         .toList();
 
-    final request = ZoneCreateRequest(
-      name: _nameController.text.trim(),
-      description: _zoneDescriptionForRequest(),
-      definition: definition,
-    );
+    final body = _buildZoneRequestBody(definition);
 
     String? errorMessage;
     Zone? zone;
@@ -310,13 +305,13 @@ _mapController.move(center, 16);
       if (_isEditing) {
         response = await apiClient.put(
           'zone/${widget.existingZone!.id}',
-          request.toJson(),
+          body,
           authenticated: true,
         );
       } else {
         response = await apiClient.post(
           'zone/',
-          request.toJson(),
+          body,
           authenticated: true,
         );
       }
