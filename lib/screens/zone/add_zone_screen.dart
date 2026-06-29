@@ -259,8 +259,6 @@ _mapController.move(center, 16);
     setState(() => _polygonPoints.clear());
   }
 
-<<<<<<< Updated upstream
-=======
   Map<String, dynamic> _buildZoneRequestBody(
     List<ZoneDefinitionPoint> definition,
   ) {
@@ -289,7 +287,6 @@ _mapController.move(center, 16);
     return !zoneDefinitionsEqual(existing.definition, definition);
   }
 
->>>>>>> Stashed changes
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _isSubmitting) return;
 
@@ -329,40 +326,18 @@ _mapController.move(center, 16);
 
     setState(() => _isSubmitting = true);
 
-    final request = ZoneCreateRequest(
-      name: _nameController.text.trim(),
-      description: '',
-      definition: definition,
-    );
+    final body = _buildZoneRequestBody(definition);
 
     String? errorMessage;
     Zone? zone;
 
     try {
       final apiClient = context.read<ApiClient>();
-<<<<<<< Updated upstream
-      final http.Response response;
-
-      if (_isEditing) {
-        response = await apiClient.put(
-          'zone/${widget.existingZone!.id}',
-          request.toJson(),
-          authenticated: true,
-        );
-      } else {
-        response = await apiClient.post(
-          'zone/',
-          request.toJson(),
-          authenticated: true,
-        );
-      }
-=======
       final http.Response response = await apiClient.post(
         'zone/',
         body,
         authenticated: true,
       );
->>>>>>> Stashed changes
 
       if (!mounted) return;
 
