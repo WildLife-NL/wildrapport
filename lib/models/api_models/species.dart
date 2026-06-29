@@ -6,10 +6,11 @@ class Species {
   Species({required this.id, required this.category, required this.commonName});
 
   factory Species.fromJson(Map<String, dynamic> json) {
+    final id = (json['ID'] ?? json['id'])?.toString().trim() ?? '';
     return Species(
-      id: json['ID'],
-      category: json['category'],
-      commonName: json['commonName'],
+      id: id,
+      category: (json['category'] ?? '').toString(),
+      commonName: (json['commonName'] ?? json['name'] ?? '').toString(),
     );
   }
 

@@ -8,6 +8,7 @@ class AnimalGrid extends StatelessWidget {
   final Function(AnimalModel) onAnimalSelected;
   final Set<String> selectedAnimalIds;
   final Map<String, int> selectedOrderIds;
+  final Set<String> alreadyInZoneIds;
 
   const AnimalGrid({
     super.key,
@@ -15,6 +16,7 @@ class AnimalGrid extends StatelessWidget {
     required this.onAnimalSelected,
     this.selectedAnimalIds = const {},
     this.selectedOrderIds = const {},
+    this.alreadyInZoneIds = const {},
   });
   
 
@@ -42,8 +44,14 @@ class AnimalGrid extends StatelessWidget {
                 child: AnimalTile(
                   animal: animals[index * 2],
                   onTap: () => onAnimalSelected(animals[index * 2]),
-                  isSelected: selectedAnimalIds.contains(animals[index * 2].animalId),
-                  selectionNumber: selectedOrderIds[animals[index * 2].animalId],
+                  isSelected: selectedAnimalIds.contains(
+                    animals[index * 2].animalId,
+                  ),
+                  selectionNumber:
+                      selectedOrderIds[animals[index * 2].animalId],
+                  isAlreadyInZone: alreadyInZoneIds.contains(
+                    animals[index * 2].animalId,
+                  ),
                 ),
               ),
             ),
@@ -60,8 +68,14 @@ class AnimalGrid extends StatelessWidget {
                 child: AnimalTile(
                   animal: animals[index * 2 + 1],
                   onTap: () => onAnimalSelected(animals[index * 2 + 1]),
-                  isSelected: selectedAnimalIds.contains(animals[index * 2 + 1].animalId),
-                  selectionNumber: selectedOrderIds[animals[index * 2 + 1].animalId],
+                  isSelected: selectedAnimalIds.contains(
+                    animals[index * 2 + 1].animalId,
+                  ),
+                  selectionNumber:
+                      selectedOrderIds[animals[index * 2 + 1].animalId],
+                  isAlreadyInZone: alreadyInZoneIds.contains(
+                    animals[index * 2 + 1].animalId,
+                  ),
                 ),
               ),
             ),

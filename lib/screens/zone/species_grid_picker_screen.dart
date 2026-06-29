@@ -15,9 +15,13 @@ class SpeciesGridPickerScreen extends StatefulWidget {
   const SpeciesGridPickerScreen({
     super.key,
     this.title = 'Diersoort kiezen',
+    this.singleSelect = false,
+    this.alreadyInZoneIds = const {},
   });
 
   final String title;
+  final bool singleSelect;
+  final Set<String> alreadyInZoneIds;
 
   @override
   State<SpeciesGridPickerScreen> createState() =>
@@ -130,6 +134,20 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
 
     final species = _speciesById[id];
     if (species == null) return;
+
+    if (widget.alreadyInZoneIds.contains(id)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${species.commonName} zit al in deze zone.'),
+        ),
+      );
+      return;
+    }
+
+    if (widget.singleSelect) {
+      Navigator.of(context).pop(<Species>[species]);
+      return;
+    }
 
     setState(() {
       final index = _selectedSpecies.indexWhere((s) => s.id == id);
@@ -263,6 +281,22 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                             ),
                           ),
                         ),
+                        if (widget.alreadyInZoneIds.isNotEmpty) ...[
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 4.0, bottom: 8.0),
+                            child: Text(
+                              'Dieren met "In zone" zitten al in je zone.',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 16),
                         Expanded(
                           child: ScrollableAnimalGrid(
@@ -278,6 +312,7 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                                   i++)
                                 _selectedSpecies[i].id: i + 1,
                             },
+                            alreadyInZoneIds: widget.alreadyInZoneIds,
                             onAnimalSelected: _onAnimalSelected,
                             onRetry: _loadSpecies,
                           ),
@@ -288,38 +323,40 @@ class _SpeciesGridPickerScreenState extends State<SpeciesGridPickerScreen> {
                 ),
               ),
             ),
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed:
-                        _selectedSpecies.isEmpty ? null : _saveSelectedAnimals,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryGreen,
-                      disabledBackgroundColor: const Color(0xFFEFEFEF),
-                      foregroundColor: Colors.white,
-                      disabledForegroundColor: const Color(0xFFACACAC),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+            if (!widget.singleSelect)
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _selectedSpecies.isEmpty
+                          ? null
+                          : _saveSelectedAnimals,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        disabledBackgroundColor: const Color(0xFFEFEFEF),
+                        foregroundColor: Colors.white,
+                        disabledForegroundColor: const Color(0xFFACACAC),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      _selectedSpecies.isEmpty
-                          ? 'Selecteer dieren'
-                          : '${_selectedSpecies.length} dieren opslaan',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      child: Text(
+                        _selectedSpecies.isEmpty
+                            ? 'Selecteer dieren'
+                            : '${_selectedSpecies.length} dieren opslaan',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

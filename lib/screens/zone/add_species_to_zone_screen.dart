@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:wildrapport/constants/app_colors.dart';
 import 'package:wildrapport/constants/button_layout.dart';
@@ -22,6 +21,7 @@ class AddSpeciesToZoneScreen extends StatefulWidget {
 class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
   Zone? _selectedZone;
   List<Zone> _zones = [];
+  Map<String, List<ZoneSpeciesRef>> _speciesByZoneId = {};
   List<Species> _selectedSpecies = [];
   bool _loading = true;
   bool _isSubmitting = false;
@@ -37,23 +37,22 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
     final apiClient = context.read<ApiClient>();
 
     try {
-
-     final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userID');
       final zonesResponse =
-    await apiClient.get('zones/me/', authenticated: true);
+          await apiClient.get('zones/me/', authenticated: true);
       List<Zone> zones = [];
+      Map<String, List<ZoneSpeciesRef>> speciesByZoneId = {};
 
       if (zonesResponse.statusCode == 200) {
         final list = jsonDecode(zonesResponse.body) as List;
-
-        zones = zonesFromApiListForUser(list, userId);
-
+        final loaded = loadZonesWithSpeciesFromApi(list, null);
+        zones = loaded.zones;
+        speciesByZoneId = loaded.speciesByZoneId;
       }
 
       if (mounted) {
         setState(() {
           _zones = zones;
+          _speciesByZoneId = speciesByZoneId;
           _loading = false;
         });
       }
@@ -84,26 +83,42 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
 
     if (_isSubmitting) return;
 
+    final zoneId = _selectedZone!.id;
+    final alreadyInZone = _speciesByZoneId[zoneId]
+            ?.map((s) => s.id)
+            .toSet() ??
+        {};
+    final speciesToAdd = _selectedSpecies
+        .where((s) => !alreadyInZone.contains(s.id))
+        .toList();
+
+    if (speciesToAdd.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Alle geselecteerde dieren zitten al in deze zone.',
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
-    final zoneId = _selectedZone!.id;
     String? errorMessage;
     bool success = true;
 
     try {
       final apiClient = context.read<ApiClient>();
 
-      for (final species in _selectedSpecies) {
+      for (final species in speciesToAdd) {
         final response = await apiClient.post(
           'zone/species/',
-          {
-            'zoneID': zoneId,
-            'speciesID': species.id,
-          },
+          zoneSpeciesLinkBody(zoneId, species.id),
           authenticated: true,
         );
 
-        if (response.statusCode != 200) {
+        if (!isSuccessfulHttpStatus(response.statusCode)) {
           success = false;
 
           String body = response.body;
@@ -129,7 +144,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${_selectedSpecies.length} diersoort${_selectedSpecies.length == 1 ? '' : 'en'} toegevoegd aan de zone.',
+            '${speciesToAdd.length} diersoort${speciesToAdd.length == 1 ? '' : 'en'} toegevoegd aan de zone.',
           ),
         ),
       );
@@ -145,10 +160,27 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
     }
   }
 
+  Set<String> get _alreadyInSelectedZoneIds {
+    if (_selectedZone == null) return {};
+    return _speciesByZoneId[_selectedZone!.id]
+            ?.map((s) => s.id)
+            .toSet() ??
+        {};
+  }
+
   Future<void> _openSpeciesPicker() async {
+    if (_selectedZone == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kies eerst een zone.')),
+      );
+      return;
+    }
+
     final species = await Navigator.of(context).push<List<Species>>(
       MaterialPageRoute(
-        builder: (_) => const SpeciesGridPickerScreen(),
+        builder: (_) => SpeciesGridPickerScreen(
+          alreadyInZoneIds: _alreadyInSelectedZoneIds,
+        ),
       ),
     );
 
@@ -286,7 +318,10 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                                   onChanged: _zones.isEmpty
                                       ? null
                                       : (z) {
-                                          setState(() => _selectedZone = z);
+                                          setState(() {
+                                            _selectedZone = z;
+                                            _selectedSpecies = [];
+                                          });
                                         },
                                 ),
                               ),
@@ -390,9 +425,7 @@ class _AddSpeciesToZoneScreenState extends State<AddSpeciesToZoneScreen> {
                   width: double.infinity,
                   height: primaryButtonHeight(context),
                   child: ElevatedButton(
-                    onPressed: (_isSubmitting || _zones.isEmpty)
-                        ? null
-                        : _submit,
+                    onPressed: _isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF37A904),
                       disabledBackgroundColor: const Color(0xFFEFEFEF),

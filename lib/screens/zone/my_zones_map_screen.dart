@@ -177,25 +177,32 @@ class _MyZonesMapScreenState extends State<MyZonesMapScreen> {
   }
 
   Future<void> _addSpeciesToZone(Zone zone) async {
-    final species = await Navigator.of(context).push<Species>(
+    final alreadyInZoneIds = (_speciesByZoneId[zone.id] ?? [])
+        .map((s) => s.id)
+        .toSet();
+
+    final picked = await Navigator.of(context).push<List<Species>>(
       MaterialPageRoute(
-        builder: (_) => const SpeciesGridPickerScreen(
+        builder: (_) => SpeciesGridPickerScreen(
           title: 'Dier toevoegen aan zone',
+          singleSelect: true,
+          alreadyInZoneIds: alreadyInZoneIds,
         ),
       ),
     );
-    if (species == null || !mounted) return;
+    if (picked == null || picked.isEmpty || !mounted) return;
+    final species = picked.first;
 
     setState(() => _actionInProgress = true);
     try {
       final apiClient = context.read<ApiClient>();
       final response = await apiClient.post(
         'zone/species/',
-        {'zoneID': zone.id, 'speciesID': species.id},
+        zoneSpeciesLinkBody(zone.id, species.id),
         authenticated: true,
       );
       if (!mounted) return;
-      if (response.statusCode == 200) {
+      if (isSuccessfulHttpStatus(response.statusCode)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${species.commonName} toegevoegd aan ${zone.name}.')),
         );

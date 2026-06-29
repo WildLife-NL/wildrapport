@@ -167,3 +167,27 @@ double? _asDouble(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value.toString().trim());
 }
+
+bool isSuccessfulHttpStatus(int statusCode) =>
+    statusCode >= 200 && statusCode < 300;
+
+Map<String, String> zoneSpeciesLinkBody(String zoneId, String speciesId) => {
+      'zoneID': zoneId,
+      'speciesID': speciesId,
+    };
+
+bool zoneDefinitionsEqual(
+  List<ZoneDefinitionPoint>? a,
+  List<ZoneDefinitionPoint> b,
+) {
+  if (a == null) return b.isEmpty;
+  if (a.length != b.length) return false;
+  const epsilon = 1e-6;
+  for (var i = 0; i < a.length; i++) {
+    if ((a[i].latitude - b[i].latitude).abs() > epsilon ||
+        (a[i].longitude - b[i].longitude).abs() > epsilon) {
+      return false;
+    }
+  }
+  return true;
+}

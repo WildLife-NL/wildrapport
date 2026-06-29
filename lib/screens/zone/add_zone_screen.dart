@@ -259,6 +259,37 @@ _mapController.move(center, 16);
     setState(() => _polygonPoints.clear());
   }
 
+<<<<<<< Updated upstream
+=======
+  Map<String, dynamic> _buildZoneRequestBody(
+    List<ZoneDefinitionPoint> definition,
+  ) {
+    return {
+      'name': _nameController.text.trim(),
+      'definition': definition.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  List<ZoneDefinitionPoint> _currentDefinition() {
+    return _polygonPoints
+        .map(
+          (p) => ZoneDefinitionPoint(
+            latitude: p.latitude,
+            longitude: p.longitude,
+          ),
+        )
+        .toList();
+  }
+
+  bool _hasZoneChanges(List<ZoneDefinitionPoint> definition) {
+    final existing = widget.existingZone;
+    if (existing == null) return true;
+
+    if (_nameController.text.trim() != existing.name.trim()) return true;
+    return !zoneDefinitionsEqual(existing.definition, definition);
+  }
+
+>>>>>>> Stashed changes
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _isSubmitting) return;
 
@@ -273,16 +304,30 @@ _mapController.move(center, 16);
       return;
     }
 
-    setState(() => _isSubmitting = true);
+    final definition = _currentDefinition();
 
-    final definition = _polygonPoints
-        .map(
-          (p) => ZoneDefinitionPoint(
-            latitude: p.latitude,
-            longitude: p.longitude,
+    if (_isEditing && !_hasZoneChanges(definition)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Geen wijzigingen om op te slaan.')),
+      );
+      Navigator.of(context).pop(true);
+      return;
+    }
+
+    if (_isEditing) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Zone bewerken wordt nog niet ondersteund door de server. '
+            'Maak eventueel een nieuwe zone aan.',
           ),
-        )
-        .toList();
+          duration: Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
 
     final request = ZoneCreateRequest(
       name: _nameController.text.trim(),
@@ -295,6 +340,7 @@ _mapController.move(center, 16);
 
     try {
       final apiClient = context.read<ApiClient>();
+<<<<<<< Updated upstream
       final http.Response response;
 
       if (_isEditing) {
@@ -310,10 +356,17 @@ _mapController.move(center, 16);
           authenticated: true,
         );
       }
+=======
+      final http.Response response = await apiClient.post(
+        'zone/',
+        body,
+        authenticated: true,
+      );
+>>>>>>> Stashed changes
 
       if (!mounted) return;
 
-      if (response.statusCode == 200) {
+      if (isSuccessfulHttpStatus(response.statusCode)) {
         try {
           final json = jsonDecode(response.body) as Map<String, dynamic>;
           zone = zoneFromApiJson(json);
