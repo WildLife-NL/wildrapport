@@ -102,6 +102,7 @@ flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
   image_path: "assets/wildrapport-icon.png"
+  remove_alpha_ios: true
   web:
     generate: true
     image_path: "assets/wildrapport-icon.png"
