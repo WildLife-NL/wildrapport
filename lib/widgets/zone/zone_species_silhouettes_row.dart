@@ -31,7 +31,7 @@ class ZoneSpeciesSilhouettesRow extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: species.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
         itemBuilder: (context, index) {
           final item = species[index];
           return Tooltip(
@@ -73,7 +73,7 @@ class _SpeciesSilhouette extends StatelessWidget {
         fit: BoxFit.contain,
         color: onDarkBackground ? Colors.white : null,
         colorBlendMode: onDarkBackground ? BlendMode.srcIn : null,
-        errorBuilder: (_, __, ___) =>
+        errorBuilder: (_, _, _) =>
             Icon(Icons.pets, size: size * 0.7, color: fallbackColor),
       );
     }

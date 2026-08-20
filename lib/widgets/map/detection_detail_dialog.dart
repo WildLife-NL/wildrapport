@@ -425,7 +425,7 @@ class DetectionDetailDialog extends StatelessWidget {
         child: Image.asset(
           iconPath,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Icon(
+          errorBuilder: (_, _, _) => const Icon(
             Icons.sensors,
             size: 38,
             color: AppColors.darkCharcoal,
