@@ -12,6 +12,7 @@ import 'package:wildrapport/screens/terms/terms_screen.dart';
 import 'package:wildrapport/providers/app_state_provider.dart';
 import 'package:wildrapport/services/push_notification_coordinator.dart';
 import 'package:wildrapport/utils/access_scope_utils.dart';
+import 'package:wildrapport/utils/reviewer_auth.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_login_components/wildlifenl_login_components.dart';
 import 'package:wildrapport/constants/app_icon_paths.dart';
@@ -133,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
   bool _showCodeInput = false;
   String _currentEmail = '';
+  bool _isReviewerBypass = false;
 
   @override
   void dispose() {
@@ -159,6 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // Get the login interface and send verification code to email
       final loginInterface = context.read<LoginInterface>();
+      final reviewerAuth = ReviewerAuth();
+      reviewerAuth.logStatusFor(email);
+      final isReviewer = reviewerAuth.isReviewerEmail(email);
       final success = await loginInterface.sendLoginCode(email);
       
       if (!success) {
@@ -176,6 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _showCodeInput = true;
           _currentEmail = email;
+          _isReviewerBypass = isReviewer;
           _isLoading = false;
           _errorMessage = null;
         });
@@ -235,6 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _backToEmailInput() {
     setState(() {
       _showCodeInput = false;
+      _isReviewerBypass = false;
       _codeController.clear();
       _errorMessage = null;
     });
@@ -420,7 +427,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ] else ...[
                           // Code Verification Form
                           Text(
-                            'Voer verificatiecode in',
+                            _isReviewerBypass
+                                ? 'Voer de code uit de testhandleiding in'
+                                : 'Voer verificatiecode in',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontSize: 15,
                               color: Colors.black,
@@ -429,7 +438,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Wij hebben een code naar $_currentEmail verzonden',
+                            _isReviewerBypass
+                                ? 'Gebruik de pincode uit de Play Store testhandleiding'
+                                : 'Wij hebben een code naar $_currentEmail verzonden',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -442,10 +453,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             decoration: InputDecoration(
-                              hintText: '123456',
+                              hintText: _isReviewerBypass
+                                  ? 'Code uit testhandleiding'
+                                  : '123456',
                               hintStyle: TextStyle(
                                 color: Colors.grey.shade400,
-                                fontSize: 20,
+                                fontSize: _isReviewerBypass ? 14 : 20,
                               ),
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,

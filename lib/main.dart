@@ -73,6 +73,7 @@ import 'package:wildrapport/utils/notification_service.dart';
 import 'package:wildrapport/screens/login/access_denied_screen.dart';
 import 'package:wildrapport/data_managers/my_interaction_api.dart';
 import 'package:wildrapport/utils/access_scope_utils.dart';
+import 'package:wildrapport/managers/other/reviewer_aware_login_service.dart';
 import 'package:wildlifenl_zone_components/wildlifenl_zone_components.dart';
 import 'package:wildlifenl_authenticator_components/wildlifenl_authenticator_components.dart';
 import 'package:wildlifenl_interaction_components/wildlifenl_interaction_components.dart';
@@ -144,7 +145,10 @@ void main() async {
     baseUrl: baseUrl,
     displayNameApp: 'WildRapport',
   );
-  final loginService = DefaultLoginService(loginApiClient, displayNameApp: 'WildRapport');
+  // Tijdelijke Play Store reviewer-bypass wrapper (verwijderen na review).
+  final loginService = ReviewerAwareLoginService(
+    DefaultLoginService(loginApiClient, displayNameApp: 'WildRapport'),
+  );
   final interactionReadApi = HttpInteractionReadApi(baseUrl: baseUrl);
   final myInteractionApi = MyInteractionApi(interactionReadApi);
   final filterManager = FilterManager();
