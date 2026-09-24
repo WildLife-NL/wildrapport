@@ -14,7 +14,7 @@ class _DefaultMapAttribution extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(right: 6, bottom: 6),
         child: Text(
-          '© OpenTopoMap · © OpenStreetMap contributors',
+          MapStateInterface.standardAttributionText,
           style: TextStyle(
             fontSize: 10,
             color: Colors.black.withValues(alpha: 0.6),
@@ -49,7 +49,7 @@ class WildLifeNLMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Keep a local attribution widget to prevent bottom overflow on mobile.
-    // Tile URLs still come from shared component constants.
+    // Tile URLs come from shared map package (MapStateInterface).
     final overlayChildren =
         nonRotatedChildren ?? [const _DefaultMapAttribution()];
     return FlutterMap(
@@ -66,6 +66,8 @@ class WildLifeNLMap extends StatelessWidget {
           retinaMode: true,
           userAgentPackageName: userAgentPackageName,
           keepBuffer: tileKeepBuffer,
+          maxNativeZoom:
+              useSatelliteTiles ? 19 : kOpenTopoMapMaxZoom.toInt(),
         ),
         ...extraLayers,
         ...overlayChildren,

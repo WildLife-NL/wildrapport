@@ -214,8 +214,11 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                                   fm.TileLayer(
                                     urlTemplate:
                                         MapStateInterface.standardTileUrl,
+                                    subdomains:
+                                        MapStateInterface.standardTileSubdomains,
                                     userAgentPackageName: 'com.wildgids.app',
                                     retinaMode: true,
+                                    maxNativeZoom: 17,
                                   ),
                                   fm.MarkerLayer(
                                     markers: [

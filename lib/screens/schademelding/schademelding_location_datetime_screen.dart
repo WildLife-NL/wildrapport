@@ -273,8 +273,12 @@ class _SchademeldingLocationDateTimeScreenState extends State<SchademeldingLocat
                                         fm.TileLayer(
                                           urlTemplate:
                                               MapStateInterface.standardTileUrl,
-                                          userAgentPackageName: 'com.wildrapport.app',
+                                          subdomains: MapStateInterface
+                                              .standardTileSubdomains,
+                                          userAgentPackageName:
+                                              'com.wildrapport.app',
                                           retinaMode: true,
+                                          maxNativeZoom: 17,
                                         ),
                                         fm.MarkerLayer(
                                           markers: [

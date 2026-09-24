@@ -110,12 +110,23 @@ class DetectionPin {
             'sex',
             'gender',
           ]) ??
+          _readNestedString(speciesMap, const [
+            'sex',
+            'gender',
+          ]) ??
           _readNestedString(j, const [
+            'animal.sex',
+            'detectedAnimal.sex',
+            'capture.species.sex',
+            'species.sex',
             'sex',
             'geslacht',
             'gender',
           ]),
       animalLifeStage: _readNestedString(firstAnimal, const [
+            'lifeStage',
+          ]) ??
+          _readNestedString(speciesMap, const [
             'lifeStage',
           ]) ??
           _readNestedString(j, const [

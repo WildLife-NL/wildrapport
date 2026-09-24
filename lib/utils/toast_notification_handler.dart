@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:wildrapport/widgets/toasts/snack_bar_with_progress_bar.dart';
 import 'package:wildrapport/utils/notification_service.dart';
 
 class ToastNotificationHandler {
   static void sendToastNotification(
-    context,
+    BuildContext context,
     String toastMessage, [
     int? amount,
   ]) {

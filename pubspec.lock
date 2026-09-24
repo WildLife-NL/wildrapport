@@ -1420,11 +1420,9 @@ packages:
   wildlifenl_map_logic_components:
     dependency: "direct main"
     description:
-      path: wildlifenl_map_logic_components
-      ref: main
-      resolved-ref: "0368106b3d73c8984e1acf97824e7e983882dba5"
-      url: "https://github.com/WildLife-NL/wildlifenl-components.git"
-    source: git
+      path: "../wildlifenl-components/wildlifenl_map_logic_components"
+      relative: true
+    source: path
     version: "1.0.0"
   wildlifenl_map_ui_components:
     dependency: "direct main"
