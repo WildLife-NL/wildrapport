@@ -1,5 +1,7 @@
+@file:Suppress("DEPRECATION", "DEPRECATION_ERROR")
+
 import java.util.Properties
-import java.io.FileInputStream
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -23,22 +25,16 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-
     defaultConfig {
         applicationId = "com.wildlife.wildrapport"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
+
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
         }
-        
-        // Remove renderscript related configs as they're deprecated
     }
 
     // Configure signing for proper in-place updates (same appId + same key)
@@ -78,6 +74,12 @@ android {
             isDebuggable = true
             isJniDebuggable = true
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
