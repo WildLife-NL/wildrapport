@@ -224,7 +224,7 @@ class PushNotificationCoordinator {
     try {
       await instance._ensureFirebase();
       if (!instance._firebaseReady) return null;
-      return FirebaseMessaging.instance.getToken();
+      return await FirebaseMessaging.instance.getToken();
     } catch (e) {
       debugPrint('[PushCoordinator] getDeviceFcmToken failed: $e');
       return null;
