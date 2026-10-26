@@ -73,7 +73,7 @@ dependencies:
   ntp_dart: ^1.2.0
   collection: ^1.17.1
   package_info_plus: ^10.2.1
-  flutter_local_notifications: ^16.0.0
+  flutter_local_notifications: ^17.2.1
   wildlifenl_zone_components:
     git:
       url: https://github.com/WildLife-NL/wildlifenl-components.git
