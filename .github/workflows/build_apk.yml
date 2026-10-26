@@ -127,13 +127,13 @@ jobs:
       - name: Rename TEST APK
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk \
-             build/app/outputs/flutter-apk/wildgids-test-${VERSION_NAME}-${BUILD_NUMBER}.apk
+             build/app/outputs/flutter-apk/wildrapport-test-${VERSION_NAME}-${BUILD_NUMBER}.apk
 
       - name: Upload TEST APK
         uses: actions/upload-artifact@v4
         with:
-          name: wildgids-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}
-          path: build/app/outputs/flutter-apk/wildgids-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
+          name: wildrapport-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}
+          path: build/app/outputs/flutter-apk/wildrapport-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
 
       - name: Create TEST GitHub Release
         uses: softprops/action-gh-release@v2
@@ -148,7 +148,7 @@ jobs:
             Build: ${{ env.BUILD_NUMBER }}
             Commit: ${{ github.sha }}
           prerelease: true
-          files: build/app/outputs/flutter-apk/wildgids-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
+          files: build/app/outputs/flutter-apk/wildrapport-test-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -215,13 +215,13 @@ jobs:
       - name: Rename LIVE APK
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk \
-             build/app/outputs/flutter-apk/wildgids-live-${VERSION_NAME}-${BUILD_NUMBER}.apk
+             build/app/outputs/flutter-apk/wildrapport-live-${VERSION_NAME}-${BUILD_NUMBER}.apk
 
       - name: Upload LIVE APK
         uses: actions/upload-artifact@v4
         with:
-          name: wildgids-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}
-          path: build/app/outputs/flutter-apk/wildgids-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
+          name: wildrapport-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}
+          path: build/app/outputs/flutter-apk/wildrapport-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
 
       - name: Create LIVE GitHub Release
         uses: softprops/action-gh-release@v2
@@ -236,6 +236,6 @@ jobs:
             Build: ${{ env.BUILD_NUMBER }}
             Datum: ${{ env.RELEASE_DATE }}
             Commit: ${{ github.sha }}
-          files: build/app/outputs/flutter-apk/wildgids-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
+          files: build/app/outputs/flutter-apk/wildrapport-live-${{ env.VERSION_NAME }}-${{ env.BUILD_NUMBER }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

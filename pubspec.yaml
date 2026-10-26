@@ -72,7 +72,7 @@ dependencies:
   connectivity_plus: ^7.3.0
   ntp_dart: ^1.2.0
   collection: ^1.17.1
-  package_info_plus: ^10.2.1
+  package_info_plus: ^10.2.2
   flutter_local_notifications: ^17.2.1
   wildlifenl_zone_components:
     git:
