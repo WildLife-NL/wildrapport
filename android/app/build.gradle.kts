@@ -15,7 +15,8 @@ plugins {
 
 android {
     namespace = "com.wildlife.wildrapport"
-    compileSdk = flutter.compileSdkVersion
+    // Plugins (e.g. geocoding_android) pull androidx libs that require API 34+.
+    compileSdk = maxOf(flutter.compileSdkVersion, 36)
     ndkVersion = "28.2.13676358"
 
     compileOptions {
