@@ -1,3 +1,4 @@
+
 name: Build APK
 
 on:
@@ -71,7 +72,7 @@ jobs:
         run: flutter analyze
 
   # ============================================================
-  # BUMP VERSION (YY.MM.DD+YYYYMMDD) in pubspec.yaml
+  # BUMP VERSION
   # ============================================================
   bump-version:
     needs: analyze
@@ -104,7 +105,6 @@ jobs:
           echo "release_date=${RELEASE_DATE}" >> "$GITHUB_OUTPUT"
 
           sed -i "s/^version:.*/version: ${VERSION_NAME}+${BUILD_NUMBER}/" pubspec.yaml
-          echo "Updated pubspec.yaml → ${VERSION_NAME}+${BUILD_NUMBER}"
           grep '^version:' pubspec.yaml
 
       - name: Commit version bump
@@ -112,8 +112,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pubspec.yaml
+
           if git diff --staged --quiet; then
-            echo "pubspec.yaml already at today's version — nothing to commit"
+            echo "Version already up to date"
           else
             git commit -m "chore: bump version to ${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.build_number }}"
             git push
@@ -176,10 +177,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wildrapport-test-apk
+          retention-days: 30
+          if-no-files-found: error
           path: build/app/outputs/flutter-apk/wildrapport-test-*.apk
 
   # ============================================================
   # BUILD LIVE APK
+  # ONLY ACTIONS ARTIFACT - NO RELEASE
   # ============================================================
   build-live-apk:
     needs: bump-version
@@ -231,14 +235,16 @@ jobs:
           mv build/app/outputs/flutter-apk/app-release.apk \
              build/app/outputs/flutter-apk/wildrapport-live-${VERSION_NAME}-${BUILD_NUMBER}.apk
 
-      - name: Upload LIVE APK
+      - name: Upload LIVE APK to Actions only
         uses: actions/upload-artifact@v4
         with:
           name: wildrapport-live-apk
+          retention-days: 30
+          if-no-files-found: error
           path: build/app/outputs/flutter-apk/wildrapport-live-*.apk
 
   # ============================================================
-  # ONE GitHub Release with BOTH APKs (shows on repo homepage)
+  # GITHUB RELEASE - TEST APK ONLY
   # ============================================================
   release:
     needs:
@@ -258,30 +264,26 @@ jobs:
           name: wildrapport-test-apk
           path: release-apks
 
-      - name: Download LIVE APK
-        uses: actions/download-artifact@v4
-        with:
-          name: wildrapport-live-apk
-          path: release-apks
-
-      - name: List APKs
+      - name: List TEST APK
         run: ls -lh release-apks/
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release with TEST APK only
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.bump-version.outputs.version_name }}-${{ needs.bump-version.outputs.build_number }}
-          name: WildRapport ${{ needs.bump-version.outputs.version_name }}
+          name: WildRapport TEST ${{ needs.bump-version.outputs.version_name }}
           body: |
-            Automatische release van ${{ needs.bump-version.outputs.release_date }}.
+            Automatische TEST release van ${{ needs.bump-version.outputs.release_date }}.
 
-            - **Versie:** `${{ needs.bump-version.outputs.version_name }}+${{ needs.bump-version.outputs.build_number }}`
-            - **Commit:** `${{ github.sha }}`
+            Versie: ${{ needs.bump-version.outputs.version_name }}+${{ needs.bump-version.outputs.build_number }}
 
-            ### Downloads
-            - `wildrapport-test-…apk` — TEST API
-            - `wildrapport-live-…apk` — LIVE API
+            Deze release bevat uitsluitend de TEST APK.
+
+            De LIVE APK is alleen beschikbaar via
+            GitHub Actions > Workflow run > Artifacts.
+
           make_latest: true
-          files: release-apks/*
+          fail_on_unmatched_files: true
+          files: release-apks/wildrapport-test-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
